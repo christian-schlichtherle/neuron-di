@@ -37,8 +37,8 @@ public class NeuronTest {
         assertThat(make(Greeting.class).getClass(), is(sameInstance(Greeting.class)));
     }
 
-    private <T> T make(final Class<T> clazz) {
-        final T instance = brain.make(clazz);
+    private <T> T make(final Class<T> type) {
+        final T instance = brain.make(type);
         assertThat(instance, is(notNullValue()));
         return instance;
     }

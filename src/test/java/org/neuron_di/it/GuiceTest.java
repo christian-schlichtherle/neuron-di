@@ -37,8 +37,8 @@ public class GuiceTest {
         assertThat(getInstance(Greeting.class).getClass(), is(sameInstance(Greeting.class)));
     }
 
-    private <T> T getInstance(final Class<T> clazz) {
-        final T instance = injector.getInstance(clazz);
+    private <T> T getInstance(final Class<T> type) {
+        final T instance = injector.getInstance(type);
         assertThat(instance, is(notNullValue()));
         return instance;
     }
