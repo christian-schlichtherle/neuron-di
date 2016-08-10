@@ -2,8 +2,9 @@ package org.neuron_di.it;
 
 import org.neuron_di.api.Brain;
 
+import java.util.Collections;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.WeakHashMap;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
@@ -21,9 +22,11 @@ interface NeuronTestMixin extends BrainFactory {
 
     default Brain brain() { return universe.brain(this); }
 
+    // This design is a bit overkill, but it's just used in test code, so be it.
     class Universe {
 
-        private final Map<BrainFactory, Brain> brains = new ConcurrentHashMap<>();
+        private final Map<BrainFactory, Brain> brains =
+                Collections.synchronizedMap(new WeakHashMap<>());
 
         private Universe() { }
 
