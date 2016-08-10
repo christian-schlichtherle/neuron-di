@@ -19,14 +19,14 @@ public class GuiceTest {
     public void testInjection() { getInstance(Greeter.class).greet(); }
 
     @Test
-    public void testUnscopedInstance() {
+    public void testDefaultScope() {
         final Greeter g1 = getInstance(Greeter.class);
         final Greeter g2 = getInstance(Greeter.class);
         assertThat(g2, is(not(sameInstance(g1))));
     }
 
     @Test
-    public void testSingletonScopedInstance() {
+    public void testSingletonScope() {
         final Greeter g1 = getInstance(SingletonGreeter.class);
         final Greeter g2 = getInstance(SingletonGreeter.class);
         assertThat(g2, is(sameInstance(g1)));
@@ -61,12 +61,13 @@ public class GuiceTest {
         final Greeting greeting;
 
         @Inject
-        Greeter(Greeting greeting) { this.greeting = greeting; }
+        Greeter(final Greeting greeting) { this.greeting = greeting; }
 
-        void greet() { System.out.println(greeting.message()); }
+        void greet() { System.out.println(greeting.message("Christian")); }
     }
 
     private static class Greeting {
-        String message() { return "Hello world!"; }
+
+        String message(String name) { return String.format("Hello %s!", name); }
     }
 }

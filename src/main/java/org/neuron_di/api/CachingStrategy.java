@@ -33,7 +33,7 @@ public enum CachingStrategy {
     NOT_THREAD_SAFE {
 
         @Override
-        Callback callback(final Brain brain, final Method method) {
+        Callback callback(Brain brain, Method method) {
             return new FixedValue() {
 
                 // TODO: Consider removing `volatile` modifier.
@@ -60,7 +60,7 @@ public enum CachingStrategy {
     THREAD_LOCAL {
 
         @Override
-        Callback callback(final Brain brain, final Method method) {
+        Callback callback(Brain brain, Method method) {
             return new FixedValue() {
 
                 final ThreadLocal<Object> returnValues = new ThreadLocal<Object>() {
@@ -83,7 +83,7 @@ public enum CachingStrategy {
     THREAD_SAFE {
 
         @Override
-        Callback callback(final Brain brain, final Method method) {
+        Callback callback(Brain brain, Method method) {
             return new FixedValue() {
 
                 volatile Object returnValue;
