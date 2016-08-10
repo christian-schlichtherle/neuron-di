@@ -2,7 +2,6 @@ package org.neuron_di.api;
 
 import net.sf.cglib.proxy.CallbackHelper;
 import net.sf.cglib.proxy.Enhancer;
-import net.sf.cglib.proxy.FixedValue;
 import net.sf.cglib.proxy.NoOp;
 import org.objenesis.Objenesis;
 import org.objenesis.ObjenesisStd;
@@ -16,6 +15,18 @@ import java.util.concurrent.ConcurrentHashMap;
 public class Brain {
 
     private static final Class[] NO_INTERFACES = new Class[0];
+
+    private static final Synapse defaultSynapse;
+
+    static {
+        try {
+            defaultSynapse = Dummy.class
+                    .getDeclaredMethod("dummy")
+                    .getAnnotation(Synapse.class);
+        } catch (NoSuchMethodException e) {
+            throw new AssertionError(e);
+        }
+    }
 
     private final Map<Class<?>, Object> singletons = new ConcurrentHashMap<>();
 
@@ -38,8 +49,12 @@ public class Brain {
 
                     @Override
                     protected Object getCallback(final Method method) {
-                        if (Modifier.isAbstract(method.getModifiers())) {
-                            return (FixedValue) () -> make(method.getReturnType());
+                        if (Modifier.isAbstract(method.getModifiers()) &&
+                                0 == method.getParameterCount()) {
+                            final Synapse synapse = method.getAnnotation(Synapse.class);
+                            return (null != synapse ? synapse: defaultSynapse)
+                                    .cachingStrategy()
+                                    .callback(Brain.this, method);
                         } else {
                             return NoOp.INSTANCE;
                         }
@@ -70,5 +85,12 @@ public class Brain {
      */
     public <T> T test(Class<T> type) {
         throw new UnsupportedOperationException();
+    }
+
+    @Neuron
+    private abstract static class Dummy {
+
+        @Synapse
+        abstract Dummy dummy();
     }
 }

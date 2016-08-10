@@ -32,6 +32,13 @@ public class NeuronTest {
         assertThat(g2, is(sameInstance(g1)));
     }
 
+    // TODO: Move this to `CachingStrategyTest`.
+    @Test
+    public void testThreadSafeCaching() {
+        final Greeter g = make(Greeter.class);
+        assertThat(g.greeting(), is(sameInstance(g.greeting())));
+    }
+
     @Test
     public void testNoProxy() {
         assertThat(make(Greeting.class).getClass(), is(sameInstance(Greeting.class)));
@@ -53,7 +60,7 @@ public class NeuronTest {
     static abstract class Greeter {
 
         // This annotation is redundant, but documents the default behavior:
-        @Synapse(caching = CachingStrategy.THREAD_SAFE)
+        @Synapse(cachingStrategy = CachingStrategy.THREAD_SAFE)
         abstract Greeting greeting();
 
         void greet() { System.out.println(greeting().message()); }

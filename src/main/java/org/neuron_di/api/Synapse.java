@@ -15,8 +15,8 @@ import java.lang.annotation.*;
 public @interface Synapse {
 
     /**
-     * Configures the caching strategy for the dependency, that is, the return
+     * Defines the caching strategy for the dependency, that is, the return
      * value of the annotated method.
      */
-    CachingStrategy caching() default CachingStrategy.THREAD_SAFE;
+    CachingStrategy cachingStrategy() default CachingStrategy.THREAD_SAFE;
 }
