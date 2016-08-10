@@ -1,7 +1,8 @@
 package org.neuron_di.api;
 
 /**
- * Strategies for caching dependencies at an injection point (synapse).
+ * Enumerates strategies for caching dependencies at an injection point
+ * (synapse).
  */
 public enum CachingStrategy {
 
