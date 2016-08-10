@@ -32,6 +32,11 @@ public class NeuronTest {
         assertThat(g2, is(sameInstance(g1)));
     }
 
+    @Test
+    public void testNoProxy() {
+        assertThat(neuron(Greeting.class).getClass(), is(sameInstance(Greeting.class)));
+    }
+
     private <T> T neuron(Class<T> clazz) { return brain.neuron(clazz); }
 
     @Singleton

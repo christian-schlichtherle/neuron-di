@@ -32,6 +32,11 @@ public class GuiceTest {
         assertThat(g2, is(sameInstance(g1)));
     }
 
+    @Test
+    public void testNoProxy() {
+        assertThat(getInstance(Greeting.class).getClass(), is(sameInstance(Greeting.class)));
+    }
+
     private <T> T getInstance(Class<T> clazz) {
         return injector.getInstance(clazz);
     }
