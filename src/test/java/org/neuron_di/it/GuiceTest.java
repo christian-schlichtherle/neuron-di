@@ -19,14 +19,14 @@ public class GuiceTest {
     public void testInjection() { getInstance(Greeter.class).greet(); }
 
     @Test
-    public void testScope() {
+    public void testUnscopedInstance() {
         final Greeter g1 = getInstance(Greeter.class);
         final Greeter g2 = getInstance(Greeter.class);
         assertThat(g2, is(not(sameInstance(g1))));
     }
 
     @Test
-    public void testSingletonScope() {
+    public void testSingletonScopedInstance() {
         final Greeter g1 = getInstance(SingletonGreeter.class);
         final Greeter g2 = getInstance(SingletonGreeter.class);
         assertThat(g2, is(sameInstance(g1)));

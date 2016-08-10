@@ -19,14 +19,14 @@ public class NeuronTest {
     public void testInjection() { make(Greeter.class).greet(); }
 
     @Test
-    public void testScope() {
+    public void testUnscopedNeuron() {
         final Greeter g1 = make(Greeter.class);
         final Greeter g2 = make(Greeter.class);
         assertThat(g2, is(not(sameInstance(g1))));
     }
 
     @Test
-    public void testSingletonScope() {
+    public void testSingletonScopedNeuron() {
         final Greeter g1 = make(SingletonGreeter.class);
         final Greeter g2 = make(SingletonGreeter.class);
         assertThat(g2, is(sameInstance(g1)));
