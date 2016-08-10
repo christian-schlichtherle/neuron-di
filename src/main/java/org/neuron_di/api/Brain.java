@@ -57,6 +57,7 @@ public class Brain {
         } else {
             instance = objenesis.newInstance(type);
         }
+        assert null != instance;
         return type.cast(instance);
     }
 
