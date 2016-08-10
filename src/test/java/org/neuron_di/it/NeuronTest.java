@@ -37,7 +37,11 @@ public class NeuronTest {
         assertThat(neuron(Greeting.class).getClass(), is(sameInstance(Greeting.class)));
     }
 
-    private <T> T neuron(Class<T> clazz) { return brain.neuron(clazz); }
+    private <T> T neuron(final Class<T> clazz) {
+        final T instance = brain.neuron(clazz);
+        assertThat(instance, is(notNullValue()));
+        return instance;
+    }
 
     @Singleton
     // This annotation is redundant, but documents the default behavior:
