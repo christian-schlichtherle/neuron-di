@@ -10,23 +10,12 @@ import javax.inject.Singleton;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class Brain {
 
     private static final Class[] NO_INTERFACES = new Class[0];
-
-    private static final Synapse defaultSynapse;
-
-    static {
-        try {
-            defaultSynapse = Dummy.class
-                    .getDeclaredMethod("dummy")
-                    .getAnnotation(Synapse.class);
-        } catch (NoSuchMethodException e) {
-            throw new AssertionError(e);
-        }
-    }
 
     private final Map<Class<?>, Object> singletons = new ConcurrentHashMap<>();
 
@@ -42,23 +31,30 @@ public class Brain {
      */
     public <T> T make(final Class<T> type) {
         Object instance;
-        if (type.isAnnotationPresent(Neuron.class)) {
+        final Neuron neuron = type.getAnnotation(Neuron.class);
+        if (null != neuron) {
             instance = singletons.get(type);
             if (null == instance) {
                 final CallbackHelper helper = new CallbackHelper(type, NO_INTERFACES) {
 
                     @Override
                     protected Object getCallback(final Method method) {
-                        if (Modifier.isAbstract(method.getModifiers()) &&
-                                0 == method.getParameterCount()) {
-                            final Synapse synapse = method.getAnnotation(Synapse.class);
-                            return (null != synapse ? synapse: defaultSynapse)
-                                    .cachingStrategy()
+                        if (isSynapse(method)) {
+                            return Optional
+                                    .ofNullable(method.getAnnotation(Synapse.class))
+                                    .map(Synapse::cachingStrategy)
+                                    .orElseGet(neuron::cachingStrategy)
                                     .callback(Brain.this, method);
                         } else {
                             return NoOp.INSTANCE;
                         }
                     }
+
+                    boolean isSynapse(Method method) {
+                        return Modifier.isAbstract(method.getModifiers()) &&
+                                0 == method.getParameterCount();
+                    }
+
                 };
                 instance = Enhancer.create(type, NO_INTERFACES, helper,
                         helper.getCallbacks());
@@ -85,12 +81,5 @@ public class Brain {
      */
     public <T> T test(Class<T> type) {
         throw new UnsupportedOperationException();
-    }
-
-    @Neuron
-    private abstract static class Dummy {
-
-        @Synapse
-        abstract Dummy dummy();
     }
 }

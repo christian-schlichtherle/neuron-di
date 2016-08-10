@@ -37,26 +37,14 @@ public class CachingStrategyTest implements NeuronTestMixin {
         assertThat(neuron.dependency(), is(sameInstance(neuron.dependency())));
     }
 
-    @Neuron
-    static abstract class DisabledCachingNeuron implements TestNeuron {
+    @Neuron(cachingStrategy = CachingStrategy.DISABLED)
+    static abstract class DisabledCachingNeuron implements TestNeuron { }
 
-        @Synapse(cachingStrategy = CachingStrategy.DISABLED)
-        public abstract Object dependency();
-    }
+    @Neuron(cachingStrategy = CachingStrategy.NOT_THREAD_SAFE)
+    static abstract class NotThreadSafeCachingNeuron implements TestNeuron { }
 
-    @Neuron
-    static abstract class NotThreadSafeCachingNeuron implements TestNeuron {
-
-        @Synapse(cachingStrategy = CachingStrategy.NOT_THREAD_SAFE)
-        public abstract Object dependency();
-    }
-
-    @Neuron
-    static abstract class ThreadLocalCachingNeuron implements TestNeuron {
-
-        @Synapse(cachingStrategy = CachingStrategy.THREAD_LOCAL)
-        public abstract Object dependency();
-    }
+    @Neuron(cachingStrategy = CachingStrategy.THREAD_LOCAL)
+    static abstract class ThreadLocalCachingNeuron implements TestNeuron { }
 
     @Neuron
     static abstract class ThreadSafeCachingNeuron implements TestNeuron {

@@ -16,7 +16,7 @@ public @interface Synapse {
 
     /**
      * Defines the caching strategy for the dependency, that is, the return
-     * value of the annotated method.
+     * value of the abstract method.
      */
     CachingStrategy cachingStrategy() default CachingStrategy.THREAD_SAFE;
 }
