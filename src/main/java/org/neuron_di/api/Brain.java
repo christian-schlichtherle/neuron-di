@@ -25,34 +25,49 @@ public class Brain {
 
     private Brain() { }
 
-    public <T> T neuron(final Class<T> clazz) {
+    /**
+     * Returns an instance of the given type which will resolve its dependencies
+     * lazily.
+     */
+    public <T> T make(final Class<T> type) {
         Object instance;
-        if (clazz.isAnnotationPresent(Neuron.class)) {
-            instance = singletons.get(clazz);
+        if (type.isAnnotationPresent(Neuron.class)) {
+            instance = singletons.get(type);
             if (null == instance) {
-                final CallbackHelper helper = new CallbackHelper(clazz, NO_INTERFACES) {
+                final CallbackHelper helper = new CallbackHelper(type, NO_INTERFACES) {
 
                     @Override
                     protected Object getCallback(final Method method) {
                         if (Modifier.isAbstract(method.getModifiers())) {
-                            return (FixedValue) () -> neuron(method.getReturnType());
+                            return (FixedValue) () -> make(method.getReturnType());
                         } else {
                             return NoOp.INSTANCE;
                         }
                     }
                 };
-                instance = Enhancer.create(clazz, NO_INTERFACES, helper,
+                instance = Enhancer.create(type, NO_INTERFACES, helper,
                         helper.getCallbacks());
-                if (clazz.isAnnotationPresent(Singleton.class)) {
-                    final Object oldInstance = singletons.putIfAbsent(clazz, instance);
+                if (type.isAnnotationPresent(Singleton.class)) {
+                    final Object oldInstance = singletons.putIfAbsent(type, instance);
                     if (null != oldInstance) {
                         instance = oldInstance;
                     }
                 }
             }
         } else {
-            instance = objenesis.newInstance(clazz);
+            instance = objenesis.newInstance(type);
         }
-        return clazz.cast(instance);
+        return type.cast(instance);
+    }
+
+    /**
+     * Returns an instance of the given type which will resolve it's
+     * non-constant dependencies to mock objects for testing.
+     * The instance will ignore any caching strategy configured for its
+     * {@linkplain Synapse synapses} and use {@link CachingStrategy#THREAD_SAFE}
+     * in order to enable stubbing and verifying the mocked dependencies.
+     */
+    public <T> T test(Class<T> type) {
+        throw new UnsupportedOperationException();
     }
 }

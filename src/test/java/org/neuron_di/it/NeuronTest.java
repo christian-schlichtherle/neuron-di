@@ -16,29 +16,29 @@ public class NeuronTest {
     private final Brain brain = Brain.build();
 
     @Test
-    public void testInjection() { neuron(Greeter.class).greet(); }
+    public void testInjection() { make(Greeter.class).greet(); }
 
     @Test
     public void testScope() {
-        final Greeter g1 = neuron(Greeter.class);
-        final Greeter g2 = neuron(Greeter.class);
+        final Greeter g1 = make(Greeter.class);
+        final Greeter g2 = make(Greeter.class);
         assertThat(g2, is(not(sameInstance(g1))));
     }
 
     @Test
     public void testSingletonScope() {
-        final Greeter g1 = neuron(SingletonGreeter.class);
-        final Greeter g2 = neuron(SingletonGreeter.class);
+        final Greeter g1 = make(SingletonGreeter.class);
+        final Greeter g2 = make(SingletonGreeter.class);
         assertThat(g2, is(sameInstance(g1)));
     }
 
     @Test
     public void testNoProxy() {
-        assertThat(neuron(Greeting.class).getClass(), is(sameInstance(Greeting.class)));
+        assertThat(make(Greeting.class).getClass(), is(sameInstance(Greeting.class)));
     }
 
-    private <T> T neuron(final Class<T> clazz) {
-        final T instance = brain.neuron(clazz);
+    private <T> T make(final Class<T> clazz) {
+        final T instance = brain.make(clazz);
         assertThat(instance, is(notNullValue()));
         return instance;
     }
