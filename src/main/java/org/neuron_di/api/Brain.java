@@ -35,7 +35,16 @@ public class Brain {
         if (null != neuron) {
             instance = singletons.get(type);
             if (null == instance) {
-                final CallbackHelper helper = new CallbackHelper(type, NO_INTERFACES) {
+                final Class superClass;
+                final Class[] interfaces;
+                if (type.isInterface()) {
+                    superClass = Object.class;
+                    interfaces = new Class[] { type };
+                } else {
+                    superClass = type;
+                    interfaces = NO_INTERFACES;
+                }
+                final CallbackHelper helper = new CallbackHelper(superClass, interfaces) {
 
                     @Override
                     protected Object getCallback(final Method method) {
@@ -54,9 +63,8 @@ public class Brain {
                         return Modifier.isAbstract(method.getModifiers()) &&
                                 0 == method.getParameterCount();
                     }
-
                 };
-                instance = Enhancer.create(type, NO_INTERFACES, helper,
+                instance = Enhancer.create(superClass, interfaces, helper,
                         helper.getCallbacks());
                 if (type.isAnnotationPresent(Singleton.class)) {
                     final Object oldInstance = singletons.putIfAbsent(type, instance);

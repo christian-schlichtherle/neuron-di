@@ -1,7 +1,7 @@
 package org.neuron_di.it;
 
 import org.junit.Test;
-import org.neuron_di.api.CachingStrategy;
+import static org.neuron_di.api.CachingStrategy.*;
 import org.neuron_di.api.Neuron;
 import org.neuron_di.api.Synapse;
 
@@ -12,49 +12,49 @@ public class CachingStrategyTest implements NeuronTestMixin {
 
     @Test
     public void testDisabledCaching() {
-        final TestNeuron neuron = make(DisabledCachingNeuron.class);
+        final HasDependency neuron = make(DisabledCachingStrategyNeuron.class);
         assertThat(neuron.dependency(), is(not(sameInstance(neuron.dependency()))));
     }
 
     @Test
     public void testNotThreadSafeCaching() {
-        final TestNeuron neuron = make(NotThreadSafeCachingNeuron.class);
+        final HasDependency neuron = make(NotThreadSafeCachingStrategyNeuron.class);
         // TODO: This is too simplistic! Use a cyclic barrier to test this.
         assertThat(neuron.dependency(), is(sameInstance(neuron.dependency())));
     }
 
     @Test
     public void testThreadLocalCaching() {
-        final TestNeuron neuron = make(ThreadLocalCachingNeuron.class);
+        final HasDependency neuron = make(ThreadLocalCachingStrategyNeuron.class);
         // TODO: This is too simplistic! Use a cyclic barrier to test this.
         assertThat(neuron.dependency(), is(sameInstance(neuron.dependency())));
     }
 
     @Test
     public void testThreadSafeCaching() {
-        final TestNeuron neuron = make(ThreadSafeCachingNeuron.class);
+        final HasDependency neuron = make(ThreadSafeCachingStrategyNeuron.class);
         // TODO: This is too simplistic! Use a cyclic barrier to test this.
         assertThat(neuron.dependency(), is(sameInstance(neuron.dependency())));
     }
 
-    @Neuron(cachingStrategy = CachingStrategy.DISABLED)
-    static abstract class DisabledCachingNeuron implements TestNeuron { }
+    @Neuron(cachingStrategy = DISABLED)
+    interface DisabledCachingStrategyNeuron extends HasDependency { }
 
-    @Neuron(cachingStrategy = CachingStrategy.NOT_THREAD_SAFE)
-    static abstract class NotThreadSafeCachingNeuron implements TestNeuron { }
+    @Neuron(cachingStrategy = NOT_THREAD_SAFE)
+    interface NotThreadSafeCachingStrategyNeuron extends HasDependency { }
 
-    @Neuron(cachingStrategy = CachingStrategy.THREAD_LOCAL)
-    static abstract class ThreadLocalCachingNeuron implements TestNeuron { }
+    @Neuron(cachingStrategy = THREAD_LOCAL)
+    interface ThreadLocalCachingStrategyNeuron extends HasDependency { }
 
     @Neuron
-    static abstract class ThreadSafeCachingNeuron implements TestNeuron {
+    static abstract class ThreadSafeCachingStrategyNeuron implements HasDependency {
 
         // This annotation is redundant, but documents the default behavior:
-        @Synapse(cachingStrategy = CachingStrategy.THREAD_SAFE)
+        @Synapse(cachingStrategy = THREAD_SAFE)
         public abstract Object dependency();
     }
 
-    interface TestNeuron {
+    interface HasDependency {
 
         Object dependency();
     }
