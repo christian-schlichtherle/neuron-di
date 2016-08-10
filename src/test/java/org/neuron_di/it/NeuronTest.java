@@ -19,14 +19,14 @@ public class NeuronTest {
     public void testInjection() { neuron(Greeter.class).greet(); }
 
     @Test
-    public void testScope() throws Exception {
+    public void testScope() {
         final Greeter g1 = neuron(Greeter.class);
         final Greeter g2 = neuron(Greeter.class);
         assertThat(g2, is(not(sameInstance(g1))));
     }
 
     @Test
-    public void testSingletonScope() throws Exception {
+    public void testSingletonScope() {
         final Greeter g1 = neuron(SingletonGreeter.class);
         final Greeter g2 = neuron(SingletonGreeter.class);
         assertThat(g2, is(sameInstance(g1)));
