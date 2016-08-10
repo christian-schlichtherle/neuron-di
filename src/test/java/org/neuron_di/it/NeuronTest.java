@@ -1,6 +1,5 @@
 package org.neuron_di.it;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.neuron_di.api.Brain;
 import org.neuron_di.api.CachingStrategy;
@@ -9,10 +8,9 @@ import org.neuron_di.api.Synapse;
 
 import javax.inject.Singleton;
 
-import static org.hamcrest.MatcherAssert.*;
 import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.MatcherAssert.assertThat;
 
-@Ignore
 public class NeuronTest {
 
     private final Brain brain = Brain.build();
@@ -39,11 +37,11 @@ public class NeuronTest {
     @Singleton
     // This annotation is redundant, but documents the default behavior:
     @Neuron
-    private static abstract class SingletonGreeter extends Greeter {
+    static abstract class SingletonGreeter extends Greeter {
     }
 
     @Neuron
-    private static abstract class Greeter {
+    static abstract class Greeter {
 
         // This annotation is redundant, but documents the default behavior:
         @Synapse(caching = CachingStrategy.THREAD_SAFE)
@@ -52,7 +50,8 @@ public class NeuronTest {
         void greet() { System.out.println(greeting().message()); }
     }
 
-    private static class Greeting {
+    @SuppressWarnings("WeakerAccess")
+    static class Greeting {
         String message() { return "Hello world!"; }
     }
 }
