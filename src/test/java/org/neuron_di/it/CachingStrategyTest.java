@@ -1,8 +1,8 @@
 package org.neuron_di.it;
 
 import org.junit.Test;
+import org.neuron_di.api.Caching;
 import org.neuron_di.api.Neuron;
-import org.neuron_di.api.Synapse;
 
 import java.util.List;
 import java.util.Set;
@@ -116,20 +116,20 @@ public class CachingStrategyTest implements NeuronTestMixin {
         int dependenciesPerThread() { return 3; }
     }
 
-    @Neuron(cachingStrategy = DISABLED)
+    @Neuron(caching = DISABLED)
     interface DisabledCachingStrategyNeuron extends HasDependency { }
 
-    @Neuron(cachingStrategy = NOT_THREAD_SAFE)
+    @Neuron(caching = NOT_THREAD_SAFE)
     interface NotThreadSafeCachingStrategyNeuron extends HasDependency { }
 
-    @Neuron(cachingStrategy = THREAD_LOCAL)
+    @Neuron(caching = THREAD_LOCAL)
     interface ThreadLocalCachingStrategyNeuron extends HasDependency { }
 
     @Neuron
     static abstract class ThreadSafeCachingStrategyNeuron implements HasDependency {
 
-        // This annotation is redundant, but documents the default behavior:
-        @Synapse(cachingStrategy = THREAD_SAFE)
+        // This annotation is actually redundant, but documents the default behavior:
+        @Caching
         public abstract Object dependency();
     }
 

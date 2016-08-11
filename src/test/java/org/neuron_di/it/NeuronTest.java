@@ -2,13 +2,12 @@ package org.neuron_di.it;
 
 import org.junit.Test;
 import org.neuron_di.api.Neuron;
-import org.neuron_di.api.Synapse;
+import org.neuron_di.api.Caching;
 
 import javax.inject.Singleton;
 
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.neuron_di.api.CachingStrategy.THREAD_SAFE;
 
 public class NeuronTest implements NeuronTestMixin {
 
@@ -42,8 +41,8 @@ public class NeuronTest implements NeuronTestMixin {
     @Neuron
     static abstract class Greeter {
 
-        // This annotation is redundant, but documents the default behavior:
-        @Synapse(cachingStrategy = THREAD_SAFE)
+        // This annotation is actually redundant, but documents the default behavior:
+        @Caching
         abstract Greeting greeting();
 
         void greet() { System.out.println(greeting().message("Christian")); }

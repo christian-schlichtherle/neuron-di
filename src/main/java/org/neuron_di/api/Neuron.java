@@ -9,8 +9,8 @@ import java.lang.annotation.*;
 public @interface Neuron {
 
     /**
-     * Defines the default caching strategy for the dependencies, that is, the
-     * return value of the abstract methods.
+     * Configures the strategy for caching the return value of methods which
+     * require caching, but are not annotated with {@link Caching}.
      */
-    CachingStrategy cachingStrategy() default CachingStrategy.THREAD_SAFE;
+    CachingStrategy caching() default CachingStrategy.THREAD_SAFE;
 }

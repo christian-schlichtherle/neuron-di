@@ -5,10 +5,7 @@ import net.sf.cglib.proxy.FixedValue;
 
 import java.lang.reflect.Method;
 
-/**
- * Enumerates strategies for caching dependencies at an injection point
- * (synapse).
- */
+/** Enumerates strategies for caching the return values of methods. */
 public enum CachingStrategy {
 
     /**
