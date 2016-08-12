@@ -3,8 +3,6 @@ package org.neuron_di.api;
 import net.sf.cglib.proxy.Callback;
 import net.sf.cglib.proxy.FixedValue;
 
-import java.lang.reflect.Method;
-
 /** Enumerates strategies for caching the return values of methods. */
 public enum CachingStrategy {
 
@@ -16,9 +14,7 @@ public enum CachingStrategy {
     DISABLED {
 
         @Override
-        Callback callback(Brain brain, Method method) {
-            return (FixedValue) () -> brain.make(method.getReturnType());
-        }
+        FixedValue callback(FixedValue delegate) { return delegate; }
     },
 
     /**
@@ -31,18 +27,18 @@ public enum CachingStrategy {
     NOT_THREAD_SAFE {
 
         @Override
-        Callback callback(Brain brain, Method method) {
+        FixedValue callback(FixedValue delegate) {
             return new FixedValue() {
 
                 // TODO: Consider removing `volatile` modifier.
                 volatile Object returnValue;
 
                 @Override
-                public Object loadObject() {
+                public Object loadObject() throws Exception {
                     final Object value = returnValue;
                     return null != value
                             ? value
-                            : (returnValue = brain.make(method.getReturnType()));
+                            : (returnValue = delegate.loadObject());
                 }
             };
         }
@@ -58,18 +54,19 @@ public enum CachingStrategy {
     THREAD_LOCAL {
 
         @Override
-        Callback callback(Brain brain, Method method) {
+        FixedValue callback(FixedValue delegate) {
             return new FixedValue() {
 
-                final ThreadLocal<Object> returnValues = new ThreadLocal<Object>() {
-                    @Override
-                    protected Object initialValue() {
-                        return brain.make(method.getReturnType());
-                    }
-                };
+                final ThreadLocal<Object> results = new ThreadLocal<>();
 
                 @Override
-                public Object loadObject() { return returnValues.get(); }
+                public Object loadObject() throws Exception {
+                    Object result = results.get();
+                    if (null == result) {
+                        results.set(result = delegate.loadObject());
+                    }
+                    return result;
+                }
             };
         }
     },
@@ -81,24 +78,23 @@ public enum CachingStrategy {
     THREAD_SAFE {
 
         @Override
-        Callback callback(Brain brain, Method method) {
+        FixedValue callback(FixedValue delegate) {
             return new FixedValue() {
 
                 volatile Object returnValue;
 
                 @Override
-                public Object loadObject() {
+                public Object loadObject() throws Exception {
                     // Double checked locking:
                     Object value = returnValue;
                     if (null != value) {
                         return value;
                     } else {
-                        final Class<?> returnType = method.getReturnType();
                         synchronized (this) {
                             value = returnValue;
                             return null != value
                                     ? value
-                                    : (returnValue = brain.make(returnType));
+                                    : (returnValue = delegate.loadObject());
                         }
                     }
                 }
@@ -106,5 +102,5 @@ public enum CachingStrategy {
         }
     };
 
-    abstract Callback callback(Brain brain, Method method);
+    abstract FixedValue callback(FixedValue delegate);
 }

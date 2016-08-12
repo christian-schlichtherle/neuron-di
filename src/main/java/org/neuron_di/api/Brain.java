@@ -2,6 +2,7 @@ package org.neuron_di.api;
 
 import net.sf.cglib.proxy.CallbackHelper;
 import net.sf.cglib.proxy.Enhancer;
+import net.sf.cglib.proxy.FixedValue;
 import net.sf.cglib.proxy.NoOp;
 import org.objenesis.Objenesis;
 import org.objenesis.ObjenesisStd;
@@ -49,11 +50,12 @@ public class Brain {
                     @Override
                     protected Object getCallback(final Method method) {
                         if (isSynapse(method)) {
+                            final Class<?> returnType = method.getReturnType();
                             return Optional
                                     .ofNullable(method.getAnnotation(Caching.class))
                                     .map(Caching::value)
                                     .orElseGet(neuron::caching)
-                                    .callback(Brain.this, method);
+                                    .callback(() -> make(returnType));
                         } else {
                             return NoOp.INSTANCE;
                         }
