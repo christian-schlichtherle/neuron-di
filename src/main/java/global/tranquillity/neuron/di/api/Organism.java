@@ -65,7 +65,7 @@ public class Organism {
                                     .decorate(() -> make(returnType));
                         } else {
                             return maybeCachingStrategy
-                                    .filter(strategy -> strategy != CachingStrategy.DISABLED)
+                                    .filter(CachingStrategy::isEnabled)
                                     .map(s -> s.decorate((obj, method2, args, proxy) -> proxy.invokeSuper(obj, args)))
                                     .orElse(NoOp.INSTANCE);
                         }
@@ -95,7 +95,7 @@ public class Organism {
         for (final Method method : iface.getDeclaredMethods()) {
             if (method.isDefault()) {
                 final Caching caching = method.getAnnotation(Caching.class);
-                if (null != caching && caching.value() != CachingStrategy.DISABLED){
+                if (null != caching && caching.value().isEnabled()){
                     return true;
                 }
             }

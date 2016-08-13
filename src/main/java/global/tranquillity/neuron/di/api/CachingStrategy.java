@@ -15,6 +15,9 @@ public enum CachingStrategy {
     DISABLED {
 
         @Override
+        boolean isEnabled() { return false; }
+
+        @Override
         FixedValue decorate(FixedValue callback) { return callback; }
 
         @Override
@@ -125,6 +128,8 @@ public enum CachingStrategy {
             return new Adapter();
         }
     };
+
+    boolean isEnabled() { return true; }
 
     abstract Callback decorate(FixedValue callback);
 
