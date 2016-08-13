@@ -4,7 +4,7 @@ import global.tranquillity.neuron.di.api.Neuron;
 
 import static global.tranquillity.neuron.di.api.CachingStrategy.*;
 
-public class CachingStrategyForAbstractMethodsTest extends CachingStrategyTestSuite {
+public class CachingStrategyForAbstractMethodsIT extends CachingStrategyITSuite {
 
     @Override
     Class<? extends HasDependency> classWithDisabledCachingStrategy() {

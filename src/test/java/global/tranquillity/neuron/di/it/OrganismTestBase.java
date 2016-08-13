@@ -6,7 +6,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-abstract class AbstractNeuronTest implements Incubator {
+abstract class OrganismTestBase implements Incubator {
 
     private volatile Organism organism;
 

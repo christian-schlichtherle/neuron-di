@@ -9,7 +9,7 @@ import javax.inject.Singleton;
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-public class NeuronTest extends AbstractNeuronTest {
+public class NeuronDIIT extends OrganismTestBase {
 
     @Test
     public void testInjection() { make(Greeter.class).greet(); }

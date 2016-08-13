@@ -5,7 +5,7 @@ import global.tranquillity.neuron.di.api.Neuron;
 
 import static global.tranquillity.neuron.di.api.CachingStrategy.*;
 
-public class CachingStrategyForConcreteMethodsTest extends CachingStrategyTestSuite {
+public class CachingStrategyForDefaultMethodsIT extends CachingStrategyITSuite {
 
     @Override
     Class<? extends HasDependency> classWithDisabledCachingStrategy() {
@@ -28,30 +28,30 @@ public class CachingStrategyForConcreteMethodsTest extends CachingStrategyTestSu
     }
 
     @Neuron
-    static abstract class NeuronWithDisabledCachingStrategy implements HasDependency {
+    interface NeuronWithDisabledCachingStrategy extends HasDependency {
 
         @Caching(DISABLED)
-        public Object dependency() { return new Object(); }
+        default Object dependency() { return new Object(); }
     }
 
     @Neuron
-    static abstract class NeuronWithNotThreadSafeCachingStrategy implements HasDependency {
+    interface NeuronWithNotThreadSafeCachingStrategy extends HasDependency {
 
         @Caching(NOT_THREAD_SAFE)
-        public Object dependency() { return new Object(); }
+        default Object dependency() { return new Object(); }
     }
 
     @Neuron
-    static abstract class NeuronWithThreadLocalCachingStrategy implements HasDependency {
+    interface NeuronWithThreadLocalCachingStrategy extends HasDependency {
 
         @Caching(THREAD_LOCAL)
-        public Object dependency() { return new Object(); }
+        default Object dependency() { return new Object(); }
     }
 
     @Neuron
-    static abstract class NeuronWithThreadSafeCachingStrategy implements HasDependency {
+    interface NeuronWithThreadSafeCachingStrategy extends HasDependency {
 
         @Caching
-        public Object dependency() { return new Object(); }
+        default Object dependency() { return new Object(); }
     }
 }
