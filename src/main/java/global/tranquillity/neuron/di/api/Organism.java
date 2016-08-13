@@ -14,7 +14,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class Brain {
+public class Organism {
 
     private static final Class<?>[] NO_CLASSES = new Class<?>[0];
 
@@ -22,9 +22,9 @@ public class Brain {
 
     private final Objenesis objenesis = new ObjenesisStd();
 
-    public static Brain build() { return new Brain(); }
+    public static Organism breed() { return new Organism(); }
 
-    private Brain() { }
+    private Organism() { }
 
     /**
      * Returns an instance of the given type which will resolve its dependencies

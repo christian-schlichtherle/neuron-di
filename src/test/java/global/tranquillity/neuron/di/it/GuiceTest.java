@@ -8,8 +8,8 @@ import org.junit.Test;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import static org.hamcrest.MatcherAssert.*;
 import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class GuiceTest {
 

@@ -18,7 +18,7 @@ import static java.util.stream.Collectors.toSet;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
-public abstract class CachingStrategyTestSuite implements NeuronTestMixin {
+public abstract class CachingStrategyTestSuite extends AbstractNeuronTest {
 
     @Test
     public void testDisabledCachingStrategy() {

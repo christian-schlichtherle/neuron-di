@@ -1,15 +1,15 @@
 package global.tranquillity.neuron.di.it;
 
-import org.junit.Test;
-import global.tranquillity.neuron.di.api.Neuron;
 import global.tranquillity.neuron.di.api.Caching;
+import global.tranquillity.neuron.di.api.Neuron;
+import org.junit.Test;
 
 import javax.inject.Singleton;
 
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-public class NeuronTest implements NeuronTestMixin {
+public class NeuronTest extends AbstractNeuronTest {
 
     @Test
     public void testInjection() { make(Greeter.class).greet(); }
