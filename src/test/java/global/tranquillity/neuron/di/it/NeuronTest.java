@@ -1,8 +1,8 @@
-package org.neuron_di.it;
+package global.tranquillity.neuron.di.it;
 
 import org.junit.Test;
-import org.neuron_di.api.Neuron;
-import org.neuron_di.api.Caching;
+import global.tranquillity.neuron.di.api.Neuron;
+import global.tranquillity.neuron.di.api.Caching;
 
 import javax.inject.Singleton;
 

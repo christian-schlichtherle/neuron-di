@@ -1,4 +1,4 @@
-package org.neuron_di.api;
+package global.tranquillity.neuron.di.api;
 
 import java.lang.annotation.*;
 

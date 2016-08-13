@@ -1,4 +1,4 @@
-package org.neuron_di.it;
+package global.tranquillity.neuron.di.it;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;

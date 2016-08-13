@@ -1,8 +1,8 @@
-package org.neuron_di.it;
+package global.tranquillity.neuron.di.it;
 
-import org.neuron_di.api.Neuron;
+import global.tranquillity.neuron.di.api.Neuron;
 
-import static org.neuron_di.api.CachingStrategy.*;
+import static global.tranquillity.neuron.di.api.CachingStrategy.*;
 
 public class CachingStrategyForAbstractMethodsTest extends CachingStrategyTestSuite {
 

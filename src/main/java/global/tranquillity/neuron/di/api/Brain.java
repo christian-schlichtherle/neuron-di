@@ -1,4 +1,4 @@
-package org.neuron_di.api;
+package global.tranquillity.neuron.di.api;
 
 import net.sf.cglib.proxy.Callback;
 import net.sf.cglib.proxy.CallbackHelper;
@@ -13,8 +13,6 @@ import java.lang.reflect.Modifier;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-
-import static org.neuron_di.api.CachingStrategy.DISABLED;
 
 public class Brain {
 
@@ -67,7 +65,7 @@ public class Brain {
                                     .decorate(() -> make(returnType));
                         } else {
                             return maybeCachingStrategy
-                                    .filter(strategy -> strategy != DISABLED)
+                                    .filter(strategy -> strategy != CachingStrategy.DISABLED)
                                     .map(s -> s.decorate((obj, method2, args, proxy) -> proxy.invokeSuper(obj, args)))
                                     .orElse(NoOp.INSTANCE);
                         }
@@ -97,7 +95,7 @@ public class Brain {
         for (final Method method : iface.getDeclaredMethods()) {
             if (method.isDefault()) {
                 final Caching caching = method.getAnnotation(Caching.class);
-                if (null != caching && caching.value() != DISABLED){
+                if (null != caching && caching.value() != CachingStrategy.DISABLED){
                     return true;
                 }
             }
@@ -134,7 +132,7 @@ public class Brain {
      * Returns an instance of the given type which will resolve it's
      * non-constant dependencies to mock objects for testing.
      * The instance will ignore any caching strategy configured for its
-     * {@linkplain Caching synapses} and use {@link org.neuron_di.api.CachingStrategy#THREAD_SAFE}
+     * {@linkplain Caching synapses} and use {@link CachingStrategy#THREAD_SAFE}
      * in order to enable stubbing and verifying the mocked dependencies.
      */
     public <T> T test(Class<T> type) {

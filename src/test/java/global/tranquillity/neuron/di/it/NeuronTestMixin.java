@@ -1,6 +1,6 @@
-package org.neuron_di.it;
+package global.tranquillity.neuron.di.it;
 
-import org.neuron_di.api.Brain;
+import global.tranquillity.neuron.di.api.Brain;
 
 import java.util.Collections;
 import java.util.Map;
