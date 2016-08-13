@@ -16,7 +16,7 @@ abstract class AbstractNeuronTest implements Incubator {
         return instance;
     }
 
-    Organism organism() {
+    private Organism organism() {
         Organism value;
         if (null == (value = organism)) {
             synchronized (this) {
