@@ -5,6 +5,7 @@ import global.tranquillity.neuron.di.api.Neuron;
 
 import static global.tranquillity.neuron.di.api.CachingStrategy.*;
 
+@SuppressWarnings("WeakerAccess")
 public class CachingStrategyForConcreteMethodsIT extends CachingStrategyITSuite {
 
     @Override
@@ -28,28 +29,28 @@ public class CachingStrategyForConcreteMethodsIT extends CachingStrategyITSuite 
     }
 
     @Neuron
-    static abstract class NeuronWithDisabledCachingStrategy implements HasDependency {
+    static class NeuronWithDisabledCachingStrategy implements HasDependency {
 
         @Caching(DISABLED)
         public Object dependency() { return new Object(); }
     }
 
     @Neuron
-    static abstract class NeuronWithNotThreadSafeCachingStrategy implements HasDependency {
+    static class NeuronWithNotThreadSafeCachingStrategy implements HasDependency {
 
         @Caching(NOT_THREAD_SAFE)
         public Object dependency() { return new Object(); }
     }
 
     @Neuron
-    static abstract class NeuronWithThreadLocalCachingStrategy implements HasDependency {
+    static class NeuronWithThreadLocalCachingStrategy implements HasDependency {
 
         @Caching(THREAD_LOCAL)
         public Object dependency() { return new Object(); }
     }
 
     @Neuron
-    static abstract class NeuronWithThreadSafeCachingStrategy implements HasDependency {
+    static class NeuronWithThreadSafeCachingStrategy implements HasDependency {
 
         @Caching
         public Object dependency() { return new Object(); }
