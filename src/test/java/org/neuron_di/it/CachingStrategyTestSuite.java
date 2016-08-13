@@ -1,8 +1,6 @@
 package org.neuron_di.it;
 
 import org.junit.Test;
-import org.neuron_di.api.Caching;
-import org.neuron_di.api.Neuron;
 
 import java.util.List;
 import java.util.Set;
@@ -18,16 +16,17 @@ import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.neuron_di.api.CachingStrategy.*;
 
-public class CachingStrategyTest implements NeuronTestMixin {
+public abstract class CachingStrategyTestSuite implements NeuronTestMixin {
 
     @Test
     public void testDisabledCachingStrategy() {
-        final HasDependency neuron = make(DisabledCachingStrategyNeuron.class);
+        final HasDependency neuron = make(classWithDisabledCachingStrategy());
         final ConcurrentDependencyCollector collector = new ConcurrentDependencyCollector();
         assertThat(collector.run(neuron), hasSize(collector.numDependencies()));
     }
+
+    abstract Class<? extends HasDependency> classWithDisabledCachingStrategy();
 
     /**
      * Tests {@link org.neuron_di.api.CachingStrategy#NOT_THREAD_SAFE}.
@@ -36,24 +35,30 @@ public class CachingStrategyTest implements NeuronTestMixin {
      */
     @Test
     public void testNotThreadSafeCachingStrategy() {
-        final HasDependency neuron = make(NotThreadSafeCachingStrategyNeuron.class);
+        final HasDependency neuron = make(classWithNotThreadSafeCachingStrategy());
         final ConcurrentDependencyCollector collector = new ConcurrentDependencyCollector();
         assertThat(collector.run(neuron), is(not(singleton(neuron.dependency()))));
     }
 
+    abstract Class<? extends HasDependency> classWithNotThreadSafeCachingStrategy();
+
     @Test
     public void testThreadLocalCachingStrategy() throws InterruptedException {
-        final HasDependency neuron = make(ThreadLocalCachingStrategyNeuron.class);
+        final HasDependency neuron = make(classWithThreadLocalCachingStrategy());
         final ConcurrentDependencyCollector collector = new ConcurrentDependencyCollector();
         assertThat(collector.run(neuron), hasSize(collector.numThreads()));
     }
 
+    abstract Class<? extends HasDependency> classWithThreadLocalCachingStrategy();
+
     @Test
     public void testThreadSafeCachingStrategy() {
-        final HasDependency neuron = make(ThreadSafeCachingStrategyNeuron.class);
+        final HasDependency neuron = make(classWithThreadSafeCachingStrategy());
         final ConcurrentDependencyCollector collector = new ConcurrentDependencyCollector();
         assertThat(collector.run(neuron), is(singleton(neuron.dependency())));
     }
+
+    abstract Class<? extends HasDependency> classWithThreadSafeCachingStrategy();
 
     private static class ConcurrentDependencyCollector {
 
@@ -114,23 +119,6 @@ public class CachingStrategyTest implements NeuronTestMixin {
         }
 
         int dependenciesPerThread() { return 3; }
-    }
-
-    @Neuron(caching = DISABLED)
-    interface DisabledCachingStrategyNeuron extends HasDependency { }
-
-    @Neuron(caching = NOT_THREAD_SAFE)
-    interface NotThreadSafeCachingStrategyNeuron extends HasDependency { }
-
-    @Neuron(caching = THREAD_LOCAL)
-    interface ThreadLocalCachingStrategyNeuron extends HasDependency { }
-
-    @Neuron
-    static abstract class ThreadSafeCachingStrategyNeuron implements HasDependency {
-
-        // This annotation is actually redundant, but documents the default behavior:
-        @Caching
-        public abstract Object dependency();
     }
 
     interface HasDependency {

@@ -1,9 +1,6 @@
 package org.neuron_di.api;
 
-import net.sf.cglib.proxy.CallbackHelper;
-import net.sf.cglib.proxy.Enhancer;
-import net.sf.cglib.proxy.FixedValue;
-import net.sf.cglib.proxy.NoOp;
+import net.sf.cglib.proxy.*;
 import org.objenesis.Objenesis;
 import org.objenesis.ObjenesisStd;
 
@@ -48,22 +45,25 @@ public class Brain {
                 final CallbackHelper helper = new CallbackHelper(superClass, interfaces) {
 
                     @Override
-                    protected Object getCallback(final Method method) {
-                        if (isSynapse(method)) {
+                    protected Callback getCallback(final Method method) {
+                        final Optional<CachingStrategy> maybeCachingStrategy = Optional
+                                .ofNullable(method.getAnnotation(Caching.class))
+                                .filter(ignored -> 0 == method.getParameterCount())
+                                .map(Caching::value);
+                        if (isAbstract(method)) {
                             final Class<?> returnType = method.getReturnType();
-                            return Optional
-                                    .ofNullable(method.getAnnotation(Caching.class))
-                                    .map(Caching::value)
+                            return maybeCachingStrategy
                                     .orElseGet(neuron::caching)
-                                    .callback(() -> make(returnType));
+                                    .decorate(() -> make(returnType));
                         } else {
-                            return NoOp.INSTANCE;
+                            return maybeCachingStrategy
+                                    .map(s -> (Callback) s.decorate((obj, method2, args, proxy) -> proxy.invokeSuper(obj, args)))
+                                    .orElse(NoOp.INSTANCE);
                         }
                     }
 
-                    boolean isSynapse(Method method) {
-                        return Modifier.isAbstract(method.getModifiers()) &&
-                                0 == method.getParameterCount();
+                    boolean isAbstract(Method method) {
+                        return Modifier.isAbstract(method.getModifiers());
                     }
                 };
                 instance = Enhancer.create(superClass, interfaces, helper,
