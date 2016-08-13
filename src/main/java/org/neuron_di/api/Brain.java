@@ -1,6 +1,9 @@
 package org.neuron_di.api;
 
-import net.sf.cglib.proxy.*;
+import net.sf.cglib.proxy.Callback;
+import net.sf.cglib.proxy.CallbackHelper;
+import net.sf.cglib.proxy.Enhancer;
+import net.sf.cglib.proxy.NoOp;
 import org.objenesis.Objenesis;
 import org.objenesis.ObjenesisStd;
 
@@ -10,6 +13,8 @@ import java.lang.reflect.Modifier;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+
+import static org.neuron_di.api.CachingStrategy.DISABLED;
 
 public class Brain {
 
@@ -57,7 +62,8 @@ public class Brain {
                                     .decorate(() -> make(returnType));
                         } else {
                             return maybeCachingStrategy
-                                    .map(s -> (Callback) s.decorate((obj, method2, args, proxy) -> proxy.invokeSuper(obj, args)))
+                                    .filter(strategy -> strategy != DISABLED)
+                                    .map(s -> s.decorate((obj, method2, args, proxy) -> proxy.invokeSuper(obj, args)))
                                     .orElse(NoOp.INSTANCE);
                         }
                     }

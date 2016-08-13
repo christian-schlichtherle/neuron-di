@@ -1,9 +1,6 @@
 package org.neuron_di.api;
 
-import net.sf.cglib.proxy.Callback;
-import net.sf.cglib.proxy.FixedValue;
-import net.sf.cglib.proxy.MethodInterceptor;
-import net.sf.cglib.proxy.MethodProxy;
+import net.sf.cglib.proxy.*;
 
 import java.lang.reflect.Method;
 
@@ -21,9 +18,7 @@ public enum CachingStrategy {
         FixedValue decorate(FixedValue callback) { return callback; }
 
         @Override
-        MethodInterceptor decorate(MethodInterceptor callback) {
-            return callback;
-        }
+        NoOp decorate(MethodInterceptor callback) { return NoOp.INSTANCE; }
     },
 
     /**
@@ -131,9 +126,9 @@ public enum CachingStrategy {
         }
     };
 
-    abstract FixedValue decorate(FixedValue callback);
+    abstract Callback decorate(FixedValue callback);
 
-    abstract MethodInterceptor decorate(MethodInterceptor callback);
+    abstract Callback decorate(MethodInterceptor callback);
 
     private abstract static class NotThreadSafeStrategy<C extends Callback>
             implements Strategy<C> {
