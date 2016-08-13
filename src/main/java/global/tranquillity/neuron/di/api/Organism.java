@@ -4,12 +4,9 @@ import net.sf.cglib.proxy.Callback;
 import net.sf.cglib.proxy.CallbackHelper;
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.NoOp;
-import org.objenesis.Objenesis;
-import org.objenesis.ObjenesisStd;
 
 import javax.inject.Singleton;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
+import java.lang.reflect.*;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
@@ -19,8 +16,6 @@ public class Organism {
     private static final Class<?>[] NO_CLASSES = new Class<?>[0];
 
     private final Map<Class<?>, Object> singletons = new ConcurrentHashMap<>();
-
-    private final Objenesis objenesis = new ObjenesisStd();
 
     public static Organism breed() { return new Organism(); }
 
@@ -75,7 +70,7 @@ public class Organism {
                         return Modifier.isAbstract(method.getModifiers());
                     }
                 };
-                instance = create(superClass, interfaces, helper);
+                instance = createProxy(superClass, interfaces, helper);
                 if (type.isAnnotationPresent(Singleton.class)) {
                     final Object oldInstance = singletons.putIfAbsent(type, instance);
                     if (null != oldInstance) {
@@ -84,7 +79,7 @@ public class Organism {
                 }
             }
         } else {
-            instance = objenesis.newInstance(type);
+            instance = createInstance(type);
         }
         assert null != instance;
         return type.cast(instance);
@@ -117,14 +112,28 @@ public class Organism {
         return e.createClass();
     }
 
-    private static Object create(final Class<?> superClass,
-                                 final Class<?>[] interfaces,
-                                 final CallbackHelper helper) {
+    private static Object createProxy(final Class<?> superClass,
+                                      final Class<?>[] interfaces,
+                                      final CallbackHelper helper) {
         final Enhancer e = new Enhancer();
         e.setSuperclass(superClass);
         e.setInterfaces(interfaces);
         e.setCallbackFilter(helper);
         e.setCallbacks(helper.getCallbacks());
         return e.create();
+    }
+
+    private static <T> Object createInstance(final Class<T> type) {
+        try {
+            final Constructor<T> c = type.getDeclaredConstructor();
+            c.setAccessible(true);
+            return c.newInstance();
+        } catch (IllegalAccessException e) {
+            throw new AssertionError(e);
+        } catch (NoSuchMethodException | InstantiationException e) {
+            throw new UndeclaredThrowableException(e);
+        } catch (InvocationTargetException e) {
+            throw new UndeclaredThrowableException(e.getCause());
+        }
     }
 }

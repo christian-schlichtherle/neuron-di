@@ -121,9 +121,4 @@ public abstract class CachingStrategyITSuite extends OrganismTestBase {
 
         int dependenciesPerThread() { return 3; }
     }
-
-    interface HasDependency {
-
-        Object dependency();
-    }
 }
