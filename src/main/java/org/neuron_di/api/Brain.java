@@ -18,7 +18,7 @@ import static org.neuron_di.api.CachingStrategy.DISABLED;
 
 public class Brain {
 
-    private static final Class[] NO_INTERFACES = new Class[0];
+    private static final Class<?>[] NO_CLASSES = new Class<?>[0];
 
     private final Map<Class<?>, Object> singletons = new ConcurrentHashMap<>();
 
@@ -38,14 +38,19 @@ public class Brain {
         if (null != neuron) {
             instance = singletons.get(type);
             if (null == instance) {
-                final Class superClass;
-                final Class[] interfaces;
+                final Class<?> superClass;
+                final Class<?>[] interfaces;
                 if (type.isInterface()) {
-                    superClass = Object.class;
-                    interfaces = new Class[] { type };
+                    if (hasDefaultMethodsWhichRequireCaching(type)) {
+                        superClass = createClass(type);
+                        interfaces = NO_CLASSES;
+                    } else {
+                        superClass = Object.class;
+                        interfaces = new Class<?>[] { type };
+                    }
                 } else {
                     superClass = type;
-                    interfaces = NO_INTERFACES;
+                    interfaces = NO_CLASSES;
                 }
                 final CallbackHelper helper = new CallbackHelper(superClass, interfaces) {
 
@@ -72,8 +77,7 @@ public class Brain {
                         return Modifier.isAbstract(method.getModifiers());
                     }
                 };
-                instance = Enhancer.create(superClass, interfaces, helper,
-                        helper.getCallbacks());
+                instance = create(superClass, interfaces, helper);
                 if (type.isAnnotationPresent(Singleton.class)) {
                     final Object oldInstance = singletons.putIfAbsent(type, instance);
                     if (null != oldInstance) {
@@ -86,6 +90,44 @@ public class Brain {
         }
         assert null != instance;
         return type.cast(instance);
+    }
+
+    private static boolean hasDefaultMethodsWhichRequireCaching(final Class<?> iface) {
+        assert iface.isInterface();
+        for (final Method method : iface.getDeclaredMethods()) {
+            if (method.isDefault()) {
+                final Caching caching = method.getAnnotation(Caching.class);
+                if (null != caching && caching.value() != DISABLED){
+                    return true;
+                }
+            }
+        }
+        for (final Class<?> superInterface : iface.getInterfaces()) {
+            if (hasDefaultMethodsWhichRequireCaching(superInterface)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static Class<?> createClass(final Class<?> iface) {
+        assert iface.isInterface();
+        final Enhancer e = new Enhancer();
+        e.setSuperclass(Object.class);
+        e.setInterfaces(new Class<?>[] { iface });
+        e.setCallbackType(NoOp.class);
+        return e.createClass();
+    }
+
+    private static Object create(final Class<?> superClass,
+                                 final Class<?>[] interfaces,
+                                 final CallbackHelper helper) {
+        final Enhancer e = new Enhancer();
+        e.setSuperclass(superClass);
+        e.setInterfaces(interfaces);
+        e.setCallbackFilter(helper);
+        e.setCallbacks(helper.getCallbacks());
+        return e.create();
     }
 
     /**
