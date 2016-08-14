@@ -15,9 +15,8 @@ import static org.junit.Assert.assertSame;
 public class GuiceContextTest {
 
     @Test
-    public void testGuicerDSL() {
-        final GuiceContext context = null; // FIXME
-        assertInjector(context
+    public void testGuiceContextDSL() {
+        assertInjector(new GuiceContext()
                 .injector()
                     .module()
                         .bind(Foo.class).annotatedWith(named("foo")).to(FooImpl.class).end()

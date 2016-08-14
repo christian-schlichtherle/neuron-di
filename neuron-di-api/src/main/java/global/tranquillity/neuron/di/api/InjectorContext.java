@@ -22,16 +22,9 @@ public abstract class InjectorContext<Injector, Module> {
             extends ModuleContext<InjectorBuilder>
             implements Builder<Injector> { }
 
-    public abstract class ModuleContext<This extends ModuleContext<This>> {
-
-        public abstract ModuleBuilder<? extends This> module();
-
-        public abstract This module(Module module);
-    }
-
     public abstract class ModuleBuilder<Parent>
             extends ModuleContext<ModuleBuilder<Parent>>
-            implements Builder<Module>, Definition<Parent> {
+            implements Definition<Parent>, Builder<Module> {
 
         public abstract <Type> AnnotatedBindingDefinition<Type, ? extends ModuleBuilder<Parent>> exposeAndBind(Class<Type> clazz);
 
@@ -40,6 +33,13 @@ public abstract class InjectorContext<Injector, Module> {
         public abstract <Type> AnnotatedBindingDefinition<Type, ? extends ModuleBuilder<Parent>> bind(Class<Type> clazz);
 
         public abstract AnnotatedConstantBindingDefinition<? extends ModuleBuilder<Parent>> bindConstant();
+    }
+
+    public abstract class ModuleContext<This extends ModuleContext<This>> {
+
+        public abstract ModuleBuilder<? extends This> module();
+
+        public abstract This module(Module module);
     }
 
     public interface AnnotatedBindingDefinition<Type, Parent>
