@@ -8,7 +8,7 @@ import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.fail;
 
-public class BindingTest extends OrganismTestBase {
+public class BindingIT extends OrganismTestBase {
 
     @Test
     public void testStringBinding() {
