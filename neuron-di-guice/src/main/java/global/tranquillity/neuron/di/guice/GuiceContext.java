@@ -12,36 +12,35 @@ import java.util.List;
 
 public class GuiceContext extends InjectorContext<Injector, Module> {
 
-    public InjectorBuilder4Guice injector() {
-        return new InjectorBuilder4Guice();
+    public InjectorConfiguration injector() {
+        return new InjectorConfiguration();
     }
 
     private static <T> List<T> newList() { return new LinkedList<T>(); }
 
-    public class InjectorBuilder4Guice extends InjectorBuilder {
+    public class InjectorConfiguration extends InjectorBuilder {
 
         private List<Module> modules = newList();
 
         @Override
-        public ModuleBuilder4Guice<? extends InjectorBuilder4Guice> module() {
-            return new ModuleBuilder4Guice<InjectorBuilder4Guice>() {
+        public ModuleConfiguration<InjectorConfiguration> module() {
+            return new ModuleConfiguration<InjectorConfiguration>() {
 
                 @Override
-                public InjectorBuilder4Guice end() {
-                    return InjectorBuilder4Guice.this.module(build());
+                public InjectorConfiguration end() {
+                    return InjectorConfiguration.this.module(build());
                 }
             };
         }
 
         @Override
-        public InjectorBuilder4Guice module(Module module) {
+        public InjectorConfiguration module(Module module) {
             modules.add(module);
             return this;
         }
 
-        @Override public Injector build() {
-            return Guice.createInjector(swapModules());
-        }
+        @Override
+        public Injector build() { return Guice.createInjector(swapModules()); }
 
         private List<Module> swapModules() {
             try {
@@ -52,37 +51,37 @@ public class GuiceContext extends InjectorContext<Injector, Module> {
         }
     }
 
-    public abstract class ModuleBuilder4Guice<Parent> extends ModuleBuilder<Parent> {
+    public abstract class ModuleConfiguration<Parent> extends ModuleBuilder<Parent> {
 
-        private List<Module> modules = newList();
-        private List<Configuration<?>> exposings = newList();
-        private List<Configuration<?>> bindings = newList();
+        private List<Module> submodules = newList();
+        private List<Step> exposings = newList();
+        private List<Step> bindings = newList();
 
         @Override
-        public ModuleBuilder4Guice<? extends ModuleBuilder4Guice<Parent>> module() {
-            return new ModuleBuilder4Guice<ModuleBuilder4Guice<Parent>>() {
+        public ModuleConfiguration<ModuleConfiguration<Parent>> module() {
+            return new ModuleConfiguration<ModuleConfiguration<Parent>>() {
 
                 @Override
-                public ModuleBuilder4Guice<Parent> end() {
-                    return ModuleBuilder4Guice.this.module(build());
+                public ModuleConfiguration<Parent> end() {
+                    return ModuleConfiguration.this.module(build());
                 }
             };
         }
 
         @Override
-        public ModuleBuilder4Guice<Parent> module(Module module) {
-            modules.add(module);
+        public ModuleConfiguration<Parent> module(Module module) {
+            submodules.add(module);
             return this;
         }
 
         @Override
-        public <Type> AnnotatedBindingDefinition4Guice<Type, ? extends ModuleBuilder4Guice<Parent>> exposeAndBind(Class<Type> clazz) {
-            return new AnnotatedBindingConfiguration<Type>() {
+        public <Type> AnnotatedBindingStep<Type> exposeAndBind(Class<Type> clazz) {
+            return new AnnotatedBindingStep<Type>() {
 
                 @Override
-                void add(Configuration<?> configuration) {
-                    addExposing(configuration);
-                    addBinding(configuration);
+                void add(Step step) {
+                    addExposing(step);
+                    addBinding(step);
                 }
 
                 @Override
@@ -97,13 +96,13 @@ public class GuiceContext extends InjectorContext<Injector, Module> {
             };
         }
 
-        public <Type> LinkedBindingDefinition4Guice<Type, ? extends ModuleBuilder4Guice<Parent>> exposeAndBind(Key<Type> key) {
-            return new LinkedBindingConfiguration<Type, Configuration<?>>() {
+        public <Type> LinkedBindingStep<Type> exposeAndBind(Key<Type> key) {
+            return new LinkedBindingStep<Type>() {
 
                 @Override
-                void add(Configuration<?> configuration) {
-                    addExposing(configuration);
-                    addBinding(configuration);
+                void add(Step step) {
+                    addExposing(step);
+                    addBinding(step);
                 }
 
                 @Override
@@ -119,13 +118,13 @@ public class GuiceContext extends InjectorContext<Injector, Module> {
             };
         }
 
-        public <Type> AnnotatedBindingDefinition4Guice<Type, ? extends ModuleBuilder4Guice<Parent>> exposeAndBind(TypeLiteral<Type> literal) {
-            return new AnnotatedBindingConfiguration<Type>() {
+        public <Type> AnnotatedBindingStep<Type> exposeAndBind(TypeLiteral<Type> literal) {
+            return new AnnotatedBindingStep<Type>() {
 
                 @Override
-                void add(Configuration<?> configuration) {
-                    addExposing(configuration);
-                    addBinding(configuration);
+                void add(Step step) {
+                    addExposing(step);
+                    addBinding(step);
                 }
 
                 @Override
@@ -141,12 +140,12 @@ public class GuiceContext extends InjectorContext<Injector, Module> {
         }
 
         @Override
-        public AnnotatedElementDefinition<? extends ModuleBuilder4Guice<Parent>> expose(Class<?> clazz) {
-            return new AnnotatedElementConfiguration<Configuration<?>>() {
+        public AnnotatedElementStep expose(Class<?> clazz) {
+            return new AnnotatedElementStep() {
 
                 @Override
-                void add(Configuration<?> configuration) {
-                    addExposing(configuration);
+                void add(Step step) {
+                    addExposing(step);
                 }
 
                 @Override
@@ -156,12 +155,12 @@ public class GuiceContext extends InjectorContext<Injector, Module> {
             };
         }
 
-        public Definition<? extends ModuleBuilder4Guice<Parent>> expose(Key<?> key) {
-            return new Configuration<Configuration<?>>() {
+        public Step expose(Key<?> key) {
+            return new Step() {
 
                 @Override
-                void add(Configuration<?> configuration) {
-                    addExposing(configuration);
+                void add(Step step) {
+                    addExposing(step);
                 }
 
                 @Override
@@ -172,12 +171,12 @@ public class GuiceContext extends InjectorContext<Injector, Module> {
             };
         }
 
-        public AnnotatedElementDefinition<? extends ModuleBuilder4Guice<Parent>> expose(TypeLiteral<?> literal) {
-            return new AnnotatedElementConfiguration<Configuration<?>>() {
+        public AnnotatedElementStep expose(TypeLiteral<?> literal) {
+            return new AnnotatedElementStep() {
 
                 @Override
-                void add(Configuration<?> configuration) {
-                    addExposing(configuration);
+                void add(Step step) {
+                    addExposing(step);
                 }
 
                 @Override
@@ -188,12 +187,12 @@ public class GuiceContext extends InjectorContext<Injector, Module> {
         }
 
         @Override
-        public <Type> AnnotatedBindingDefinition4Guice<Type, ? extends ModuleBuilder4Guice<Parent>> bind(Class<Type> clazz) {
-            return new AnnotatedBindingConfiguration<Type>() {
+        public <Type> AnnotatedBindingStep<Type> bind(Class<Type> clazz) {
+            return new AnnotatedBindingStep<Type>() {
 
                 @Override
-                void add(Configuration<?> configuration) {
-                    addBinding(configuration);
+                void add(Step step) {
+                    addBinding(step);
                 }
 
                 @Override
@@ -203,12 +202,12 @@ public class GuiceContext extends InjectorContext<Injector, Module> {
             };
         }
 
-        public <Type> LinkedBindingDefinition4Guice<Type, ? extends ModuleBuilder4Guice<Parent>> bind(Key<Type> key) {
-            return new LinkedBindingConfiguration<Type, Configuration<?>>() {
+        public <Type> LinkedBindingStep<Type> bind(Key<Type> key) {
+            return new LinkedBindingStep<Type>() {
 
                 @Override
-                void add(Configuration<?> configuration) {
-                    addBinding(configuration);
+                void add(Step step) {
+                    addBinding(step);
                 }
 
                 @Override
@@ -218,12 +217,12 @@ public class GuiceContext extends InjectorContext<Injector, Module> {
             };
         }
 
-        public <Type> AnnotatedBindingDefinition4Guice<Type, ? extends ModuleBuilder4Guice<Parent>> bind(TypeLiteral<Type> literal) {
-            return new AnnotatedBindingConfiguration<Type>() {
+        public <Type> AnnotatedBindingStep<Type> bind(TypeLiteral<Type> literal) {
+            return new AnnotatedBindingStep<Type>() {
 
                 @Override
-                void add(Configuration<?> configuration) {
-                    addBinding(configuration);
+                void add(Step step) {
+                    addBinding(step);
                 }
 
                 @Override
@@ -234,12 +233,12 @@ public class GuiceContext extends InjectorContext<Injector, Module> {
         }
 
         @Override
-        public AnnotatedConstantBindingDefinition<? extends ModuleBuilder4Guice<Parent>> bindConstant() {
-            return new AnnotatedConstantBindingConfiguration() {
+        public AnnotatedConstantBindingStep bindConstant() {
+            return new AnnotatedConstantBindingStep() {
 
                 @Override
-                void add(Configuration<?> configuration) {
-                    addBinding(configuration);
+                void add(Step step) {
+                    addBinding(step);
                 }
 
                 @Override
@@ -249,17 +248,17 @@ public class GuiceContext extends InjectorContext<Injector, Module> {
             };
         }
 
-        void addExposing(Configuration<?> exposing) {
+        private void addExposing(Step exposing) {
             exposings.add(exposing);
         }
 
-        private void addBinding(Configuration<?> binding) {
+        private void addBinding(Step binding) {
             bindings.add(binding);
         }
 
         @Override
         public Module build() {
-            final List<Configuration<?>> exposings = swapExposings();
+            final List<Step> exposings = swapExposings();
             if (exposings.isEmpty()) {
                 return new AbstractModule() {
 
@@ -272,7 +271,7 @@ public class GuiceContext extends InjectorContext<Injector, Module> {
                     @Override
                     protected void configure() {
                         final PrivateBinder binder = binder();
-                        for (Configuration exposing : exposings) {
+                        for (Step exposing : exposings) {
                             exposing.expose(binder);
                         }
                         installTo(binder);
@@ -281,8 +280,8 @@ public class GuiceContext extends InjectorContext<Injector, Module> {
             }
         }
 
-        void installTo(final Binder binder) {
-            for (Configuration<?> binding : swapBindings()) {
+        private void installTo(final Binder binder) {
+            for (Step binding : swapBindings()) {
                 binding.bind(binder);
             }
             for (Module module : swapModules()) {
@@ -292,13 +291,13 @@ public class GuiceContext extends InjectorContext<Injector, Module> {
 
         private List<Module> swapModules() {
             try {
-                return this.modules;
+                return this.submodules;
             } finally {
-                this.modules = newList();
+                this.submodules = newList();
             }
         }
 
-        private List<Configuration<?>> swapExposings() {
+        private List<Step> swapExposings() {
             try {
                 return this.exposings;
             } finally {
@@ -306,7 +305,7 @@ public class GuiceContext extends InjectorContext<Injector, Module> {
             }
         }
 
-        private List<Configuration<?>> swapBindings() {
+        private List<Step> swapBindings() {
             try {
                 return this.bindings;
             } finally {
@@ -314,9 +313,9 @@ public class GuiceContext extends InjectorContext<Injector, Module> {
             }
         }
 
-        private abstract class AnnotatedBindingConfiguration<Type>
-                extends LinkedBindingConfiguration<Type, Configuration<?>>
-                implements AnnotatedBindingDefinition4Guice<Type, ModuleBuilder4Guice<Parent>> {
+        public abstract class AnnotatedBindingStep<Type>
+                extends LinkedBindingStep<Type>
+                implements AnnotatedBindingDefinition<Type, ModuleConfiguration<Parent>> {
 
             @Override
             AnnotatedElementBuilder expose(PrivateBinder binder) {
@@ -327,568 +326,511 @@ public class GuiceContext extends InjectorContext<Injector, Module> {
             abstract AnnotatedBindingBuilder<Type> bind(Binder binder);
 
             @Override
-            public LinkedBindingDefinition4Guice<Type, ModuleBuilder4Guice<Parent>> annotatedWith(Class<? extends Annotation> annotationType) {
-                return new ChildConfiguration() {
+            public LinkedBindingStep<Type> annotatedWith(Class<? extends Annotation> annotationType) {
+                return new NextStep() {
 
                     @Override
                     Void expose(PrivateBinder binder) {
-                        parentExpose(binder).annotatedWith(annotationType);
+                        previousStepExpose(binder).annotatedWith(annotationType);
                         return null;
                     }
 
                     @Override
-                    LinkedBindingBuilder<Type> bind(Binder input) {
-                        return parentBind(input).annotatedWith(annotationType);
+                    LinkedBindingBuilder<Type> bind(Binder binder) {
+                        return previousStepBind(binder).annotatedWith(annotationType);
                     }
                 };
             }
 
             @Override
-            public LinkedBindingDefinition4Guice<Type, ModuleBuilder4Guice<Parent>> annotatedWith(Annotation annotation) {
-                return new ChildConfiguration() {
+            public LinkedBindingStep<Type> annotatedWith(Annotation annotation) {
+                return new NextStep() {
 
                     @Override
                     Void expose(PrivateBinder binder) {
-                        parentExpose(binder).annotatedWith(annotation);
+                        previousStepExpose(binder).annotatedWith(annotation);
                         return null;
                     }
 
                     @Override
-                    LinkedBindingBuilder<Type> bind(Binder input) {
-                        return parentBind(input).annotatedWith(annotation);
+                    LinkedBindingBuilder<Type> bind(Binder binder) {
+                        return previousStepBind(binder).annotatedWith(annotation);
                     }
                 };
             }
 
-            abstract class ChildConfiguration
-                    extends LinkedBindingConfiguration<Type, AnnotatedBindingConfiguration<Type>> {
+            abstract class NextStep extends LinkedBindingStep<Type> {
 
-                AnnotatedElementBuilder parentExpose(PrivateBinder binder) {
-                    return parent().expose(binder);
+                AnnotatedElementBuilder previousStepExpose(PrivateBinder binder) {
+                    return previousStep().expose(binder);
                 }
 
-                AnnotatedBindingBuilder<Type> parentBind(Binder binder) {
-                    return parent().bind(binder);
+                AnnotatedBindingBuilder<Type> previousStepBind(Binder binder) {
+                    return previousStep().bind(binder);
                 }
 
                 @Override
-                AnnotatedBindingConfiguration<Type> parent() {
-                    return AnnotatedBindingConfiguration.this;
+                AnnotatedBindingStep<Type> previousStep() {
+                    return AnnotatedBindingStep.this;
                 }
             }
         }
 
-        private abstract class LinkedBindingConfiguration<Type, ParentConfiguration extends Configuration<?>>
-                extends ScopedBindingConfiguration<ParentConfiguration>
-                implements LinkedBindingDefinition4Guice<Type, ModuleBuilder4Guice<Parent>> {
+        public abstract class LinkedBindingStep<Type>
+                extends ScopedBindingStep
+                implements LinkedBindingDefinition<Type, ModuleConfiguration<Parent>> {
 
             @Override
             abstract LinkedBindingBuilder<Type> bind(Binder binder);
 
             @Override
-            public ScopedBindingDefinition4Guice<ModuleBuilder4Guice<Parent>> to(Class<? extends Type> implementation) {
-                return new ChildConfiguration() {
+            public ScopedBindingStep to(Class<? extends Type> implementation) {
+                return new NextStep() {
 
                     @Override
                     ScopedBindingBuilder bind(Binder binder) {
-                        return parentBind(binder).to(implementation);
+                        return previousStepBind(binder).to(implementation);
                     }
                 };
             }
 
-            @Override
-            public ScopedBindingDefinition4Guice<ModuleBuilder4Guice<Parent>> to(TypeLiteral<? extends Type> implementation) {
-                return new ChildConfiguration() {
+            public ScopedBindingStep to(TypeLiteral<? extends Type> implementation) {
+                return new NextStep() {
 
                     @Override
                     ScopedBindingBuilder bind(Binder binder) {
-                        return parentBind(binder).to(implementation);
+                        return previousStepBind(binder).to(implementation);
                     }
                 };
             }
 
-            @Override
-            public ScopedBindingDefinition4Guice<ModuleBuilder4Guice<Parent>> to(Key<? extends Type> targetKey) {
-                return new ChildConfiguration() {
+            public ScopedBindingStep to(Key<? extends Type> targetKey) {
+                return new NextStep() {
                     @Override ScopedBindingBuilder bind(Binder binder) {
-                        return parentBind(binder).to(targetKey);
+                        return previousStepBind(binder).to(targetKey);
                     }
                 };
             }
 
             @Override
-            public Definition<ModuleBuilder4Guice<Parent>> toInstance(Type instance) {
-                return new Configuration<LinkedBindingConfiguration<Type, ParentConfiguration>>() {
-
-                    @Override LinkedBindingConfiguration<Type, ParentConfiguration> parent() {
-                        return LinkedBindingConfiguration.this;
-                    }
+            public Step toInstance(Type instance) {
+                return new Step() {
 
                     @Override
                     Void expose(PrivateBinder binder) {
-                        parent().expose(binder);
+                        previousStep().expose(binder);
                         return null;
                     }
 
                     @Override
                     Void bind(Binder binder) {
-                        parent().bind(binder).toInstance(instance);
+                        previousStep().bind(binder).toInstance(instance);
                         return null;
                     }
-                };
-            }
-
-            @Override
-            public ScopedBindingDefinition4Guice<ModuleBuilder4Guice<Parent>> toProvider(Provider<? extends Type> provider) {
-                return new ChildConfiguration() {
 
                     @Override
-                    ScopedBindingBuilder bind(Binder binder) {
-                        return parentBind(binder).toProvider(provider);
+                    LinkedBindingStep<Type> previousStep() {
+                        return LinkedBindingStep.this;
                     }
                 };
             }
 
             @Override
-            public ScopedBindingDefinition4Guice<ModuleBuilder4Guice<Parent>> toProvider(Class<? extends Provider<? extends Type>> providerType) {
-                return new ChildConfiguration() {
+            public ScopedBindingStep toProvider(Provider<? extends Type> provider) {
+                return new NextStep() {
 
                     @Override
                     ScopedBindingBuilder bind(Binder binder) {
-                        return parentBind(binder).toProvider(providerType);
+                        return previousStepBind(binder).toProvider(provider);
                     }
                 };
             }
 
             @Override
-            public ScopedBindingDefinition4Guice<ModuleBuilder4Guice<Parent>> toProvider(TypeLiteral<? extends Provider<? extends Type>> providerType) {
-                return new ChildConfiguration() {
+            public ScopedBindingStep toProvider(Class<? extends Provider<? extends Type>> providerType) {
+                return new NextStep() {
 
                     @Override
                     ScopedBindingBuilder bind(Binder binder) {
-                        return parentBind(binder).toProvider(providerType);
+                        return previousStepBind(binder).toProvider(providerType);
+                    }
+                };
+            }
+
+            public ScopedBindingStep toProvider(TypeLiteral<? extends Provider<? extends Type>> providerType) {
+                return new NextStep() {
+
+                    @Override
+                    ScopedBindingBuilder bind(Binder binder) {
+                        return previousStepBind(binder).toProvider(providerType);
+                    }
+                };
+            }
+
+            public ScopedBindingStep toProvider(Key<? extends Provider<? extends Type>> providerKey) {
+                return new NextStep() {
+
+                    @Override
+                    ScopedBindingBuilder bind(Binder binder) {
+                        return previousStepBind(binder).toProvider(providerKey);
                     }
                 };
             }
 
             @Override
-            public ScopedBindingDefinition4Guice<ModuleBuilder4Guice<Parent>> toProvider(Key<? extends Provider<? extends Type>> providerKey) {
-                return new ChildConfiguration() {
+            public <S extends Type> ScopedBindingStep toConstructor(Constructor<S> constructor) {
+                return new NextStep() {
 
                     @Override
                     ScopedBindingBuilder bind(Binder binder) {
-                        return parentBind(binder).toProvider(providerKey);
+                        return previousStepBind(binder).toConstructor(constructor);
                     }
                 };
             }
 
-            @Override
-            public <S extends Type> ScopedBindingDefinition4Guice<ModuleBuilder4Guice<Parent>> toConstructor(Constructor<S> constructor) {
-                return new ChildConfiguration() {
+            public <S extends Type> ScopedBindingStep toConstructor(Constructor<S> constructor, TypeLiteral<? extends S> type) {
+                return new NextStep() {
 
                     @Override
                     ScopedBindingBuilder bind(Binder binder) {
-                        return parentBind(binder).toConstructor(constructor);
+                        return previousStepBind(binder).toConstructor(constructor, type);
                     }
                 };
             }
 
-            @Override
-            public <S extends Type> ScopedBindingDefinition4Guice<ModuleBuilder4Guice<Parent>> toConstructor(Constructor<S> constructor, TypeLiteral<? extends S> type) {
-                return new ChildConfiguration() {
-
-                    @Override
-                    ScopedBindingBuilder bind(Binder binder) {
-                        return parentBind(binder).toConstructor(constructor, type);
-                    }
-                };
-            }
-
-            abstract class ChildConfiguration
-                    extends ScopedBindingConfiguration<ScopedBindingConfiguration<ParentConfiguration>> {
+            private abstract class NextStep extends ScopedBindingStep {
 
                 @Override
                 Void expose(PrivateBinder binder) {
-                    parent().expose(binder);
+                    previousStep().expose(binder);
                     return null;
                 }
 
-                LinkedBindingBuilder<Type> parentBind(Binder binder) {
-                    return parent().bind(binder);
+                LinkedBindingBuilder<Type> previousStepBind(Binder binder) {
+                    return previousStep().bind(binder);
                 }
 
                 @Override
-                LinkedBindingConfiguration<Type, ParentConfiguration> parent() {
-                    return LinkedBindingConfiguration.this;
+                LinkedBindingStep<Type> previousStep() {
+                    return LinkedBindingStep.this;
                 }
             }
         }
 
-        private abstract class ScopedBindingConfiguration<ParentConfiguration extends Configuration<?>>
-                extends Configuration<ParentConfiguration>
-                implements ScopedBindingDefinition4Guice<ModuleBuilder4Guice<Parent>> {
+        public abstract class ScopedBindingStep
+                extends Step
+                implements ScopedBindingDefinition<ModuleConfiguration<Parent>> {
 
             @Override
             abstract ScopedBindingBuilder bind(Binder binder);
 
             @Override
-            public Definition<ModuleBuilder4Guice<Parent>> in(Class<? extends Annotation> scopeAnnotation) {
-                return new ChildConfiguration() {
+            public Step in(Class<? extends Annotation> scopeAnnotation) {
+                return new NextStep() {
 
                     @Override
                     Void bind(Binder binder) {
-                        parentBind(binder).in(scopeAnnotation);
+                        previousStepBind(binder).in(scopeAnnotation);
+                        return null;
+                    }
+                };
+            }
+
+            public Step in(Scope scope) {
+                return new NextStep() {
+
+                    @Override
+                    Void bind(Binder binder) {
+                        previousStepBind(binder).in(scope);
                         return null;
                     }
                 };
             }
 
             @Override
-            public Definition<ModuleBuilder4Guice<Parent>> in(Scope scope) {
-                return new ChildConfiguration() {
+            public Step asEagerSingleton() {
+                return new NextStep() {
 
                     @Override
                     Void bind(Binder binder) {
-                        parentBind(binder).in(scope);
+                        previousStepBind(binder).asEagerSingleton();
                         return null;
                     }
                 };
             }
 
-            @Override
-            public Definition<ModuleBuilder4Guice<Parent>> asEagerSingleton() {
-                return new ChildConfiguration() {
-
-                    @Override
-                    Void bind(Binder binder) {
-                        parentBind(binder).asEagerSingleton();
-                        return null;
-                    }
-                };
-            }
-
-            abstract class ChildConfiguration
-                    extends Configuration<ScopedBindingConfiguration<ParentConfiguration>> {
+            private abstract class NextStep extends Step {
 
                 @Override
                 Void expose(PrivateBinder binder) {
-                    parent().expose(binder);
+                    previousStep().expose(binder);
                     return null;
                 }
 
-                ScopedBindingBuilder parentBind(Binder binder) {
-                    return parent().bind(binder);
+                ScopedBindingBuilder previousStepBind(Binder binder) {
+                    return previousStep().bind(binder);
                 }
 
                 @Override
-                ScopedBindingConfiguration<ParentConfiguration> parent() {
-                    return ScopedBindingConfiguration.this;
+                ScopedBindingStep previousStep() {
+                    return ScopedBindingStep.this;
                 }
             }
         }
 
-        private abstract class AnnotatedElementConfiguration<ParentConfiguration extends Configuration<?>>
-                extends Configuration<ParentConfiguration>
-                implements AnnotatedElementDefinition<ModuleBuilder4Guice<Parent>> {
+        public abstract class AnnotatedElementStep
+                extends Step
+                implements AnnotatedElementDefinition<ModuleConfiguration<Parent>> {
 
             @Override
             abstract AnnotatedElementBuilder expose(PrivateBinder binder);
 
             @Override
-            public Definition<ModuleBuilder4Guice<Parent>> annotatedWith(Class<? extends Annotation> annotationType) {
-                return new ChildConfiguration() {
+            public Step annotatedWith(Class<? extends Annotation> annotationType) {
+                return new NextStep() {
 
                     @Override
                     Void expose(PrivateBinder binder) {
-                        parentExpose(binder).annotatedWith(annotationType);
+                        previousStepExpose(binder).annotatedWith(annotationType);
                         return null;
                     }
                 };
             }
 
             @Override
-            public Definition<ModuleBuilder4Guice<Parent>> annotatedWith(Annotation annotation) {
-                return new ChildConfiguration() {
+            public Step annotatedWith(Annotation annotation) {
+                return new NextStep() {
 
                     @Override
                     Void expose(PrivateBinder binder) {
-                        parentExpose(binder).annotatedWith(annotation);
+                        previousStepExpose(binder).annotatedWith(annotation);
                         return null;
                     }
                 };
             }
 
-            abstract class ChildConfiguration
-                    extends Configuration<AnnotatedElementConfiguration<ParentConfiguration>> {
+            private abstract class NextStep extends Step {
 
-                AnnotatedElementBuilder parentExpose(PrivateBinder binder) {
-                    return parent().expose(binder);
+                AnnotatedElementBuilder previousStepExpose(PrivateBinder binder) {
+                    return previousStep().expose(binder);
                 }
 
                 @Override
-                AnnotatedElementConfiguration<ParentConfiguration> parent() {
-                    return AnnotatedElementConfiguration.this;
+                AnnotatedElementStep previousStep() {
+                    return AnnotatedElementStep.this;
                 }
             }
         }
 
-        private abstract class AnnotatedConstantBindingConfiguration
-                extends Configuration<Configuration<?>>
-                implements AnnotatedConstantBindingDefinition<ModuleBuilder4Guice<Parent>> {
+        public abstract class AnnotatedConstantBindingStep
+                extends Step
+                implements AnnotatedConstantBindingDefinition<ModuleConfiguration<Parent>> {
 
             @Override
             abstract AnnotatedConstantBindingBuilder bind(Binder binder);
 
             @Override
-            public ConstantBindingDefinition<ModuleBuilder4Guice<Parent>> annotatedWith(Class<? extends Annotation> annotationType) {
-                return new ChildConfiguration() {
+            public ConstantBindingStep annotatedWith(Class<? extends Annotation> annotationType) {
+                return new NextStep() {
 
                     @Override ConstantBindingBuilder bind(Binder binder) {
-                        return parentBind(binder).annotatedWith(annotationType);
+                        return previousStepBind(binder).annotatedWith(annotationType);
                     }
                 };
             }
 
             @Override
-            public ConstantBindingDefinition<ModuleBuilder4Guice<Parent>> annotatedWith(Annotation annotation) {
-                return new ChildConfiguration() {
+            public ConstantBindingStep annotatedWith(Annotation annotation) {
+                return new NextStep() {
 
                     @Override
                     ConstantBindingBuilder bind(Binder binder) {
-                        return parentBind(binder).annotatedWith(annotation);
+                        return previousStepBind(binder).annotatedWith(annotation);
                     }
                 };
             }
 
-            abstract class ChildConfiguration
-                    extends ConstantBindingConfiguration<AnnotatedConstantBindingConfiguration> {
+            private abstract class NextStep extends ConstantBindingStep {
 
-                AnnotatedConstantBindingBuilder parentBind(Binder binder) {
-                    return parent().bind(binder);
+                AnnotatedConstantBindingBuilder previousStepBind(Binder binder) {
+                    return previousStep().bind(binder);
                 }
 
                 @Override
-                AnnotatedConstantBindingConfiguration parent() {
-                    return AnnotatedConstantBindingConfiguration.this;
+                AnnotatedConstantBindingStep previousStep() {
+                    return AnnotatedConstantBindingStep.this;
                 }
             }
         }
 
-        private abstract class ConstantBindingConfiguration<ParentConfiguration extends Configuration<?>>
-                extends Configuration<ParentConfiguration>
-                implements ConstantBindingDefinition<ModuleBuilder4Guice<Parent>> {
+        public abstract class ConstantBindingStep
+                extends Step
+                implements ConstantBindingDefinition<ModuleConfiguration<Parent>> {
 
             @Override
             abstract ConstantBindingBuilder bind(Binder binder);
 
             @Override
-            public Definition<ModuleBuilder4Guice<Parent>> to(String value) {
-                return new ChildConfiguration() {
+            public Step to(String value) {
+                return new NextStep() {
 
                     @Override
                     Void bind(Binder binder) {
-                        parentBind(binder).to(value);
+                        previousStepBind(binder).to(value);
                         return null;
                     }
                 };
             }
 
             @Override
-            public Definition<ModuleBuilder4Guice<Parent>> to(int value) {
-                return new ChildConfiguration() {
+            public Step to(int value) {
+                return new NextStep() {
 
                     @Override
                     Void bind(Binder binder) {
-                        parentBind(binder).to(value);
+                        previousStepBind(binder).to(value);
                         return null;
                     }
                 };
             }
 
             @Override
-            public Definition<ModuleBuilder4Guice<Parent>> to(long value) {
-                return new ChildConfiguration() {
+            public Step to(long value) {
+                return new NextStep() {
 
                     @Override
                     Void bind(Binder binder) {
-                        parentBind(binder).to(value);
+                        previousStepBind(binder).to(value);
                         return null;
                     }
                 };
             }
 
             @Override
-            public Definition<ModuleBuilder4Guice<Parent>> to(boolean value) {
-                return new ChildConfiguration() {
+            public Step to(boolean value) {
+                return new NextStep() {
 
                     @Override
                     Void bind(Binder binder) {
-                        parentBind(binder).to(value);
+                        previousStepBind(binder).to(value);
                         return null;
                     }
                 };
             }
 
             @Override
-            public Definition<ModuleBuilder4Guice<Parent>> to(double value) {
-                return new ChildConfiguration() {
+            public Step to(double value) {
+                return new NextStep() {
 
                     @Override
                     Void bind(Binder binder) {
-                        parentBind(binder).to(value);
+                        previousStepBind(binder).to(value);
                         return null;
                     }
                 };
             }
 
             @Override
-            public Definition<ModuleBuilder4Guice<Parent>> to(float value) {
-                return new ChildConfiguration() {
+            public Step to(float value) {
+                return new NextStep() {
 
                     @Override
                     Void bind(Binder binder) {
-                        parentBind(binder).to(value);
+                        previousStepBind(binder).to(value);
                         return null;
                     }
                 };
             }
 
             @Override
-            public Definition<ModuleBuilder4Guice<Parent>> to(short value) {
-                return new ChildConfiguration() {
+            public Step to(short value) {
+                return new NextStep() {
 
                     @Override
                     Void bind(Binder binder) {
-                        parentBind(binder).to(value);
+                        previousStepBind(binder).to(value);
                         return null;
                     }
                 };
             }
 
             @Override
-            public Definition<ModuleBuilder4Guice<Parent>> to(char value) {
-                return new ChildConfiguration() {
+            public Step to(char value) {
+                return new NextStep() {
 
                     @Override
                     Void bind(Binder binder) {
-                        parentBind(binder).to(value);
+                        previousStepBind(binder).to(value);
                         return null;
                     }
                 };
             }
 
             @Override
-            public Definition<ModuleBuilder4Guice<Parent>> to(byte value) {
-                return new ChildConfiguration() {
+            public Step to(byte value) {
+                return new NextStep() {
 
                     @Override
                     Void bind(Binder binder) {
-                        parentBind(binder).to(value);
+                        previousStepBind(binder).to(value);
                         return null;
                     }
                 };
             }
 
             @Override
-            public Definition<ModuleBuilder4Guice<Parent>> to(Class<?> value) {
-                return new ChildConfiguration() {
+            public Step to(Class<?> value) {
+                return new NextStep() {
 
                     @Override
                     Void bind(Binder binder) {
-                        parentBind(binder).to(value);
+                        previousStepBind(binder).to(value);
                         return null;
                     }
                 };
             }
 
             @Override
-            public <E extends Enum<E>> Definition<ModuleBuilder4Guice<Parent>> to(E value) {
-                return new ChildConfiguration() {
+            public <E extends Enum<E>> Step to(E value) {
+                return new NextStep() {
 
                     @Override
                     Void bind(Binder binder) {
-                        parentBind(binder).to(value);
+                        previousStepBind(binder).to(value);
                         return null;
                     }
                 };
             }
 
-            abstract class ChildConfiguration
-                    extends Configuration<ConstantBindingConfiguration<ParentConfiguration>> {
+            private abstract class NextStep extends Step {
 
-                ConstantBindingBuilder parentBind(Binder binder) {
-                    return parent().bind(binder);
+                ConstantBindingBuilder previousStepBind(Binder binder) {
+                    return previousStep().bind(binder);
                 }
 
                 @Override
-                ConstantBindingConfiguration<ParentConfiguration> parent() {
-                    return ConstantBindingConfiguration.this;
+                ConstantBindingStep previousStep() {
+                    return ConstantBindingStep.this;
                 }
             }
         }
 
-        private abstract class Configuration<ParentConfiguration extends Configuration<?>>
-                implements Definition<ModuleBuilder4Guice<Parent>> {
+        public abstract class Step
+                implements Definition<ModuleConfiguration<Parent>> {
 
             @Override
-            public ModuleBuilder4Guice<Parent> end() {
+            public ModuleConfiguration<Parent> end() {
                 add(this);
-                return ModuleBuilder4Guice.this;
+                return ModuleConfiguration.this;
             }
 
-            void add(Configuration<?> configuration) {
-                parent().add(configuration);
-            }
-
-            ParentConfiguration parent() { throw new AssertionError(); }
+            void add(Step step) { previousStep().add(step); }
 
             Object expose(PrivateBinder binder) { throw new AssertionError(); }
 
             Object bind(Binder binder) { throw new AssertionError(); }
+
+            Step previousStep() { throw new AssertionError(); }
         }
-    }
-
-    public interface AnnotatedBindingDefinition4Guice<Type, Parent>
-            extends LinkedBindingDefinition4Guice<Type, Parent>,
-            AnnotatedBindingDefinition<Type, Parent> {
-
-        @Override
-        LinkedBindingDefinition4Guice<Type, Parent> annotatedWith(Class<? extends Annotation> annotationType);
-
-        @Override
-        LinkedBindingDefinition4Guice<Type, Parent> annotatedWith(Annotation annotation);
-    }
-
-    public interface LinkedBindingDefinition4Guice<Type, Parent>
-            extends ScopedBindingDefinition4Guice<Parent>,
-            LinkedBindingDefinition<Type, Parent> {
-
-        @Override
-        ScopedBindingDefinition4Guice<Parent> to(Class<? extends Type> implementation);
-
-        ScopedBindingDefinition4Guice<Parent> to(TypeLiteral<? extends Type> implementation);
-
-        ScopedBindingDefinition4Guice<Parent> to(Key<? extends Type> targetKey);
-
-        @Override
-        ScopedBindingDefinition4Guice<Parent> toProvider(Provider<? extends Type> provider);
-
-        @Override
-        ScopedBindingDefinition4Guice<Parent> toProvider(Class<? extends Provider<? extends Type>> providerType);
-
-        ScopedBindingDefinition4Guice<Parent> toProvider(TypeLiteral<? extends Provider<? extends Type>> providerType);
-
-        ScopedBindingDefinition4Guice<Parent> toProvider(Key<? extends Provider<? extends Type>> providerKey);
-
-        @Override
-        <S extends Type> ScopedBindingDefinition4Guice<Parent> toConstructor(Constructor<S> constructor);
-
-        <S extends Type> ScopedBindingDefinition4Guice<Parent> toConstructor(Constructor<S> constructor, TypeLiteral<? extends S> type);
-    }
-
-    public interface ScopedBindingDefinition4Guice<Parent>
-            extends ScopedBindingDefinition<Parent> {
-
-        Definition<Parent> in(Scope scope);
     }
 }
