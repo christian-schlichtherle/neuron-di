@@ -10,13 +10,14 @@ import java.lang.reflect.Constructor;
 import java.util.LinkedList;
 import java.util.List;
 
+@SuppressWarnings({ "WeakerAccess", "unused" })
 public class GuiceContext extends InjectorContext<Injector, Module> {
 
     public InjectorConfiguration injector() {
         return new InjectorConfiguration();
     }
 
-    private static <T> List<T> newList() { return new LinkedList<T>(); }
+    private static <T> List<T> newList() { return new LinkedList<>(); }
 
     public class InjectorConfiguration extends InjectorBuilder {
 
@@ -43,11 +44,9 @@ public class GuiceContext extends InjectorContext<Injector, Module> {
         public Injector build() { return Guice.createInjector(swapModules()); }
 
         private List<Module> swapModules() {
-            try {
-                return this.modules;
-            } finally {
-                this.modules = newList();
-            }
+            final List<Module> modules = this.modules;
+            this.modules = newList();
+            return modules;
         }
     }
 
@@ -69,7 +68,7 @@ public class GuiceContext extends InjectorContext<Injector, Module> {
         }
 
         @Override
-        public ModuleConfiguration<Parent> module(Module module) {
+        public ModuleConfiguration<Parent> module(final Module module) {
             submodules.add(module);
             return this;
         }
@@ -79,7 +78,7 @@ public class GuiceContext extends InjectorContext<Injector, Module> {
             return new AnnotatedBindingStep<Type>() {
 
                 @Override
-                void add(Step step) {
+                void add(final Step step) {
                     addExposing(step);
                     addBinding(step);
                 }
@@ -100,13 +99,13 @@ public class GuiceContext extends InjectorContext<Injector, Module> {
             return new LinkedBindingStep<Type>() {
 
                 @Override
-                void add(Step step) {
+                void add(final Step step) {
                     addExposing(step);
                     addBinding(step);
                 }
 
                 @Override
-                public Void expose(PrivateBinder binder) {
+                public AnnotatedElementBuilder expose(PrivateBinder binder) {
                     binder.expose(key);
                     return null;
                 }
@@ -122,7 +121,7 @@ public class GuiceContext extends InjectorContext<Injector, Module> {
             return new AnnotatedBindingStep<Type>() {
 
                 @Override
-                void add(Step step) {
+                void add(final Step step) {
                     addExposing(step);
                     addBinding(step);
                 }
@@ -144,9 +143,7 @@ public class GuiceContext extends InjectorContext<Injector, Module> {
             return new AnnotatedElementStep() {
 
                 @Override
-                void add(Step step) {
-                    addExposing(step);
-                }
+                void add(Step step) { addExposing(step); }
 
                 @Override
                 public AnnotatedElementBuilder expose(PrivateBinder binder) {
@@ -159,9 +156,7 @@ public class GuiceContext extends InjectorContext<Injector, Module> {
             return new Step() {
 
                 @Override
-                void add(Step step) {
-                    addExposing(step);
-                }
+                void add(Step step) { addExposing(step); }
 
                 @Override
                 public Void expose(PrivateBinder binder) {
@@ -175,9 +170,7 @@ public class GuiceContext extends InjectorContext<Injector, Module> {
             return new AnnotatedElementStep() {
 
                 @Override
-                void add(Step step) {
-                    addExposing(step);
-                }
+                void add(Step step) { addExposing(step); }
 
                 @Override
                 public AnnotatedElementBuilder expose(PrivateBinder binder) {
@@ -191,9 +184,7 @@ public class GuiceContext extends InjectorContext<Injector, Module> {
             return new AnnotatedBindingStep<Type>() {
 
                 @Override
-                void add(Step step) {
-                    addBinding(step);
-                }
+                void add(Step step) { addBinding(step); }
 
                 @Override
                 public AnnotatedBindingBuilder<Type> bind(Binder binder) {
@@ -206,9 +197,7 @@ public class GuiceContext extends InjectorContext<Injector, Module> {
             return new LinkedBindingStep<Type>() {
 
                 @Override
-                void add(Step step) {
-                    addBinding(step);
-                }
+                void add(Step step) { addBinding(step); }
 
                 @Override
                 public LinkedBindingBuilder<Type> bind(Binder binder) {
@@ -221,9 +210,7 @@ public class GuiceContext extends InjectorContext<Injector, Module> {
             return new AnnotatedBindingStep<Type>() {
 
                 @Override
-                void add(Step step) {
-                    addBinding(step);
-                }
+                void add(Step step) { addBinding(step); }
 
                 @Override
                 public AnnotatedBindingBuilder<Type> bind(Binder binder) {
@@ -237,9 +224,7 @@ public class GuiceContext extends InjectorContext<Injector, Module> {
             return new AnnotatedConstantBindingStep() {
 
                 @Override
-                void add(Step step) {
-                    addBinding(step);
-                }
+                void add(Step step) { addBinding(step); }
 
                 @Override
                 public AnnotatedConstantBindingBuilder bind(Binder binder) {
@@ -248,13 +233,9 @@ public class GuiceContext extends InjectorContext<Injector, Module> {
             };
         }
 
-        private void addExposing(Step exposing) {
-            exposings.add(exposing);
-        }
+        private void addExposing(Step exposing) { exposings.add(exposing); }
 
-        private void addBinding(Step binding) {
-            bindings.add(binding);
-        }
+        private void addBinding(Step binding) { bindings.add(binding); }
 
         @Override
         public Module build() {
@@ -271,9 +252,7 @@ public class GuiceContext extends InjectorContext<Injector, Module> {
                     @Override
                     protected void configure() {
                         final PrivateBinder binder = binder();
-                        for (Step exposing : exposings) {
-                            exposing.expose(binder);
-                        }
+                        exposings.forEach(exposing -> exposing.expose(binder));
                         installTo(binder);
                     }
                 };
@@ -281,36 +260,26 @@ public class GuiceContext extends InjectorContext<Injector, Module> {
         }
 
         private void installTo(final Binder binder) {
-            for (Step binding : swapBindings()) {
-                binding.bind(binder);
-            }
-            for (Module module : swapModules()) {
-                binder.install(module);
-            }
+            swapBindings().forEach(binding -> binding.bind(binder));
+            swapModules().forEach(binder::install);
         }
 
         private List<Module> swapModules() {
-            try {
-                return this.submodules;
-            } finally {
-                this.submodules = newList();
-            }
+            final List<Module> submodules = this.submodules;
+            this.submodules = newList();
+            return submodules;
         }
 
         private List<Step> swapExposings() {
-            try {
-                return this.exposings;
-            } finally {
-                this.exposings = newList();
-            }
+            final List<Step> exposings = this.exposings;
+            this.exposings = newList();
+            return exposings;
         }
 
         private List<Step> swapBindings() {
-            try {
-                return this.bindings;
-            } finally {
-                this.bindings = newList();
-            }
+            final List<Step> bindings = this.bindings;
+            this.bindings = newList();
+            return bindings;
         }
 
         public abstract class AnnotatedBindingStep<Type>
@@ -330,14 +299,14 @@ public class GuiceContext extends InjectorContext<Injector, Module> {
                 return new NextStep() {
 
                     @Override
-                    Void expose(PrivateBinder binder) {
-                        previousStepExpose(binder).annotatedWith(annotationType);
+                    AnnotatedElementBuilder expose(PrivateBinder binder) {
+                        previousExpose(binder).annotatedWith(annotationType);
                         return null;
                     }
 
                     @Override
                     LinkedBindingBuilder<Type> bind(Binder binder) {
-                        return previousStepBind(binder).annotatedWith(annotationType);
+                        return previousBind(binder).annotatedWith(annotationType);
                     }
                 };
             }
@@ -347,30 +316,30 @@ public class GuiceContext extends InjectorContext<Injector, Module> {
                 return new NextStep() {
 
                     @Override
-                    Void expose(PrivateBinder binder) {
-                        previousStepExpose(binder).annotatedWith(annotation);
+                    AnnotatedElementBuilder expose(PrivateBinder binder) {
+                        previousExpose(binder).annotatedWith(annotation);
                         return null;
                     }
 
                     @Override
                     LinkedBindingBuilder<Type> bind(Binder binder) {
-                        return previousStepBind(binder).annotatedWith(annotation);
+                        return previousBind(binder).annotatedWith(annotation);
                     }
                 };
             }
 
             abstract class NextStep extends LinkedBindingStep<Type> {
 
-                AnnotatedElementBuilder previousStepExpose(PrivateBinder binder) {
-                    return previousStep().expose(binder);
+                AnnotatedElementBuilder previousExpose(PrivateBinder binder) {
+                    return previous().expose(binder);
                 }
 
-                AnnotatedBindingBuilder<Type> previousStepBind(Binder binder) {
-                    return previousStep().bind(binder);
+                AnnotatedBindingBuilder<Type> previousBind(Binder binder) {
+                    return previous().bind(binder);
                 }
 
                 @Override
-                AnnotatedBindingStep<Type> previousStep() {
+                AnnotatedBindingStep<Type> previous() {
                     return AnnotatedBindingStep.this;
                 }
             }
@@ -389,7 +358,7 @@ public class GuiceContext extends InjectorContext<Injector, Module> {
 
                     @Override
                     ScopedBindingBuilder bind(Binder binder) {
-                        return previousStepBind(binder).to(implementation);
+                        return previousBind(binder).to(implementation);
                     }
                 };
             }
@@ -399,7 +368,7 @@ public class GuiceContext extends InjectorContext<Injector, Module> {
 
                     @Override
                     ScopedBindingBuilder bind(Binder binder) {
-                        return previousStepBind(binder).to(implementation);
+                        return previousBind(binder).to(implementation);
                     }
                 };
             }
@@ -407,7 +376,7 @@ public class GuiceContext extends InjectorContext<Injector, Module> {
             public ScopedBindingStep to(Key<? extends Type> targetKey) {
                 return new NextStep() {
                     @Override ScopedBindingBuilder bind(Binder binder) {
-                        return previousStepBind(binder).to(targetKey);
+                        return previousBind(binder).to(targetKey);
                     }
                 };
             }
@@ -417,19 +386,17 @@ public class GuiceContext extends InjectorContext<Injector, Module> {
                 return new Step() {
 
                     @Override
-                    Void expose(PrivateBinder binder) {
-                        previousStep().expose(binder);
-                        return null;
-                    }
-
-                    @Override
                     Void bind(Binder binder) {
-                        previousStep().bind(binder).toInstance(instance);
+                        previousBind(binder).toInstance(instance);
                         return null;
                     }
 
+                    LinkedBindingBuilder<Type> previousBind(Binder binder) {
+                        return previous().bind(binder);
+                    }
+
                     @Override
-                    LinkedBindingStep<Type> previousStep() {
+                    LinkedBindingStep<Type> previous() {
                         return LinkedBindingStep.this;
                     }
                 };
@@ -441,7 +408,7 @@ public class GuiceContext extends InjectorContext<Injector, Module> {
 
                     @Override
                     ScopedBindingBuilder bind(Binder binder) {
-                        return previousStepBind(binder).toProvider(provider);
+                        return previousBind(binder).toProvider(provider);
                     }
                 };
             }
@@ -452,7 +419,7 @@ public class GuiceContext extends InjectorContext<Injector, Module> {
 
                     @Override
                     ScopedBindingBuilder bind(Binder binder) {
-                        return previousStepBind(binder).toProvider(providerType);
+                        return previousBind(binder).toProvider(providerType);
                     }
                 };
             }
@@ -462,7 +429,7 @@ public class GuiceContext extends InjectorContext<Injector, Module> {
 
                     @Override
                     ScopedBindingBuilder bind(Binder binder) {
-                        return previousStepBind(binder).toProvider(providerType);
+                        return previousBind(binder).toProvider(providerType);
                     }
                 };
             }
@@ -472,7 +439,7 @@ public class GuiceContext extends InjectorContext<Injector, Module> {
 
                     @Override
                     ScopedBindingBuilder bind(Binder binder) {
-                        return previousStepBind(binder).toProvider(providerKey);
+                        return previousBind(binder).toProvider(providerKey);
                     }
                 };
             }
@@ -483,7 +450,7 @@ public class GuiceContext extends InjectorContext<Injector, Module> {
 
                     @Override
                     ScopedBindingBuilder bind(Binder binder) {
-                        return previousStepBind(binder).toConstructor(constructor);
+                        return previousBind(binder).toConstructor(constructor);
                     }
                 };
             }
@@ -493,25 +460,19 @@ public class GuiceContext extends InjectorContext<Injector, Module> {
 
                     @Override
                     ScopedBindingBuilder bind(Binder binder) {
-                        return previousStepBind(binder).toConstructor(constructor, type);
+                        return previousBind(binder).toConstructor(constructor, type);
                     }
                 };
             }
 
             private abstract class NextStep extends ScopedBindingStep {
 
-                @Override
-                Void expose(PrivateBinder binder) {
-                    previousStep().expose(binder);
-                    return null;
-                }
-
-                LinkedBindingBuilder<Type> previousStepBind(Binder binder) {
-                    return previousStep().bind(binder);
+                LinkedBindingBuilder<Type> previousBind(Binder binder) {
+                    return previous().bind(binder);
                 }
 
                 @Override
-                LinkedBindingStep<Type> previousStep() {
+                LinkedBindingStep<Type> previous() {
                     return LinkedBindingStep.this;
                 }
             }
@@ -530,7 +491,7 @@ public class GuiceContext extends InjectorContext<Injector, Module> {
 
                     @Override
                     Void bind(Binder binder) {
-                        previousStepBind(binder).in(scopeAnnotation);
+                        previousBind(binder).in(scopeAnnotation);
                         return null;
                     }
                 };
@@ -541,7 +502,7 @@ public class GuiceContext extends InjectorContext<Injector, Module> {
 
                     @Override
                     Void bind(Binder binder) {
-                        previousStepBind(binder).in(scope);
+                        previousBind(binder).in(scope);
                         return null;
                     }
                 };
@@ -553,7 +514,7 @@ public class GuiceContext extends InjectorContext<Injector, Module> {
 
                     @Override
                     Void bind(Binder binder) {
-                        previousStepBind(binder).asEagerSingleton();
+                        previousBind(binder).asEagerSingleton();
                         return null;
                     }
                 };
@@ -561,20 +522,12 @@ public class GuiceContext extends InjectorContext<Injector, Module> {
 
             private abstract class NextStep extends Step {
 
-                @Override
-                Void expose(PrivateBinder binder) {
-                    previousStep().expose(binder);
-                    return null;
-                }
-
-                ScopedBindingBuilder previousStepBind(Binder binder) {
-                    return previousStep().bind(binder);
+                ScopedBindingBuilder previousBind(Binder binder) {
+                    return previous().bind(binder);
                 }
 
                 @Override
-                ScopedBindingStep previousStep() {
-                    return ScopedBindingStep.this;
-                }
+                ScopedBindingStep previous() { return ScopedBindingStep.this; }
             }
         }
 
@@ -591,7 +544,7 @@ public class GuiceContext extends InjectorContext<Injector, Module> {
 
                     @Override
                     Void expose(PrivateBinder binder) {
-                        previousStepExpose(binder).annotatedWith(annotationType);
+                        previousExpose(binder).annotatedWith(annotationType);
                         return null;
                     }
                 };
@@ -603,7 +556,7 @@ public class GuiceContext extends InjectorContext<Injector, Module> {
 
                     @Override
                     Void expose(PrivateBinder binder) {
-                        previousStepExpose(binder).annotatedWith(annotation);
+                        previousExpose(binder).annotatedWith(annotation);
                         return null;
                     }
                 };
@@ -611,12 +564,12 @@ public class GuiceContext extends InjectorContext<Injector, Module> {
 
             private abstract class NextStep extends Step {
 
-                AnnotatedElementBuilder previousStepExpose(PrivateBinder binder) {
-                    return previousStep().expose(binder);
+                AnnotatedElementBuilder previousExpose(PrivateBinder binder) {
+                    return previous().expose(binder);
                 }
 
                 @Override
-                AnnotatedElementStep previousStep() {
+                AnnotatedElementStep previous() {
                     return AnnotatedElementStep.this;
                 }
             }
@@ -633,8 +586,9 @@ public class GuiceContext extends InjectorContext<Injector, Module> {
             public ConstantBindingStep annotatedWith(Class<? extends Annotation> annotationType) {
                 return new NextStep() {
 
-                    @Override ConstantBindingBuilder bind(Binder binder) {
-                        return previousStepBind(binder).annotatedWith(annotationType);
+                    @Override
+                    ConstantBindingBuilder bind(Binder binder) {
+                        return previousBind(binder).annotatedWith(annotationType);
                     }
                 };
             }
@@ -645,19 +599,19 @@ public class GuiceContext extends InjectorContext<Injector, Module> {
 
                     @Override
                     ConstantBindingBuilder bind(Binder binder) {
-                        return previousStepBind(binder).annotatedWith(annotation);
+                        return previousBind(binder).annotatedWith(annotation);
                     }
                 };
             }
 
             private abstract class NextStep extends ConstantBindingStep {
 
-                AnnotatedConstantBindingBuilder previousStepBind(Binder binder) {
-                    return previousStep().bind(binder);
+                AnnotatedConstantBindingBuilder previousBind(Binder binder) {
+                    return previous().bind(binder);
                 }
 
                 @Override
-                AnnotatedConstantBindingStep previousStep() {
+                AnnotatedConstantBindingStep previous() {
                     return AnnotatedConstantBindingStep.this;
                 }
             }
@@ -676,7 +630,7 @@ public class GuiceContext extends InjectorContext<Injector, Module> {
 
                     @Override
                     Void bind(Binder binder) {
-                        previousStepBind(binder).to(value);
+                        previousBind(binder).to(value);
                         return null;
                     }
                 };
@@ -688,7 +642,7 @@ public class GuiceContext extends InjectorContext<Injector, Module> {
 
                     @Override
                     Void bind(Binder binder) {
-                        previousStepBind(binder).to(value);
+                        previousBind(binder).to(value);
                         return null;
                     }
                 };
@@ -700,7 +654,7 @@ public class GuiceContext extends InjectorContext<Injector, Module> {
 
                     @Override
                     Void bind(Binder binder) {
-                        previousStepBind(binder).to(value);
+                        previousBind(binder).to(value);
                         return null;
                     }
                 };
@@ -712,7 +666,7 @@ public class GuiceContext extends InjectorContext<Injector, Module> {
 
                     @Override
                     Void bind(Binder binder) {
-                        previousStepBind(binder).to(value);
+                        previousBind(binder).to(value);
                         return null;
                     }
                 };
@@ -724,7 +678,7 @@ public class GuiceContext extends InjectorContext<Injector, Module> {
 
                     @Override
                     Void bind(Binder binder) {
-                        previousStepBind(binder).to(value);
+                        previousBind(binder).to(value);
                         return null;
                     }
                 };
@@ -736,7 +690,7 @@ public class GuiceContext extends InjectorContext<Injector, Module> {
 
                     @Override
                     Void bind(Binder binder) {
-                        previousStepBind(binder).to(value);
+                        previousBind(binder).to(value);
                         return null;
                     }
                 };
@@ -748,7 +702,7 @@ public class GuiceContext extends InjectorContext<Injector, Module> {
 
                     @Override
                     Void bind(Binder binder) {
-                        previousStepBind(binder).to(value);
+                        previousBind(binder).to(value);
                         return null;
                     }
                 };
@@ -760,7 +714,7 @@ public class GuiceContext extends InjectorContext<Injector, Module> {
 
                     @Override
                     Void bind(Binder binder) {
-                        previousStepBind(binder).to(value);
+                        previousBind(binder).to(value);
                         return null;
                     }
                 };
@@ -772,7 +726,7 @@ public class GuiceContext extends InjectorContext<Injector, Module> {
 
                     @Override
                     Void bind(Binder binder) {
-                        previousStepBind(binder).to(value);
+                        previousBind(binder).to(value);
                         return null;
                     }
                 };
@@ -784,7 +738,7 @@ public class GuiceContext extends InjectorContext<Injector, Module> {
 
                     @Override
                     Void bind(Binder binder) {
-                        previousStepBind(binder).to(value);
+                        previousBind(binder).to(value);
                         return null;
                     }
                 };
@@ -796,7 +750,7 @@ public class GuiceContext extends InjectorContext<Injector, Module> {
 
                     @Override
                     Void bind(Binder binder) {
-                        previousStepBind(binder).to(value);
+                        previousBind(binder).to(value);
                         return null;
                     }
                 };
@@ -804,12 +758,12 @@ public class GuiceContext extends InjectorContext<Injector, Module> {
 
             private abstract class NextStep extends Step {
 
-                ConstantBindingBuilder previousStepBind(Binder binder) {
-                    return previousStep().bind(binder);
+                ConstantBindingBuilder previousBind(Binder binder) {
+                    return previous().bind(binder);
                 }
 
                 @Override
-                ConstantBindingStep previousStep() {
+                ConstantBindingStep previous() {
                     return ConstantBindingStep.this;
                 }
             }
@@ -824,13 +778,15 @@ public class GuiceContext extends InjectorContext<Injector, Module> {
                 return ModuleConfiguration.this;
             }
 
-            void add(Step step) { previousStep().add(step); }
+            void add(Step step) { previous().add(step); }
 
-            Object expose(PrivateBinder binder) { throw new AssertionError(); }
+            Object expose(PrivateBinder binder) {
+                return previous().expose(binder);
+            }
 
-            Object bind(Binder binder) { throw new AssertionError(); }
+            Object bind(Binder binder) { return previous().bind(binder); }
 
-            Step previousStep() { throw new AssertionError(); }
+            Step previous() { throw new AssertionError(); }
         }
     }
 }
