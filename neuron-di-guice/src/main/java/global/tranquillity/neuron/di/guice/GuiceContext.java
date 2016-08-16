@@ -10,7 +10,7 @@ import java.lang.reflect.Constructor;
 import java.util.LinkedList;
 import java.util.List;
 
-@SuppressWarnings({ "WeakerAccess", "unused" })
+@SuppressWarnings("WeakerAccess")
 public class GuiceContext extends InjectorContext<Injector, Module> {
 
     public InjectorConfiguration injector() {
@@ -299,7 +299,7 @@ public class GuiceContext extends InjectorContext<Injector, Module> {
                 return new NextStep() {
 
                     @Override
-                    AnnotatedElementBuilder expose(PrivateBinder binder) {
+                    Void expose(PrivateBinder binder) {
                         previousExpose(binder).annotatedWith(annotationType);
                         return null;
                     }
@@ -316,7 +316,7 @@ public class GuiceContext extends InjectorContext<Injector, Module> {
                 return new NextStep() {
 
                     @Override
-                    AnnotatedElementBuilder expose(PrivateBinder binder) {
+                    Void expose(PrivateBinder binder) {
                         previousExpose(binder).annotatedWith(annotation);
                         return null;
                     }
