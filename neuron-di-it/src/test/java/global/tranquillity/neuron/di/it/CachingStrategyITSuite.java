@@ -1,6 +1,5 @@
 package global.tranquillity.neuron.di.it;
 
-import global.tranquillity.neuron.di.api.CachingStrategy;
 import org.junit.Test;
 
 import java.util.List;
@@ -29,11 +28,6 @@ public abstract class CachingStrategyITSuite extends OrganismTestBase {
 
     abstract Class<? extends HasDependency> classWithDisabledCachingStrategy();
 
-    /**
-     * Tests {@link CachingStrategy#NOT_THREAD_SAFE}.
-     * This test implements a Monte Carlo algorithm: In rare cases, it may fail.
-     * There is no need to change the code then, just repeat the test.
-     */
     @Test
     public void testNotThreadSafeCachingStrategy() {
         final HasDependency neuron = make(classWithNotThreadSafeCachingStrategy());
