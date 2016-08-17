@@ -38,7 +38,7 @@ public abstract class CachingStrategyITSuite extends OrganismTestBase {
     public void testNotThreadSafeCachingStrategy() {
         final HasDependency neuron = make(classWithNotThreadSafeCachingStrategy());
         final ConcurrentDependencyCollector collector = new ConcurrentDependencyCollector();
-        assertThat(collector.run(neuron), is(not(singleton(neuron.dependency()))));
+        assertThat(collector.run(neuron), hasSize(lessThanOrEqualTo(collector.numThreads())));
     }
 
     abstract Class<? extends HasDependency> classWithNotThreadSafeCachingStrategy();
