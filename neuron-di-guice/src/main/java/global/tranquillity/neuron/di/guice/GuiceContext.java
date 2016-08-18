@@ -18,7 +18,7 @@ import java.util.List;
 @SuppressWarnings("WeakerAccess")
 public class GuiceContext {
 
-    public InjectorConfiguration injector() {
+    public static InjectorConfiguration injector() {
         return new InjectorConfiguration();
     }
 

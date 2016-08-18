@@ -17,7 +17,7 @@ class GuiceContextIT extends WordSpec {
   "A Guice context" should {
     "provide a nice DSL for building an injector" in {
       testInjector(
-        new GuiceContext()
+        GuiceContext
           .injector
             .module
               .bindConstant.annotatedWith(named("one")).to(1).end
