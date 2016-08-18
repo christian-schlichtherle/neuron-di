@@ -17,14 +17,14 @@ abstract class OrganismTestBase implements Incubator {
     }
 
     private Organism organism() {
-        Organism value;
-        if (null == (value = organism)) {
+        Organism o;
+        if (null == (o = organism)) {
             synchronized (this) {
-                if (null == (value = organism)) {
-                    organism = value = breedOrganism();
+                if (null == (o = organism)) {
+                    organism = o = breed();
                 }
             }
         }
-        return value;
+        return o;
     }
 }
