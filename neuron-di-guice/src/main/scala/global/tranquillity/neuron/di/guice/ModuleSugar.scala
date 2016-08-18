@@ -11,7 +11,7 @@ import scala.reflect.{ClassTag, classTag}
 
 abstract class ModuleSugar extends AbstractModule {
 
-  def bind_[A <: AnyRef : ClassTag]: AnnotatedBindingBuilder[A] =
+  protected def bind_[A <: AnyRef : ClassTag]: AnnotatedBindingBuilder[A] =
     binder bind runtimeClassOf[A]
 
   implicit class WithAnnotatedConstantBindingBuilder(builder: AnnotatedConstantBindingBuilder) {
