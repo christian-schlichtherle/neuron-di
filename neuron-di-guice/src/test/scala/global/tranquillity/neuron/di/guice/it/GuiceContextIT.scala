@@ -2,14 +2,14 @@ package global.tranquillity.neuron.di.guice.it
 
 import javax.inject.{Inject, Named, Singleton}
 
-import com.google.inject.{AbstractModule, Guice, Injector}
-import global.tranquillity.neuron.di.guice.GuiceContext
+import com.google.inject._
+import com.google.inject.name.Names.named
+import global.tranquillity.neuron.di.guice.it.GuiceContextIT._
+import global.tranquillity.neuron.di.guice.{GuiceContext, ModuleSugar}
 import org.junit.runner.RunWith
 import org.scalatest.Matchers._
 import org.scalatest.WordSpec
 import org.scalatest.junit.JUnitRunner
-import com.google.inject.name.Names.named
-import GuiceContextIT._
 
 @RunWith(classOf[JUnitRunner])
 class GuiceContextIT extends WordSpec {
@@ -35,6 +35,7 @@ class GuiceContextIT extends WordSpec {
     "build an injector with the same behavior as if using the original API" in {
       testInjector(
         Guice.createInjector(new AbstractModule {
+
           def configure() {
             bindConstant.annotatedWith(named("one")).to(1)
             bind(classOf[Foo])
@@ -42,6 +43,22 @@ class GuiceContextIT extends WordSpec {
               .to(classOf[FooImpl])
               .in(classOf[Singleton])
             bind(classOf[Bar]).to(classOf[BarImpl])
+          }
+        })
+      )
+    }
+
+    "work" in {
+      testInjector(
+        Guice.createInjector(new ModuleSugar {
+
+          def configure() {
+            bindConstant.annotatedWith(named("one")).to(1)
+            bind_[Foo]
+              .annotatedWith(named("foo"))
+              .to_[FooImpl]
+              .in_[Singleton]
+            bind_[Bar].to_[BarImpl]
           }
         })
       )
