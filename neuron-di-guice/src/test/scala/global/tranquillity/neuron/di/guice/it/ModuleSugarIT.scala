@@ -4,51 +4,18 @@ import javax.inject.{Inject, Named, Singleton}
 
 import com.google.inject._
 import com.google.inject.name.Names.named
-import global.tranquillity.neuron.di.guice.it.GuiceContextIT._
-import global.tranquillity.neuron.di.guice.{GuiceContext, ModuleSugar}
+import global.tranquillity.neuron.di.guice.ModuleSugar
+import global.tranquillity.neuron.di.guice.it.ModuleSugarIT._
 import org.junit.runner.RunWith
 import org.scalatest.Matchers._
 import org.scalatest.WordSpec
 import org.scalatest.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
-class GuiceContextIT extends WordSpec {
+class ModuleSugarIT extends WordSpec {
 
-  "A Guice context" should {
-    "provide a nice DSL for building an injector" in {
-      testInjector(
-        GuiceContext
-          .injector
-            .module
-              .bindConstant.annotatedWith(named("one")).to(1).end
-              .bind(classOf[Foo])
-                .annotatedWith(named("foo"))
-                .to(classOf[FooImpl])
-                .in(classOf[Singleton])
-              .end
-              .bind(classOf[Bar]).to(classOf[BarImpl]).end
-            .end
-          .build
-      )
-    }
-
-    "build an injector with the same behavior as if using the original API" in {
-      testInjector(
-        Guice.createInjector(new AbstractModule {
-
-          def configure() {
-            bindConstant.annotatedWith(named("one")).to(1)
-            bind(classOf[Foo])
-              .annotatedWith(named("foo"))
-              .to(classOf[FooImpl])
-              .in(classOf[Singleton])
-            bind(classOf[Bar]).to(classOf[BarImpl])
-          }
-        })
-      )
-    }
-
-    "work" in {
+  "Module sugar" should {
+    "provide a nice DSL for configuring a module" in {
       testInjector(
         Guice.createInjector(new ModuleSugar {
 
@@ -59,6 +26,22 @@ class GuiceContextIT extends WordSpec {
               .to_[FooImpl]
               .in_[Singleton]
             bind_[Bar].to_[BarImpl]
+          }
+        })
+      )
+    }
+
+    "configure a module with the same behavior as if using the original API" in {
+      testInjector(
+        Guice.createInjector(new AbstractModule {
+
+          def configure() {
+            bindConstant.annotatedWith(named("one")).to(1)
+            bind(classOf[Foo])
+              .annotatedWith(named("foo"))
+              .to(classOf[FooImpl])
+              .in(classOf[Singleton])
+            bind(classOf[Bar]).to(classOf[BarImpl])
           }
         })
       )
@@ -78,7 +61,7 @@ class GuiceContextIT extends WordSpec {
   }
 }
 
-object GuiceContextIT {
+object ModuleSugarIT {
 
   private trait Foo { def i: Int }
 
