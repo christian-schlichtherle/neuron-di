@@ -14,13 +14,13 @@ import GuiceContextIT._
 @RunWith(classOf[JUnitRunner])
 class GuiceContextIT extends WordSpec {
 
-  "A guice context" should {
-    "provide a nice DSL" in {
+  "A Guice context" should {
+    "provide a nice DSL for building an injector" in {
       testInjector(
         new GuiceContext()
           .injector
             .module
-              .bindConstant.annotatedWith(named("i")).to(1).end
+              .bindConstant.annotatedWith(named("one")).to(1).end
               .bind(classOf[Foo])
                 .annotatedWith(named("foo"))
                 .to(classOf[FooImpl])
@@ -32,11 +32,11 @@ class GuiceContextIT extends WordSpec {
       )
     }
 
-    "yield the same results as the original Guice API" in {
+    "build an injector with the same behavior as if using the original API" in {
       testInjector(
         Guice.createInjector(new AbstractModule {
           def configure() {
-            bindConstant.annotatedWith(named("i")).to(1)
+            bindConstant.annotatedWith(named("one")).to(1)
             bind(classOf[Foo])
               .annotatedWith(named("foo"))
               .to(classOf[FooImpl])
@@ -49,14 +49,15 @@ class GuiceContextIT extends WordSpec {
   }
 
   private def testInjector(injector: Injector) {
-    val bar1 = injector.getInstance(classOf[Bar])
-    val bar2 = injector.getInstance(classOf[Bar])
+    injector getInstance classOf[Injector] should be theSameInstanceAs injector
+    val bar1 = injector getInstance classOf[Bar]
+    val bar2 = injector getInstance classOf[Bar]
     bar1 should not be theSameInstanceAs(bar2)
-    bar1 should be(a[BarImpl])
-    bar2 should be(a[BarImpl])
-    bar1.foo should be(a[FooImpl])
+    bar1 shouldBe a[BarImpl]
+    bar2 shouldBe a[BarImpl]
+    bar1.foo shouldBe a[FooImpl]
     bar1.foo should be theSameInstanceAs bar2.foo
-    bar1.foo.i should be(1)
+    bar1.foo.i shouldBe 1
   }
 }
 
@@ -64,7 +65,7 @@ object GuiceContextIT {
 
   private trait Foo { def i: Int }
 
-  private class FooImpl @Inject() (@Named("i") val i: Int) extends Foo
+  private class FooImpl @Inject() (@Named("one") val i: Int) extends Foo
 
   private trait Bar { def foo: Foo }
 
