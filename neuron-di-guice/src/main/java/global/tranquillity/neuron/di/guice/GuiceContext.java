@@ -2,7 +2,6 @@ package global.tranquillity.neuron.di.guice;
 
 import com.google.inject.*;
 import com.google.inject.binder.*;
-import global.tranquillity.neuron.di.api.InjectorContext;
 
 import javax.inject.Provider;
 import java.lang.annotation.Annotation;
@@ -10,8 +9,14 @@ import java.lang.reflect.Constructor;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * Defines a domain specific language (DSL) for configuring Guice modules and
+ * injectors.
+ *
+ * @author Christian Schlichtherle
+ */
 @SuppressWarnings("WeakerAccess")
-public class GuiceContext extends InjectorContext<Injector, Module> {
+public class GuiceContext {
 
     public InjectorConfiguration injector() {
         return new InjectorConfiguration();
@@ -19,69 +24,23 @@ public class GuiceContext extends InjectorContext<Injector, Module> {
 
     private static <T> List<T> newList() { return new LinkedList<>(); }
 
-    public class InjectorConfiguration extends InjectorBuilder {
-
-        private List<Module> modules = newList();
-
-        @Override
-        public ModuleConfiguration<InjectorConfiguration> module() {
-            return new ModuleConfiguration<InjectorConfiguration>() {
-
-                @Override
-                public InjectorConfiguration end() {
-                    return InjectorConfiguration.this.module(build());
-                }
-            };
-        }
-
-        @Override
-        public InjectorConfiguration module(Module module) {
-            modules.add(module);
-            return this;
-        }
+    public static class InjectorConfiguration
+            extends ModuleContext<InjectorConfiguration>
+            implements Builder<Injector> {
 
         @Override
         public Injector build() { return Guice.createInjector(swapModules()); }
-
-        private List<Module> swapModules() {
-            final List<Module> modules = this.modules;
-            this.modules = newList();
-            return modules;
-        }
     }
 
-    public abstract class ModuleConfiguration<Parent> extends ModuleBuilder<Parent> {
+    public static abstract class ModuleConfiguration<Parent>
+            extends ModuleContext<ModuleConfiguration<Parent>>
+            implements Definition<Parent>, Builder<Module> {
 
-        private List<Module> submodules = newList();
         private List<Step> exposings = newList();
         private List<Step> bindings = newList();
 
-        @Override
-        public ModuleConfiguration<ModuleConfiguration<Parent>> module() {
-            return new ModuleConfiguration<ModuleConfiguration<Parent>>() {
-
-                @Override
-                public ModuleConfiguration<Parent> end() {
-                    return ModuleConfiguration.this.module(build());
-                }
-            };
-        }
-
-        @Override
-        public ModuleConfiguration<Parent> module(final Module module) {
-            submodules.add(module);
-            return this;
-        }
-
-        @Override
         public <Type> AnnotatedBindingStep<Type> exposeAndBind(Class<Type> clazz) {
-            return new AnnotatedBindingStep<Type>() {
-
-                @Override
-                void add(final Step step) {
-                    addExposing(step);
-                    addBinding(step);
-                }
+            return new AnnotatedExposingAndBindingStep<Type>() {
 
                 @Override
                 public AnnotatedElementBuilder expose(PrivateBinder binder) {
@@ -118,13 +77,7 @@ public class GuiceContext extends InjectorContext<Injector, Module> {
         }
 
         public <Type> AnnotatedBindingStep<Type> exposeAndBind(TypeLiteral<Type> literal) {
-            return new AnnotatedBindingStep<Type>() {
-
-                @Override
-                void add(final Step step) {
-                    addExposing(step);
-                    addBinding(step);
-                }
+            return new AnnotatedExposingAndBindingStep<Type>() {
 
                 @Override
                 public AnnotatedElementBuilder expose(PrivateBinder binder) {
@@ -138,7 +91,6 @@ public class GuiceContext extends InjectorContext<Injector, Module> {
             };
         }
 
-        @Override
         public AnnotatedElementStep expose(Class<?> clazz) {
             return new AnnotatedElementStep() {
 
@@ -179,12 +131,8 @@ public class GuiceContext extends InjectorContext<Injector, Module> {
             };
         }
 
-        @Override
         public <Type> AnnotatedBindingStep<Type> bind(Class<Type> clazz) {
-            return new AnnotatedBindingStep<Type>() {
-
-                @Override
-                void add(Step step) { addBinding(step); }
+            return new AnnotatedBindingOnlyStep<Type>() {
 
                 @Override
                 public AnnotatedBindingBuilder<Type> bind(Binder binder) {
@@ -207,10 +155,7 @@ public class GuiceContext extends InjectorContext<Injector, Module> {
         }
 
         public <Type> AnnotatedBindingStep<Type> bind(TypeLiteral<Type> literal) {
-            return new AnnotatedBindingStep<Type>() {
-
-                @Override
-                void add(Step step) { addBinding(step); }
+            return new AnnotatedBindingOnlyStep<Type>() {
 
                 @Override
                 public AnnotatedBindingBuilder<Type> bind(Binder binder) {
@@ -219,7 +164,6 @@ public class GuiceContext extends InjectorContext<Injector, Module> {
             };
         }
 
-        @Override
         public AnnotatedConstantBindingStep bindConstant() {
             return new AnnotatedConstantBindingStep() {
 
@@ -264,12 +208,6 @@ public class GuiceContext extends InjectorContext<Injector, Module> {
             swapModules().forEach(binder::install);
         }
 
-        private List<Module> swapModules() {
-            final List<Module> submodules = this.submodules;
-            this.submodules = newList();
-            return submodules;
-        }
-
         private List<Step> swapExposings() {
             final List<Step> exposings = this.exposings;
             this.exposings = newList();
@@ -282,19 +220,37 @@ public class GuiceContext extends InjectorContext<Injector, Module> {
             return bindings;
         }
 
-        public abstract class AnnotatedBindingStep<Type>
-                extends LinkedBindingStep<Type>
-                implements AnnotatedBindingDefinition<Type, ModuleConfiguration<Parent>> {
+        private abstract class AnnotatedExposingAndBindingStep<Type>
+                extends AnnotatedBindingStep<Type> {
+
+            @Override
+            void add(final Step step) {
+                addExposing(step);
+                addBinding(step);
+            }
+        }
+
+        private abstract class AnnotatedBindingOnlyStep<Type>
+                extends AnnotatedBindingStep<Type> {
+
+            @Override
+            void add(Step step) { addBinding(step); }
 
             @Override
             AnnotatedElementBuilder expose(PrivateBinder binder) {
                 throw new AssertionError();
             }
+        }
+
+        public abstract class AnnotatedBindingStep<Type>
+                extends LinkedBindingStep<Type> {
+
+            @Override
+            abstract AnnotatedElementBuilder expose(PrivateBinder binder);
 
             @Override
             abstract AnnotatedBindingBuilder<Type> bind(Binder binder);
 
-            @Override
             public LinkedBindingStep<Type> annotatedWith(Class<? extends Annotation> annotationType) {
                 return new NextStep() {
 
@@ -311,7 +267,6 @@ public class GuiceContext extends InjectorContext<Injector, Module> {
                 };
             }
 
-            @Override
             public LinkedBindingStep<Type> annotatedWith(Annotation annotation) {
                 return new NextStep() {
 
@@ -346,13 +301,11 @@ public class GuiceContext extends InjectorContext<Injector, Module> {
         }
 
         public abstract class LinkedBindingStep<Type>
-                extends ScopedBindingStep
-                implements LinkedBindingDefinition<Type, ModuleConfiguration<Parent>> {
+                extends ScopedBindingStep {
 
             @Override
             abstract LinkedBindingBuilder<Type> bind(Binder binder);
 
-            @Override
             public ScopedBindingStep to(Class<? extends Type> implementation) {
                 return new NextStep() {
 
@@ -381,7 +334,6 @@ public class GuiceContext extends InjectorContext<Injector, Module> {
                 };
             }
 
-            @Override
             public Step toInstance(Type instance) {
                 return new Step() {
 
@@ -402,7 +354,6 @@ public class GuiceContext extends InjectorContext<Injector, Module> {
                 };
             }
 
-            @Override
             public ScopedBindingStep toProvider(Provider<? extends Type> provider) {
                 return new NextStep() {
 
@@ -413,7 +364,6 @@ public class GuiceContext extends InjectorContext<Injector, Module> {
                 };
             }
 
-            @Override
             public ScopedBindingStep toProvider(Class<? extends Provider<? extends Type>> providerType) {
                 return new NextStep() {
 
@@ -444,7 +394,6 @@ public class GuiceContext extends InjectorContext<Injector, Module> {
                 };
             }
 
-            @Override
             public <S extends Type> ScopedBindingStep toConstructor(Constructor<S> constructor) {
                 return new NextStep() {
 
@@ -478,14 +427,11 @@ public class GuiceContext extends InjectorContext<Injector, Module> {
             }
         }
 
-        public abstract class ScopedBindingStep
-                extends Step
-                implements ScopedBindingDefinition<ModuleConfiguration<Parent>> {
+        public abstract class ScopedBindingStep extends Step {
 
             @Override
             abstract ScopedBindingBuilder bind(Binder binder);
 
-            @Override
             public Step in(Class<? extends Annotation> scopeAnnotation) {
                 return new NextStep() {
 
@@ -508,7 +454,6 @@ public class GuiceContext extends InjectorContext<Injector, Module> {
                 };
             }
 
-            @Override
             public Step asEagerSingleton() {
                 return new NextStep() {
 
@@ -531,14 +476,11 @@ public class GuiceContext extends InjectorContext<Injector, Module> {
             }
         }
 
-        public abstract class AnnotatedElementStep
-                extends Step
-                implements AnnotatedElementDefinition<ModuleConfiguration<Parent>> {
+        public abstract class AnnotatedElementStep extends Step {
 
             @Override
             abstract AnnotatedElementBuilder expose(PrivateBinder binder);
 
-            @Override
             public Step annotatedWith(Class<? extends Annotation> annotationType) {
                 return new NextStep() {
 
@@ -550,7 +492,6 @@ public class GuiceContext extends InjectorContext<Injector, Module> {
                 };
             }
 
-            @Override
             public Step annotatedWith(Annotation annotation) {
                 return new NextStep() {
 
@@ -575,14 +516,11 @@ public class GuiceContext extends InjectorContext<Injector, Module> {
             }
         }
 
-        public abstract class AnnotatedConstantBindingStep
-                extends Step
-                implements AnnotatedConstantBindingDefinition<ModuleConfiguration<Parent>> {
+        public abstract class AnnotatedConstantBindingStep extends Step {
 
             @Override
             abstract AnnotatedConstantBindingBuilder bind(Binder binder);
 
-            @Override
             public ConstantBindingStep annotatedWith(Class<? extends Annotation> annotationType) {
                 return new NextStep() {
 
@@ -593,7 +531,6 @@ public class GuiceContext extends InjectorContext<Injector, Module> {
                 };
             }
 
-            @Override
             public ConstantBindingStep annotatedWith(Annotation annotation) {
                 return new NextStep() {
 
@@ -617,14 +554,11 @@ public class GuiceContext extends InjectorContext<Injector, Module> {
             }
         }
 
-        public abstract class ConstantBindingStep
-                extends Step
-                implements ConstantBindingDefinition<ModuleConfiguration<Parent>> {
+        public abstract class ConstantBindingStep extends Step {
 
             @Override
             abstract ConstantBindingBuilder bind(Binder binder);
 
-            @Override
             public Step to(String value) {
                 return new NextStep() {
 
@@ -636,7 +570,6 @@ public class GuiceContext extends InjectorContext<Injector, Module> {
                 };
             }
 
-            @Override
             public Step to(int value) {
                 return new NextStep() {
 
@@ -648,7 +581,6 @@ public class GuiceContext extends InjectorContext<Injector, Module> {
                 };
             }
 
-            @Override
             public Step to(long value) {
                 return new NextStep() {
 
@@ -660,7 +592,6 @@ public class GuiceContext extends InjectorContext<Injector, Module> {
                 };
             }
 
-            @Override
             public Step to(boolean value) {
                 return new NextStep() {
 
@@ -672,7 +603,6 @@ public class GuiceContext extends InjectorContext<Injector, Module> {
                 };
             }
 
-            @Override
             public Step to(double value) {
                 return new NextStep() {
 
@@ -684,7 +614,6 @@ public class GuiceContext extends InjectorContext<Injector, Module> {
                 };
             }
 
-            @Override
             public Step to(float value) {
                 return new NextStep() {
 
@@ -696,7 +625,6 @@ public class GuiceContext extends InjectorContext<Injector, Module> {
                 };
             }
 
-            @Override
             public Step to(short value) {
                 return new NextStep() {
 
@@ -708,7 +636,6 @@ public class GuiceContext extends InjectorContext<Injector, Module> {
                 };
             }
 
-            @Override
             public Step to(char value) {
                 return new NextStep() {
 
@@ -720,7 +647,6 @@ public class GuiceContext extends InjectorContext<Injector, Module> {
                 };
             }
 
-            @Override
             public Step to(byte value) {
                 return new NextStep() {
 
@@ -732,7 +658,6 @@ public class GuiceContext extends InjectorContext<Injector, Module> {
                 };
             }
 
-            @Override
             public Step to(Class<?> value) {
                 return new NextStep() {
 
@@ -744,7 +669,6 @@ public class GuiceContext extends InjectorContext<Injector, Module> {
                 };
             }
 
-            @Override
             public <E extends Enum<E>> Step to(E value) {
                 return new NextStep() {
 
@@ -788,5 +712,59 @@ public class GuiceContext extends InjectorContext<Injector, Module> {
 
             Step previous() { throw new AssertionError(); }
         }
+    }
+
+    public static abstract class ModuleContext<This extends ModuleContext<This>> {
+
+        private List<Module> modules = newList();
+
+        public ModuleConfiguration<This> module() {
+            return new ModuleConfiguration<This>() {
+
+                @Override
+                public This end() {
+                    return ModuleContext.this.module(build());
+                }
+            };
+        }
+
+        @SuppressWarnings("unchecked")
+        public This module(final Module module) {
+            modules.add(module);
+            return (This) this;
+        }
+
+        List<Module> swapModules() {
+            final List<Module> modules = this.modules;
+            this.modules = newList();
+            return modules;
+        }
+    }
+
+    /**
+     * A builder for some product.
+     * Builders are stateful and thus not thread-safe.
+     *
+     * @param <Product> the type of the product.
+     */
+    public interface Builder<Product> {
+
+        /** Builds and returns a new product. */
+        Product build();
+    }
+
+    /**
+     * Defines an injectable product.
+     * Definitions are stateful and thus not thread-safe.
+     *
+     * @param <Target> the type of the injection target.
+     */
+    public interface Definition<Target> {
+
+        /**
+         * Builds the product, injects it into the target and returns the
+         * target.
+         */
+        Target end();
     }
 }
