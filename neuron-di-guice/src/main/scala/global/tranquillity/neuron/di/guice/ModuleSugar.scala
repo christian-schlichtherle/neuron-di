@@ -7,7 +7,7 @@ import com.google.inject.binder._
 import global.tranquillity.neuron.di.guice.ModuleSugar._
 
 import scala.language.implicitConversions
-import scala.reflect.ClassTag
+import scala.reflect.{ClassTag, classTag}
 
 abstract class ModuleSugar extends AbstractModule {
 
@@ -40,6 +40,9 @@ abstract class ModuleSugar extends AbstractModule {
 
 object ModuleSugar {
 
-  private def runtimeClassOf[A](implicit classTag: ClassTag[A]) =
-    classTag.runtimeClass.asInstanceOf[Class[A]]
+  private def runtimeClassOf[A](implicit ct: ClassTag[A]) = {
+    require(ct != classTag[Nothing],
+      s"Missing type parameter when using the `${classTag[ModuleSugar]}` DSL.")
+    ct.runtimeClass.asInstanceOf[Class[A]]
+  }
 }
