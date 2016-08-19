@@ -49,21 +49,28 @@ public class Organism {
 
                     @Override
                     protected Callback getCallback(final Method method) {
-                        final Optional<CachingStrategy> maybeCachingStrategy = Optional
-                                .ofNullable(method.getAnnotation(Caching.class))
-                                .filter(ignored -> 0 == method.getParameterCount())
-                                .map(Caching::value);
-                        if (isAbstract(method)) {
-                            final Class<?> returnType = method.getReturnType();
-                            return maybeCachingStrategy
-                                    .orElseGet(neuron::caching)
-                                    .decorate(() -> make(returnType));
+                        if (isParameterless(method)) {
+                            final Optional<CachingStrategy> maybeCachingStrategy = Optional
+                                    .ofNullable(method.getAnnotation(Caching.class))
+                                    .map(Caching::value);
+                            if (isAbstract(method)) {
+                                final Class<?> returnType = method.getReturnType();
+                                return maybeCachingStrategy
+                                        .orElseGet(neuron::caching)
+                                        .decorate(() -> make(returnType));
+                            } else {
+                                return maybeCachingStrategy
+                                        .filter(CachingStrategy::isEnabled)
+                                        .map(s -> s.decorate((obj, method2, args, proxy) -> proxy.invokeSuper(obj, args)))
+                                        .orElse(NoOp.INSTANCE);
+                            }
                         } else {
-                            return maybeCachingStrategy
-                                    .filter(CachingStrategy::isEnabled)
-                                    .map(s -> s.decorate((obj, method2, args, proxy) -> proxy.invokeSuper(obj, args)))
-                                    .orElse(NoOp.INSTANCE);
+                            return NoOp.INSTANCE;
                         }
+                    }
+
+                    boolean isParameterless(Method method) {
+                        return 0 == method.getParameterCount();
                     }
 
                     boolean isAbstract(Method method) {
