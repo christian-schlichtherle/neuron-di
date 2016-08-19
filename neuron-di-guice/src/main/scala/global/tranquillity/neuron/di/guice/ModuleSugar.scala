@@ -1,6 +1,7 @@
 package global.tranquillity.neuron.di.guice
 
 import java.lang.annotation.Annotation
+import javax.inject.Provider
 
 import com.google.inject.AbstractModule
 import com.google.inject.binder._
@@ -30,11 +31,16 @@ abstract class ModuleSugar extends AbstractModule {
 
     def to_[B <: A : ClassTag]: ScopedBindingBuilder =
       builder to runtimeClassOf[B]
+
+    def toProvider_[B <: Provider[_ <: A] : ClassTag]: ScopedBindingBuilder =
+      builder toProvider runtimeClassOf[B]
   }
 
   implicit class WithScopedBindingBuilder(builder: ScopedBindingBuilder) {
 
-    def in_[A <: Annotation : ClassTag] { builder in runtimeClassOf[A] }
+    def in_[A <: Annotation](implicit ct: ClassTag[A]) {
+      builder in runtimeClassOf(ct)
+    }
   }
 }
 
