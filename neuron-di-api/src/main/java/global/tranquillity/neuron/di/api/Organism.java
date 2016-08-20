@@ -14,8 +14,7 @@ import java.lang.reflect.Modifier;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-
-import static global.tranquillity.neuron.di.api.CachingStrategy.DISABLED;
+import java.util.function.BiFunction;
 
 public class Organism {
 
@@ -31,66 +30,72 @@ public class Organism {
      * Returns an instance of the given type which will resolve its dependencies
      * lazily.
      */
-    public <T> T make(final Class<T> type) {
-        return inspect(type).accept(null, new Visitor<T>() {
+    public <T> T make(final Class<T> clazz) {
+        return inspect(clazz).accept(null, new Visitor<T>() {
 
             @Override
-            public T visitNeuron(final T ignored, final NeuronElement element) {
-                assert type == element.clazz();
+            public T visitNeuron(final T nothing, final NeuronElement element) {
+                assert clazz == element.clazz();
                 Object instance;
-                instance = singletons.get(type);
+                instance = singletons.get(clazz);
                 if (null == instance) {
-                    final Class<?> superClass;
-                    final Class<?>[] interfaces;
-                    if (type.isInterface()) {
-                        if (hasDefaultMethodsWhichRequireCaching(type)) {
-                            superClass = createClass(type);
-                            interfaces = NO_CLASSES;
-                        } else {
-                            superClass = Object.class;
-                            interfaces = new Class<?>[] { type };
-                        }
-                    } else {
-                        superClass = type;
-                        interfaces = NO_CLASSES;
-                    }
-                    final CallbackHelper helper = new CallbackHelper(superClass, interfaces) {
+                    instance = mapSuperClassAndInterfaces(clazz, new BiFunction<Class<?>, Class<?>[], Object>() {
 
                         @Override
-                        protected Callback getCallback(final Method method) {
-                            if (isParameterless(method)) {
-                                final Optional<CachingStrategy> maybeCachingStrategy = maybeCachingStrategy(method);
-                                if (isAbstract(method)) {
-                                    final Class<?> returnType = method.getReturnType();
-                                    return maybeCachingStrategy
-                                            .orElseGet(element::cachingStrategy)
-                                            .decorate(() -> make(returnType));
-                                } else {
-                                    return maybeCachingStrategy
+                        public Object apply(final Class<?> superClass, final Class<?>[] interfaces) {
+
+                            class MethodVisitor
+                                    extends CallbackHelper
+                                    implements Visitor<Callback> {
+
+                                private MethodVisitor() {
+                                    super(superClass, interfaces);
+                                }
+
+                                @Override
+                                protected Callback getCallback(Method method) {
+                                    return element.inspect(method).accept(null, this);
+                                }
+
+                                @Override
+                                public Callback visitSynapse(Callback nothing, SynapseElement element) {
+                                    final Class<?> returnType = element.method().getReturnType();
+                                    return element.cachingStrategy().decorate(() -> make(returnType));
+                                }
+
+                                @Override
+                                public Callback visitMethod(Callback nothing, MethodElement element) {
+                                    return Optional
+                                            .of(element.cachingStrategy())
                                             .filter(CachingStrategy::isEnabled)
-                                            .map(s -> s.decorate((obj, ignored, args, proxy) -> proxy.invokeSuper(obj, args)))
+                                            .map(this::decorate)
                                             .orElse(NoOp.INSTANCE);
                                 }
-                            } else {
-                                return NoOp.INSTANCE;
+
+                                private Callback decorate(CachingStrategy s) {
+                                    return s.decorate((obj, method, args, proxy) ->
+                                            proxy.invokeSuper(obj, args));
+                                }
                             }
+
+                            Object instance = createProxy(superClass, interfaces, new MethodVisitor());
+                            if (clazz.isAnnotationPresent(Singleton.class)) {
+                                final Object oldInstance = singletons.putIfAbsent(clazz, instance);
+                                if (null != oldInstance) {
+                                    instance = oldInstance;
+                                }
+                            }
+                            return instance;
                         }
-                    };
-                    instance = createProxy(superClass, interfaces, helper);
-                    if (type.isAnnotationPresent(Singleton.class)) {
-                        final Object oldInstance = singletons.putIfAbsent(type, instance);
-                        if (null != oldInstance) {
-                            instance = oldInstance;
-                        }
-                    }
+                    });
                 }
-                return type.cast(instance);
+                return clazz.cast(instance);
             }
 
             @Override
-            public T visitClass(final T ignored, final ClassElement element) {
-                assert type == element.clazz();
-                return createInstance(type);
+            public T visitClass(final T nothing, final ClassElement element) {
+                assert clazz == element.clazz();
+                return createInstance(clazz);
             }
         });
     }
@@ -111,55 +116,6 @@ public class Organism {
                 public CachingStrategy cachingStrategy() {
                     return neuron.cachingStrategy();
                 }
-
-                @Override
-                public <V> V traverse(V value, final Visitor<V> visitor) {
-                    for (Method method : clazz.getDeclaredMethods()) {
-                        value = inspect(method).accept(value, visitor);
-                    }
-                    return value;
-                }
-
-                MethodElement inspect(final Method method) {
-
-                    class MethodBase {
-
-                        CachingStrategy cachingStrategy;
-
-                        public CachingStrategy cachingStrategy() {
-                            return cachingStrategy;
-                        }
-
-                        public Method method() { return method; }
-                    }
-
-                    class RealSynapseElement extends MethodBase implements SynapseElement {
-
-                        RealSynapseElement(final CachingStrategy cachingStrategy) {
-                            super.cachingStrategy = cachingStrategy;
-                        }
-                    }
-
-                    class RealMethodElement extends MethodBase implements MethodElement {
-
-                        RealMethodElement(final CachingStrategy cachingStrategy) {
-                            super.cachingStrategy = cachingStrategy;
-                        }
-                    }
-
-                    if (isParameterless(method)) {
-                        final Optional<CachingStrategy> maybeCachingStrategy = maybeCachingStrategy(method);
-                        if (isAbstract(method)) {
-                            return new RealSynapseElement(maybeCachingStrategy
-                                    .orElseGet(neuron::cachingStrategy));
-                        } else {
-                            return new RealMethodElement(maybeCachingStrategy
-                                    .orElse(DISABLED));
-                        }
-                    } else {
-                        return new RealMethodElement(DISABLED);
-                    }
-                }
             }
 
             return new RealNeuronElement();
@@ -171,18 +127,24 @@ public class Organism {
         }
     }
 
-    private static boolean isParameterless(Method method) {
-        return 0 == method.getParameterCount();
-    }
-
-    private static boolean isAbstract(Method method) {
-        return Modifier.isAbstract(method.getModifiers());
-    }
-
-    private static Optional<CachingStrategy> maybeCachingStrategy(Method method) {
-        return Optional
-                .ofNullable(method.getAnnotation(Caching.class))
-                .map(Caching::value);
+    private static <R> R mapSuperClassAndInterfaces(
+            final Class<?> clazz,
+            final BiFunction<Class<?>, Class<?>[], R> mapper) {
+        final Class<?> superClass;
+        final Class<?>[] interfaces;
+        if (clazz.isInterface()) {
+            if (hasDefaultMethodsWhichRequireCaching(clazz)) {
+                superClass = createClass(clazz);
+                interfaces = NO_CLASSES;
+            } else {
+                superClass = Object.class;
+                interfaces = new Class<?>[] { clazz };
+            }
+        } else {
+            superClass = clazz;
+            interfaces = NO_CLASSES;
+        }
+        return mapper.apply(superClass, interfaces);
     }
 
     private static boolean hasDefaultMethodsWhichRequireCaching(final Class<?> iface) {
@@ -241,5 +203,19 @@ public class Organism {
             Unsafe.getUnsafe().throwException(e.getTargetException());
             throw new AssertionError("Unreachable statement.", e);
         }
+    }
+
+    static boolean isParameterless(Method method) {
+        return 0 == method.getParameterCount();
+    }
+
+    static boolean isAbstract(Method method) {
+        return Modifier.isAbstract(method.getModifiers());
+    }
+
+    static Optional<CachingStrategy> cachingStrategyOption(Method method) {
+        return Optional
+                .ofNullable(method.getAnnotation(Caching.class))
+                .map(Caching::value);
     }
 }
