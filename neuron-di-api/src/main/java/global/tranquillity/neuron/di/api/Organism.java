@@ -27,6 +27,74 @@ public class Organism {
 
     private Organism() { }
 
+    /**
+     * Returns an instance of the given type which will resolve its dependencies
+     * lazily.
+     */
+    public <T> T make(final Class<T> type) {
+        return inspect(type).accept(null, new Visitor<T>() {
+
+            @Override
+            public T visitNeuron(final T ignored, final NeuronElement element) {
+                assert type == element.clazz();
+                Object instance;
+                instance = singletons.get(type);
+                if (null == instance) {
+                    final Class<?> superClass;
+                    final Class<?>[] interfaces;
+                    if (type.isInterface()) {
+                        if (hasDefaultMethodsWhichRequireCaching(type)) {
+                            superClass = createClass(type);
+                            interfaces = NO_CLASSES;
+                        } else {
+                            superClass = Object.class;
+                            interfaces = new Class<?>[] { type };
+                        }
+                    } else {
+                        superClass = type;
+                        interfaces = NO_CLASSES;
+                    }
+                    final CallbackHelper helper = new CallbackHelper(superClass, interfaces) {
+
+                        @Override
+                        protected Callback getCallback(final Method method) {
+                            if (isParameterless(method)) {
+                                final Optional<CachingStrategy> maybeCachingStrategy = maybeCachingStrategy(method);
+                                if (isAbstract(method)) {
+                                    final Class<?> returnType = method.getReturnType();
+                                    return maybeCachingStrategy
+                                            .orElseGet(element::cachingStrategy)
+                                            .decorate(() -> make(returnType));
+                                } else {
+                                    return maybeCachingStrategy
+                                            .filter(CachingStrategy::isEnabled)
+                                            .map(s -> s.decorate((obj, ignored, args, proxy) -> proxy.invokeSuper(obj, args)))
+                                            .orElse(NoOp.INSTANCE);
+                                }
+                            } else {
+                                return NoOp.INSTANCE;
+                            }
+                        }
+                    };
+                    instance = createProxy(superClass, interfaces, helper);
+                    if (type.isAnnotationPresent(Singleton.class)) {
+                        final Object oldInstance = singletons.putIfAbsent(type, instance);
+                        if (null != oldInstance) {
+                            instance = oldInstance;
+                        }
+                    }
+                }
+                return type.cast(instance);
+            }
+
+            @Override
+            public T visitClass(final T ignored, final ClassElement element) {
+                assert type == element.clazz();
+                return createInstance(type);
+            }
+        });
+    }
+
     public static ClassElement inspect(final Class<?> clazz) {
 
         class ClassBase {
@@ -103,67 +171,6 @@ public class Organism {
         }
     }
 
-    /**
-     * Returns an instance of the given type which will resolve its dependencies
-     * lazily.
-     */
-    public <T> T make(final Class<T> type) {
-        Object instance;
-        final Neuron neuron = type.getAnnotation(Neuron.class);
-        if (null != neuron) {
-            instance = singletons.get(type);
-            if (null == instance) {
-                final Class<?> superClass;
-                final Class<?>[] interfaces;
-                if (type.isInterface()) {
-                    if (hasDefaultMethodsWhichRequireCaching(type)) {
-                        superClass = createClass(type);
-                        interfaces = NO_CLASSES;
-                    } else {
-                        superClass = Object.class;
-                        interfaces = new Class<?>[] { type };
-                    }
-                } else {
-                    superClass = type;
-                    interfaces = NO_CLASSES;
-                }
-                final CallbackHelper helper = new CallbackHelper(superClass, interfaces) {
-
-                    @Override
-                    protected Callback getCallback(final Method method) {
-                        if (isParameterless(method)) {
-                            final Optional<CachingStrategy> maybeCachingStrategy = maybeCachingStrategy(method);
-                            if (isAbstract(method)) {
-                                final Class<?> returnType = method.getReturnType();
-                                return maybeCachingStrategy
-                                        .orElseGet(neuron::cachingStrategy)
-                                        .decorate(() -> make(returnType));
-                            } else {
-                                return maybeCachingStrategy
-                                        .filter(CachingStrategy::isEnabled)
-                                        .map(s -> s.decorate((obj, ignored, args, proxy) -> proxy.invokeSuper(obj, args)))
-                                        .orElse(NoOp.INSTANCE);
-                            }
-                        } else {
-                            return NoOp.INSTANCE;
-                        }
-                    }
-                };
-                instance = createProxy(superClass, interfaces, helper);
-                if (type.isAnnotationPresent(Singleton.class)) {
-                    final Object oldInstance = singletons.putIfAbsent(type, instance);
-                    if (null != oldInstance) {
-                        instance = oldInstance;
-                    }
-                }
-            }
-        } else {
-            instance = createInstance(type);
-        }
-        assert null != instance;
-        return type.cast(instance);
-    }
-
     private static boolean isParameterless(Method method) {
         return 0 == method.getParameterCount();
     }
@@ -216,7 +223,7 @@ public class Organism {
         return e.create();
     }
 
-    private static <T> Object createInstance(final Class<T> type) {
+    private static <T> T createInstance(final Class<T> type) {
         try {
             final Constructor<T> c = type.getDeclaredConstructor();
             c.setAccessible(true);
