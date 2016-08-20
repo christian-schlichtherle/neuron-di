@@ -57,7 +57,7 @@ public class Organism {
                             if (isAbstract(method)) {
                                 final Class<?> returnType = method.getReturnType();
                                 return maybeCachingStrategy
-                                        .orElseGet(neuron::caching)
+                                        .orElseGet(neuron::cachingStrategy)
                                         .decorate(() -> make(returnType));
                             } else {
                                 return maybeCachingStrategy

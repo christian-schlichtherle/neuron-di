@@ -26,13 +26,13 @@ public class CachingStrategyForAbstractMethodsIT extends CachingStrategyITSuite 
         return NeuronWithThreadSafeCachingStrategy.class;
     }
 
-    @Neuron(caching = DISABLED)
+    @Neuron(cachingStrategy = DISABLED)
     interface NeuronWithDisabledCachingStrategy extends HasDependency { }
 
-    @Neuron(caching = NOT_THREAD_SAFE)
+    @Neuron(cachingStrategy = NOT_THREAD_SAFE)
     interface NeuronWithNotThreadSafeCachingStrategy extends HasDependency { }
 
-    @Neuron(caching = THREAD_LOCAL)
+    @Neuron(cachingStrategy = THREAD_LOCAL)
     interface NeuronWithThreadLocalCachingStrategy extends HasDependency { }
 
     @Neuron
