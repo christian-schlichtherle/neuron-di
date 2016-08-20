@@ -5,12 +5,21 @@ import javax.inject.Provider
 
 import com.google.inject.AbstractModule
 import com.google.inject.binder._
+import global.tranquillity.neuron.di.api.Organism
 import global.tranquillity.neuron.di.guice.ModuleSugar._
 
 import scala.language.implicitConversions
 import scala.reflect.{ClassTag, classTag}
 
 abstract class ModuleSugar extends AbstractModule {
+
+  private lazy val organism = Organism.breed
+
+  protected def bindNeuron[A <: AnyRef](implicit ct : ClassTag[A]) {
+    bind_[A].toProvider(new Provider[A] {
+      def get: A = organism make runtimeClassOf(ct)
+    })
+  }
 
   protected def bind_[A <: AnyRef : ClassTag]: AnnotatedBindingBuilder[A] =
     binder bind runtimeClassOf[A]

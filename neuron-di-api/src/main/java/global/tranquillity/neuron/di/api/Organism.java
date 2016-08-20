@@ -7,10 +7,15 @@ import net.sf.cglib.proxy.NoOp;
 import sun.misc.Unsafe;
 
 import javax.inject.Singleton;
-import java.lang.reflect.*;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+
+import static global.tranquillity.neuron.di.api.CachingStrategy.DISABLED;
 
 public class Organism {
 
@@ -21,6 +26,82 @@ public class Organism {
     public static Organism breed() { return new Organism(); }
 
     private Organism() { }
+
+    public static ClassElement inspect(final Class<?> clazz) {
+
+        class ClassBase {
+
+            public Class<?> clazz() { return clazz; }
+        }
+
+        final Neuron neuron = clazz.getAnnotation(Neuron.class);
+        if (null != neuron) {
+
+            class RealNeuronElement extends ClassBase implements NeuronElement {
+
+                @Override
+                public CachingStrategy cachingStrategy() {
+                    return neuron.cachingStrategy();
+                }
+
+                @Override
+                public <V> V traverse(V value, final Visitor<V> visitor) {
+                    for (Method method : clazz.getDeclaredMethods()) {
+                        value = inspect(method).accept(value, visitor);
+                    }
+                    return value;
+                }
+
+                MethodElement inspect(final Method method) {
+
+                    class MethodBase {
+
+                        CachingStrategy cachingStrategy;
+
+                        public CachingStrategy cachingStrategy() {
+                            return cachingStrategy;
+                        }
+
+                        public Method method() { return method; }
+                    }
+
+                    class RealSynapseElement extends MethodBase implements SynapseElement {
+
+                        RealSynapseElement(final CachingStrategy cachingStrategy) {
+                            super.cachingStrategy = cachingStrategy;
+                        }
+                    }
+
+                    class RealMethodElement extends MethodBase implements MethodElement {
+
+                        RealMethodElement(final CachingStrategy cachingStrategy) {
+                            super.cachingStrategy = cachingStrategy;
+                        }
+                    }
+
+                    if (isParameterless(method)) {
+                        final Optional<CachingStrategy> maybeCachingStrategy = maybeCachingStrategy(method);
+                        if (isAbstract(method)) {
+                            return new RealSynapseElement(maybeCachingStrategy
+                                    .orElseGet(neuron::cachingStrategy));
+                        } else {
+                            return new RealMethodElement(maybeCachingStrategy
+                                    .orElse(DISABLED));
+                        }
+                    } else {
+                        return new RealMethodElement(DISABLED);
+                    }
+                }
+            }
+
+            return new RealNeuronElement();
+        } else {
+
+            class RealClassElement extends ClassBase implements ClassElement { }
+
+            return new RealClassElement();
+        }
+    }
 
     /**
      * Returns an instance of the given type which will resolve its dependencies
@@ -51,9 +132,7 @@ public class Organism {
                     @Override
                     protected Callback getCallback(final Method method) {
                         if (isParameterless(method)) {
-                            final Optional<CachingStrategy> maybeCachingStrategy = Optional
-                                    .ofNullable(method.getAnnotation(Caching.class))
-                                    .map(Caching::value);
+                            final Optional<CachingStrategy> maybeCachingStrategy = maybeCachingStrategy(method);
                             if (isAbstract(method)) {
                                 final Class<?> returnType = method.getReturnType();
                                 return maybeCachingStrategy
@@ -62,20 +141,12 @@ public class Organism {
                             } else {
                                 return maybeCachingStrategy
                                         .filter(CachingStrategy::isEnabled)
-                                        .map(s -> s.decorate((obj, method2, args, proxy) -> proxy.invokeSuper(obj, args)))
+                                        .map(s -> s.decorate((obj, ignored, args, proxy) -> proxy.invokeSuper(obj, args)))
                                         .orElse(NoOp.INSTANCE);
                             }
                         } else {
                             return NoOp.INSTANCE;
                         }
-                    }
-
-                    boolean isParameterless(Method method) {
-                        return 0 == method.getParameterCount();
-                    }
-
-                    boolean isAbstract(Method method) {
-                        return Modifier.isAbstract(method.getModifiers());
                     }
                 };
                 instance = createProxy(superClass, interfaces, helper);
@@ -91,6 +162,20 @@ public class Organism {
         }
         assert null != instance;
         return type.cast(instance);
+    }
+
+    private static boolean isParameterless(Method method) {
+        return 0 == method.getParameterCount();
+    }
+
+    private static boolean isAbstract(Method method) {
+        return Modifier.isAbstract(method.getModifiers());
+    }
+
+    private static Optional<CachingStrategy> maybeCachingStrategy(Method method) {
+        return Optional
+                .ofNullable(method.getAnnotation(Caching.class))
+                .map(Caching::value);
     }
 
     private static boolean hasDefaultMethodsWhichRequireCaching(final Class<?> iface) {
