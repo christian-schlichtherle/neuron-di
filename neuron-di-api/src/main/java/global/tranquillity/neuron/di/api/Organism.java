@@ -4,6 +4,7 @@ import net.sf.cglib.proxy.Callback;
 import net.sf.cglib.proxy.CallbackHelper;
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.NoOp;
+import sun.misc.Unsafe;
 
 import javax.inject.Singleton;
 import java.lang.reflect.*;
@@ -135,12 +136,18 @@ public class Organism {
             final Constructor<T> c = type.getDeclaredConstructor();
             c.setAccessible(true);
             return c.newInstance();
+        } catch (NoSuchMethodException e) {
+            throw (InstantiationError)
+                    new InstantiationError(type.getName()).initCause(e);
+        } catch (InstantiationException e) {
+            throw (InstantiationError)
+                    new InstantiationError(e.getMessage()).initCause(e);
         } catch (IllegalAccessException e) {
-            throw new AssertionError(e);
-        } catch (NoSuchMethodException | InstantiationException e) {
-            throw new UndeclaredThrowableException(e);
+            throw (IllegalAccessError)
+                    new IllegalAccessError(e.getMessage()).initCause(e);
         } catch (InvocationTargetException e) {
-            throw new UndeclaredThrowableException(e.getCause());
+            Unsafe.getUnsafe().throwException(e.getTargetException());
+            throw new AssertionError("Unreachable statement.", e);
         }
     }
 }

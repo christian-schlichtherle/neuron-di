@@ -20,7 +20,7 @@ public class BindingIT extends OrganismTestBase {
         try {
             make(HasDependency.class);
             fail();
-        } catch (UndeclaredThrowableException e) {
+        } catch (InstantiationError e) {
             assertThat(e.getCause(), is(instanceOf(NoSuchMethodException.class)));
         }
     }
