@@ -14,19 +14,16 @@ import static global.tranquillity.neuron.di.core.Inspection.*;
 interface NeuronElement extends ClassElement, HasCachingStrategy {
 
     @Override
-    default <V> V accept(V value, Visitor<V> visitor) {
-        return visitor.visitNeuron(value, this);
-    }
+    default void accept(Visitor visitor) { visitor.visitNeuron(this); }
 
-    default <V> V traverseMethods(final V value, final Visitor<V> visitor) {
-        return cglibAdapter((superclass, interfaces) -> {
+    default void traverseMethods(final Visitor visitor) {
+        cglibAdapter((superclass, interfaces) -> {
             final List<Method> methods = new ArrayList<>();
             Enhancer.getMethods(superclass, interfaces, methods);
-            V result = value;
             for (Method method : methods) {
-                result = inspect(method).accept(result, visitor);
+                inspect(method).accept(visitor);
             }
-            return result;
+            return null;
         })
         .apply(runtimeClass());
     }

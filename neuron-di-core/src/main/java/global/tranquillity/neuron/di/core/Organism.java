@@ -38,18 +38,23 @@ public class Organism {
      */
     public <T> T make(final Class<T> runtimeClass,
                       final Function<Method, ?> dependency) {
-        return inspect(runtimeClass).accept(null, new Visitor<T>() {
+
+        class ClassVisitor implements Visitor {
+
+            private Object instance;
 
             @Override
-            public T visitNeuron(final T nothing, final NeuronElement element) {
+            public void visitNeuron(final NeuronElement element) {
                 assert runtimeClass == element.runtimeClass();
-                Object instance = singletons.get(runtimeClass);
+                instance = singletons.get(runtimeClass);
                 if (null == instance) {
                     instance = cglibAdapter((superclass, interfaces) -> {
 
                         class MethodVisitor
                                 extends CallbackHelper
-                                implements Visitor<Callback> {
+                                implements Visitor {
+
+                            private Callback callback;
 
                             private MethodVisitor() {
                                 super(superclass, interfaces);
@@ -57,28 +62,29 @@ public class Organism {
 
                             @Override
                             protected Callback getCallback(Method method) {
-                                return element.inspect(method).accept(null, this);
+                                element.inspect(method).accept(this);
+                                return callback;
                             }
 
                             @Override
-                            public Callback visitSynapse(Callback nothing, SynapseElement element) {
+                            public void visitSynapse(final SynapseElement element) {
                                 final Method method = element.method();
-                                return realCachingStrategy(element.cachingStrategy())
+                                callback = realCachingStrategy(element.cachingStrategy())
                                         .decorate(() -> dependency.apply(method));
                             }
 
                             @Override
-                            public Callback visitMethod(Callback nothing, MethodElement element) {
-                                return Optional
+                            public void visitMethod(MethodElement element) {
+                                callback = Optional
                                         .of(element.cachingStrategy())
                                         .map(Inspection::realCachingStrategy)
                                         .filter(RealCachingStrategy::isEnabled)
-                                        .map(this::decorate)
+                                        .map(this::decorateMethodInterceptor)
                                         .orElse(NoOp.INSTANCE);
                             }
 
-                            private Callback decorate(RealCachingStrategy s) {
-                                return s.decorate((obj, method, args, proxy) ->
+                            private Callback decorateMethodInterceptor(RealCachingStrategy strategy) {
+                                return strategy.decorate((obj, method, args, proxy) ->
                                         proxy.invokeSuper(obj, args));
                             }
                         }
@@ -94,14 +100,17 @@ public class Organism {
                     })
                     .apply(runtimeClass);
                 }
-                return runtimeClass.cast(instance);
             }
 
             @Override
-            public T visitClass(final T nothing, final ClassElement element) {
+            public void visitClass(final ClassElement element) {
                 assert runtimeClass == element.runtimeClass();
-                return createInstance(runtimeClass);
+                instance = createInstance(runtimeClass);
             }
-        });
+        }
+
+        final ClassVisitor visitor = new ClassVisitor();
+        inspect(runtimeClass).accept(visitor);
+        return runtimeClass.cast(visitor.instance);
     }
 }

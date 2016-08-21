@@ -26,18 +26,21 @@ public class Inspection {
             final Element element = inspect(runtimeClass);
 
             @Override
-            public <V> V foldLeft(V initialValue, BiFunction<V, Method, V> accumulator) {
-                return element.accept(initialValue, synapseVisitor(accumulator));
-            }
-        };
-    }
+            public <V> V foldLeft(final V initialValue, final BiFunction<V, Method, V> accumulator) {
 
-    private static <V> Visitor<V> synapseVisitor(BiFunction<V, Method, V> accumulator) {
-        return new Visitor<V>() {
+                class SynapseVisitor implements Visitor {
 
-            @Override
-            public V visitSynapse(V value, SynapseElement element) {
-                return accumulator.apply(value, element.method());
+                    private V value = initialValue;
+
+                    @Override
+                    public void visitSynapse(SynapseElement element) {
+                        value = accumulator.apply(value, element.method());
+                    }
+                }
+
+                final SynapseVisitor visitor = new SynapseVisitor();
+                element.accept(visitor);
+                return visitor.value;
             }
         };
     }

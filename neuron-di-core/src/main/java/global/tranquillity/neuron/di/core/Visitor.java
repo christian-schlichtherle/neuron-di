@@ -1,14 +1,14 @@
 package global.tranquillity.neuron.di.core;
 
-interface Visitor<V> {
+interface Visitor {
 
-    default V visitNeuron(V value, NeuronElement element) {
-        return element.traverseMethods(value, this);
+    default void visitNeuron(NeuronElement element) {
+        element.traverseMethods(this);
     }
 
-    default V visitClass(V value, ClassElement element) { return value; }
+    default void visitClass(ClassElement element) { }
 
-    default V visitSynapse(V value, SynapseElement element) { return value; }
+    default void visitSynapse(SynapseElement element) { }
 
-    default V visitMethod(V value, MethodElement element) { return value; }
+    default void visitMethod(MethodElement element) { }
 }
