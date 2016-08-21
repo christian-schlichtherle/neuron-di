@@ -1,18 +1,15 @@
-package global.tranquillity.neuron.di.guice.it
+package global.tranquillity.neuron.di.guice.spec
 
 import javax.inject.{Inject, Named, Singleton}
 
 import com.google.inject._
 import com.google.inject.name.Names.named
 import global.tranquillity.neuron.di.guice.ModuleSugar
-import global.tranquillity.neuron.di.guice.it.ModuleSugarIT._
-import org.junit.runner.RunWith
+import global.tranquillity.neuron.di.guice.spec.ModuleSugarSpec._
 import org.scalatest.Matchers._
 import org.scalatest.WordSpec
-import org.scalatest.junit.JUnitRunner
 
-@RunWith(classOf[JUnitRunner])
-class ModuleSugarIT extends WordSpec {
+class ModuleSugarSpec extends WordSpec {
 
   "Module sugar" should {
     "provide a nice DSL for configuring a module" in {
@@ -61,7 +58,7 @@ class ModuleSugarIT extends WordSpec {
   }
 }
 
-object ModuleSugarIT {
+object ModuleSugarSpec {
 
   private trait Foo { def i: Int }
 

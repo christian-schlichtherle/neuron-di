@@ -1,4 +1,4 @@
-package global.tranquillity.neuron.di.guice.it
+package global.tranquillity.neuron.di.guice.spec
 
 import javax.inject.{Inject, Named}
 
@@ -6,14 +6,11 @@ import com.google.inject.Guice
 import com.google.inject.name.Names.named
 import global.tranquillity.neuron.di.api.Neuron
 import global.tranquillity.neuron.di.guice.ModuleSugar
-import global.tranquillity.neuron.di.guice.it.BindingIT._
-import org.junit.runner.RunWith
+import global.tranquillity.neuron.di.guice.spec.BindingSpec._
 import org.scalatest.Matchers._
 import org.scalatest.WordSpec
-import org.scalatest.junit.JUnitRunner
 
-@RunWith(classOf[JUnitRunner])
-class BindingIT extends WordSpec {
+class BindingSpec extends WordSpec {
 
   "bindings should work" in {
     val injector = Guice.createInjector(new ModuleSugar {
@@ -28,7 +25,7 @@ class BindingIT extends WordSpec {
   }
 }
 
-object BindingIT {
+object BindingSpec {
 
   @Neuron
   abstract class Greeter {
