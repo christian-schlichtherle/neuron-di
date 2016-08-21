@@ -2,7 +2,7 @@ package global.tranquillity.neuron.di.core;
 
 import java.lang.reflect.Method;
 
-public interface MethodElement extends Element, HasCachingStrategy {
+interface MethodElement extends Element, HasCachingStrategy {
 
     Method method();
 

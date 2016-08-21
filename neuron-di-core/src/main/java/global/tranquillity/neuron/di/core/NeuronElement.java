@@ -11,7 +11,7 @@ import java.util.Optional;
 import static global.tranquillity.neuron.di.api.CachingStrategy.DISABLED;
 import static global.tranquillity.neuron.di.core.Inspection.*;
 
-public interface NeuronElement extends ClassElement, HasCachingStrategy {
+interface NeuronElement extends ClassElement, HasCachingStrategy {
 
     @Override
     default <V> V accept(V value, Visitor<V> visitor) {

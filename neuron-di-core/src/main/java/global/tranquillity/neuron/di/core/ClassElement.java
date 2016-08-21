@@ -1,6 +1,6 @@
 package global.tranquillity.neuron.di.core;
 
-public interface ClassElement extends Element {
+interface ClassElement extends Element {
 
     Class<?> runtimeClass();
 

@@ -8,7 +8,7 @@ import java.lang.reflect.Method;
 enum RealCachingStrategy {
 
     /**
-     * @see global.tranquillity.neuron.di.core.Organism#realCachingStrategy(global.tranquillity.neuron.di.api.CachingStrategy)
+     * @see global.tranquillity.neuron.di.core.Inspection#realCachingStrategy(global.tranquillity.neuron.di.api.CachingStrategy)
      */
     @SuppressWarnings("unused")
     DISABLED {
@@ -24,7 +24,7 @@ enum RealCachingStrategy {
     },
 
     /**
-     * @see global.tranquillity.neuron.di.core.Organism#realCachingStrategy(global.tranquillity.neuron.di.api.CachingStrategy)
+     * @see global.tranquillity.neuron.di.core.Inspection#realCachingStrategy(global.tranquillity.neuron.di.api.CachingStrategy)
      */
     @SuppressWarnings("unused")
     NOT_THREAD_SAFE {
@@ -57,7 +57,7 @@ enum RealCachingStrategy {
     },
 
     /**
-     * @see global.tranquillity.neuron.di.core.Organism#realCachingStrategy(global.tranquillity.neuron.di.api.CachingStrategy)
+     * @see global.tranquillity.neuron.di.core.Inspection#realCachingStrategy(global.tranquillity.neuron.di.api.CachingStrategy)
      */
     @SuppressWarnings("unused")
     THREAD_SAFE {
@@ -90,7 +90,7 @@ enum RealCachingStrategy {
     },
 
     /**
-     * @see global.tranquillity.neuron.di.core.Organism#realCachingStrategy(global.tranquillity.neuron.di.api.CachingStrategy)
+     * @see global.tranquillity.neuron.di.core.Inspection#realCachingStrategy(global.tranquillity.neuron.di.api.CachingStrategy)
      */
     @SuppressWarnings("unused")
     THREAD_LOCAL {

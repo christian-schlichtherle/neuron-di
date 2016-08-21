@@ -1,6 +1,6 @@
 package global.tranquillity.neuron.di.core;
 
-public interface Visitor<V> {
+interface Visitor<V> {
 
     default V visitNeuron(V value, NeuronElement element) {
         return element.traverseMethods(value, this);

@@ -42,7 +42,7 @@ public class Inspection {
         };
     }
 
-    public static Element inspect(final Class<?> runtimeClass) {
+    static Element inspect(final Class<?> runtimeClass) {
 
         class ClassBase {
 

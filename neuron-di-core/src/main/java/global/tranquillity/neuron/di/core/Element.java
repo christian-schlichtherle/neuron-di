@@ -1,6 +1,6 @@
 package global.tranquillity.neuron.di.core;
 
-public interface Element {
+interface Element {
 
     <V> V accept(V value, Visitor<V> visitor);
 }
