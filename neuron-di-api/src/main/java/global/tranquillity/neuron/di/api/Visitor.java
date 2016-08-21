@@ -3,7 +3,7 @@ package global.tranquillity.neuron.di.api;
 public interface Visitor<V> {
 
     default V visitNeuron(V value, NeuronElement element) {
-        return element.traverse(value, this);
+        return element.traverseMethods(value, this);
     }
 
     default V visitClass(V value, ClassElement element) { return value; }

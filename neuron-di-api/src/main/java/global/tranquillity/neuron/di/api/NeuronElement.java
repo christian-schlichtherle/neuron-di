@@ -12,7 +12,12 @@ import static global.tranquillity.neuron.di.api.Organism.*;
 
 public interface NeuronElement extends ClassElement, HasCachingStrategy {
 
-    default <V> V traverse(final V value, final Visitor<V> visitor) {
+    @Override
+    default <V> V accept(V value, Visitor<V> visitor) {
+        return visitor.visitNeuron(value, this);
+    }
+
+    default <V> V traverseMethods(final V value, final Visitor<V> visitor) {
         return cglibAdapter((superClass, interfaces) -> {
             final List<Method> methods = new ArrayList<>();
             Enhancer.getMethods(superClass, interfaces, methods);
@@ -62,10 +67,5 @@ public interface NeuronElement extends ClassElement, HasCachingStrategy {
         } else {
             return new RealMethodElement(DISABLED);
         }
-    }
-
-    @Override
-    default <V> V accept(V value, Visitor<V> visitor) {
-        return visitor.visitNeuron(value, this);
     }
 }
