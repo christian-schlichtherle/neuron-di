@@ -1,6 +1,6 @@
 package global.tranquillity.neuron.di.it;
 
-import global.tranquillity.neuron.di.api.Organism;
+import global.tranquillity.neuron.di.core.Organism;
 
 interface Incubator {
 

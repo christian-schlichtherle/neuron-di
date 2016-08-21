@@ -10,12 +10,20 @@
         <version>0.1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>neuron-di-it</artifactId>
+    <artifactId>neuron-di-core</artifactId>
 
     <dependencies>
         <dependency>
+            <groupId>cglib</groupId>
+            <artifactId>cglib</artifactId>
+        </dependency>
+        <dependency>
             <groupId>global.tranquillity.neuron-di</groupId>
-            <artifactId>neuron-di-guice</artifactId>
+            <artifactId>neuron-di-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>javax.inject</groupId>
+            <artifactId>javax.inject</artifactId>
         </dependency>
     </dependencies>
 </project>

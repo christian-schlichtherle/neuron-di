@@ -11,15 +11,4 @@
     </parent>
 
     <artifactId>neuron-di-api</artifactId>
-
-    <dependencies>
-        <dependency>
-            <groupId>cglib</groupId>
-            <artifactId>cglib</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>javax.inject</groupId>
-            <artifactId>javax.inject</artifactId>
-        </dependency>
-    </dependencies>
 </project>

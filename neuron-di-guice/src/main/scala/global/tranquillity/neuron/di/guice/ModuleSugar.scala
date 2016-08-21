@@ -5,7 +5,7 @@ import javax.inject.Provider
 
 import com.google.inject.AbstractModule
 import com.google.inject.binder._
-import global.tranquillity.neuron.di.api.Organism
+import global.tranquillity.neuron.di.core.Organism
 import global.tranquillity.neuron.di.guice.ModuleSugar._
 
 import scala.language.implicitConversions

@@ -13,6 +13,7 @@
         <module>neuron-di-api</module>
         <module>neuron-di-guice</module>
         <module>neuron-di-it</module>
+        <module>neuron-di-core</module>
     </modules>
 
     <properties>
@@ -70,6 +71,11 @@
             <dependency>
                 <groupId>global.tranquillity.neuron-di</groupId>
                 <artifactId>neuron-di-api</artifactId>
+                <version>0.1.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>global.tranquillity.neuron-di</groupId>
+                <artifactId>neuron-di-core</artifactId>
                 <version>0.1.0-SNAPSHOT</version>
             </dependency>
             <dependency>
