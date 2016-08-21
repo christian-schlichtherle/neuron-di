@@ -2,7 +2,7 @@ package global.tranquillity.neuron.di.core;
 
 public interface ClassElement extends Element {
 
-    Class<?> clazz();
+    Class<?> runtimeClass();
 
     @Override
     default <V> V accept(V value, Visitor<V> visitor) {

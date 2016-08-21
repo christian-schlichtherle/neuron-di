@@ -31,25 +31,37 @@ public class Organism {
     private Organism() { }
 
     /**
-     * Returns an instance of the given type which will resolve its dependencies
-     * lazily.
+     * Returns an instance of the given runtime class which will resolve its
+     * dependencies lazily by recursively calling this method.
      */
-    public <T> T make(final Class<T> clazz) {
-        return inspect(clazz).accept(null, new Visitor<T>() {
+    public <T> T make(Class<T> runtimeClass) {
+        return make(runtimeClass, synapse -> make(synapse.getReturnType()));
+    }
+
+    /**
+     * Returns an instance of the given runtime class which will resolve its
+     * dependencies lazily by calling the given function.
+     *
+     * @param dependency a function which maps a synapse method to its resolved
+     *                   dependency.
+     */
+    public <T> T make(final Class<T> runtimeClass,
+                      final Function<Method, ?> dependency) {
+        return inspect(runtimeClass).accept(null, new Visitor<T>() {
 
             @Override
             public T visitNeuron(final T nothing, final NeuronElement element) {
-                assert clazz == element.clazz();
-                Object instance = singletons.get(clazz);
+                assert runtimeClass == element.runtimeClass();
+                Object instance = singletons.get(runtimeClass);
                 if (null == instance) {
-                    instance = cglibAdapter((superClass, interfaces) -> {
+                    instance = cglibAdapter((superclass, interfaces) -> {
 
                         class MethodVisitor
                                 extends CallbackHelper
                                 implements Visitor<Callback> {
 
                             private MethodVisitor() {
-                                super(superClass, interfaces);
+                                super(superclass, interfaces);
                             }
 
                             @Override
@@ -59,9 +71,9 @@ public class Organism {
 
                             @Override
                             public Callback visitSynapse(Callback nothing, SynapseElement element) {
-                                final Class<?> returnType = element.methodReturnType();
+                                final Method method = element.method();
                                 return realCachingStrategy(element.cachingStrategy())
-                                        .decorate(() -> make(returnType));
+                                        .decorate(() -> dependency.apply(method));
                             }
 
                             @Override
@@ -80,36 +92,36 @@ public class Organism {
                             }
                         }
 
-                        Object proxy = createProxy(superClass, interfaces, new MethodVisitor());
-                        if (clazz.isAnnotationPresent(Singleton.class)) {
-                            final Object old = singletons.putIfAbsent(clazz, proxy);
+                        Object proxy = createProxy(superclass, interfaces, new MethodVisitor());
+                        if (runtimeClass.isAnnotationPresent(Singleton.class)) {
+                            final Object old = singletons.putIfAbsent(runtimeClass, proxy);
                             if (null != old) {
                                 proxy = old;
                             }
                         }
                         return proxy;
                     })
-                    .apply(clazz);
+                    .apply(runtimeClass);
                 }
-                return clazz.cast(instance);
+                return runtimeClass.cast(instance);
             }
 
             @Override
             public T visitClass(final T nothing, final ClassElement element) {
-                assert clazz == element.clazz();
-                return createInstance(clazz);
+                assert runtimeClass == element.runtimeClass();
+                return createInstance(runtimeClass);
             }
         });
     }
 
-    public static Element inspect(final Class<?> clazz) {
+    public static Element inspect(final Class<?> runtimeClass) {
 
         class ClassBase {
 
-            public Class<?> clazz() { return clazz; }
+            public Class<?> runtimeClass() { return runtimeClass; }
         }
 
-        final Neuron neuron = clazz.getAnnotation(Neuron.class);
+        final Neuron neuron = runtimeClass.getAnnotation(Neuron.class);
         if (null != neuron) {
 
             class RealNeuronElement extends ClassBase implements NeuronElement {
@@ -149,26 +161,22 @@ public class Organism {
      */
     static <V> Function<Class<?>, V> cglibAdapter(
             final BiFunction<Class<?>, Class<?>[], V> function) {
-        return new Function<Class<?>, V>() {
-
-            @Override
-            public V apply(final Class<?> clazz) {
-                final Class<?> superClass;
-                final Class<?>[] interfaces;
-                if (clazz.isInterface()) {
-                    if (hasDefaultMethodsWhichRequireCaching(clazz)) {
-                        superClass = createClass(clazz);
-                        interfaces = NO_CLASSES;
-                    } else {
-                        superClass = Object.class;
-                        interfaces = new Class<?>[]{clazz};
-                    }
-                } else {
-                    superClass = clazz;
+        return runtimeClass -> {
+            final Class<?> superclass;
+            final Class<?>[] interfaces;
+            if (runtimeClass.isInterface()) {
+                if (hasDefaultMethodsWhichRequireCaching(runtimeClass)) {
+                    superclass = createClass(runtimeClass);
                     interfaces = NO_CLASSES;
+                } else {
+                    superclass = Object.class;
+                    interfaces = new Class<?>[]{runtimeClass};
                 }
-                return function.apply(superClass, interfaces);
+            } else {
+                superclass = runtimeClass;
+                interfaces = NO_CLASSES;
             }
+            return function.apply(superclass, interfaces);
         };
     }
 
@@ -199,25 +207,25 @@ public class Organism {
         return e.createClass();
     }
 
-    private static Object createProxy(final Class<?> superClass,
+    private static Object createProxy(final Class<?> superclass,
                                       final Class<?>[] interfaces,
                                       final CallbackHelper helper) {
         final Enhancer e = new Enhancer();
-        e.setSuperclass(superClass);
+        e.setSuperclass(superclass);
         e.setInterfaces(interfaces);
         e.setCallbackFilter(helper);
         e.setCallbacks(helper.getCallbacks());
         return e.create();
     }
 
-    private static <T> T createInstance(final Class<T> type) {
+    private static <T> T createInstance(final Class<T> clazz) {
         try {
-            final Constructor<T> c = type.getDeclaredConstructor();
+            final Constructor<T> c = clazz.getDeclaredConstructor();
             c.setAccessible(true);
             return c.newInstance();
         } catch (NoSuchMethodException e) {
             throw (InstantiationError)
-                    new InstantiationError(type.getName()).initCause(e);
+                    new InstantiationError(clazz.getName()).initCause(e);
         } catch (InstantiationException e) {
             throw (InstantiationError)
                     new InstantiationError(e.getMessage()).initCause(e);

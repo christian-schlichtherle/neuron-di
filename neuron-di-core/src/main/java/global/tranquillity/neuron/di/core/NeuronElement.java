@@ -19,16 +19,16 @@ public interface NeuronElement extends ClassElement, HasCachingStrategy {
     }
 
     default <V> V traverseMethods(final V value, final Visitor<V> visitor) {
-        return cglibAdapter((superClass, interfaces) -> {
+        return cglibAdapter((superclass, interfaces) -> {
             final List<Method> methods = new ArrayList<>();
-            Enhancer.getMethods(superClass, interfaces, methods);
+            Enhancer.getMethods(superclass, interfaces, methods);
             V result = value;
             for (Method method : methods) {
                 result = inspect(method).accept(result, visitor);
             }
             return result;
         })
-        .apply(clazz());
+        .apply(runtimeClass());
     }
 
     default MethodElement inspect(final Method method) {
