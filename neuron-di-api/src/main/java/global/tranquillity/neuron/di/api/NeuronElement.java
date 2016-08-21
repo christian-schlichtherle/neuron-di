@@ -1,6 +1,10 @@
 package global.tranquillity.neuron.di.api;
 
+import net.sf.cglib.proxy.Enhancer;
+
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import static global.tranquillity.neuron.di.api.CachingStrategy.DISABLED;
@@ -8,11 +12,17 @@ import static global.tranquillity.neuron.di.api.Organism.*;
 
 public interface NeuronElement extends ClassElement, HasCachingStrategy {
 
-    default <V> V traverse(V value, final Visitor<V> visitor) {
-        for (Method method : clazz().getMethods()) {
-            value = inspect(method).accept(value, visitor);
-        }
-        return value;
+    default <V> V traverse(final V value, final Visitor<V> visitor) {
+        return cglibAdapter((superClass, interfaces) -> {
+            final List<Method> methods = new ArrayList<>();
+            Enhancer.getMethods(superClass, interfaces, methods);
+            V result = value;
+            for (Method method : methods) {
+                result = inspect(method).accept(result, visitor);
+            }
+            return result;
+        })
+        .apply(clazz());
     }
 
     default MethodElement inspect(final Method method) {

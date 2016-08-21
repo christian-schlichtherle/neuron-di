@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 
 public class Organism {
 
@@ -39,55 +40,52 @@ public class Organism {
                 Object instance;
                 instance = singletons.get(clazz);
                 if (null == instance) {
-                    instance = mapSuperClassAndInterfaces(clazz, new BiFunction<Class<?>, Class<?>[], Object>() {
+                    instance = cglibAdapter((superClass, interfaces) -> {
 
-                        @Override
-                        public Object apply(final Class<?> superClass, final Class<?>[] interfaces) {
+                        class MethodVisitor
+                                extends CallbackHelper
+                                implements Visitor<Callback> {
 
-                            class MethodVisitor
-                                    extends CallbackHelper
-                                    implements Visitor<Callback> {
-
-                                private MethodVisitor() {
-                                    super(superClass, interfaces);
-                                }
-
-                                @Override
-                                protected Callback getCallback(Method method) {
-                                    return element.inspect(method).accept(null, this);
-                                }
-
-                                @Override
-                                public Callback visitSynapse(Callback nothing, SynapseElement element) {
-                                    final Class<?> returnType = element.method().getReturnType();
-                                    return element.cachingStrategy().decorate(() -> make(returnType));
-                                }
-
-                                @Override
-                                public Callback visitMethod(Callback nothing, MethodElement element) {
-                                    return Optional
-                                            .of(element.cachingStrategy())
-                                            .filter(CachingStrategy::isEnabled)
-                                            .map(this::decorate)
-                                            .orElse(NoOp.INSTANCE);
-                                }
-
-                                private Callback decorate(CachingStrategy s) {
-                                    return s.decorate((obj, method, args, proxy) ->
-                                            proxy.invokeSuper(obj, args));
-                                }
+                            private MethodVisitor() {
+                                super(superClass, interfaces);
                             }
 
-                            Object instance = createProxy(superClass, interfaces, new MethodVisitor());
-                            if (clazz.isAnnotationPresent(Singleton.class)) {
-                                final Object oldInstance = singletons.putIfAbsent(clazz, instance);
-                                if (null != oldInstance) {
-                                    instance = oldInstance;
-                                }
+                            @Override
+                            protected Callback getCallback(Method method) {
+                                return element.inspect(method).accept(null, this);
                             }
-                            return instance;
+
+                            @Override
+                            public Callback visitSynapse(Callback nothing, SynapseElement element) {
+                                final Class<?> returnType = element.methodReturnType();
+                                return element.cachingStrategy().decorate(() -> make(returnType));
+                            }
+
+                            @Override
+                            public Callback visitMethod(Callback nothing, MethodElement element) {
+                                return Optional
+                                        .of(element.cachingStrategy())
+                                        .filter(CachingStrategy::isEnabled)
+                                        .map(this::decorate)
+                                        .orElse(NoOp.INSTANCE);
+                            }
+
+                            private Callback decorate(CachingStrategy s) {
+                                return s.decorate((obj, method, args, proxy) ->
+                                        proxy.invokeSuper(obj, args));
+                            }
                         }
-                    });
+
+                        Object proxy = createProxy(superClass, interfaces, new MethodVisitor());
+                        if (clazz.isAnnotationPresent(Singleton.class)) {
+                            final Object oldproxy = singletons.putIfAbsent(clazz, proxy);
+                            if (null != oldproxy) {
+                                proxy = oldproxy;
+                            }
+                        }
+                        return proxy;
+                    })
+                    .apply(clazz);
                 }
                 return clazz.cast(instance);
             }
@@ -127,24 +125,47 @@ public class Organism {
         }
     }
 
-    private static <R> R mapSuperClassAndInterfaces(
-            final Class<?> clazz,
-            final BiFunction<Class<?>, Class<?>[], R> mapper) {
-        final Class<?> superClass;
-        final Class<?>[] interfaces;
-        if (clazz.isInterface()) {
-            if (hasDefaultMethodsWhichRequireCaching(clazz)) {
-                superClass = createClass(clazz);
-                interfaces = NO_CLASSES;
-            } else {
-                superClass = Object.class;
-                interfaces = new Class<?>[] { clazz };
+    /**
+     * Adapts a function which accepts a class object reflecting a super class
+     * and an array of class objects reflecting interfaces to a function which
+     * accepts a class object reflecting a class or interface.
+     * <p>
+     * The given function is supposed to call some CGLIB method, which typically
+     * accept a super class and an array of interfaces whereas the returned
+     * function accepts a class or interface.
+     *
+     * @param function a function which accepts a class object reflecting a
+     *                 super class and an array of class objects reflecting
+     *                 interfaces.
+     *                 Returns an arbitrary value.
+     * @param <V> the return type of {@code function}.
+     * @return a function which accepts a class object reflecting a class or
+     *         interface.
+     *         Returns the return value of {@code function}.
+     */
+    static <V> Function<Class<?>, V> cglibAdapter(
+            final BiFunction<Class<?>, Class<?>[], V> function) {
+        return new Function<Class<?>, V>() {
+
+            @Override
+            public V apply(final Class<?> clazz) {
+                final Class<?> superClass;
+                final Class<?>[] interfaces;
+                if (clazz.isInterface()) {
+                    if (hasDefaultMethodsWhichRequireCaching(clazz)) {
+                        superClass = createClass(clazz);
+                        interfaces = NO_CLASSES;
+                    } else {
+                        superClass = Object.class;
+                        interfaces = new Class<?>[]{clazz};
+                    }
+                } else {
+                    superClass = clazz;
+                    interfaces = NO_CLASSES;
+                }
+                return function.apply(superClass, interfaces);
             }
-        } else {
-            superClass = clazz;
-            interfaces = NO_CLASSES;
-        }
-        return mapper.apply(superClass, interfaces);
+        };
     }
 
     private static boolean hasDefaultMethodsWhichRequireCaching(final Class<?> iface) {
