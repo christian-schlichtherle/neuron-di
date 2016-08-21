@@ -1,16 +1,17 @@
 package global.tranquillity.neuron.di.core.spec
 
 import java.lang.reflect.Method
+import java.util.function.BiFunction
 
-import global.tranquillity.neuron.di.core.spec.InspectorSpec._
+import global.tranquillity.neuron.di.core.spec.InspectionSpec._
 import global.tranquillity.neuron.di.core.test._
-import global.tranquillity.neuron.di.core.{Organism, SynapseElement, Visitor}
+import global.tranquillity.neuron.di.core.{Inspection, SynapseElement, Visitor}
 import org.scalatest.Matchers._
 import org.scalatest.{FeatureSpec, GivenWhenThen}
 
 import scala.reflect.ClassTag
 
-class InspectorSpec extends FeatureSpec with GivenWhenThen {
+class InspectionSpec extends FeatureSpec with GivenWhenThen {
 
   feature("Neurons and synapses can be inspected without actually instantiating and calling them:") {
 
@@ -57,12 +58,14 @@ class InspectorSpec extends FeatureSpec with GivenWhenThen {
   }
 }
 
-object InspectorSpec {
+import collection.JavaConverters._
+
+object InspectionSpec {
 
   case class synapsesOf[T](implicit tag: ClassTag[T]) {
 
     private def runtimeClass = tag.runtimeClass
-    private val synapses = SynapsesVisitor(runtimeClass)
+    private val synapses = Inspection.withSynapsesOf(runtimeClass).collect.asScala.toList
     private def synapseNames = synapses.map(_.getName)
 
     def shouldHaveNames(expected: String*) {
@@ -70,12 +73,7 @@ object InspectorSpec {
     }
   }
 
-  object SynapsesVisitor extends Visitor[List[Method]] {
-
-    def apply(clazz: Class[_]): List[Method] =
-      (Organism inspect clazz).accept(Nil, this).reverse
-
-    def visitSynapse(methods: List[Method], element: SynapseElement): List[Method] =
-      element.method :: methods
+  private object accumulator extends BiFunction[List[Method], Method, List[Method]] {
+    def apply(methods: List[Method], method: Method): List[Method] = method :: methods
   }
 }
