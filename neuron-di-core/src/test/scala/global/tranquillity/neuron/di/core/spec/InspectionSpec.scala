@@ -1,11 +1,8 @@
 package global.tranquillity.neuron.di.core.spec
 
-import java.lang.reflect.Method
-import java.util.function.BiFunction
-
+import global.tranquillity.neuron.di.core.Inspection
 import global.tranquillity.neuron.di.core.spec.InspectionSpec._
 import global.tranquillity.neuron.di.core.test._
-import global.tranquillity.neuron.di.core.{Inspection, SynapseElement, Visitor}
 import org.scalatest.Matchers._
 import org.scalatest.{FeatureSpec, GivenWhenThen}
 
@@ -58,29 +55,18 @@ class InspectionSpec extends FeatureSpec with GivenWhenThen {
   }
 }
 
-import collection.JavaConverters._
-
 object InspectionSpec {
 
   case class synapsesOf[T](implicit tag: ClassTag[T]) {
 
+    import scala.collection.JavaConversions._
+
     private def runtimeClass = tag.runtimeClass
 
-    private val synapses = Inspection
-      .of(runtimeClass)
-      .withSynapses
-      .toList
-      .asScala
-      .toList
+    private val synapses = (Inspection of runtimeClass).withSynapses.toList
 
     private def synapseNames = synapses.map(_.getName)
 
-    def shouldHaveNames(expected: String*) {
-      synapseNames shouldBe expected.toList
-    }
-  }
-
-  private object accumulator extends BiFunction[List[Method], Method, List[Method]] {
-    def apply(methods: List[Method], method: Method): List[Method] = method :: methods
+    def shouldHaveNames(names: String*) { synapseNames shouldBe names }
   }
 }
