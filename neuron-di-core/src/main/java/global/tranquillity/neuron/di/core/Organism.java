@@ -2,16 +2,20 @@ package global.tranquillity.neuron.di.core;
 
 import net.sf.cglib.proxy.Callback;
 import net.sf.cglib.proxy.CallbackHelper;
+import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.NoOp;
 
 import javax.inject.Singleton;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
-import static global.tranquillity.neuron.di.core.Inspection.*;
+import static global.tranquillity.neuron.di.core.Inspection.cglibAdapter;
+import static global.tranquillity.neuron.di.core.Inspection.realCachingStrategy;
 
 public class Organism {
 
@@ -110,7 +114,38 @@ public class Organism {
         }
 
         final ClassVisitor visitor = new ClassVisitor();
-        inspect(runtimeClass).accept(visitor);
+        Inspection.of(runtimeClass).accept(visitor);
         return runtimeClass.cast(visitor.instance);
+    }
+
+    private static Object createProxy(final Class<?> superclass,
+                                      final Class<?>[] interfaces,
+                                      final CallbackHelper helper) {
+        final Enhancer e = new Enhancer();
+        e.setSuperclass(superclass);
+        e.setInterfaces(interfaces);
+        e.setCallbackFilter(helper);
+        e.setCallbacks(helper.getCallbacks());
+        return e.create();
+    }
+
+    private static <T> T createInstance(final Class<T> clazz) {
+        try {
+            final Constructor<T> c = clazz.getDeclaredConstructor();
+            c.setAccessible(true);
+            return c.newInstance();
+        } catch (NoSuchMethodException e) {
+            throw (InstantiationError)
+                    new InstantiationError(clazz.getName()).initCause(e);
+        } catch (InstantiationException e) {
+            throw (InstantiationError)
+                    new InstantiationError(e.getMessage()).initCause(e);
+        } catch (IllegalAccessException e) {
+            throw (IllegalAccessError)
+                    new IllegalAccessError(e.getMessage()).initCause(e);
+        } catch (InvocationTargetException e) {
+            sun.misc.Unsafe.getUnsafe().throwException(e.getTargetException());
+            throw new AssertionError("Unreachable statement.", e);
+        }
     }
 }

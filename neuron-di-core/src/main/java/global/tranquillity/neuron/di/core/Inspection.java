@@ -3,49 +3,51 @@ package global.tranquillity.neuron.di.core;
 import global.tranquillity.neuron.di.api.Caching;
 import global.tranquillity.neuron.di.api.CachingStrategy;
 import global.tranquillity.neuron.di.api.Neuron;
-import net.sf.cglib.proxy.CallbackHelper;
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.NoOp;
-import sun.misc.Unsafe;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Optional;
 import java.util.function.BiFunction;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class Inspection {
 
     private static final Class<?>[] NO_CLASSES = new Class<?>[0];
 
-    public static Operator<Method> withSynapsesOf(final Class<?> runtimeClass) {
+    private final Class<?> runtimeClass;
+
+    private Inspection(final Class<?> runtimeClass) {
+        this.runtimeClass = runtimeClass;
+    }
+
+    public static Inspection of(Class<?> runtimeClass) {
+        return new Inspection(runtimeClass);
+    }
+
+    public Operator<Method> withSynapses() {
         return new Operator<Method>() {
 
-            final Element element = inspect(runtimeClass);
+            final Element element = element();
 
             @Override
-            public <V> V foldLeft(final V initialValue, final BiFunction<V, Method, V> accumulator) {
-
-                class SynapseVisitor implements Visitor {
-
-                    private V value = initialValue;
+            public void accept(Consumer<Method> consumer) {
+                element.accept(new Visitor() {
 
                     @Override
                     public void visitSynapse(SynapseElement element) {
-                        value = accumulator.apply(value, element.method());
+                        consumer.accept(element.method());
                     }
-                }
-
-                final SynapseVisitor visitor = new SynapseVisitor();
-                element.accept(visitor);
-                return visitor.value;
+                });
             }
         };
     }
 
-    static Element inspect(final Class<?> runtimeClass) {
+    void accept(Visitor visitor) { element().accept(visitor); }
+
+    private Element element() {
 
         class ClassBase {
 
@@ -136,37 +138,6 @@ public class Inspection {
         e.setInterfaces(new Class<?>[] { iface });
         e.setCallbackType(NoOp.class);
         return e.createClass();
-    }
-
-    static Object createProxy(final Class<?> superclass,
-                              final Class<?>[] interfaces,
-                              final CallbackHelper helper) {
-        final Enhancer e = new Enhancer();
-        e.setSuperclass(superclass);
-        e.setInterfaces(interfaces);
-        e.setCallbackFilter(helper);
-        e.setCallbacks(helper.getCallbacks());
-        return e.create();
-    }
-
-    static <T> T createInstance(final Class<T> clazz) {
-        try {
-            final Constructor<T> c = clazz.getDeclaredConstructor();
-            c.setAccessible(true);
-            return c.newInstance();
-        } catch (NoSuchMethodException e) {
-            throw (InstantiationError)
-                    new InstantiationError(clazz.getName()).initCause(e);
-        } catch (InstantiationException e) {
-            throw (InstantiationError)
-                    new InstantiationError(e.getMessage()).initCause(e);
-        } catch (IllegalAccessException e) {
-            throw (IllegalAccessError)
-                    new IllegalAccessError(e.getMessage()).initCause(e);
-        } catch (InvocationTargetException e) {
-            Unsafe.getUnsafe().throwException(e.getTargetException());
-            throw new AssertionError("Unreachable statement.", e);
-        }
     }
 
     static RealCachingStrategy realCachingStrategy(CachingStrategy strategy) {

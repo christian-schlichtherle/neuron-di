@@ -65,7 +65,14 @@ object InspectionSpec {
   case class synapsesOf[T](implicit tag: ClassTag[T]) {
 
     private def runtimeClass = tag.runtimeClass
-    private val synapses = Inspection.withSynapsesOf(runtimeClass).collect.asScala.toList
+
+    private val synapses = Inspection
+      .of(runtimeClass)
+      .withSynapses
+      .toList
+      .asScala
+      .toList
+
     private def synapseNames = synapses.map(_.getName)
 
     def shouldHaveNames(expected: String*) {

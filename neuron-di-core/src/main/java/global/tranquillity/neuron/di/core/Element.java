@@ -1,6 +1,5 @@
 package global.tranquillity.neuron.di.core;
 
-interface Element {
+import java.util.function.Consumer;
 
-    void accept(Visitor visitor);
-}
+interface Element extends Consumer<Visitor> { }
