@@ -1,5 +1,6 @@
 package global.tranquillity.neuron.di.core;
 
+import global.tranquillity.neuron.di.api.CachingStrategy;
 import net.sf.cglib.proxy.*;
 
 import java.lang.reflect.Method;
@@ -7,9 +8,7 @@ import java.lang.reflect.Method;
 /** Mirrors {@link global.tranquillity.neuron.di.api.CachingStrategy}. */
 enum RealCachingStrategy {
 
-    /**
-     * @see global.tranquillity.neuron.di.core.Inspection#realCachingStrategy(global.tranquillity.neuron.di.api.CachingStrategy)
-     */
+    /** @see #valueOf(global.tranquillity.neuron.di.api.CachingStrategy) */
     @SuppressWarnings("unused")
     DISABLED {
 
@@ -23,9 +22,7 @@ enum RealCachingStrategy {
         NoOp decorate(MethodInterceptor callback) { return NoOp.INSTANCE; }
     },
 
-    /**
-     * @see global.tranquillity.neuron.di.core.Inspection#realCachingStrategy(global.tranquillity.neuron.di.api.CachingStrategy)
-     */
+    /** @see #valueOf(global.tranquillity.neuron.di.api.CachingStrategy) */
     @SuppressWarnings("unused")
     NOT_THREAD_SAFE {
 
@@ -56,9 +53,7 @@ enum RealCachingStrategy {
         }
     },
 
-    /**
-     * @see global.tranquillity.neuron.di.core.Inspection#realCachingStrategy(global.tranquillity.neuron.di.api.CachingStrategy)
-     */
+    /** @see #valueOf(global.tranquillity.neuron.di.api.CachingStrategy) */
     @SuppressWarnings("unused")
     THREAD_SAFE {
 
@@ -89,9 +84,7 @@ enum RealCachingStrategy {
         }
     },
 
-    /**
-     * @see global.tranquillity.neuron.di.core.Inspection#realCachingStrategy(global.tranquillity.neuron.di.api.CachingStrategy)
-     */
+    /** @see #valueOf(global.tranquillity.neuron.di.api.CachingStrategy) */
     @SuppressWarnings("unused")
     THREAD_LOCAL {
 
@@ -121,6 +114,10 @@ enum RealCachingStrategy {
             return new Adapter();
         }
     };
+
+    static RealCachingStrategy valueOf(CachingStrategy strategy) {
+        return valueOf(strategy.name());
+    }
 
     boolean isEnabled() { return true; }
 

@@ -15,7 +15,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
 import static global.tranquillity.neuron.di.core.Inspection.cglibAdapter;
-import static global.tranquillity.neuron.di.core.Inspection.realCachingStrategy;
 
 public class Organism {
 
@@ -73,7 +72,8 @@ public class Organism {
                             @Override
                             public void visitSynapse(final SynapseElement element) {
                                 final Method method = element.method();
-                                callback = realCachingStrategy(element.cachingStrategy())
+                                callback = RealCachingStrategy
+                                        .valueOf(element.cachingStrategy())
                                         .decorate(() -> dependency.apply(method));
                             }
 
@@ -81,7 +81,7 @@ public class Organism {
                             public void visitMethod(MethodElement element) {
                                 callback = Optional
                                         .of(element.cachingStrategy())
-                                        .map(Inspection::realCachingStrategy)
+                                        .map(RealCachingStrategy::valueOf)
                                         .filter(RealCachingStrategy::isEnabled)
                                         .map(this::decorateMethodInterceptor)
                                         .orElse(NoOp.INSTANCE);

@@ -118,7 +118,7 @@ public class Inspection {
         for (final Method method : iface.getDeclaredMethods()) {
             if (method.isDefault()) {
                 return cachingStrategyOption(method)
-                        .map(Inspection::realCachingStrategy)
+                        .map(RealCachingStrategy::valueOf)
                         .filter(RealCachingStrategy::isEnabled)
                         .isPresent();
             }
@@ -138,10 +138,6 @@ public class Inspection {
         e.setInterfaces(new Class<?>[] { iface });
         e.setCallbackType(NoOp.class);
         return e.createClass();
-    }
-
-    static RealCachingStrategy realCachingStrategy(CachingStrategy strategy) {
-        return RealCachingStrategy.valueOf(strategy.name());
     }
 
     static boolean isParameterless(Method method) {
