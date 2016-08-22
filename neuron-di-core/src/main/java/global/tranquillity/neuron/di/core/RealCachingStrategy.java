@@ -16,10 +16,10 @@ enum RealCachingStrategy {
         boolean isEnabled() { return false; }
 
         @Override
-        FixedValue decorate(FixedValue callback) { return callback; }
+        Callback synapseCallback(FixedValue callback) { return callback; }
 
         @Override
-        NoOp decorate(MethodInterceptor callback) { return NoOp.INSTANCE; }
+        Callback methodCallback() { return NoOp.INSTANCE; }
     },
 
     /** @see #valueOf(global.tranquillity.neuron.di.api.CachingStrategy) */
@@ -27,29 +27,28 @@ enum RealCachingStrategy {
     NOT_THREAD_SAFE {
 
         @Override
-        FixedValue decorate(final FixedValue callback) {
+        Callback synapseCallback(final FixedValue callback) {
 
-            class Adapter extends NotThreadSafeStrategy<FixedValue>
-                    implements FixedValueMixin {
+            class SynapseCallback
+                    extends NotThreadSafeCache
+                    implements SynapseCache {
 
                 @Override
                 public FixedValue callback() { return callback; }
             }
 
-            return new Adapter();
+            return new SynapseCallback();
         }
 
         @Override
-        MethodInterceptor decorate(final MethodInterceptor callback) {
+        Callback methodCallback() {
 
-            class Adapter extends NotThreadSafeStrategy<MethodInterceptor>
-                    implements MethodInterceptorMixin {
-
-                @Override
-                public MethodInterceptor callback() { return callback; }
+            class MethodCallback
+                    extends NotThreadSafeCache
+                    implements MethodCache {
             }
 
-            return new Adapter();
+            return new MethodCallback();
         }
     },
 
@@ -58,29 +57,28 @@ enum RealCachingStrategy {
     THREAD_SAFE {
 
         @Override
-        FixedValue decorate(final FixedValue callback) {
+        Callback synapseCallback(final FixedValue callback) {
 
-            class Adapter extends ThreadSafeStrategy<FixedValue>
-                    implements FixedValueMixin {
+            class SynapseCallback
+                    extends ThreadSafeCache
+                    implements SynapseCache {
 
                 @Override
                 public FixedValue callback() { return callback; }
             }
 
-            return new Adapter();
+            return new SynapseCallback();
         }
 
         @Override
-        MethodInterceptor decorate(final MethodInterceptor callback) {
+        Callback methodCallback() {
 
-            class Adapter extends ThreadSafeStrategy<MethodInterceptor>
-                    implements MethodInterceptorMixin {
-
-                @Override
-                public MethodInterceptor callback() { return callback; }
+            class MethodCallback
+                    extends ThreadSafeCache
+                    implements MethodCache {
             }
 
-            return new Adapter();
+            return new MethodCallback();
         }
     },
 
@@ -89,31 +87,33 @@ enum RealCachingStrategy {
     THREAD_LOCAL {
 
         @Override
-        FixedValue decorate(final FixedValue callback) {
+        Callback synapseCallback(final FixedValue callback) {
 
-            class Adapter extends ThreadLocalStrategy<FixedValue>
-                    implements FixedValueMixin {
+            class SynapseCallback
+                    extends ThreadLocalCache
+                    implements SynapseCache {
 
                 @Override
                 public FixedValue callback() { return callback; }
             }
 
-            return new Adapter();
+            return new SynapseCallback();
         }
 
         @Override
-        MethodInterceptor decorate(final MethodInterceptor callback) {
+        Callback methodCallback() {
 
-            class Adapter extends ThreadLocalStrategy<MethodInterceptor>
-                    implements MethodInterceptorMixin {
-
-                @Override
-                public MethodInterceptor callback() { return callback; }
+            class MethodCallback
+                    extends ThreadLocalCache
+                    implements MethodCache {
             }
 
-            return new Adapter();
+            return new MethodCallback();
         }
     };
+
+    private static final MethodInterceptor invokeSuper =
+            (obj, method, args, proxy) -> proxy.invokeSuper(obj, args);
 
     static RealCachingStrategy valueOf(CachingStrategy strategy) {
         return valueOf(strategy.name());
@@ -121,36 +121,32 @@ enum RealCachingStrategy {
 
     boolean isEnabled() { return true; }
 
-    abstract Callback decorate(FixedValue callback);
+    abstract Callback synapseCallback(FixedValue callback);
 
-    abstract Callback decorate(MethodInterceptor callback);
+    abstract Callback methodCallback();
 
-    private abstract static class NotThreadSafeStrategy<C extends Callback>
-            implements Strategy<C> {
+    private static class NotThreadSafeCache implements Cache {
 
         Object returnValue;
 
         @Override
-        public <X extends Throwable> Object apply(final CallbackProxy<X> proxy) throws X {
+        public <X extends Throwable> Object apply(final Proxy<X> proxy) throws X {
             final Object value = returnValue;
-            return null != value
-                    ? value
-                    : (returnValue = proxy.callback());
+            return null != value ? value : (returnValue = proxy.get());
         }
     }
 
-    private abstract static class ThreadSafeStrategy<C extends Callback>
-            implements Strategy<C> {
+    private static class ThreadSafeCache implements Cache {
 
         volatile Object returnValue;
 
         @Override
-        public <X extends Throwable> Object apply(final CallbackProxy<X> proxy) throws X {
+        public <X extends Throwable> Object apply(final Proxy<X> proxy) throws X {
             Object value;
             if (null == (value = returnValue)) {
                 synchronized (this) {
                     if (null == (value = returnValue)) {
-                        returnValue = value = proxy.callback();
+                        returnValue = value = proxy.get();
                     }
                 }
             }
@@ -158,23 +154,22 @@ enum RealCachingStrategy {
         }
     }
 
-    private abstract static class ThreadLocalStrategy<C extends Callback>
-            implements Strategy<C> {
+    private static class ThreadLocalCache implements Cache {
 
         final ThreadLocal<Object> results = new ThreadLocal<>();
 
         @Override
-        public <X extends Throwable> Object apply(final CallbackProxy<X> proxy) throws X {
+        public <X extends Throwable> Object apply(final Proxy<X> proxy) throws X {
             Object result = results.get();
             if (null == result) {
-                results.set(result = proxy.callback());
+                results.set(result = proxy.get());
             }
             return result;
         }
     }
 
-    private interface FixedValueMixin
-            extends FixedValue, Strategy<FixedValue> {
+    private interface SynapseCache
+            extends FixedValue, CallbackCache<FixedValue> {
 
         @Override
         default Object loadObject() throws Exception {
@@ -182,8 +177,8 @@ enum RealCachingStrategy {
         }
     }
 
-    private interface MethodInterceptorMixin
-            extends MethodInterceptor, Strategy<MethodInterceptor> {
+    private interface MethodCache
+            extends MethodInterceptor, CallbackCache<MethodInterceptor> {
 
         @Override
         default Object intercept(Object obj, Method method,
@@ -191,17 +186,23 @@ enum RealCachingStrategy {
                 throws Throwable {
             return apply(() -> callback().intercept(obj, method, args, proxy));
         }
+
+        @Override
+        default MethodInterceptor callback() { return invokeSuper; }
     }
 
-    private interface Strategy<C extends Callback>  {
-
-        <X extends Throwable> Object apply(CallbackProxy<X> proxy) throws X;
+    private interface CallbackCache<C extends Callback> extends Cache {
 
         C callback();
     }
 
-    private interface CallbackProxy<X extends Throwable> {
+    private interface Cache {
 
-        Object callback() throws X;
+        <X extends Throwable> Object apply(Proxy<X> proxy) throws X;
+    }
+
+    private interface Proxy<X extends Throwable> {
+
+        Object get() throws X;
     }
 }

@@ -3,14 +3,12 @@ package global.tranquillity.neuron.di.core;
 import net.sf.cglib.proxy.Callback;
 import net.sf.cglib.proxy.CallbackHelper;
 import net.sf.cglib.proxy.Enhancer;
-import net.sf.cglib.proxy.NoOp;
 
 import javax.inject.Singleton;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
@@ -72,30 +70,19 @@ public class Organism {
                             @Override
                             public void visitSynapse(final SynapseElement element) {
                                 final Method method = element.method();
-                                callback = RealCachingStrategy
-                                        .valueOf(element.cachingStrategy())
-                                        .decorate(() -> dependency.apply(method));
+                                callback = element.synapseCallback(() -> dependency.apply(method));
                             }
 
                             @Override
                             public void visitMethod(MethodElement element) {
-                                callback = Optional
-                                        .of(element.cachingStrategy())
-                                        .map(RealCachingStrategy::valueOf)
-                                        .filter(RealCachingStrategy::isEnabled)
-                                        .map(this::decorateMethodInterceptor)
-                                        .orElse(NoOp.INSTANCE);
-                            }
-
-                            private Callback decorateMethodInterceptor(RealCachingStrategy strategy) {
-                                return strategy.decorate((obj, method, args, proxy) ->
-                                        proxy.invokeSuper(obj, args));
+                                callback = element.methodCallback();
                             }
                         }
 
                         Object proxy = createProxy(superclass, interfaces, new MethodVisitor());
                         if (runtimeClass.isAnnotationPresent(Singleton.class)) {
-                            final Object old = singletons.putIfAbsent(runtimeClass, proxy);
+                            final Object old = singletons
+                                    .putIfAbsent(runtimeClass, proxy);
                             if (null != old) {
                                 proxy = old;
                             }
