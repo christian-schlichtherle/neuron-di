@@ -63,7 +63,7 @@ public class Organism {
 
                             @Override
                             protected Callback getCallback(Method method) {
-                                element.inspect(method).accept(this);
+                                element.element(method).accept(this);
                                 return callback;
                             }
 

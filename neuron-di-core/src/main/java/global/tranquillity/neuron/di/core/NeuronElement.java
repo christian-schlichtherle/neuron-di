@@ -21,14 +21,14 @@ interface NeuronElement extends ClassElement, HasCachingStrategy {
             final List<Method> methods = new ArrayList<>();
             Enhancer.getMethods(superclass, interfaces, methods);
             for (Method method : methods) {
-                inspect(method).accept(visitor);
+                element(method).accept(visitor);
             }
             return null;
         })
         .apply(runtimeClass());
     }
 
-    default MethodElement inspect(final Method method) {
+    default Element element(final Method method) {
 
         class MethodBase {
 
