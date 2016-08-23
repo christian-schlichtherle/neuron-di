@@ -56,6 +56,7 @@ public class Incubator {
                         @Override
                         protected Callback getCallback(Method method) {
                             element.element(method).accept(this);
+                            assert null != callback;
                             return callback;
                         }
 
@@ -102,7 +103,7 @@ public class Incubator {
     private static <T> T createInstance(final Class<T> clazz) {
         try {
             final Constructor<T> c = clazz.getDeclaredConstructor();
-            c.setAccessible(true);
+            c.setAccessible(true); // TODO: Why?
             return c.newInstance();
         } catch (NoSuchMethodException e) {
             throw (InstantiationError)
