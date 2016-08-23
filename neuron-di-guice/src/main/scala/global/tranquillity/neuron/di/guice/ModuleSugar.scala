@@ -3,51 +3,52 @@ package global.tranquillity.neuron.di.guice
 import java.lang.annotation.Annotation
 import javax.inject.Provider
 
-import com.google.inject.AbstractModule
 import com.google.inject.binder._
-import global.tranquillity.neuron.di.core.Organism
+import com.google.inject.name.Names
+import com.google.inject.{AbstractModule, Binder}
 import global.tranquillity.neuron.di.guice.ModuleSugar._
 
 import scala.language.implicitConversions
 import scala.reflect.{ClassTag, classTag}
 
-abstract class ModuleSugar extends AbstractModule {
+abstract class ModuleSugar extends AbstractModule with NeuronModule {
 
-  private lazy val organism = Organism.breed
+  override def binder(): Binder = super.binder()
 
-  protected def bindNeuron[A <: AnyRef](implicit ct : ClassTag[A]) {
-    bind_[A].toProvider(new Provider[A] {
-      def get: A = organism make runtimeClassOf(ct)
-    })
-  }
+  protected def bindNeuronClass[A <: AnyRef](implicit ct: ClassTag[A]) =
+    bindNeuron(runtimeClassOf(ct))
 
-  protected def bind_[A <: AnyRef : ClassTag]: AnnotatedBindingBuilder[A] =
+  protected def bindClass[A <: AnyRef : ClassTag]: AnnotatedBindingBuilder[A] =
     binder bind runtimeClassOf[A]
 
   implicit class WithAnnotatedConstantBindingBuilder(builder: AnnotatedConstantBindingBuilder) {
 
-    def annotatedWith_[A <: Annotation : ClassTag]: ConstantBindingBuilder =
+    def named(name: String) = builder annotatedWith (Names named name)
+
+    def annotatedWithClass[A <: Annotation : ClassTag]: ConstantBindingBuilder =
       builder annotatedWith runtimeClassOf[A]
   }
 
   implicit class WithAnnotatedBindingBuilder[A <: AnyRef](builder: AnnotatedBindingBuilder[A]) {
 
-    def annotatedWith_[B <: Annotation : ClassTag]: LinkedBindingBuilder[A] =
+    def named(name: String) = builder annotatedWith (Names named name)
+
+    def annotatedWithClass[B <: Annotation : ClassTag]: LinkedBindingBuilder[A] =
       builder annotatedWith runtimeClassOf[B]
   }
 
   implicit class WithLinkedBindingBuilder[A <: AnyRef](builder: LinkedBindingBuilder[A]) {
 
-    def to_[B <: A : ClassTag]: ScopedBindingBuilder =
+    def toClass[B <: A : ClassTag]: ScopedBindingBuilder =
       builder to runtimeClassOf[B]
 
-    def toProvider_[B <: Provider[_ <: A] : ClassTag]: ScopedBindingBuilder =
+    def toProviderClass[B <: Provider[_ <: A] : ClassTag]: ScopedBindingBuilder =
       builder toProvider runtimeClassOf[B]
   }
 
   implicit class WithScopedBindingBuilder(builder: ScopedBindingBuilder) {
 
-    def in_[A <: Annotation](implicit ct: ClassTag[A]) {
+    def inClass[A <: Annotation](implicit ct: ClassTag[A]) {
       builder in runtimeClassOf(ct)
     }
   }

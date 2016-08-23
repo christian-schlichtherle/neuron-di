@@ -18,11 +18,11 @@ class ModuleSugarSpec extends WordSpec {
 
           def configure() {
             bindConstant.annotatedWith(named("one")).to(1)
-            bind_[Foo]
+            bindClass[Foo]
               .annotatedWith(named("foo"))
-              .to_[FooImpl]
-              .in_[Singleton]
-            bind_[Bar].to_[BarImpl]
+              .toClass[FooImpl]
+              .inClass[Singleton]
+            bindClass[Bar].toClass[BarImpl]
           }
         })
       )
