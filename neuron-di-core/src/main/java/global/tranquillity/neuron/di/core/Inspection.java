@@ -27,7 +27,7 @@ public class Inspection {
         return new Inspection(runtimeClass);
     }
 
-    public Operator<Method> withSynapses() {
+    public Operator<Method> synapses() {
         return new Operator<Method>() {
 
             final Element element = element();

@@ -63,7 +63,7 @@ object InspectionSpec {
 
     private def runtimeClass = tag.runtimeClass
 
-    private val synapses = (Inspection of runtimeClass).withSynapses.toList
+    private val synapses = (Inspection of runtimeClass).synapses.toList
 
     private def synapseNames = synapses.map(_.getName)
 
