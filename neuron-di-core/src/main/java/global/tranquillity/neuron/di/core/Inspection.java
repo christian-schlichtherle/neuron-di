@@ -8,9 +8,10 @@ import net.sf.cglib.proxy.NoOp;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.Collection;
+import java.util.LinkedList;
 import java.util.Optional;
 import java.util.function.BiFunction;
-import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class Inspection {
@@ -27,22 +28,15 @@ public class Inspection {
         return new Inspection(runtimeClass);
     }
 
-    public Operator<Method> synapses() {
-        return new Operator<Method>() {
-
-            final Element element = element();
-
+    public Collection<Method> synapses() {
+        final LinkedList<Method> synapses = new LinkedList<>();
+        element().accept(new Visitor() {
             @Override
-            public void accept(Consumer<Method> consumer) {
-                element.accept(new Visitor() {
-
-                    @Override
-                    public void visitSynapse(SynapseElement element) {
-                        consumer.accept(element.method());
-                    }
-                });
+            public void visitSynapse(SynapseElement element) {
+                synapses.add(element.method());
             }
-        };
+        });
+        return synapses;
     }
 
     void accept(Visitor visitor) { element().accept(visitor); }
