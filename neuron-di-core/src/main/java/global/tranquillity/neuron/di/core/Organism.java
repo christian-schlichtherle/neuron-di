@@ -1,19 +1,12 @@
 package global.tranquillity.neuron.di.core;
 
-import net.sf.cglib.proxy.Callback;
-import net.sf.cglib.proxy.CallbackHelper;
-import net.sf.cglib.proxy.Enhancer;
-
 import javax.inject.Singleton;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
-import static global.tranquillity.neuron.di.core.Inspection.cglibAdapter;
-
+@Deprecated
 public class Organism {
 
     private final Map<Class<?>, Object> singletons = new ConcurrentHashMap<>();
@@ -39,100 +32,11 @@ public class Organism {
      */
     public <T> T make(final Class<T> runtimeClass,
                       final Function<Method, ?> dependency) {
-
-        class ClassVisitor implements Visitor {
-
-            private Object instance;
-
-            @Override
-            public void visitNeuron(final NeuronElement element) {
-                assert runtimeClass == element.runtimeClass();
-                instance = singletons.get(runtimeClass);
-                if (null == instance) {
-                    instance = cglibAdapter((superclass, interfaces) -> {
-
-                        class MethodVisitor
-                                extends CallbackHelper
-                                implements Visitor {
-
-                            private Callback callback;
-
-                            private MethodVisitor() {
-                                super(superclass, interfaces);
-                            }
-
-                            @Override
-                            protected Callback getCallback(Method method) {
-                                element.element(method).accept(this);
-                                return callback;
-                            }
-
-                            @Override
-                            public void visitSynapse(final SynapseElement element) {
-                                final Method method = element.method();
-                                callback = element.synapseCallback(() -> dependency.apply(method));
-                            }
-
-                            @Override
-                            public void visitMethod(MethodElement element) {
-                                callback = element.methodCallback();
-                            }
-                        }
-
-                        Object proxy = createProxy(superclass, interfaces, new MethodVisitor());
-                        if (runtimeClass.isAnnotationPresent(Singleton.class)) {
-                            final Object old = singletons
-                                    .putIfAbsent(runtimeClass, proxy);
-                            if (null != old) {
-                                proxy = old;
-                            }
-                        }
-                        return proxy;
-                    })
-                    .apply(runtimeClass);
-                }
-            }
-
-            @Override
-            public void visitClass(final ClassElement element) {
-                assert runtimeClass == element.runtimeClass();
-                instance = createInstance(runtimeClass);
-            }
-        }
-
-        final ClassVisitor visitor = new ClassVisitor();
-        Inspection.of(runtimeClass).accept(visitor);
-        return runtimeClass.cast(visitor.instance);
-    }
-
-    private static Object createProxy(final Class<?> superclass,
-                                      final Class<?>[] interfaces,
-                                      final CallbackHelper helper) {
-        final Enhancer e = new Enhancer();
-        e.setSuperclass(superclass);
-        e.setInterfaces(interfaces);
-        e.setCallbackFilter(helper);
-        e.setCallbacks(helper.getCallbacks());
-        return e.create();
-    }
-
-    private static <T> T createInstance(final Class<T> clazz) {
-        try {
-            final Constructor<T> c = clazz.getDeclaredConstructor();
-            c.setAccessible(true);
-            return c.newInstance();
-        } catch (NoSuchMethodException e) {
-            throw (InstantiationError)
-                    new InstantiationError(clazz.getName()).initCause(e);
-        } catch (InstantiationException e) {
-            throw (InstantiationError)
-                    new InstantiationError(e.getMessage()).initCause(e);
-        } catch (IllegalAccessException e) {
-            throw (IllegalAccessError)
-                    new IllegalAccessError(e.getMessage()).initCause(e);
-        } catch (InvocationTargetException e) {
-            sun.misc.Unsafe.getUnsafe().throwException(e.getTargetException());
-            throw new AssertionError("Unreachable statement.", e);
+        if (runtimeClass.isAnnotationPresent(Singleton.class)) {
+            return runtimeClass.cast(singletons.computeIfAbsent(runtimeClass,
+                    (clazz) -> Incubator.breed(clazz, dependency)));
+        } else {
+            return Incubator.breed(runtimeClass, dependency);
         }
     }
 }

@@ -97,7 +97,7 @@ public class Inspection {
                     interfaces = NO_CLASSES;
                 } else {
                     superclass = Object.class;
-                    interfaces = new Class<?>[]{runtimeClass};
+                    interfaces = new Class<?>[]{ runtimeClass };
                 }
             } else {
                 superclass = runtimeClass;
