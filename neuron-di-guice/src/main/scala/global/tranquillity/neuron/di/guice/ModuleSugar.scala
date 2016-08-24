@@ -6,7 +6,7 @@ import javax.inject.Provider
 import com.google.inject.binder._
 import com.google.inject.name.Names
 import com.google.inject.{AbstractModule, Binder}
-import global.tranquillity.neuron.di.guice.ModuleSugar._
+import global.tranquillity.neuron.di.core.scala._
 
 import scala.language.implicitConversions
 import scala.reflect.{ClassTag, classTag}
@@ -51,14 +51,5 @@ abstract class ModuleSugar extends AbstractModule with NeuronModule {
     def inScope[A <: Annotation](implicit ct: ClassTag[A]) {
       builder in runtimeClassOf(ct)
     }
-  }
-}
-
-object ModuleSugar {
-
-  private def runtimeClassOf[A](implicit ct: ClassTag[A]) = {
-    require(ct != classTag[Nothing],
-      s"Missing type parameter when using the `${classTag[ModuleSugar]}` DSL.")
-    ct.runtimeClass.asInstanceOf[Class[A]]
   }
 }

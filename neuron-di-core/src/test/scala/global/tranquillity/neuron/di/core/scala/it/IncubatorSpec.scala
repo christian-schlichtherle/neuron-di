@@ -1,8 +1,9 @@
-package global.tranquillity.neuron.di.core.it
+package global.tranquillity.neuron.di.core.scala.it
 
+import global.tranquillity.neuron.di.core.scala.Incubator._
 import global.tranquillity.neuron.di.core.test.HasA
-import org.scalatest.{FlatSpec, WordSpec}
 import org.scalatest.Matchers._
+import org.scalatest.WordSpec
 
 class IncubatorSpec extends WordSpec {
 

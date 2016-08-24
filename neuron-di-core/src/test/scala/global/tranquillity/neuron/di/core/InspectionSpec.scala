@@ -1,11 +1,11 @@
 package global.tranquillity.neuron.di.core
 
 import global.tranquillity.neuron.di.core.InspectionSpec._
+import global.tranquillity.neuron.di.core.scala._
 import global.tranquillity.neuron.di.core.test._
 import org.scalatest.Matchers._
 import org.scalatest.{FeatureSpec, GivenWhenThen}
-
-import scala.reflect.ClassTag
+import reflect.ClassTag
 
 class InspectionSpec extends FeatureSpec with GivenWhenThen {
 
@@ -56,13 +56,11 @@ class InspectionSpec extends FeatureSpec with GivenWhenThen {
 
 object InspectionSpec {
 
-  case class synapsesOf[T](implicit tag: ClassTag[T]) {
+  case class synapsesOf[T](implicit ct: ClassTag[T]) {
 
-    import scala.collection.JavaConversions._
+    import collection.JavaConversions._
 
-    private def runtimeClass = tag.runtimeClass
-
-    private val synapses = (Inspection of runtimeClass).synapses
+    private val synapses = (Inspection of runtimeClassOf(ct)).synapses
 
     private def synapseNames = synapses.map(_.getName)
 
