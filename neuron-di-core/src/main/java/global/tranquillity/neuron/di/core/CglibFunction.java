@@ -7,7 +7,7 @@ import java.lang.reflect.Method;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
-import static global.tranquillity.neuron.di.core.NeuronElement.cachingStrategyOption;
+import static global.tranquillity.neuron.di.core.NeuronElement.isCachingEligible;
 
 /**
  * Adapts a function which accepts a class object reflecting a super class
@@ -42,7 +42,7 @@ class CglibFunction<V> implements Function<Class<?>, V> {
         final Class<?> superclass;
         final Class<?>[] interfaces;
         if (runtimeClass.isInterface()) {
-            if (hasDefaultMethodsWhichRequireCaching(runtimeClass)) {
+            if (hasCachingEligibleDefaultMethods(runtimeClass)) {
                 superclass = createClass(runtimeClass);
                 interfaces = NO_CLASSES;
             } else {
@@ -56,18 +56,15 @@ class CglibFunction<V> implements Function<Class<?>, V> {
         return function.apply(superclass, interfaces);
     }
 
-    private static boolean hasDefaultMethodsWhichRequireCaching(final Class<?> iface) {
+    private static boolean hasCachingEligibleDefaultMethods(final Class<?> iface) {
         assert iface.isInterface();
         for (final Method method : iface.getDeclaredMethods()) {
-            if (method.isDefault()) {
-                return cachingStrategyOption(method)
-                        .map(RealCachingStrategy::valueOf)
-                        .filter(RealCachingStrategy::isEnabled)
-                        .isPresent();
+            if (method.isDefault() && isCachingEligible(method)) {
+                return true;
             }
         }
         for (final Class<?> superInterface : iface.getInterfaces()) {
-            if (hasDefaultMethodsWhichRequireCaching(superInterface)) {
+            if (hasCachingEligibleDefaultMethods(superInterface)) {
                 return true;
             }
         }

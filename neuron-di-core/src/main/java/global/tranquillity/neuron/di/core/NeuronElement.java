@@ -67,17 +67,28 @@ interface NeuronElement extends ClassElement, HasCachingStrategy {
         }
     }
 
-    static boolean hasNoParameters(Method method) {
-        return 0 == method.getParameterCount();
-    }
-
     static boolean isAbstract(Method method) {
         return Modifier.isAbstract(method.getModifiers());
+    }
+
+    static boolean isCachingEligible(Method method) {
+        return isCachingDeclared(method) && hasNoParameters(method);
+    }
+
+    static boolean isCachingDeclared(Method method) {
+        return cachingStrategyOption(method)
+                .map(RealCachingStrategy::valueOf)
+                .filter(RealCachingStrategy::isEnabled)
+                .isPresent();
     }
 
     static Optional<CachingStrategy> cachingStrategyOption(Method method) {
         return Optional
                 .ofNullable(method.getAnnotation(Caching.class))
                 .map(Caching::value);
+    }
+
+    static boolean hasNoParameters(Method method) {
+        return 0 == method.getParameterCount();
     }
 }
