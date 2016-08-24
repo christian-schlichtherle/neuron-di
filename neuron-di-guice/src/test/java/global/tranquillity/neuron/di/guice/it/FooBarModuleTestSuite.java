@@ -1,21 +1,20 @@
 package global.tranquillity.neuron.di.guice.it;
 
-import com.google.inject.Injector;
 import com.google.inject.Module;
+import global.tranquillity.neuron.di.api.Neuron;
 
-import static com.google.inject.Guice.createInjector;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
-public interface FooBarModuleTestMixin {
+@Neuron
+public interface FooBarModuleTestSuite extends ModuleTestSuite {
 
-    default void testFooBarModule(Module module) {
-        testFooBarInjector(createInjector(module));
-    }
+    @Override
+    default Module module() { return new FooBarModule(); }
 
-    default void testFooBarInjector(final Injector injector) {
-        final Bar bar1 = injector.getInstance(Bar.class);
-        final Bar bar2 = injector.getInstance(Bar.class);
+    default void test() {
+        final Bar bar1 = getInstance(Bar.class);
+        final Bar bar2 = getInstance(Bar.class);
         assertThat(bar1, is(not(sameInstance(bar2))));
         assertThat(bar1, is(instanceOf(BarImpl.class)));
         assertThat(bar2, is(instanceOf(BarImpl.class)));
