@@ -1,10 +1,9 @@
 package global.tranquillity.neuron.di.guice.scala.it
 
-import javax.inject.{Inject, Named, Singleton}
+import javax.inject.Singleton
 
 import com.google.inject.Guice
-import global.tranquillity.neuron.di.api.{Caching, Neuron}
-import global.tranquillity.neuron.di.guice.scala.it.BindingSpec._
+import global.tranquillity.neuron.di.guice.it._
 import global.tranquillity.neuron.di.guice.scala.InjectorSugar._
 import global.tranquillity.neuron.di.guice.scala.ModuleSugar
 import org.scalatest.Matchers._
@@ -44,28 +43,5 @@ class BindingSpec extends WordSpec with GivenWhenThen {
     And("its message should be 'Hello Christian!'")
 
     message shouldBe "Hello Christian!"
-  }
-}
-
-object BindingSpec {
-
-  @Neuron
-  abstract class Greeting {
-
-    lazy val message: String = formatter message "Christian"
-
-    // This annotation is actually redundant, but documents the default behavior:
-    @Caching
-    def formatter: Formatter
-  }
-
-  trait Formatter {
-
-    def message(args: String*): String
-  }
-
-  class RealFormatter @Inject()(@Named("format") format: String) extends Formatter {
-
-    def message(args: String*): String = String.format(format, args: _*)
   }
 }
