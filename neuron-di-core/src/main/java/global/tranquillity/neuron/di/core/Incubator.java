@@ -24,7 +24,11 @@ public class Incubator {
     /**
      * Returns a new instance of the given runtime class which will resolve its
      * dependencies lazily by calling the given function.
-     *
+     * This method is usually called from plugins for DI frameworks in order to
+     * integrate Neuron DI into the framework.
+     * The {@code dependency} function then calls back into the DI framework in
+     * order to look up a binding for the method injection point and eventually
+     * recursively call this method again.
      *
      * @param dependency a function which maps a synapse method to its resolved
      *                   dependency.
