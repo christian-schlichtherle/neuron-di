@@ -2,6 +2,7 @@ package global.tranquillity.neuron.di.guice;
 
 import com.google.inject.Binder;
 import com.google.inject.Injector;
+import com.google.inject.binder.ScopedBindingBuilder;
 import global.tranquillity.neuron.di.core.Incubator;
 
 import javax.inject.Provider;
@@ -11,8 +12,8 @@ public interface NeuronModule {
 
     Binder binder();
 
-    default <T> void bindNeuron(Class<T> runtimeClass) {
-        binder().bind(runtimeClass).toProvider(neuronProvider(runtimeClass));
+    default <T> ScopedBindingBuilder bindNeuron(Class<T> runtimeClass) {
+        return binder().bind(runtimeClass).toProvider(neuronProvider(runtimeClass));
     }
 
     default <T> Provider<T> neuronProvider(final Class<T> runtimeClass) {

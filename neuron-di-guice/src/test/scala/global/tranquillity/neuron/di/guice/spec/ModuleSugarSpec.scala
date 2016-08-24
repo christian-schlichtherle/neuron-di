@@ -17,11 +17,11 @@ class ModuleSugarSpec extends WordSpec {
         Guice.createInjector(new ModuleSugar {
 
           def configure() {
-            bindConstant.annotatedWith(named("one")).to(1)
+            bindConstant.named("one").to(1)
             bindClass[Foo]
-              .annotatedWith(named("foo"))
+              .named("foo")
               .toClass[FooImpl]
-              .inClass[Singleton]
+              .inScope[Singleton]
             bindClass[Bar].toClass[BarImpl]
           }
         })

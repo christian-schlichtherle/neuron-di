@@ -48,7 +48,7 @@ abstract class ModuleSugar extends AbstractModule with NeuronModule {
 
   implicit class WithScopedBindingBuilder(builder: ScopedBindingBuilder) {
 
-    def inClass[A <: Annotation](implicit ct: ClassTag[A]) {
+    def inScope[A <: Annotation](implicit ct: ClassTag[A]) {
       builder in runtimeClassOf(ct)
     }
   }
