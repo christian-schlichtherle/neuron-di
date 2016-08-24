@@ -2,41 +2,33 @@ package global.tranquillity.neuron.di.it;
 
 import global.tranquillity.neuron.di.api.Caching;
 import global.tranquillity.neuron.di.api.Neuron;
+import global.tranquillity.neuron.di.core.Incubator;
 import org.junit.Test;
 
-import javax.inject.Singleton;
-
+import static global.tranquillity.neuron.di.core.Incubator.breed;
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-public class NeuronDIIT extends OrganismTestBase {
+public class NeuronDIIT {
 
     @Test
-    public void testInjection() { make(Greeter.class).greet(); }
+    public void testInjection() {
+        assertThat(greeter().greet(), is("Hello Christian!"));
+    }
 
     @Test
-    public void testDefaultScope() {
-        final Greeter g1 = make(Greeter.class);
-        final Greeter g2 = make(Greeter.class);
+    public void testScope() {
+        final Greeter g1 = greeter();
+        final Greeter g2 = greeter();
         assertThat(g2, is(not(sameInstance(g1))));
     }
 
-    @Test
-    public void testSingletonScope() {
-        final Greeter g1 = make(SingletonGreeter.class);
-        final Greeter g2 = make(SingletonGreeter.class);
-        assertThat(g2, is(sameInstance(g1)));
-    }
+    private Greeter greeter() { return breed(Greeter.class); }
 
     @Test
     public void testNoProxy() {
-        assertThat(make(Greeting.class).getClass(), is(sameInstance(Greeting.class)));
+        assertThat(breed(Greeting.class).getClass(), is(sameInstance(Greeting.class)));
     }
-
-    @Singleton
-    // This annotation is redundant, but documents the default behavior:
-    @Neuron
-    static abstract class SingletonGreeter extends Greeter { }
 
     @Neuron
     static abstract class Greeter {
@@ -45,7 +37,7 @@ public class NeuronDIIT extends OrganismTestBase {
         @Caching
         abstract Greeting greeting();
 
-        void greet() { System.out.println(greeting().message("Christian")); }
+        String greet() { return greeting().message("Christian"); }
     }
 
     @SuppressWarnings("WeakerAccess")

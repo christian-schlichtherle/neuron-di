@@ -11,17 +11,18 @@ import java.util.concurrent.TimeoutException;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import static global.tranquillity.neuron.di.core.Incubator.breed;
 import static java.util.Collections.singleton;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
-public abstract class CachingStrategyITSuite extends OrganismTestBase {
+public abstract class CachingStrategyITSuite {
 
     @Test
     public void testDisabledCachingStrategy() {
-        final HasDependency neuron = make(classWithDisabledCachingStrategy());
+        final HasDependency neuron = breed(classWithDisabledCachingStrategy());
         final ConcurrentDependencyCollector collector = new ConcurrentDependencyCollector();
         assertThat(collector.run(neuron), hasSize(collector.numDependencies()));
     }
@@ -30,7 +31,7 @@ public abstract class CachingStrategyITSuite extends OrganismTestBase {
 
     @Test
     public void testNotThreadSafeCachingStrategy() {
-        final HasDependency neuron = make(classWithNotThreadSafeCachingStrategy());
+        final HasDependency neuron = breed(classWithNotThreadSafeCachingStrategy());
         final ConcurrentDependencyCollector collector = new ConcurrentDependencyCollector();
         assertThat(collector.run(neuron), hasSize(lessThanOrEqualTo(collector.numThreads())));
     }
@@ -39,7 +40,7 @@ public abstract class CachingStrategyITSuite extends OrganismTestBase {
 
     @Test
     public void testThreadLocalCachingStrategy() throws InterruptedException {
-        final HasDependency neuron = make(classWithThreadLocalCachingStrategy());
+        final HasDependency neuron = breed(classWithThreadLocalCachingStrategy());
         final ConcurrentDependencyCollector collector = new ConcurrentDependencyCollector();
         assertThat(collector.run(neuron), hasSize(collector.numThreads()));
     }
@@ -48,7 +49,7 @@ public abstract class CachingStrategyITSuite extends OrganismTestBase {
 
     @Test
     public void testThreadSafeCachingStrategy() {
-        final HasDependency neuron = make(classWithThreadSafeCachingStrategy());
+        final HasDependency neuron = breed(classWithThreadSafeCachingStrategy());
         final ConcurrentDependencyCollector collector = new ConcurrentDependencyCollector();
         assertThat(collector.run(neuron), is(singleton(neuron.dependency())));
     }
