@@ -1,6 +1,5 @@
 package global.tranquillity.neuron.di.core.it
 
-import global.tranquillity.neuron.di.core.it.IncubatorSugar._
 import global.tranquillity.neuron.di.core.test.HasA
 import org.scalatest.{FlatSpec, WordSpec}
 import org.scalatest.Matchers._
