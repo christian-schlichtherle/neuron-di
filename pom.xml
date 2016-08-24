@@ -162,19 +162,6 @@
                      <version>3.5.1</version>
                  </plugin>
                  <plugin>
-                     <artifactId>maven-failsafe-plugin</artifactId>
-                     <version>2.19.1</version>
-                     <executions>
-                         <execution>
-                             <id>integration-test</id>
-                             <goals>
-                                 <goal>integration-test</goal>
-                                 <goal>verify</goal>
-                             </goals>
-                         </execution>
-                     </executions>
-                 </plugin>
-                 <plugin>
                      <artifactId>maven-install-plugin</artifactId>
                      <version>2.5.2</version>
                  </plugin>
@@ -189,6 +176,13 @@
                  <plugin>
                      <artifactId>maven-surefire-plugin</artifactId>
                      <version>2.19.1</version>
+                     <executions>
+                         <execution>
+                             <id>default-test</id>
+                             <phase>none</phase>
+                         </execution>
+
+                     </executions>
                  </plugin>
                  <plugin>
                      <groupId>net.alchim31.maven</groupId>
@@ -304,16 +298,6 @@
                     <plugin>
                         <groupId>org.scalatest</groupId>
                         <artifactId>scalatest-maven-plugin</artifactId>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-        <profile>
-            <id>integration-test</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <artifactId>maven-failsafe-plugin</artifactId>
                     </plugin>
                 </plugins>
             </build>
