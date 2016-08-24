@@ -1,46 +1,71 @@
 package global.tranquillity.neuron.di.guice.spec
 
-import javax.inject.{Inject, Named}
+import javax.inject.{Inject, Named, Singleton}
 
 import com.google.inject.Guice
-import global.tranquillity.neuron.di.api.Neuron
+import global.tranquillity.neuron.di.api.{Caching, Neuron}
+import global.tranquillity.neuron.di.guice.InjectorSugar._
 import global.tranquillity.neuron.di.guice.ModuleSugar
 import global.tranquillity.neuron.di.guice.spec.BindingSpec._
 import org.scalatest.Matchers._
-import org.scalatest.WordSpec
-import global.tranquillity.neuron.di.guice.InjectorSugar._
+import org.scalatest.{GivenWhenThen, WordSpec}
 
-class BindingSpec extends WordSpec {
+class BindingSpec extends WordSpec with GivenWhenThen {
 
-  "binding neurons should work" in {
+  "Guice should support Neuron bindings" in {
+
+    Given("a Guice injector with a Neuron binding")
+
     val injector = Guice.createInjector(new ModuleSugar {
       def configure() {
-        bindNeuronClass[Greeter]
-        bindClass[Greeting].toClass[RealGreeting]
-        bindConstant.named("greeting").to("Hello %s!")
+        bindNeuronClass[Greeting].inScope[Singleton]
+        bindClass[Formatter].toClass[RealFormatter]
+        bindConstant.named("format").to("Hello %s!")
       }
     })
-    injector.getInstanceOf[Greeter].greet shouldBe "Hello Christian!"
+
+    When("injecting a greeting")
+
+    val greeting = injector.getInstanceOf[Greeting]
+    import greeting._
+
+    Then("the greeting should be a singleton")
+
+    injector.getInstanceOf[Greeting] shouldBe theSameInstanceAs(greeting)
+
+    And("its formatter should be a real formatter")
+
+    formatter.getClass shouldBe classOf[RealFormatter]
+
+    And("its formatter should be cached although its returned by a method")
+
+    formatter shouldBe theSameInstanceAs(formatter)
+
+    And("its message should be 'Hello Christian!'")
+
+    message shouldBe "Hello Christian!"
   }
 }
 
 object BindingSpec {
 
   @Neuron
-  abstract class Greeter {
+  abstract class Greeting {
 
-    def greet(): String = greeting message "Christian"
+    lazy val message: String = formatter message "Christian"
 
-    def greeting: Greeting
+    // This annotation is actually redundant, but documents the default behavior:
+    @Caching
+    def formatter: Formatter
   }
 
-  trait Greeting {
+  trait Formatter {
 
-    def message(name: String): String
+    def message(args: String*): String
   }
 
-  class RealGreeting @Inject() (@Named("greeting") format: String) extends Greeting {
+  class RealFormatter @Inject()(@Named("format") format: String) extends Formatter {
 
-    def message(name: String): String = String.format(format, name)
+    def message(args: String*): String = String.format(format, args: _*)
   }
 }
