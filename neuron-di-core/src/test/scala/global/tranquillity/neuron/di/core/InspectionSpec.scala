@@ -1,7 +1,6 @@
-package global.tranquillity.neuron.di.core.spec
+package global.tranquillity.neuron.di.core
 
-import global.tranquillity.neuron.di.core.Inspection
-import global.tranquillity.neuron.di.core.spec.InspectionSpec._
+import global.tranquillity.neuron.di.core.InspectionSpec._
 import global.tranquillity.neuron.di.core.test._
 import org.scalatest.Matchers._
 import org.scalatest.{FeatureSpec, GivenWhenThen}

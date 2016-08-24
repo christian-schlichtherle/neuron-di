@@ -7,7 +7,7 @@ import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.LinkedList;
 
-public class Inspection {
+class Inspection {
 
     private final Class<?> runtimeClass;
 
@@ -15,11 +15,11 @@ public class Inspection {
         this.runtimeClass = runtimeClass;
     }
 
-    public static Inspection of(Class<?> runtimeClass) {
+    static Inspection of(Class<?> runtimeClass) {
         return new Inspection(runtimeClass);
     }
 
-    public Collection<Method> synapses() {
+    Collection<Method> synapses() {
         final LinkedList<Method> synapses = new LinkedList<>();
         element().accept(new Visitor() {
             @Override

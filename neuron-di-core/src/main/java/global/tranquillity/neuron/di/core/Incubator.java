@@ -25,6 +25,7 @@ public class Incubator {
      * Returns a new instance of the given runtime class which will resolve its
      * dependencies lazily by calling the given function.
      *
+     *
      * @param dependency a function which maps a synapse method to its resolved
      *                   dependency.
      */
