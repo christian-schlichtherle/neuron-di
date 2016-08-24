@@ -7,10 +7,7 @@ import net.sf.cglib.proxy.Enhancer;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.function.BiFunction;
 import java.util.function.Function;
-
-import static global.tranquillity.neuron.di.core.Inspection.cglibAdapter;
 
 public class Incubator {
 
@@ -41,7 +38,7 @@ public class Incubator {
             @Override
             public void visitNeuron(final NeuronElement element) {
                 assert runtimeClass == element.runtimeClass();
-                final BiFunction<Class<?>, Class<?>[], T> createProxy = (superclass, interfaces) -> {
+                instance = new CglibFunction<>((superclass, interfaces) -> {
 
                     class MethodVisitor
                             extends CallbackHelper
@@ -73,8 +70,7 @@ public class Incubator {
                     }
 
                     return runtimeClass.cast(createProxy(superclass, interfaces, new MethodVisitor()));
-                };
-                instance = cglibAdapter(createProxy).apply(runtimeClass);
+                }).apply(runtimeClass);
             }
 
             @Override

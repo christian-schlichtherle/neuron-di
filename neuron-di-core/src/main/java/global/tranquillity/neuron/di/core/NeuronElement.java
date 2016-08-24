@@ -1,15 +1,16 @@
 package global.tranquillity.neuron.di.core;
 
+import global.tranquillity.neuron.di.api.Caching;
 import global.tranquillity.neuron.di.api.CachingStrategy;
 import net.sf.cglib.proxy.Enhancer;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import static global.tranquillity.neuron.di.api.CachingStrategy.DISABLED;
-import static global.tranquillity.neuron.di.core.Inspection.*;
 
 interface NeuronElement extends ClassElement, HasCachingStrategy {
 
@@ -17,15 +18,14 @@ interface NeuronElement extends ClassElement, HasCachingStrategy {
     default void accept(Visitor visitor) { visitor.visitNeuron(this); }
 
     default void traverseMethods(final Visitor visitor) {
-        cglibAdapter((superclass, interfaces) -> {
+        new CglibFunction<>((superclass, interfaces) -> {
             final List<Method> methods = new ArrayList<>();
             Enhancer.getMethods(superclass, interfaces, methods);
             for (Method method : methods) {
                 element(method).accept(visitor);
             }
             return null;
-        })
-        .apply(runtimeClass());
+        }).apply(runtimeClass());
     }
 
     default Element element(final Method method) {
@@ -53,7 +53,7 @@ interface NeuronElement extends ClassElement, HasCachingStrategy {
             }
         }
 
-        if (isParameterless(method)) {
+        if (hasNoParameters(method)) {
             final Optional<CachingStrategy> option =
                     cachingStrategyOption(method);
             if (isAbstract(method)) {
@@ -65,5 +65,19 @@ interface NeuronElement extends ClassElement, HasCachingStrategy {
         } else {
             return new RealMethodElement(DISABLED);
         }
+    }
+
+    static boolean hasNoParameters(Method method) {
+        return 0 == method.getParameterCount();
+    }
+
+    static boolean isAbstract(Method method) {
+        return Modifier.isAbstract(method.getModifiers());
+    }
+
+    static Optional<CachingStrategy> cachingStrategyOption(Method method) {
+        return Optional
+                .ofNullable(method.getAnnotation(Caching.class))
+                .map(Caching::value);
     }
 }
