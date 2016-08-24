@@ -1,16 +1,16 @@
 package global.tranquillity.neuron.di.guice.it;
 
-import com.google.inject.AbstractModule;
+import global.tranquillity.neuron.di.guice.NeuronModule;
 
 import javax.inject.Singleton;
 
 import static com.google.inject.name.Names.named;
 
-public class FooBarModule extends AbstractModule {
+class FooBarModule extends NeuronModule {
 
     @Override
     protected void configure() {
-        bindConstant().annotatedWith(named("one")).to(1);
+        bindConstantNamed("one").to(1);
         bind(Foo.class)
                 .annotatedWith(named("impl"))
                 .to(FooImpl.class)

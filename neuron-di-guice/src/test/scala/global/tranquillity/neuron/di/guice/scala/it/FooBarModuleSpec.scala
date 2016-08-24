@@ -3,18 +3,18 @@ package global.tranquillity.neuron.di.guice.scala.it
 import javax.inject.Singleton
 
 import global.tranquillity.neuron.di.guice.it._
-import global.tranquillity.neuron.di.guice.scala.ModuleSugar
+import global.tranquillity.neuron.di.guice.scala._
 import org.scalatest.Matchers._
 import org.scalatest.WordSpec
 
-class ModuleSugarSpec extends WordSpec with FooBarModuleTestMixin {
+class FooBarModuleSpec extends WordSpec with FooBarModuleTestMixin {
 
   "Module sugar" should {
-    "provide an alternative DSL for configuring the foo-bar-module" in {
-      testFooBarModule(new ModuleSugar {
+    "provide an alternative DSL for configuring the foo-bar module" in {
+      testFooBarModule(new NeuronModule {
 
         def configure() {
-          bindConstant.named("one").to(1)
+          bindConstantNamed("one").to(1)
           bindClass[Foo]
             .named("impl")
             .toClass[FooImpl]

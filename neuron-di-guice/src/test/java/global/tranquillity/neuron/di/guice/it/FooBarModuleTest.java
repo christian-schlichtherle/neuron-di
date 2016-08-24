@@ -5,7 +5,5 @@ import org.junit.Test;
 public class FooBarModuleTest implements FooBarModuleTestMixin {
 
     @Test
-    public void testFooBarModule() {
-        testFooBarModule(new FooBarModule());
-    }
+    public void testFooBarModule() { testFooBarModule(new FooBarModule()); }
 }

@@ -2,15 +2,22 @@ package global.tranquillity.neuron.di.guice;
 
 import com.google.inject.Binder;
 import com.google.inject.Injector;
+import com.google.inject.binder.ConstantBindingBuilder;
 import com.google.inject.binder.ScopedBindingBuilder;
 import global.tranquillity.neuron.di.core.Incubator;
 
 import javax.inject.Provider;
 import java.lang.reflect.Method;
 
-public interface ModuleSugar {
+import static com.google.inject.name.Names.named;
+
+public interface BinderLike {
 
     Binder binder();
+
+    default ConstantBindingBuilder bindConstantNamed(String name) {
+        return binder().bindConstant().annotatedWith(named(name));
+    }
 
     default <T> ScopedBindingBuilder bindNeuron(Class<T> runtimeClass) {
         return binder().bind(runtimeClass).toProvider(neuronProvider(runtimeClass));
