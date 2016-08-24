@@ -7,8 +7,6 @@ import org.scalatest.{FeatureSpec, GivenWhenThen}
 
 abstract class CachingStrategySpec extends FeatureSpec with GivenWhenThen {
 
-  private val collect = new ConcurrentDependencyCollector
-
   feature(s"Developers can configure different caching strategies for $subjects:") {
 
     info("As a developer")
@@ -76,6 +74,8 @@ abstract class CachingStrategySpec extends FeatureSpec with GivenWhenThen {
       dependencies should have size collect.numThreads
     }
   }
+
+  private val collect = new ConcurrentDependencyCollector
 
   protected def subjects: String
 
