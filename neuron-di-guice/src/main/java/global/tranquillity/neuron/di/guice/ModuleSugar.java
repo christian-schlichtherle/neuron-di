@@ -8,7 +8,7 @@ import global.tranquillity.neuron.di.core.Incubator;
 import javax.inject.Provider;
 import java.lang.reflect.Method;
 
-public interface NeuronModule {
+public interface ModuleSugar {
 
     Binder binder();
 

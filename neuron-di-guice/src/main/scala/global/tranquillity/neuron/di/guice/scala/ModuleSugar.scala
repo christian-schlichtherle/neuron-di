@@ -1,4 +1,4 @@
-package global.tranquillity.neuron.di.guice
+package global.tranquillity.neuron.di.guice.scala
 
 import java.lang.annotation.Annotation
 import javax.inject.Provider
@@ -7,11 +7,12 @@ import com.google.inject.binder._
 import com.google.inject.name.Names
 import com.google.inject.{AbstractModule, Binder}
 import global.tranquillity.neuron.di.core.scala._
+import global.tranquillity.neuron.di.guice.{ModuleSugar => jModuleSugar}
 
 import scala.language.implicitConversions
-import scala.reflect.{ClassTag, classTag}
+import scala.reflect.ClassTag
 
-abstract class ModuleSugar extends AbstractModule with NeuronModule {
+abstract class ModuleSugar extends AbstractModule with jModuleSugar {
 
   override def binder(): Binder = super.binder()
 

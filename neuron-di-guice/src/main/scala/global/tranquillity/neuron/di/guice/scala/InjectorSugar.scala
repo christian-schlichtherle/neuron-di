@@ -1,9 +1,9 @@
-package global.tranquillity.neuron.di.guice
+package global.tranquillity.neuron.di.guice.scala
 
 import com.google.inject.Injector
+import global.tranquillity.neuron.di.core.scala._
 
 import scala.reflect.ClassTag
-import global.tranquillity.neuron.di.core.scala._
 
 trait InjectorSugar {
 

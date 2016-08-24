@@ -4,9 +4,9 @@ import javax.inject.{Inject, Named, Singleton}
 
 import com.google.inject.Guice
 import global.tranquillity.neuron.di.api.{Caching, Neuron}
-import global.tranquillity.neuron.di.guice.InjectorSugar._
-import global.tranquillity.neuron.di.guice.ModuleSugar
 import global.tranquillity.neuron.di.guice.it.BindingSpec._
+import global.tranquillity.neuron.di.guice.scala.InjectorSugar._
+import global.tranquillity.neuron.di.guice.scala.ModuleSugar
 import org.scalatest.Matchers._
 import org.scalatest.{GivenWhenThen, WordSpec}
 

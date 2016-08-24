@@ -1,11 +1,11 @@
-package global.tranquillity.neuron.di.guice.it
+package global.tranquillity.neuron.di.guice.scala.it
 
 import javax.inject.{Inject, Named, Singleton}
 
 import com.google.inject._
 import com.google.inject.name.Names.named
-import global.tranquillity.neuron.di.guice.ModuleSugar
-import global.tranquillity.neuron.di.guice.it.ModuleSugarSpec._
+import global.tranquillity.neuron.di.guice.scala.ModuleSugar
+import global.tranquillity.neuron.di.guice.scala.it.ModuleSugarSpec._
 import org.scalatest.Matchers._
 import org.scalatest.WordSpec
 
