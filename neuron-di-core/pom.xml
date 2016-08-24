@@ -21,9 +21,5 @@
             <groupId>global.tranquillity.neuron-di</groupId>
             <artifactId>neuron-di-api</artifactId>
         </dependency>
-        <dependency>
-            <groupId>javax.inject</groupId>
-            <artifactId>javax.inject</artifactId>
-        </dependency>
     </dependencies>
 </project>
