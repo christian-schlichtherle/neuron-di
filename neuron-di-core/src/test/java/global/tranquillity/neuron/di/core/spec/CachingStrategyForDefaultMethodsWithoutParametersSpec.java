@@ -6,7 +6,10 @@ import global.tranquillity.neuron.di.core.test.HasDependency;
 
 import static global.tranquillity.neuron.di.api.CachingStrategy.*;
 
-public class CachingStrategyForDefaultMethodsSpec extends CachingStrategySpec {
+public class CachingStrategyForDefaultMethodsWithoutParametersSpec extends CachingStrategySpec {
+
+    @Override
+    public String subjects() { return "default methods without parameters"; }
 
     @Override
     public Class<? extends HasDependency<?>> classWithDisabledCachingStrategy() {

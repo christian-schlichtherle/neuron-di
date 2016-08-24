@@ -7,14 +7,14 @@ import org.scalatest.{FeatureSpec, GivenWhenThen}
 
 abstract class CachingStrategySpec extends FeatureSpec with GivenWhenThen {
 
-  feature("Developers can configure different caching strategies for synapses:") {
+  private val collect = new ConcurrentDependencyCollector
+
+  feature(s"Developers can configure different caching strategies for $subjects:") {
 
     info("As a developer")
-    info("I want to configure the caching strategy for dependencies")
-    info("by using the @Caching annotation on the synapse method")
-    info("or the @Neuron annotation on the neuron class.")
-
-    val collector = new ConcurrentDependencyCollector
+    info(s"I want to configure the caching strategy for $subjects")
+    info(s"by annotating the $subjects with @Caching")
+    info("or annotating the neuron class with @Neuron.")
 
     scenario("Applying the DISABLED caching strategy:") {
 
@@ -22,13 +22,13 @@ abstract class CachingStrategySpec extends FeatureSpec with GivenWhenThen {
 
       val neuron = breed(classWithDisabledCachingStrategy)
 
-      When(s"concurrently collecting dependencies injected ${collector.numDependenciesPerThread} times in ${collector.numThreads} threads")
+      When(s"concurrently collecting dependencies injected ${collect.numDependenciesPerThread} times in ${collect.numThreads} threads")
 
-      val dependencies = collector runOn neuron
+      val dependencies = collect dependenciesOf neuron
 
-      Then(s"the size of the dependency set should be ${collector.numDependencies}.")
+      Then(s"the size of the dependency set should be ${collect.numDependencies}.")
 
-      dependencies should have size collector.numDependencies
+      dependencies should have size collect.numDependencies
     }
 
     scenario("Applying the NOT_THREAD_SAFE caching strategy:") {
@@ -37,13 +37,13 @@ abstract class CachingStrategySpec extends FeatureSpec with GivenWhenThen {
 
       val neuron = breed(classWithNotThreadSafeCachingStrategy)
 
-      When(s"concurrently collecting dependencies injected ${collector.numDependenciesPerThread} times in ${collector.numThreads} threads")
+      When(s"concurrently collecting dependencies injected ${collect.numDependenciesPerThread} times in ${collect.numThreads} threads")
 
-      val dependencies = collector runOn neuron
+      val dependencies = collect dependenciesOf neuron
 
-      Then(s"the size of the dependency set should be less than or equal to ${collector.numThreads}.")
+      Then(s"the size of the dependency set should be less than or equal to ${collect.numThreads}.")
 
-      dependencies.size should be <= collector.numThreads
+      dependencies.size should be <= collect.numThreads
     }
 
     scenario("Applying the THREAD_SAFE caching strategy:") {
@@ -52,9 +52,9 @@ abstract class CachingStrategySpec extends FeatureSpec with GivenWhenThen {
 
       val neuron = breed(classWithThreadSafeCachingStrategy)
 
-      When(s"concurrently collecting dependencies injected ${collector.numDependenciesPerThread} times in ${collector.numThreads} threads")
+      When(s"concurrently collecting dependencies injected ${collect.numDependenciesPerThread} times in ${collect.numThreads} threads")
 
-      val dependencies = collector runOn neuron
+      val dependencies = collect dependenciesOf neuron
 
       Then(s"the dependency set should contain exactly one dependency.")
 
@@ -67,15 +67,17 @@ abstract class CachingStrategySpec extends FeatureSpec with GivenWhenThen {
 
       val neuron = breed(classWithThreadLocalCachingStrategy)
 
-      When(s"concurrently collecting dependencies injected ${collector.numDependenciesPerThread} times in ${collector.numThreads} threads")
+      When(s"concurrently collecting dependencies injected ${collect.numDependenciesPerThread} times in ${collect.numThreads} threads")
 
-      val dependencies = collector runOn neuron
+      val dependencies = collect dependenciesOf neuron
 
-      Then(s"the size of the dependency set should be ${collector.numThreads}.")
+      Then(s"the size of the dependency set should be ${collect.numThreads}.")
 
-      dependencies should have size collector.numThreads
+      dependencies should have size collect.numThreads
     }
   }
+
+  protected def subjects: String
 
   protected def classWithDisabledCachingStrategy: Class[_ <: HasDependency[_]]
 

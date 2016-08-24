@@ -7,7 +7,10 @@ import global.tranquillity.neuron.di.core.test.HasDependency;
 import static global.tranquillity.neuron.di.api.CachingStrategy.*;
 
 @SuppressWarnings("WeakerAccess")
-public class CachingStrategyForConcreteMethodsSpec extends CachingStrategySpec {
+public class CachingStrategyForNonAbstractMethodsWithoutParametersSpec extends CachingStrategySpec {
+
+    @Override
+    public String subjects() { return "non-abstract methods without parameters"; }
 
     @Override
     public Class<? extends HasDependency<?>> classWithDisabledCachingStrategy() {

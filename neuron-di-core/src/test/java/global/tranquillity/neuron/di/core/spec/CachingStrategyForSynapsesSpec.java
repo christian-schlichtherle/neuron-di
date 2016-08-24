@@ -5,7 +5,10 @@ import global.tranquillity.neuron.di.core.test.HasDependency;
 
 import static global.tranquillity.neuron.di.api.CachingStrategy.*;
 
-public class CachingStrategyForAbstractMethodsSpec extends CachingStrategySpec {
+public class CachingStrategyForSynapsesSpec extends CachingStrategySpec {
+
+    @Override
+    public String subjects() { return "synapses"; }
 
     @Override
     public Class<? extends HasDependency<?>> classWithDisabledCachingStrategy() {
