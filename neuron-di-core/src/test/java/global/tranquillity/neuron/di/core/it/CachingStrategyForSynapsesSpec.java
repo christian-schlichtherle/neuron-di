@@ -1,4 +1,4 @@
-package global.tranquillity.neuron.di.core.spec;
+package global.tranquillity.neuron.di.core.it;
 
 import global.tranquillity.neuron.di.api.Neuron;
 import global.tranquillity.neuron.di.core.test.HasDependency;

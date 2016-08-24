@@ -1,4 +1,4 @@
-package global.tranquillity.neuron.di.core.spec;
+package global.tranquillity.neuron.di.core.it;
 
 import global.tranquillity.neuron.di.api.Caching;
 import global.tranquillity.neuron.di.api.Neuron;
@@ -6,11 +6,10 @@ import global.tranquillity.neuron.di.core.test.HasDependency;
 
 import static global.tranquillity.neuron.di.api.CachingStrategy.*;
 
-@SuppressWarnings("WeakerAccess")
-public class CachingStrategyForNonAbstractMethodsWithoutParametersSpec extends CachingStrategySpec {
+public class CachingStrategyForDefaultMethodsWithoutParametersSpec extends CachingStrategySpec {
 
     @Override
-    public String subjects() { return "non-abstract methods without parameters"; }
+    public String subjects() { return "default methods without parameters"; }
 
     @Override
     public Class<? extends HasDependency<?>> classWithDisabledCachingStrategy() {
@@ -33,30 +32,30 @@ public class CachingStrategyForNonAbstractMethodsWithoutParametersSpec extends C
     }
 
     @Neuron
-    static class NeuronWithDisabledCachingStrategy implements HasDependency<Object> {
+    interface NeuronWithDisabledCachingStrategy extends HasDependency<Object> {
 
         @Caching(DISABLED)
-        public Object dependency() { return new Object(); }
+        default Object dependency() { return new Object(); }
     }
 
     @Neuron
-    static class NeuronWithNotThreadSafeCachingStrategy implements HasDependency<Object> {
+    interface NeuronWithNotThreadSafeCachingStrategy extends HasDependency<Object> {
 
         @Caching(NOT_THREAD_SAFE)
-        public Object dependency() { return new Object(); }
+        default Object dependency() { return new Object(); }
     }
 
     @Neuron
-    static class NeuronWithThreadLocalCachingStrategy implements HasDependency<Object> {
+    interface NeuronWithThreadLocalCachingStrategy extends HasDependency<Object> {
 
         @Caching(THREAD_LOCAL)
-        public Object dependency() { return new Object(); }
+        default Object dependency() { return new Object(); }
     }
 
     @Neuron
-    static class NeuronWithThreadSafeCachingStrategy implements HasDependency<Object> {
+    interface NeuronWithThreadSafeCachingStrategy extends HasDependency<Object> {
 
         @Caching
-        public Object dependency() { return new Object(); }
+        default Object dependency() { return new Object(); }
     }
 }
