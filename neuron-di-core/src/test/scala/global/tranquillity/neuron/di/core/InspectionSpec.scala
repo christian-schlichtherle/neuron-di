@@ -1,10 +1,11 @@
 package global.tranquillity.neuron.di.core
 
 import global.tranquillity.neuron.di.core.InspectionSpec._
+import global.tranquillity.neuron.di.core.it.{AnotherInterface, AnotherNeuronClass, SomeNeuronClass, SomeNeuronInterface}
 import global.tranquillity.neuron.di.core.scala._
-import global.tranquillity.neuron.di.core.test._
 import org.scalatest.Matchers._
 import org.scalatest.{FeatureSpec, GivenWhenThen}
+
 import reflect.ClassTag
 
 class InspectionSpec extends FeatureSpec with GivenWhenThen {

@@ -1,7 +1,6 @@
 package global.tranquillity.neuron.di.core.it
 
 import global.tranquillity.neuron.di.core.Incubator.breed
-import global.tranquillity.neuron.di.core.test.HasDependency
 import org.scalatest.Matchers._
 import org.scalatest.{FeatureSpec, GivenWhenThen}
 

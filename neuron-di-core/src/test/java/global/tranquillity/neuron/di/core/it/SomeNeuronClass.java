@@ -1,4 +1,4 @@
-package global.tranquillity.neuron.di.core.test;
+package global.tranquillity.neuron.di.core.it;
 
 import global.tranquillity.neuron.di.api.Neuron;
 

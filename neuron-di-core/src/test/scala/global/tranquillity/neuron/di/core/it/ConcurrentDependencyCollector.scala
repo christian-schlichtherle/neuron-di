@@ -3,7 +3,6 @@ package global.tranquillity.neuron.di.core.it
 import java.util.concurrent.{CyclicBarrier, TimeUnit}
 
 import global.tranquillity.neuron.di.core.it.ParallelSugar._
-import global.tranquillity.neuron.di.core.test.HasDependency
 
 private class ConcurrentDependencyCollector {
 
@@ -39,6 +38,3 @@ private class ConcurrentDependencyCollector {
 
   def numThreads: Int = 10 * Runtime.getRuntime.availableProcessors
 }
-
-
-
