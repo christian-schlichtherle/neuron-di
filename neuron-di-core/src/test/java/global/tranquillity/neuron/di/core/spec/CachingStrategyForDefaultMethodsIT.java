@@ -1,12 +1,12 @@
-package global.tranquillity.neuron.di.it;
+package global.tranquillity.neuron.di.core.spec;
 
 import global.tranquillity.neuron.di.api.Caching;
 import global.tranquillity.neuron.di.api.Neuron;
+import global.tranquillity.neuron.di.core.test.HasDependency;
 
 import static global.tranquillity.neuron.di.api.CachingStrategy.*;
 
-@SuppressWarnings("WeakerAccess")
-public class CachingStrategyForConcreteMethodsIT extends CachingStrategyITSuite {
+public class CachingStrategyForDefaultMethodsIT extends CachingStrategyITSuite {
 
     @Override
     Class<? extends HasDependency> classWithDisabledCachingStrategy() {
@@ -29,30 +29,30 @@ public class CachingStrategyForConcreteMethodsIT extends CachingStrategyITSuite 
     }
 
     @Neuron
-    static class NeuronWithDisabledCachingStrategy implements HasDependency {
+    interface NeuronWithDisabledCachingStrategy extends HasDependency {
 
         @Caching(DISABLED)
-        public Object dependency() { return new Object(); }
+        default Object dependency() { return new Object(); }
     }
 
     @Neuron
-    static class NeuronWithNotThreadSafeCachingStrategy implements HasDependency {
+    interface NeuronWithNotThreadSafeCachingStrategy extends HasDependency {
 
         @Caching(NOT_THREAD_SAFE)
-        public Object dependency() { return new Object(); }
+        default Object dependency() { return new Object(); }
     }
 
     @Neuron
-    static class NeuronWithThreadLocalCachingStrategy implements HasDependency {
+    interface NeuronWithThreadLocalCachingStrategy extends HasDependency {
 
         @Caching(THREAD_LOCAL)
-        public Object dependency() { return new Object(); }
+        default Object dependency() { return new Object(); }
     }
 
     @Neuron
-    static class NeuronWithThreadSafeCachingStrategy implements HasDependency {
+    interface NeuronWithThreadSafeCachingStrategy extends HasDependency {
 
         @Caching
-        public Object dependency() { return new Object(); }
+        default Object dependency() { return new Object(); }
     }
 }

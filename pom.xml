@@ -12,7 +12,6 @@
     <modules>
         <module>neuron-di-api</module>
         <module>neuron-di-guice</module>
-        <module>neuron-di-it</module>
         <module>neuron-di-core</module>
     </modules>
 

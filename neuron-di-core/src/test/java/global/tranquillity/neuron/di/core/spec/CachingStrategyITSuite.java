@@ -1,5 +1,6 @@
-package global.tranquillity.neuron.di.it;
+package global.tranquillity.neuron.di.core.spec;
 
+import global.tranquillity.neuron.di.core.test.HasDependency;
 import org.junit.Test;
 
 import java.util.List;

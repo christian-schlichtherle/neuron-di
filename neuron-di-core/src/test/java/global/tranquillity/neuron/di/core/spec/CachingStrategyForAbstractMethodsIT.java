@@ -1,6 +1,7 @@
-package global.tranquillity.neuron.di.it;
+package global.tranquillity.neuron.di.core.spec;
 
 import global.tranquillity.neuron.di.api.Neuron;
+import global.tranquillity.neuron.di.core.test.HasDependency;
 
 import static global.tranquillity.neuron.di.api.CachingStrategy.*;
 
