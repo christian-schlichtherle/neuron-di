@@ -3,7 +3,7 @@ package global.tranquillity.neuron.di.guice.it;
 import com.google.inject.Module;
 import com.google.inject.name.Names;
 import global.tranquillity.neuron.di.api.Neuron;
-import global.tranquillity.neuron.di.core.junit.NeuronRunner;
+import global.tranquillity.neuron.di.core.junit.NeuronJUnitRunner;
 import global.tranquillity.neuron.di.guice.NeuronModule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -14,7 +14,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
 @Neuron
-@RunWith(NeuronRunner.class)
+@RunWith(NeuronJUnitRunner.class)
 public class FooBarModuleTest implements ModuleTest {
 
     @Override
