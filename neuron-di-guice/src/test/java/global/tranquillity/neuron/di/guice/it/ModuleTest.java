@@ -1,18 +1,19 @@
 package global.tranquillity.neuron.di.guice.it;
 
+import com.google.inject.Injector;
 import com.google.inject.Module;
-import global.tranquillity.neuron.di.guice.NeuronModule;
+import global.tranquillity.neuron.di.api.Caching;
 
 import static com.google.inject.Guice.createInjector;
 
 public interface ModuleTest {
 
-    default void test(final Class<? extends ModuleTestSuite> suiteClass) {
-        final Module testModule = new NeuronModule() {
+    Module module();
 
-            @Override
-            protected void configure() { bindNeuron(suiteClass); }
-        };
-        createInjector(testModule).getInstance(suiteClass).test();
+    @Caching
+    default Injector injector() { return createInjector(module()); }
+
+    default <T> T getInstance(Class<T> runtimeClass) {
+        return injector().getInstance(runtimeClass);
     }
 }
