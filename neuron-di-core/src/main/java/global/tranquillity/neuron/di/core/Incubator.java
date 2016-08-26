@@ -191,7 +191,7 @@ public class Incubator {
             return clazz.newInstance();
         } catch (InstantiationException e) {
             throw (InstantiationError)
-                    new InstantiationError(e.getMessage()).initCause(e);
+                    new InstantiationError(e.getMessage() + ": Did you forget the @Neuron annotation?").initCause(e);
         } catch (IllegalAccessException e) {
             throw (IllegalAccessError)
                     new IllegalAccessError(e.getMessage()).initCause(e);
