@@ -19,7 +19,7 @@ class IncubatorSpec extends WordSpec {
       }.getCause shouldBe an[InstantiationException]
     }
 
-    "stub" in {
+    "stub a metric neuron while complying to the configured caching strategies of its synapse methods" in {
       val a = new Counter
       val b = new Counter
 

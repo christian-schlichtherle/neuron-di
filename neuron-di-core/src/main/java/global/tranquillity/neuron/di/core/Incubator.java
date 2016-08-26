@@ -4,8 +4,6 @@ import net.sf.cglib.proxy.Callback;
 import net.sf.cglib.proxy.CallbackHelper;
 import net.sf.cglib.proxy.Enhancer;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.LinkedList;
@@ -65,12 +63,12 @@ public class Incubator {
             }
 
             Supplier<Object> binder(final Method method) {
-                final Supplier<Function<? super T, ?>> replacementSupplier =
-                        replacementSupplier(method);
-                return () -> replacementSupplier.get().apply(neuron);
+                final Supplier<Function<? super T, ?>> replacementProxy =
+                        replacementProxy(method);
+                return () -> replacementProxy.get().apply(neuron);
             }
 
-            Supplier<Function<? super T, ?>> replacementSupplier(final Method method) {
+            Supplier<Function<? super T, ?>> replacementProxy(final Method method) {
                 return new Supplier<Function<? super T, ?>>() {
 
                     Function<? super T, ?> replacement;
