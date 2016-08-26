@@ -2,9 +2,9 @@ package global.tranquillity.neuron.di.core.it;
 
 public class Counter {
 
-    int count;
+    public int count;
 
-    Counter inc() {
+    public Counter inc() {
         count++;
         return this;
     }

@@ -8,10 +8,8 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.AbstractMap.SimpleImmutableEntry;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -25,8 +23,6 @@ public class Incubator {
 
             final List<Entry<Function<T, ?>, Function<? super T, ?>>> bindings =
                     new LinkedList<>();
-
-            Map<Method, Supplier<Function<? super T, ?>>> replacementSuppliers;
 
             T neuron;
 
@@ -46,21 +42,20 @@ public class Incubator {
                     if (null != neuron) {
                         throw new IllegalStateException("`breed()` has already been called");
                     }
-                    replacementSuppliers = new HashMap<>(bindings.size() * 4 / 3 + 1);
                     neuron = Incubator.breed(runtimeClass, this::binder);
                 }
-                exploreMethodReferences();
+                initReplacementSuppliers();
                 return neuron;
             }
 
-            void exploreMethodReferences() {
+            void initReplacementSuppliers() {
                 try {
                     for (final Entry<Function<T, ?>, Function<? super T, ?>> binding : bindings) {
                         final Function<T, ?> methodReference = binding.getKey();
                         currentReplacement = binding.getValue();
                         try {
                             methodReference.apply(neuron);
-                            assert false;
+                            throw new AssertionError();
                         } catch (ControlFlowError ignored) {
                         }
                     }
@@ -71,7 +66,7 @@ public class Incubator {
 
             Supplier<Object> binder(final Method method) {
                 final Supplier<Function<? super T, ?>> replacementSupplier =
-                        replacementSuppliers.computeIfAbsent(method, this::replacementSupplier);
+                        replacementSupplier(method);
                 return () -> replacementSupplier.get().apply(neuron);
             }
 
@@ -82,12 +77,12 @@ public class Incubator {
 
                     @Override
                     public Function<? super T, ?> get() {
-                        if (null != currentReplacement) {
-                            replacement = currentReplacement;
-                            throw new ControlFlowError();
+                        if (null != replacement) {
+                            return replacement;
                         } else {
+                            replacement = currentReplacement;
                             if (null != replacement) {
-                                return replacement;
+                                throw new ControlFlowError();
                             } else {
                                 throw new IllegalStateException(
                                         "Insufficient stubbing: No binding defined for method `" + method + "` in neuron `" + runtimeClass + "`.");
@@ -209,7 +204,7 @@ public class Incubator {
                     new IllegalAccessError(e.getMessage()).initCause(e);
         } catch (InvocationTargetException e) {
             sun.misc.Unsafe.getUnsafe().throwException(e.getTargetException());
-            throw new AssertionError("Unreachable statement.", e);
+            throw new AssertionError();
         }
     }
 

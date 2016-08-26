@@ -6,7 +6,7 @@ import global.tranquillity.neuron.di.api.Neuron;
 import static global.tranquillity.neuron.di.api.CachingStrategy.DISABLED;
 
 @Neuron
-interface Metric {
+public interface Metric {
 
     Counter a();
 

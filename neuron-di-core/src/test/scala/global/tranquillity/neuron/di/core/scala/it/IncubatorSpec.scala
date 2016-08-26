@@ -1,6 +1,7 @@
 package global.tranquillity.neuron.di.core.scala.it
 
-import global.tranquillity.neuron.di.core.it.HasDependency
+import global.tranquillity.neuron.di.core.it.{Counter, HasDependency, Metric}
+import global.tranquillity.neuron.di.core.scala.Incubator
 import global.tranquillity.neuron.di.core.scala.Incubator._
 import org.scalatest.Matchers._
 import org.scalatest.WordSpec
@@ -16,6 +17,26 @@ class IncubatorSpec extends WordSpec {
       intercept[InstantiationError] {
         breed[HasDependency[AnyRef]]
       }.getCause shouldBe a[NoSuchMethodException]
+    }
+
+    "stub" in {
+      val a = new Counter
+      val b = new Counter
+
+      val metric = Incubator
+        .stub[Metric]
+        .bind(_.a).to(_ => a.inc)
+        .bind(_.b).to(_ => b.inc)
+        .breed
+
+      metric.a shouldBe theSameInstanceAs(a)
+      metric.b shouldBe theSameInstanceAs(b)
+
+      metric.a shouldBe theSameInstanceAs(a)
+      metric.b shouldBe theSameInstanceAs(b)
+
+      a.count shouldBe 1
+      b.count shouldBe 2
     }
   }
 }
