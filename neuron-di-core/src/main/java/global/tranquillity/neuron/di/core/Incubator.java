@@ -190,21 +190,13 @@ public class Incubator {
 
     private static <T> T createInstance(final Class<T> clazz) {
         try {
-            final Constructor<T> c = clazz.getDeclaredConstructor();
-            c.setAccessible(true); // TODO: Why?
-            return c.newInstance();
-        } catch (NoSuchMethodException e) {
-            throw (InstantiationError)
-                    new InstantiationError(clazz.getName()).initCause(e);
+            return clazz.newInstance();
         } catch (InstantiationException e) {
             throw (InstantiationError)
                     new InstantiationError(e.getMessage()).initCause(e);
         } catch (IllegalAccessException e) {
             throw (IllegalAccessError)
                     new IllegalAccessError(e.getMessage()).initCause(e);
-        } catch (InvocationTargetException e) {
-            sun.misc.Unsafe.getUnsafe().throwException(e.getTargetException());
-            throw new AssertionError();
         }
     }
 

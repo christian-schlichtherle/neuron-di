@@ -16,7 +16,7 @@ class IncubatorSpec extends WordSpec {
     "throw an exception when trying to breed an instance of a non-neuron interface" in {
       intercept[InstantiationError] {
         breed[HasDependency[AnyRef]]
-      }.getCause shouldBe a[NoSuchMethodException]
+      }.getCause shouldBe an[InstantiationException]
     }
 
     "stub" in {
