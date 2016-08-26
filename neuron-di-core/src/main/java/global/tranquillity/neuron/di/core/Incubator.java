@@ -7,11 +7,13 @@ import net.sf.cglib.proxy.Enhancer;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.function.Function;
 import java.util.function.Supplier;
+
+import static java.util.Objects.requireNonNull;
 
 public class Incubator {
 
@@ -20,7 +22,7 @@ public class Incubator {
     public static <T> Stubbing<T> stub(final Class<T> runtimeClass) {
         return new Stubbing<T>() {
 
-            final Map<Function<T, ?>, Function<T, ?>> stubbings = new HashMap<>();
+            final List<Entry<Function<T, ?>, Function<T, ?>>> stubbings = new LinkedList<>();
 
             Map<Method, Supplier<Function<T, ?>>> dependencies;
 
@@ -28,14 +30,13 @@ public class Incubator {
 
             @Override
             public <U> Stubbing<T> set(Function<T, U> methodReference, U value) {
-                Objects.requireNonNull(value);
-                stubbings.put(methodReference, neuron -> value);
-                return this;
+                requireNonNull(value);
+                return put(methodReference, neuron -> value);
             }
 
             @Override
-            public <U> Stubbing<T> set(final Function<T, U> methodReference, final Function<T, ? extends U> replacement) {
-                stubbings.put(methodReference, replacement);
+            public <U> Stubbing<T> put(final Function<T, U> methodReference, final Function<T, ? extends U> replacement) {
+                stubbings.add(new SimpleImmutableEntry<>(methodReference, replacement));
                 return this;
             }
 
@@ -66,7 +67,7 @@ public class Incubator {
                             return function;
                         }
                         function = this::nothing;
-                        for (final Map.Entry<Function<T, ?>, Function<T, ?>> stubbing : stubbings.entrySet()) {
+                        for (final Entry<Function<T, ?>, Function<T, ?>> stubbing : stubbings) {
                             if (null == stubbing.getKey().apply(neuron)) {
                                 return function = stubbing.getValue();
                             }
@@ -192,7 +193,7 @@ public class Incubator {
 
         <U> Stubbing<T> set(Function<T, U> methodReference, U value);
 
-        <U> Stubbing<T> set(Function<T, U> methodReference, Function<T, ? extends U> replacement);
+        <U> Stubbing<T> put(Function<T, U> methodReference, Function<T, ? extends U> replacement);
 
         T breed();
     }

@@ -8,18 +8,27 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.mockito.Mockito.mock;
 
-public class MockTest {
+public class StubbingTest {
 
     @Test
-    public void testMockingAndStubbing() {
+    public void testStubbing() {
         final A a = mock(A.class);
         final B b = mock(B.class);
         final C c = mock(C.class);
         final SomeNeuronClass neuron = Incubator
                 .stub(SomeNeuronClass.class)
-                .set(HasA::a, a)
-                .set(HasB::b, b)
-                .set(HasC::c, c)
+                .put(HasA::a, ignored -> {
+                    System.out.println(a);
+                    return a;
+                })
+                .put(HasB::b, ignored -> {
+                    System.out.println(b);
+                    return b;
+                })
+                .put(HasC::c, ignored -> {
+                    System.out.println(c);
+                    return c;
+                })
                 .breed();
 
         assertThat(neuron.a(), is(sameInstance(a)));
