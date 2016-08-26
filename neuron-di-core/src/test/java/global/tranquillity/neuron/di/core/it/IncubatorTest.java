@@ -16,8 +16,8 @@ public class IncubatorTest {
 
         final Metric metric = Incubator
                 .stub(Metric.class)
-                .set(Metric::a).to(neuron -> a.inc())
-                .set(Metric::b).to(neuron -> b.inc())
+                .bind(Metric::a).to(neuron -> a.inc())
+                .bind(Metric::b).to(neuron -> b.inc())
                 .breed();
 
         assertThat(metric.a(), is(sameInstance(a)));

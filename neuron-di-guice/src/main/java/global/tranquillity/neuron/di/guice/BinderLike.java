@@ -8,6 +8,7 @@ import global.tranquillity.neuron.di.core.Incubator;
 
 import javax.inject.Provider;
 import java.lang.reflect.Method;
+import java.util.function.Supplier;
 
 import static com.google.inject.name.Names.named;
 
@@ -34,8 +35,9 @@ public interface BinderLike {
                 return Incubator.breed(runtimeClass, this::dependency);
             }
 
-            Object dependency(Method method) {
-                return injector().getInstance(method.getReturnType());
+            Supplier<Object> dependency(final Method method) {
+                final Class<?> returnType = method.getReturnType();
+                return () -> injector().getInstance(returnType);
             }
 
             Injector injector() { return injectorProvider.get(); }

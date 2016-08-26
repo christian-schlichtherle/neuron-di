@@ -23,19 +23,19 @@ public class Incubator {
     public static <T> Stubbing<T> stub(final Class<T> runtimeClass) {
         return new Stubbing<T>() {
 
-            final List<Entry<Function<T, ?>, Function<? super T, ?>>> stubbings =
+            final List<Entry<Function<T, ?>, Function<? super T, ?>>> bindings =
                     new LinkedList<>();
 
-            Map<Method, Supplier<Function<? super T, ?>>> stubbingProxies;
+            Map<Method, Supplier<Function<? super T, ?>>> replacementSuppliers;
 
             T neuron;
 
-            Function<? super T, ?> currentStubbing;
+            Function<? super T, ?> currentReplacement;
 
             @Override
-            public <U> MethodStubbing<T, U> set(final Function<T, U> methodReference) {
-                return stubbing -> {
-                    stubbings.add(new SimpleImmutableEntry<>(methodReference, stubbing));
+            public <U> MethodStubbing<T, U> bind(final Function<T, U> methodReference) {
+                return replacement -> {
+                    bindings.add(new SimpleImmutableEntry<>(methodReference, replacement));
                     return this;
                 };
             }
@@ -46,18 +46,18 @@ public class Incubator {
                     if (null != neuron) {
                         throw new IllegalStateException("`breed()` has already been called");
                     }
-                    neuron = Incubator.breed(runtimeClass, this::dependency);
+                    replacementSuppliers = new HashMap<>(bindings.size() * 4 / 3 + 1);
+                    neuron = Incubator.breed(runtimeClass, this::binder);
                 }
                 exploreMethodReferences();
                 return neuron;
             }
 
             void exploreMethodReferences() {
-                stubbingProxies = new HashMap<>(stubbings.size() * 4 / 3 + 1);
                 try {
-                    for (final Entry<Function<T, ?>, Function<? super T, ?>> stubbing : stubbings) {
-                        final Function<T, ?> methodReference = stubbing.getKey();
-                        currentStubbing = stubbing.getValue();
+                    for (final Entry<Function<T, ?>, Function<? super T, ?>> binding : bindings) {
+                        final Function<T, ?> methodReference = binding.getKey();
+                        currentReplacement = binding.getValue();
                         try {
                             methodReference.apply(neuron);
                             assert false;
@@ -65,33 +65,32 @@ public class Incubator {
                         }
                     }
                 } finally {
-                    currentStubbing = null;
+                    currentReplacement = null;
                 }
             }
 
-            Object dependency(Method method) {
-                return stubbingProxies
-                        .computeIfAbsent(method, this::stubbingProxy)
-                        .get()
-                        .apply(neuron);
+            Supplier<Object> binder(final Method method) {
+                final Supplier<Function<? super T, ?>> replacementSupplier =
+                        replacementSuppliers.computeIfAbsent(method, this::replacementSupplier);
+                return () -> replacementSupplier.get().apply(neuron);
             }
 
-            Supplier<Function<? super T, ?>> stubbingProxy(final Method method) {
+            Supplier<Function<? super T, ?>> replacementSupplier(final Method method) {
                 return new Supplier<Function<? super T, ?>>() {
 
-                    Function<? super T, ?> stubbing;
+                    Function<? super T, ?> replacement;
 
                     @Override
                     public Function<? super T, ?> get() {
-                        if (null != currentStubbing) {
-                            stubbing = currentStubbing;
+                        if (null != currentReplacement) {
+                            replacement = currentReplacement;
                             throw new ControlFlowError();
                         } else {
-                            if (null != stubbing) {
-                                return stubbing;
+                            if (null != replacement) {
+                                return replacement;
                             } else {
                                 throw new IllegalStateException(
-                                        "Insufficient stubbing: No stubbing defined for method `" + method + "` in neuron `" + runtimeClass + "`.");
+                                        "Insufficient stubbing: No binding defined for method `" + method + "` in neuron `" + runtimeClass + "`.");
                             }
                         }
                     }
@@ -105,23 +104,29 @@ public class Incubator {
      * dependencies lazily by recursively calling this method.
      */
     public static <T> T breed(Class<T> runtimeClass) {
-        return breed(runtimeClass, synapse -> breed(synapse.getReturnType()));
+        return breed(runtimeClass, synapse -> {
+            final Class<?> returnType = synapse.getReturnType();
+            return () -> breed(returnType);
+        });
     }
 
     /**
      * Returns a new instance of the given runtime class which will resolve its
-     * dependencies lazily by calling the given function.
+     * dependencies lazily.
      * This method is usually called from plugins for DI frameworks in order to
      * integrate Neuron DI into the framework.
-     * The {@code dependency} function then calls back into the DI framework in
-     * order to look up a binding for the method injection point and eventually
-     * recursively call this method again.
+     * The {@code binder} function then typically calls back into the DI
+     * framework in order to look up a binding for the synapse method (the
+     * injection point) and returns a supplier for the resolved dependency.
      *
-     * @param dependency a function which maps a synapse method to its resolved
-     *                   dependency.
+     * @param binder a function which looks up a binding for a given synapse
+     *               method (the injection point) and returns a supplier for the
+     *               resolved dependency.
+     *               When evaluating the function or the supplier, the
+     *               implementation may recursively call this method again.
      */
     public static <T> T breed(final Class<T> runtimeClass,
-                              final Function<Method, ?> dependency) {
+                              final Function<Method, Supplier<?>> binder) {
 
         class ClassVisitor implements Visitor {
 
@@ -151,8 +156,8 @@ public class Incubator {
 
                         @Override
                         public void visitSynapse(final SynapseElement element) {
-                            final Method method = element.method();
-                            callback = element.synapseCallback(() -> dependency.apply(method));
+                            final Supplier<?> binding = binder.apply(element.method());
+                            callback = element.synapseCallback(binding::get);
                         }
 
                         @Override
@@ -210,7 +215,7 @@ public class Incubator {
 
     public interface Stubbing<T> {
 
-        <U> MethodStubbing<T, U> set(Function<T, U> methodReference);
+        <U> MethodStubbing<T, U> bind(Function<T, U> methodReference);
 
         T breed();
     }
@@ -219,6 +224,6 @@ public class Incubator {
 
         default Stubbing<T> to(U value) { return to(neuron -> value); }
 
-        Stubbing<T> to(Function<? super T, ? extends U> stubbing);
+        Stubbing<T> to(Function<? super T, ? extends U> replacement);
     }
 }
