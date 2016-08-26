@@ -7,13 +7,14 @@ import net.sf.cglib.proxy.Enhancer;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.*;
-import java.util.Map.Entry;
 import java.util.AbstractMap.SimpleImmutableEntry;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.function.Function;
 import java.util.function.Supplier;
-
-import static java.util.Objects.requireNonNull;
 
 public class Incubator {
 
@@ -22,60 +23,78 @@ public class Incubator {
     public static <T> Stubbing<T> stub(final Class<T> runtimeClass) {
         return new Stubbing<T>() {
 
-            final List<Entry<Function<T, ?>, Function<T, ?>>> stubbings = new LinkedList<>();
+            final List<Entry<Function<T, ?>, Function<? super T, ?>>> stubbings =
+                    new LinkedList<>();
 
-            Map<Method, Supplier<Function<T, ?>>> dependencies;
+            Map<Method, Supplier<Function<? super T, ?>>> stubbingProxies;
 
             T neuron;
 
+            Function<? super T, ?> currentStubbing;
+
             @Override
-            public <U> Stubbing<T> set(Function<T, U> methodReference, U value) {
-                requireNonNull(value);
-                return put(methodReference, neuron -> value);
+            public <U> MethodStubbing<T, U> set(final Function<T, U> methodReference) {
+                return stubbing -> {
+                    stubbings.add(new SimpleImmutableEntry<>(methodReference, stubbing));
+                    return this;
+                };
             }
 
             @Override
-            public <U> Stubbing<T> put(final Function<T, U> methodReference, final Function<T, ? extends U> replacement) {
-                stubbings.add(new SimpleImmutableEntry<>(methodReference, replacement));
-                return this;
-            }
-
-            @Override
-            public synchronized T breed() {
-                if (null != neuron) {
-                    throw new IllegalStateException("breed() has already been called");
+            public T breed() {
+                synchronized (this) {
+                    if (null != neuron) {
+                        throw new IllegalStateException("`breed()` has already been called");
+                    }
+                    neuron = Incubator.breed(runtimeClass, this::dependency);
                 }
-                dependencies = new HashMap<>(stubbings.size() * 4 / 3 + 1);
-                return neuron = Incubator.breed(runtimeClass, this::dependency);
+                exploreMethodReferences();
+                return neuron;
+            }
+
+            void exploreMethodReferences() {
+                stubbingProxies = new HashMap<>(stubbings.size() * 4 / 3 + 1);
+                try {
+                    for (final Entry<Function<T, ?>, Function<? super T, ?>> stubbing : stubbings) {
+                        final Function<T, ?> methodReference = stubbing.getKey();
+                        currentStubbing = stubbing.getValue();
+                        try {
+                            methodReference.apply(neuron);
+                            assert false;
+                        } catch (ControlFlowError ignored) {
+                        }
+                    }
+                } finally {
+                    currentStubbing = null;
+                }
             }
 
             Object dependency(Method method) {
-                return dependencies
-                        .computeIfAbsent(method, this::dependencySupplier)
+                return stubbingProxies
+                        .computeIfAbsent(method, this::stubbingProxy)
                         .get()
                         .apply(neuron);
             }
 
-            Supplier<Function<T, ?>> dependencySupplier(final Method method) {
-                return new Supplier<Function<T, ?>>() {
+            Supplier<Function<? super T, ?>> stubbingProxy(final Method method) {
+                return new Supplier<Function<? super T, ?>>() {
 
-                    Function<T, ?> function = null;
+                    Function<? super T, ?> stubbing;
 
                     @Override
-                    public Function<T, ?> get() {
-                        if (null != function) {
-                            return function;
-                        }
-                        function = this::nothing;
-                        for (final Entry<Function<T, ?>, Function<T, ?>> stubbing : stubbings) {
-                            if (null == stubbing.getKey().apply(neuron)) {
-                                return function = stubbing.getValue();
+                    public Function<? super T, ?> get() {
+                        if (null != currentStubbing) {
+                            stubbing = currentStubbing;
+                            throw new ControlFlowError();
+                        } else {
+                            if (null != stubbing) {
+                                return stubbing;
+                            } else {
+                                throw new IllegalStateException(
+                                        "Insufficient stubbing: No stubbing defined for method `" + method + "` in neuron `" + runtimeClass + "`.");
                             }
                         }
-                        throw new IllegalStateException("Insufficient stubbing: No stubbing defined for method `" + method + "` in neuron `" + runtimeClass + "`.");
                     }
-
-                    Object nothing(T ignored) { return null; }
                 };
             }
         };
@@ -191,10 +210,15 @@ public class Incubator {
 
     public interface Stubbing<T> {
 
-        <U> Stubbing<T> set(Function<T, U> methodReference, U value);
-
-        <U> Stubbing<T> put(Function<T, U> methodReference, Function<T, ? extends U> replacement);
+        <U> MethodStubbing<T, U> set(Function<T, U> methodReference);
 
         T breed();
+    }
+
+    public interface MethodStubbing<T, U> {
+
+        default Stubbing<T> to(U value) { return to(neuron -> value); }
+
+        Stubbing<T> to(Function<? super T, ? extends U> stubbing);
     }
 }
