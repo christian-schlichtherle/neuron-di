@@ -127,6 +127,11 @@
                 <artifactId>scalatest_${scala.lang.version}</artifactId>
                 <version>3.0.0</version>
             </dependency>
+            <dependency>
+                <groupId>org.specs2</groupId>
+                <artifactId>specs2-mock_${scala.lang.version}</artifactId>
+                <version>3.8.4</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -253,6 +258,11 @@
                 <dependency>
                     <groupId>org.scalatest</groupId>
                     <artifactId>scalatest_${scala.lang.version}</artifactId>
+                    <scope>test</scope>
+                </dependency>
+                <dependency>
+                    <groupId>org.specs2</groupId>
+                    <artifactId>specs2-mock_${scala.lang.version}</artifactId>
                     <scope>test</scope>
                 </dependency>
             </dependencies>
