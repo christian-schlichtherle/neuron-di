@@ -7,11 +7,78 @@ import net.sf.cglib.proxy.Enhancer;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 public class Incubator {
 
     private Incubator() { }
+
+    public static <T> Stubbing<T> stub(final Class<T> runtimeClass) {
+        return new Stubbing<T>() {
+
+            final Map<Function<T, ?>, Function<T, ?>> stubbings = new HashMap<>();
+
+            Map<Method, Supplier<Function<T, ?>>> dependencies;
+
+            T neuron;
+
+            @Override
+            public <U> Stubbing<T> set(Function<T, U> methodReference, U value) {
+                Objects.requireNonNull(value);
+                stubbings.put(methodReference, neuron -> value);
+                return this;
+            }
+
+            @Override
+            public <U> Stubbing<T> set(final Function<T, U> methodReference, final Function<T, ? extends U> replacement) {
+                stubbings.put(methodReference, replacement);
+                return this;
+            }
+
+            @Override
+            public synchronized T breed() {
+                if (null != neuron) {
+                    throw new IllegalStateException("breed() has already been called");
+                }
+                dependencies = new HashMap<>(stubbings.size() * 4 / 3 + 1);
+                return neuron = Incubator.breed(runtimeClass, this::dependency);
+            }
+
+            Object dependency(Method method) {
+                return dependencies
+                        .computeIfAbsent(method, this::dependencySupplier)
+                        .get()
+                        .apply(neuron);
+            }
+
+            Supplier<Function<T, ?>> dependencySupplier(final Method method) {
+                return new Supplier<Function<T, ?>>() {
+
+                    Function<T, ?> function = null;
+
+                    @Override
+                    public Function<T, ?> get() {
+                        if (null != function) {
+                            return function;
+                        }
+                        function = this::nothing;
+                        for (final Map.Entry<Function<T, ?>, Function<T, ?>> stubbing : stubbings.entrySet()) {
+                            if (null == stubbing.getKey().apply(neuron)) {
+                                return function = stubbing.getValue();
+                            }
+                        }
+                        throw new IllegalStateException("Insufficient stubbing: No stubbing defined for method `" + method + "` in neuron `" + runtimeClass + "`.");
+                    }
+
+                    Object nothing(T ignored) { return null; }
+                };
+            }
+        };
+    }
 
     /**
      * Returns a new instance of the given runtime class which will resolve its
@@ -119,5 +186,14 @@ public class Incubator {
             sun.misc.Unsafe.getUnsafe().throwException(e.getTargetException());
             throw new AssertionError("Unreachable statement.", e);
         }
+    }
+
+    public interface Stubbing<T> {
+
+        <U> Stubbing<T> set(Function<T, U> methodReference, U value);
+
+        <U> Stubbing<T> set(Function<T, U> methodReference, Function<T, ? extends U> replacement);
+
+        T breed();
     }
 }
