@@ -81,8 +81,7 @@ interface NeuronElement extends ClassElement, HasCachingStrategy {
 
     static boolean isCachingEnabled(Method method) {
         return declaredCachingStrategy(method)
-                .map(RealCachingStrategy::valueOf)
-                .filter(RealCachingStrategy::isEnabled)
+                .filter(CachingStrategy::isEnabled)
                 .isPresent();
     }
 

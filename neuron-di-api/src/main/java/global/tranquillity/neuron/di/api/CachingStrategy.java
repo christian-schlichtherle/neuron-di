@@ -8,7 +8,11 @@ public enum CachingStrategy {
      * Although not strictly required, a subsequent call by any thread should
      * return another instance.
      */
-    DISABLED,
+    DISABLED {
+
+        @Override
+        public boolean isEnabled() { return false; }
+    },
 
     /**
      * Caches the return value of the annotated method:
@@ -33,4 +37,7 @@ public enum CachingStrategy {
      * This definition recursively applies to any thread.
      */
     THREAD_LOCAL;
+
+    /** Returns true iff the caching strategy is not {@link #DISABLED}. */
+    public boolean isEnabled() { return true; }
 }

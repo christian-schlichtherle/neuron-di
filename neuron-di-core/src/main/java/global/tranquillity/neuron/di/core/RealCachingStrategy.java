@@ -13,9 +13,6 @@ enum RealCachingStrategy {
     DISABLED {
 
         @Override
-        boolean isEnabled() { return false; }
-
-        @Override
         Callback synapseCallback(FixedValue callback) { return callback; }
 
         @Override
@@ -118,8 +115,6 @@ enum RealCachingStrategy {
     static RealCachingStrategy valueOf(CachingStrategy strategy) {
         return valueOf(strategy.name());
     }
-
-    boolean isEnabled() { return true; }
 
     abstract Callback synapseCallback(FixedValue callback);
 
