@@ -19,7 +19,12 @@
         </dependency>
         <dependency>
             <groupId>global.tranquillity.neuron-di</groupId>
+            <artifactId>neuron-di-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>global.tranquillity.neuron-di</groupId>
             <artifactId>neuron-di-core</artifactId>
+            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.scala-lang</groupId>

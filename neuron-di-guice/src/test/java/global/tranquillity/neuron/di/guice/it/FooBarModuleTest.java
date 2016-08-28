@@ -3,7 +3,7 @@ package global.tranquillity.neuron.di.guice.it;
 import com.google.inject.Module;
 import com.google.inject.name.Names;
 import global.tranquillity.neuron.di.api.Neuron;
-import global.tranquillity.neuron.di.core.junit.NeuronJUnitRunner;
+import global.tranquillity.neuron.di.api.junit.NeuronJUnitRunner;
 import global.tranquillity.neuron.di.guice.NeuronModule;
 import org.junit.Test;
 import org.junit.runner.RunWith;

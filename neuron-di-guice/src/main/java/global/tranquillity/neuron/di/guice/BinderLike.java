@@ -4,8 +4,8 @@ import com.google.inject.Binder;
 import com.google.inject.Injector;
 import com.google.inject.binder.ConstantBindingBuilder;
 import com.google.inject.binder.ScopedBindingBuilder;
+import global.tranquillity.neuron.di.api.Incubator;
 import global.tranquillity.neuron.di.api.Neuron;
-import global.tranquillity.neuron.di.core.Incubator;
 
 import javax.inject.Provider;
 import java.lang.reflect.Method;

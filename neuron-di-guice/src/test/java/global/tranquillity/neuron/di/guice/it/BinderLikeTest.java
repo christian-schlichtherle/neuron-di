@@ -6,7 +6,7 @@ import com.google.inject.binder.AnnotatedBindingBuilder;
 import com.google.inject.binder.AnnotatedConstantBindingBuilder;
 import com.google.inject.binder.ConstantBindingBuilder;
 import com.google.inject.binder.ScopedBindingBuilder;
-import global.tranquillity.neuron.di.core.Incubator;
+import global.tranquillity.neuron.di.api.Incubator;
 import global.tranquillity.neuron.di.guice.BinderLike;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;

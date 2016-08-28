@@ -5,7 +5,7 @@ import javax.inject.Provider
 import com.google.inject.binder.{AnnotatedBindingBuilder, AnnotatedConstantBindingBuilder, ConstantBindingBuilder, ScopedBindingBuilder}
 import com.google.inject.name.Names.named
 import com.google.inject.{Binder, Injector, Provider => gProvider}
-import global.tranquillity.neuron.di.core.scala.Incubator
+import global.tranquillity.neuron.di.api.scala.Incubator
 import global.tranquillity.neuron.di.guice.scala._
 import global.tranquillity.neuron.di.guice.{BinderLike => jBinderLike}
 import org.mockito.ArgumentCaptor
