@@ -3,7 +3,7 @@ package global.tranquillity.neuron.di.core.scala
 import java.lang.reflect.Method
 import java.util.function.{Function => jFunction, Supplier => jSupplier}
 
-import global.tranquillity.neuron.di.core.Incubator.{Stubbing => jStubbing}
+import global.tranquillity.neuron.di.core.Incubator.{Stub => jStub}
 import global.tranquillity.neuron.di.core.scala.Incubator._
 import global.tranquillity.neuron.di.core.{Incubator => jIncubator}
 
@@ -13,7 +13,7 @@ trait Incubator {
 
   final case class stub[A](implicit ct: ClassTag[A]) { stub =>
 
-    private var stubbing: jStubbing[A] = jIncubator stub runtimeClassOf(ct)
+    private var stubbing: jStub[A] = jIncubator stub runtimeClassOf(ct)
 
     case class bind[B](methodReference: A => B) {
 

@@ -16,8 +16,8 @@ public class Incubator {
 
     private Incubator() { }
 
-    public static <T> Stubbing<T> stub(final Class<T> runtimeClass) {
-        return new Stubbing<T>() {
+    public static <T> Stub<T> stub(final Class<T> runtimeClass) {
+        return new Stub<T>() {
 
             final List<Entry<Function<T, ?>, Function<? super T, ?>>> bindings =
                     new LinkedList<>();
@@ -27,7 +27,7 @@ public class Incubator {
             Function<? super T, ?> currentReplacement;
 
             @Override
-            public <U> MethodStubbing<T, U> bind(final Function<T, U> methodReference) {
+            public <U> Bind<T, U> bind(final Function<T, U> methodReference) {
                 return replacement -> {
                     bindings.add(new SimpleImmutableEntry<>(methodReference, replacement));
                     return this;
@@ -198,17 +198,17 @@ public class Incubator {
         }
     }
 
-    public interface Stubbing<T> {
+    public interface Stub<T> {
 
-        <U> MethodStubbing<T, U> bind(Function<T, U> methodReference);
+        <U> Bind<T, U> bind(Function<T, U> methodReference);
 
         T breed();
     }
 
-    public interface MethodStubbing<T, U> {
+    public interface Bind<T, U> {
 
-        default Stubbing<T> to(U value) { return to(neuron -> value); }
+        default Stub<T> to(U value) { return to(neuron -> value); }
 
-        Stubbing<T> to(Function<? super T, ? extends U> replacement);
+        Stub<T> to(Function<? super T, ? extends U> replacement);
     }
 }
