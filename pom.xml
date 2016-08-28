@@ -188,9 +188,10 @@
                      <version>3.2.2</version>
                      <configuration>
                          <args>
-                             <arg>-unchecked</arg>
                              <arg>-deprecation</arg>
                              <arg>-explaintypes</arg>
+                             <arg>-feature</arg>
+                             <arg>-unchecked</arg>
                          </args>
                      </configuration>
                  </plugin>
