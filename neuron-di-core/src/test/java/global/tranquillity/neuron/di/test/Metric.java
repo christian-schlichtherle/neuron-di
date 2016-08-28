@@ -1,4 +1,4 @@
-package global.tranquillity.neuron.di.spi.it;
+package global.tranquillity.neuron.di.test;
 
 import global.tranquillity.neuron.di.api.Caching;
 import global.tranquillity.neuron.di.api.Neuron;

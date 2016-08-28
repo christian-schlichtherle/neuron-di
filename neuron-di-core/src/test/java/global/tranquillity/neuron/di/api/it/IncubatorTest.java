@@ -1,6 +1,8 @@
-package global.tranquillity.neuron.di.spi.it;
+package global.tranquillity.neuron.di.api.it;
 
 import global.tranquillity.neuron.di.api.Incubator;
+import global.tranquillity.neuron.di.test.Counter;
+import global.tranquillity.neuron.di.test.Metric;
 import org.junit.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;

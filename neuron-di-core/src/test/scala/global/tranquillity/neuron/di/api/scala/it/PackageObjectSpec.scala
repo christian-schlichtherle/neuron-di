@@ -1,4 +1,4 @@
-package global.tranquillity.neuron.di.spi.scala.it
+package global.tranquillity.neuron.di.api.scala.it
 
 import global.tranquillity.neuron.di.api.scala.runtimeClassOf
 import org.scalatest.WordSpec

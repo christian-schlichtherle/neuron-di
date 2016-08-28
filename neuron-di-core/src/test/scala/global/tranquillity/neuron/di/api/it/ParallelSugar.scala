@@ -1,4 +1,4 @@
-package global.tranquillity.neuron.di.spi.it
+package global.tranquillity.neuron.di.api.it
 
 import scala.collection.parallel.{ForkJoinTaskSupport, ParIterableLike}
 import scala.collection.{Parallel, Parallelizable}

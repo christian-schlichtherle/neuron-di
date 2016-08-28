@@ -1,3 +1,3 @@
-package global.tranquillity.neuron.di.spi.it;
+package global.tranquillity.neuron.di.test;
 
 public abstract class AnotherNeuronClass extends SomeNeuronClass { }

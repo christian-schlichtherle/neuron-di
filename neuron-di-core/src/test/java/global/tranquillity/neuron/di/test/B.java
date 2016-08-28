@@ -1,4 +1,4 @@
-package global.tranquillity.neuron.di.spi.it;
+package global.tranquillity.neuron.di.test;
 
 public interface B {
 

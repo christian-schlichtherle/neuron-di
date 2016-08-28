@@ -1,7 +1,7 @@
-package global.tranquillity.neuron.di.spi.scala.it
+package global.tranquillity.neuron.di.api.scala.it
 
 import global.tranquillity.neuron.di.api.scala.Incubator
-import global.tranquillity.neuron.di.spi.it.{Counter, HasDependency, Metric}
+import global.tranquillity.neuron.di.test.{Counter, HasDependency, Metric}
 import org.scalatest.Matchers._
 import org.scalatest.WordSpec
 

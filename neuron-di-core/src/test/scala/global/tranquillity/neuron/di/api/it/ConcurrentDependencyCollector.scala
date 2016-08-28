@@ -1,8 +1,9 @@
-package global.tranquillity.neuron.di.spi.it
+package global.tranquillity.neuron.di.api.it
 
 import java.util.concurrent.{CyclicBarrier, TimeUnit}
 
-import global.tranquillity.neuron.di.spi.it.ParallelSugar._
+import global.tranquillity.neuron.di.api.it.ParallelSugar._
+import global.tranquillity.neuron.di.test.HasDependency
 
 private class ConcurrentDependencyCollector {
 
