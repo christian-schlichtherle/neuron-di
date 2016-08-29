@@ -24,7 +24,7 @@
         </dependency>
         <dependency>
             <groupId>global.namespace.neuron-di</groupId>
-            <artifactId>neuron-di-core</artifactId>
+            <artifactId>neuron-di-impl</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
