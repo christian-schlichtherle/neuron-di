@@ -1,4 +1,4 @@
-package global.namespace.neuron.di.test;
+package global.namespace.neuron.di.sample;
 
 import global.namespace.neuron.di.api.Caching;
 import global.namespace.neuron.di.api.Neuron;

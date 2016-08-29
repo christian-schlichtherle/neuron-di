@@ -1,8 +1,8 @@
 package global.namespace.neuron.di.api.it;
 
 import global.namespace.neuron.di.api.Incubator;
-import global.namespace.neuron.di.test.Counter;
-import global.namespace.neuron.di.test.Metric;
+import global.namespace.neuron.di.sample.Counter;
+import global.namespace.neuron.di.sample.Metric;
 import org.junit.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;

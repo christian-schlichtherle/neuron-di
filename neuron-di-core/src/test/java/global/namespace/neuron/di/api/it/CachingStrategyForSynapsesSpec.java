@@ -1,7 +1,7 @@
 package global.namespace.neuron.di.api.it;
 
 import global.namespace.neuron.di.api.Neuron;
-import global.namespace.neuron.di.test.HasDependency;
+import global.namespace.neuron.di.sample.HasDependency;
 
 import static global.namespace.neuron.di.api.CachingStrategy.*;
 

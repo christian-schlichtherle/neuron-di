@@ -5,27 +5,22 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>global.namespace.neuron-di</groupId>
         <artifactId>neuron-di</artifactId>
+        <groupId>global.namespace.neuron-di</groupId>
         <version>0.1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>neuron-di-core</artifactId>
+    <artifactId>neuron-di-sample</artifactId>
 
     <dependencies>
         <dependency>
-            <groupId>cglib</groupId>
-            <artifactId>cglib</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.apache.ant</groupId>
-                    <artifactId>ant</artifactId>
-                </exclusion>
-            </exclusions>
+            <groupId>global.namespace.neuron-di</groupId>
+            <artifactId>neuron-di-guice</artifactId>
         </dependency>
         <dependency>
             <groupId>global.namespace.neuron-di</groupId>
-            <artifactId>neuron-di-api</artifactId>
+            <artifactId>neuron-di-impl</artifactId>
+            <scope>runtime</scope>
         </dependency>
     </dependencies>
 </project>

@@ -2,7 +2,7 @@ package global.namespace.neuron.di.spi
 
 import global.namespace.neuron.di.api.scala._
 import global.namespace.neuron.di.spi.InspectionSpec._
-import global.namespace.neuron.di.test.{AnotherInterface, AnotherNeuronClass, SomeNeuronClass, SomeNeuronInterface}
+import global.namespace.neuron.di.sample.{AnotherInterface, AnotherNeuronClass, SomeNeuronClass, SomeNeuronInterface}
 import org.scalatest.Matchers._
 import org.scalatest.{FeatureSpec, GivenWhenThen}
 

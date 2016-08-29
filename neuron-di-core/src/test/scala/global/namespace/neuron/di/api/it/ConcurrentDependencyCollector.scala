@@ -3,7 +3,7 @@ package global.namespace.neuron.di.api.it
 import java.util.concurrent.{CyclicBarrier, TimeUnit}
 
 import global.namespace.neuron.di.api.it.ParallelSugar._
-import global.namespace.neuron.di.test.HasDependency
+import global.namespace.neuron.di.sample.HasDependency
 
 private class ConcurrentDependencyCollector {
 

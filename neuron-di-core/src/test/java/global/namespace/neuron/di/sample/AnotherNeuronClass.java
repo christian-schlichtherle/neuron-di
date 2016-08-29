@@ -1,3 +1,3 @@
-package global.namespace.neuron.di.test;
+package global.namespace.neuron.di.sample;
 
 public abstract class AnotherNeuronClass extends SomeNeuronClass { }

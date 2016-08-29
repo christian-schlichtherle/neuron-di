@@ -1,7 +1,7 @@
 package global.namespace.neuron.di.api.scala.it
 
 import global.namespace.neuron.di.api.scala.Incubator
-import global.namespace.neuron.di.test.{Counter, HasDependency, Metric}
+import global.namespace.neuron.di.sample.{Counter, HasDependency, Metric}
 import org.scalatest.Matchers._
 import org.scalatest.WordSpec
 

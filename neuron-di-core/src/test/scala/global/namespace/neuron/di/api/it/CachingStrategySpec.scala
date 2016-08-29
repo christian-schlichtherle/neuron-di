@@ -1,7 +1,7 @@
 package global.namespace.neuron.di.api.it
 
 import global.namespace.neuron.di.api.Incubator.breed
-import global.namespace.neuron.di.test.HasDependency
+import global.namespace.neuron.di.sample.HasDependency
 import org.scalatest.Matchers._
 import org.scalatest.{FeatureSpec, GivenWhenThen}
 

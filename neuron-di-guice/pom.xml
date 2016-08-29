@@ -20,11 +20,12 @@
         <dependency>
             <groupId>global.namespace.neuron-di</groupId>
             <artifactId>neuron-di-api</artifactId>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>global.namespace.neuron-di</groupId>
             <artifactId>neuron-di-core</artifactId>
-            <scope>runtime</scope>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.scala-lang</groupId>
