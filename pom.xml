@@ -9,10 +9,17 @@
     <version>0.1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
+    <name>Neuron DI</name>
+    <description>
+        Neuron DI complements dependency injection (DI) frameworks with lazy
+        resolution and caching of dependencies.
+    </description>
+    <url>https://github.com/christian-schlichtherle/neuron-di</url>
+    <inceptionYear>2016</inceptionYear>
     <licenses>
         <license>
             <name>The Apache Software License, Version 2.0</name>
-            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
             <distribution>repo</distribution>
         </license>
     </licenses>
