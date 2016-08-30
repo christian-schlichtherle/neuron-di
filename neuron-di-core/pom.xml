@@ -28,6 +28,7 @@
         <dependency>
             <groupId>global.namespace.neuron-di</groupId>
             <artifactId>neuron-di-api</artifactId>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 </project>
