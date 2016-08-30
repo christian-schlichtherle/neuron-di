@@ -1,9 +1,19 @@
-Neuron DI complements dependency injection (DI) frameworks with lazy resolution 
-and caching of dependencies.
-It is based on the concept of decorating and implementing parameterless, 
-possibly abstract methods at runtime.
-It can also be used standalone if dependency binding is not required. 
-It provides APIs for Java 8 and Scala 2.11.x or above.
+Neuron DI is an ultra-light dependency injection (DI) framework which emphasizes
+the beauty and power of lazy dependency resolution and caching.
+It takes advantage of functional programming features available in Java SE 8 and 
+Scala 2.11 in order to provide customized APIs for these target environments. 
+
+Neuron DI can be used standalone or embedded in other DI frameworks, e.g. 
+Guice.
+When using it standalone, programmers enjoy a simple, yet versatile domain
+specific language (DSL) for writing self-contained binding definitions.
+Thanks to the (Java or Scala) compiler, self-contained binding definitions 
+alleviate the need for testing them. 
+
+When using Neuron DI embedded, programmers can extend their familiar DI
+framework with lazy dependency resolution and caching.
+Guice users also enjoy extensions to the Guice binding DSL which make it simpler 
+to use, especially for Scala.
 
 Neuron DI is covered by [The Apache Software License, Version 2.0].
 

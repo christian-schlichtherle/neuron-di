@@ -11,8 +11,9 @@
 
     <name>Neuron DI</name>
     <description>
-        Neuron DI complements dependency injection (DI) frameworks with lazy
-        resolution and caching of dependencies.
+        Neuron DI is an ultra-light dependency injection (DI) framework which
+        emphasizes the beauty and power of lazy dependency resolution and
+        caching.
     </description>
     <url>https://github.com/christian-schlichtherle/neuron-di</url>
     <inceptionYear>2016</inceptionYear>
