@@ -15,6 +15,6 @@ framework with lazy dependency resolution and caching.
 Guice users also enjoy extensions to the Guice binding DSL which make it simpler 
 to use, especially for Scala.
 
-Neuron DI is covered by [The Apache Software License, Version 2.0].
+Neuron DI is covered by the [Apache License, Version 2.0].
 
-[The Apache Software License, Version 2.0]: https://www.apache.org/licenses/LICENSE-2.0.txt
+[Apache License, Version 2.0]: https://www.apache.org/licenses/LICENSE-2.0
