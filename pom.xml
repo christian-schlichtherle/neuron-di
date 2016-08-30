@@ -9,6 +9,32 @@
     <version>0.1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+    <organization>
+        <name>Schlichtherle IT Services</name>
+        <url>http://schlichtherle.de</url>
+    </organization>
+    <developers>
+        <developer>
+            <name>Christian Schlichtherle</name>
+            <email>christian AT schlichtherle DOT de</email>
+            <organization>Schlichtherle IT Services</organization>
+            <timezone>Europe/Berlin</timezone>
+            <roles>
+                <role>owner</role>
+            </roles>
+            <properties>
+                <picUrl>http://www.gravatar.com/avatar/e2f69ddc944f8891566fc4b18518e4e6.png</picUrl>
+            </properties>
+        </developer>
+    </developers>
+
     <modules>
         <module>neuron-di-api</module>
         <module>neuron-di-guice</module>
