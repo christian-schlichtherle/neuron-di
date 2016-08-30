@@ -53,7 +53,7 @@ interface NeuronElement extends ClassElement, HasCachingStrategy {
             }
         }
 
-        if (hasNoParameters(method)) {
+        if (isParameterless(method)) {
             final Optional<CachingStrategy> option =
                     declaredCachingStrategy(method);
             if (isAbstract(method)) {
@@ -67,7 +67,7 @@ interface NeuronElement extends ClassElement, HasCachingStrategy {
         }
     }
 
-    static boolean hasNoParameters(Method method) {
+    static boolean isParameterless(Method method) {
         return 0 == method.getParameterCount();
     }
 
@@ -76,7 +76,7 @@ interface NeuronElement extends ClassElement, HasCachingStrategy {
     }
 
     static boolean isCachingEligible(Method method) {
-        return isCachingEnabled(method) && hasNoParameters(method);
+        return isCachingEnabled(method) && isParameterless(method);
     }
 
     static boolean isCachingEnabled(Method method) {
