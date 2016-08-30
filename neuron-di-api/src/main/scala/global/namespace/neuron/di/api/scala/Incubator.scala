@@ -15,8 +15,8 @@ object Incubator {
 
       private val jbind = jstub bind methodReference
 
-      def to(value: B): self.type = {
-        jstub = jbind to value
+      def to(replacement: => B): self.type = {
+        jstub = jbind to replacement _
         self
       }
 

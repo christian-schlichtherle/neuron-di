@@ -48,22 +48,6 @@ public class Incubator {
                 return neuron;
             }
 
-            void initReplacementProxies() {
-                try {
-                    for (final Map.Entry<Function<T, ?>, Function<? super T, ?>> binding : bindings) {
-                        final Function<T, ?> methodReference = binding.getKey();
-                        currentReplacement = binding.getValue();
-                        try {
-                            methodReference.apply(neuron);
-                            throw new AssertionError();
-                        } catch (ControlFlowError ignored) {
-                        }
-                    }
-                } finally {
-                    currentReplacement = null;
-                }
-            }
-
             Supplier<Object> resolve(final Method method) {
                 final Supplier<Function<? super T, ?>> replacementProxy =
                         replacementProxy(method);
@@ -90,6 +74,22 @@ public class Incubator {
                         }
                     }
                 };
+            }
+
+            void initReplacementProxies() {
+                try {
+                    for (final Map.Entry<Function<T, ?>, Function<? super T, ?>> binding : bindings) {
+                        final Function<T, ?> methodReference = binding.getKey();
+                        currentReplacement = binding.getValue();
+                        try {
+                            methodReference.apply(neuron);
+                            throw new AssertionError();
+                        } catch (ControlFlowError ignored) {
+                        }
+                    }
+                } finally {
+                    currentReplacement = null;
+                }
             }
         };
     }
@@ -142,8 +142,13 @@ public class Incubator {
 
     public interface Bind<T, U> {
 
-        /** Binds the return value of the synapse method to the given value. */
-        default Stub<T> to(U value) { return to(neuron -> value); }
+        /** Binds the synapse method to the given replacement value. */
+        default Stub<T> to(U replacement) { return to(neuron -> replacement); }
+
+        /** Binds the synapse method to the given replacement supplier. */
+        default Stub<T> to(Supplier<? extends U> replacement) {
+            return to(neuron -> replacement.get());
+        }
 
         /** Binds the synapse method to the given replacement function. */
         Stub<T> to(Function<? super T, ? extends U> replacement);
