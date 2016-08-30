@@ -20,7 +20,6 @@
         <dependency>
             <groupId>global.namespace.neuron-di</groupId>
             <artifactId>neuron-di-api</artifactId>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>global.namespace.neuron-di</groupId>
