@@ -9,7 +9,7 @@ public class IncubatorImpl {
     private IncubatorImpl() { }
 
     public static <T> T breed(Class<T> runtimeClass,
-                              Function<Method, Supplier<?>> binder) {
+                              Function<Method, Supplier<?>> resolve) {
         throw new NoClassDefFoundError();
     }
 }

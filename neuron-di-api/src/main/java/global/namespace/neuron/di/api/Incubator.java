@@ -42,7 +42,7 @@ public class Incubator {
                     if (null != neuron) {
                         throw new IllegalStateException("`breed()` has already been called");
                     }
-                    neuron = Incubator.breed(runtimeClass, this::binder);
+                    neuron = Incubator.breed(runtimeClass, this::resolve);
                 }
                 initReplacementProxies();
                 return neuron;
@@ -64,7 +64,7 @@ public class Incubator {
                 }
             }
 
-            Supplier<Object> binder(final Method method) {
+            Supplier<Object> resolve(final Method method) {
                 final Supplier<Function<? super T, ?>> replacementProxy =
                         replacementProxy(method);
                 return () -> replacementProxy.get().apply(neuron);
@@ -110,19 +110,21 @@ public class Incubator {
      * dependencies lazily.
      * This method is usually called from plugins for DI frameworks in order to
      * integrate Neuron DI into the framework.
-     * The {@code binder} function then typically calls back into the DI
+     * The {@code resolve} function then typically calls back into the DI
      * framework in order to look up a binding for the synapse method (the
-     * injection point) and returns a supplier for the resolved dependency.
+     * injection point) and return a supplier for the resolved dependency.
      *
-     * @param binder a function which looks up a binding for a given synapse
-     *               method (the injection point) and returns a supplier for the
-     *               resolved dependency.
-     *               When evaluating the function or the supplier, the
-     *               implementation may recursively call this method again.
+     * @param resolve a function which looks up a binding for a given synapse
+     *                method (the injection point) and returns a supplier for
+     *                the resolved dependency.
+     *                When evaluating the function or the supplier, the
+     *                implementation may recursively call this method again.
+     *                If necessary, this should be done in the function in order
+     *                to provide best performance.
      */
     public static <T> T breed(Class<T> runtimeClass,
-                              Function<Method, Supplier<?>> binder) {
-        return IncubatorImpl.breed(runtimeClass, binder);
+                              Function<Method, Supplier<?>> resolve) {
+        return IncubatorImpl.breed(runtimeClass, resolve);
     }
 
     public interface Stub<T> {

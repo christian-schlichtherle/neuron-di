@@ -34,10 +34,10 @@ public interface BinderLike {
 
             @Override
             public T get() {
-                return Incubator.breed(runtimeClass, this::binder);
+                return Incubator.breed(runtimeClass, this::resolve);
             }
 
-            Supplier<Object> binder(final Method method) {
+            Supplier<Object> resolve(final Method method) {
                 final Injector injector = injector();
                 final Class<?> returnType = method.getReturnType();
                 return () -> injector.getInstance(returnType);
