@@ -41,9 +41,9 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <tasks>
+                    <target>
                         <delete dir="${project.build.outputDirectory}/global/namespace/neuron/di/spi" />
-                    </tasks>
+                    </target>
                 </configuration>
             </plugin>
         </plugins>
