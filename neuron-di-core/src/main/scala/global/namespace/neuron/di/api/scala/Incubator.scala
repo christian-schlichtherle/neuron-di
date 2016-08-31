@@ -2,7 +2,9 @@ package global.namespace.neuron.di.api.scala
 
 import java.lang.reflect.Method
 import java.util.function.{Function => jFunction, Supplier => jSupplier}
+
 import global.namespace.neuron.di.api.{Incubator => jIncubator}
+
 import scala.reflect._
 
 object Incubator {

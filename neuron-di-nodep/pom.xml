@@ -10,15 +10,14 @@
         <version>0.1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>neuron-di-impl</artifactId>
+    <artifactId>neuron-di-nodep</artifactId>
 
-    <name>Neuron DI Impl</name>
+    <name>Neuron DI NoDep</name>
 
     <dependencies>
         <dependency>
             <groupId>global.namespace.neuron-di</groupId>
             <artifactId>neuron-di-core</artifactId>
-            <optional>true</optional>
         </dependency>
     </dependencies>
 
@@ -58,7 +57,6 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
-                            <createDependencyReducedPom>false</createDependencyReducedPom>
                             <filters>
                                 <filter>
                                     <artifact>*:asm</artifact>
@@ -68,12 +66,6 @@
                                 </filter>
                                 <filter>
                                     <artifact>*:cglib</artifact>
-                                    <excludes>
-                                        <exclude>META-INF/maven/**</exclude>
-                                    </excludes>
-                                </filter>
-                                <filter>
-                                    <artifact>*:neuron-di-api</artifact>
                                     <excludes>
                                         <exclude>META-INF/maven/**</exclude>
                                     </excludes>

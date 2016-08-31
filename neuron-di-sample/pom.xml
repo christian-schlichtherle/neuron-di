@@ -21,8 +21,7 @@
         </dependency>
         <dependency>
             <groupId>global.namespace.neuron-di</groupId>
-            <artifactId>neuron-di-impl</artifactId>
-            <scope>runtime</scope>
+            <artifactId>neuron-di-nodep</artifactId>
         </dependency>
     </dependencies>
 </project>

@@ -1,6 +1,6 @@
 package global.namespace.neuron.di.api
 
-import reflect.{classTag, ClassTag}
+import reflect.{ClassTag, classTag}
 
 package object scala {
 

@@ -21,12 +21,8 @@
         </dependency>
         <dependency>
             <groupId>global.namespace.neuron-di</groupId>
-            <artifactId>neuron-di-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>global.namespace.neuron-di</groupId>
-            <artifactId>neuron-di-impl</artifactId>
-            <scope>test</scope>
+            <artifactId>neuron-di-core</artifactId>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.scala-lang</groupId>

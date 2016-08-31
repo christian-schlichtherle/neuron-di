@@ -26,9 +26,14 @@
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>global.namespace.neuron-di</groupId>
-            <artifactId>neuron-di-api</artifactId>
-            <scope>provided</scope>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.scala-lang</groupId>
+            <artifactId>scala-library</artifactId>
+            <optional>true</optional>
         </dependency>
     </dependencies>
 </project>
