@@ -13,22 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package global.namespace.neuron.di.sample;
+package global.namespace.neuron.di.sample.it;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Module;
 import global.namespace.neuron.di.api.Incubator;
 import global.namespace.neuron.di.guice.NeuronModule;
-import global.namespace.neuron.di.sample.test.Formatter;
-import global.namespace.neuron.di.sample.test.Greeting;
-import global.namespace.neuron.di.sample.test.RealFormatter;
+import global.namespace.neuron.di.sample.Formatter;
+import global.namespace.neuron.di.sample.Greeting;
+import global.namespace.neuron.di.sample.RealFormatter;
 import org.junit.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.sameInstance;
+import static org.hamcrest.Matchers.*;
 
 public class NeuronDITest {
 

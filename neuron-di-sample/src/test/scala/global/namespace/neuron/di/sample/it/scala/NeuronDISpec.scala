@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package global.namespace.neuron.di.sample.scala
+package global.namespace.neuron.di.sample.it.scala
 
 import com.google.inject.Guice
 import global.namespace.neuron.di.api.scala.Incubator
 import global.namespace.neuron.di.guice.scala._
-import global.namespace.neuron.di.sample.test.{Formatter, Greeting, RealFormatter}
+import global.namespace.neuron.di.sample.{Formatter, Greeting, RealFormatter}
 import org.scalatest.Matchers._
 import org.scalatest.WordSpec
 

@@ -19,6 +19,9 @@ import com.google.inject.Module;
 import global.namespace.neuron.di.api.Neuron;
 import global.namespace.neuron.di.api.junit.NeuronJUnitRunner;
 import global.namespace.neuron.di.guice.NeuronModule;
+import global.namespace.neuron.di.guice.sample.Formatter;
+import global.namespace.neuron.di.guice.sample.Greeting;
+import global.namespace.neuron.di.guice.sample.RealFormatter;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 

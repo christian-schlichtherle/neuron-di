@@ -17,7 +17,8 @@ package global.namespace.neuron.di.guice.scala.it
 
 import javax.inject.Singleton
 
-import global.namespace.neuron.di.guice.it.{Bar, BarImpl, Foo, FooImpl, FooBarModuleTest => jFooBarModuleTest}
+import global.namespace.neuron.di.guice.it.{FooBarModuleTest => jFooBarModuleTest}
+import global.namespace.neuron.di.guice.sample.{Bar, BarImpl, Foo, FooImpl}
 import global.namespace.neuron.di.guice.scala.{NeuronModule, _}
 
 class FooBarModuleTest extends jFooBarModuleTest {

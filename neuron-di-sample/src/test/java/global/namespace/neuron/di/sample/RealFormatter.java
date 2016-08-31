@@ -13,9 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package global.namespace.neuron.di.sample.test;
+package global.namespace.neuron.di.sample;
 
-public interface Formatter {
+import javax.inject.Inject;
+import javax.inject.Named;
 
-    String message(String... args);
+public class RealFormatter implements Formatter {
+
+    private final String format;
+
+    @Inject
+    public RealFormatter(final @Named("format") String format) {
+        this.format = format;
+    }
+
+    @Override
+    public String message(String... args) {
+        return String.format(format, (Object[]) args);
+    }
 }

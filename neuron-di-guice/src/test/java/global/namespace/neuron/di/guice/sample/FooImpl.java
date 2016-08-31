@@ -13,22 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package global.namespace.neuron.di.guice.it;
+package global.namespace.neuron.di.guice.sample;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 
-public class RealFormatter implements Formatter {
+public class FooImpl implements Foo {
 
-    private final String format;
+    private final int i;
 
     @Inject
-    public RealFormatter(final @Named("format") String format) {
-        this.format = format;
-    }
+    public FooImpl(final @Named("one") int i) { this.i = i; }
 
-    @Override
-    public String message(String... args) {
-        return String.format(format, (Object[]) args);
-    }
+    public int i() { return i; }
 }

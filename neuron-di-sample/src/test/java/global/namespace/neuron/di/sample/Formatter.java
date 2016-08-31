@@ -13,17 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package global.namespace.neuron.di.guice.it;
+package global.namespace.neuron.di.sample;
 
-import global.namespace.neuron.di.api.Caching;
-import global.namespace.neuron.di.api.Neuron;
+public interface Formatter {
 
-@Neuron
-public abstract class Greeting {
-
-    public String message() { return formatter().message("Christian"); }
-
-    // This annotation is actually redundant, but documents the default behavior:
-    @Caching
-    public abstract Formatter formatter();
+    String message(String... args);
 }

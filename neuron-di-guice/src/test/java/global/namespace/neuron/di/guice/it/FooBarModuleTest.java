@@ -20,6 +20,10 @@ import com.google.inject.name.Names;
 import global.namespace.neuron.di.api.Neuron;
 import global.namespace.neuron.di.api.junit.NeuronJUnitRunner;
 import global.namespace.neuron.di.guice.NeuronModule;
+import global.namespace.neuron.di.guice.sample.Bar;
+import global.namespace.neuron.di.guice.sample.BarImpl;
+import global.namespace.neuron.di.guice.sample.Foo;
+import global.namespace.neuron.di.guice.sample.FooImpl;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 

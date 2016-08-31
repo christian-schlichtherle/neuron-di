@@ -13,22 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package global.namespace.neuron.di.sample.test;
+package global.namespace.neuron.di.sample;
 
-import javax.inject.Inject;
-import javax.inject.Named;
+import global.namespace.neuron.di.api.Caching;
+import global.namespace.neuron.di.api.Neuron;
 
-public class RealFormatter implements Formatter {
+@Neuron
+public abstract class Greeting {
 
-    private final String format;
+    public String message() { return formatter().message("Christian"); }
 
-    @Inject
-    public RealFormatter(final @Named("format") String format) {
-        this.format = format;
-    }
-
-    @Override
-    public String message(String... args) {
-        return String.format(format, (Object[]) args);
-    }
+    // This annotation is actually redundant, but documents the default behavior:
+    @Caching
+    public abstract Formatter formatter();
 }

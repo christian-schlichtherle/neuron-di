@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package global.namespace.neuron.di.sample.test;
+package global.namespace.neuron.di.guice.sample;
 
 import global.namespace.neuron.di.api.Caching;
 import global.namespace.neuron.di.api.Neuron;

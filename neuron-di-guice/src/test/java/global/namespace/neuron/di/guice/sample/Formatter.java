@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package global.namespace.neuron.di.guice.it;
+package global.namespace.neuron.di.guice.sample;
 
-public interface Bar {
+public interface Formatter {
 
-    Foo foo();
+    String message(String... args);
 }
