@@ -11,19 +11,8 @@ class NeuronDISpec extends WordSpec {
 
   def bePossibleUsingThe = afterWord("be possible using the")
 
-  trait GreetingTest {
-
-    val greeting: Greeting
-
-    greeting.formatter shouldBe a[RealFormatter]
-    greeting.formatter should be theSameInstanceAs greeting.formatter
-    greeting.message shouldBe "Hello Christian!"
-  }
-
   "Making a greeting" should bePossibleUsingThe {
     "Neuron DI Guice API" in new GreetingTest {
-      lazy val greeting = injector.getInstanceOf[Greeting]
-      def injector = Guice createInjector module
       def module = new NeuronModule {
 
         def configure() {
@@ -32,14 +21,25 @@ class NeuronDISpec extends WordSpec {
           bindConstantNamed("format").to("Hello %s!")
         }
       }
+      def injector = Guice createInjector module
+      lazy val greeting = injector.getInstanceOf[Greeting]
     }
 
     "Neuron DI API" in new GreetingTest {
+      def formatter = new RealFormatter("Hello %s!")
       lazy val greeting = Incubator
         .stub[Greeting]
         .bind(_.formatter).to(formatter)
         .breed
-      def formatter = new RealFormatter("Hello %s!")
     }
+  }
+
+  trait GreetingTest {
+
+    val greeting: Greeting
+
+    greeting.formatter shouldBe a[RealFormatter]
+    greeting.formatter should be theSameInstanceAs greeting.formatter
+    greeting.message shouldBe "Hello Christian!"
   }
 }
