@@ -12,6 +12,8 @@
 
     <artifactId>neuron-di-api</artifactId>
 
+    <name>Neuron DI API</name>
+
     <dependencies>
         <dependency>
             <groupId>junit</groupId>

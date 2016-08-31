@@ -12,6 +12,8 @@
 
     <artifactId>neuron-di-impl</artifactId>
 
+    <name>Neuron DI Impl</name>
+
     <dependencies>
         <dependency>
             <groupId>global.namespace.neuron-di</groupId>

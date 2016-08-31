@@ -12,6 +12,8 @@
 
     <artifactId>neuron-di-guice</artifactId>
 
+    <name>Neuron DI Guice</name>
+
     <dependencies>
         <dependency>
             <groupId>com.google.inject</groupId>

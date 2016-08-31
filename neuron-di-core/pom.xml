@@ -12,6 +12,8 @@
 
     <artifactId>neuron-di-core</artifactId>
 
+    <name>Neuron DI Core</name>
+
     <dependencies>
         <dependency>
             <groupId>cglib</groupId>
