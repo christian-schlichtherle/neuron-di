@@ -87,10 +87,6 @@
                                     <shadedPattern>global.namespace.neuron.di.internal.asm</shadedPattern>
                                 </relocation>
                             </relocations>
-                            <transformers>
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.ApacheLicenseResourceTransformer" />
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.ApacheNoticeResourceTransformer" />
-                            </transformers>
                         </configuration>
                     </execution>
                 </executions>
