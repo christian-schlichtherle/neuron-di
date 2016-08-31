@@ -27,6 +27,7 @@ public class Incubator {
             T neuron;
 
             Function<? super T, ?> currentReplacement;
+            int currentPosition;
 
             @Override
             public <U> Bind<T, U> bind(final Function<T, U> methodReference) {
@@ -81,9 +82,10 @@ public class Incubator {
                     for (final Map.Entry<Function<T, ?>, Function<? super T, ?>> binding : bindings) {
                         final Function<T, ?> methodReference = binding.getKey();
                         currentReplacement = binding.getValue();
+                        currentPosition++;
                         try {
                             methodReference.apply(neuron);
-                            throw new AssertionError();
+                            throw new IllegalStateException("Illegal stubbing at position " + currentPosition + ": The function parameter of the `bind` call does not call a synapse method.");
                         } catch (ControlFlowError ignored) {
                         }
                     }
@@ -129,7 +131,7 @@ public class Incubator {
 
     public interface Stub<T> {
 
-        /** Binds the synapse method identified by the given reference. */
+        /** Binds the synapse method identified by the given method reference. */
         <U> Bind<T, U> bind(Function<T, U> methodReference);
 
         /**
