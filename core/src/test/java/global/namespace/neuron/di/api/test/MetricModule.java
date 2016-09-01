@@ -13,12 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package global.namespace.neuron.di.sample;
+package global.namespace.neuron.di.api.test;
 
 import global.namespace.neuron.di.api.Neuron;
+import global.namespace.neuron.di.sample.Metric;
 
 @Neuron
-public interface Metric extends HasCounter {
+public interface MetricModule {
 
-    default Counter incrementCounter() { return counter().increment(); }
+    Metric metric();
 }

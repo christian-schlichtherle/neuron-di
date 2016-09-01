@@ -13,12 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package global.namespace.neuron.di.sample;
+package global.namespace.neuron.di.api.scala.test
 
-import global.namespace.neuron.di.api.Neuron;
+import global.namespace.neuron.di.api.scala.Incubator
+import global.namespace.neuron.di.api.test.MetricModule
+import org.scalatest.WordSpec
+import org.scalatest.Matchers._
 
-@Neuron
-public interface Metric extends HasCounter {
+class MetricModuleSpec extends WordSpec {
 
-    default Counter incrementCounter() { return counter().increment(); }
+  "Make a metric" in {
+    val module = Incubator.breed[MetricModule]
+    val metric = module.metric
+    module.metric should be theSameInstanceAs metric
+    metric.counter should be theSameInstanceAs metric.counter
+    metric.counter.count shouldBe 0
+    metric.incrementCounter.count shouldBe 1
+  }
 }

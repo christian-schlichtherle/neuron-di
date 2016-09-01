@@ -15,19 +15,16 @@
  */
 package global.namespace.neuron.di.api.scala.test
 
-import global.namespace.neuron.di.api.scala.Incubator
-import global.namespace.neuron.di.sample.{Greeting, RealFormatter}
+import global.namespace.neuron.di.sample.RealFormatter
 import org.scalatest.Matchers._
 import org.scalatest.WordSpec
 
 class GreetingModuleSpec extends WordSpec {
 
   "Make a greeting" in {
-    def formatter = new RealFormatter("Hello %s!")
-    val greeting = Incubator
-      .stub[Greeting]
-      .bind(_.formatter).to(formatter)
-      .breed
+    val module = new GreetingModule
+    val greeting = module.greeting
+    module.greeting should be theSameInstanceAs greeting
     greeting.formatter shouldBe a[RealFormatter]
     greeting.formatter should be theSameInstanceAs greeting.formatter
     greeting.message shouldBe "Hello Christian!"

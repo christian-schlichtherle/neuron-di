@@ -16,7 +16,6 @@
 package global.namespace.neuron.di.api.test;
 
 import global.namespace.neuron.di.api.Incubator;
-import global.namespace.neuron.di.sample.Counter;
 import global.namespace.neuron.di.sample.Metric;
 import org.junit.Test;
 
@@ -24,26 +23,15 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.sameInstance;
 
-public class IncubatorTest {
+public class MetricModuleTest {
 
     @Test
-    public void testStubbing() {
-        final Counter a = new Counter();
-        final Counter b = new Counter();
-
-        final Metric metric = Incubator
-                .stub(Metric.class)
-                .bind(Metric::a).to(neuron -> a.inc())
-                .bind(Metric::b).to(neuron -> b.inc())
-                .breed();
-
-        assertThat(metric.a(), is(sameInstance(a)));
-        assertThat(metric.b(), is(sameInstance(b)));
-
-        assertThat(metric.a(), is(sameInstance(a)));
-        assertThat(metric.b(), is(sameInstance(b)));
-
-        assertThat(a.count, is(1));
-        assertThat(b.count, is(2));
+    public void testMetricModule() {
+        final MetricModule module = Incubator.breed(MetricModule.class);
+        final Metric metric = module.metric();
+        assertThat(module.metric(), is(sameInstance(metric)));
+        assertThat(metric.counter(), is(sameInstance(metric.counter())));
+        assertThat(metric.counter().count, is(0));
+        assertThat(metric.incrementCounter().count, is(1));
     }
 }

@@ -27,6 +27,6 @@ public abstract class Greeting {
     public String message() { return formatter().message("Christian"); }
 
     // This annotation is redundant, but documents the default behavior:
-    @Caching(DISABLED)
+    @Caching
     public abstract Formatter formatter();
 }

@@ -13,12 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package global.namespace.neuron.di.sample;
+package global.namespace.neuron.di.api.scala.test
 
-import global.namespace.neuron.di.api.Neuron;
+import global.namespace.neuron.di.api.scala.Incubator
+import global.namespace.neuron.di.api.test.CounterFactoryModule
+import org.scalatest.Matchers._
+import org.scalatest.WordSpec
 
-@Neuron
-public interface Metric extends HasCounter {
+class CounterFactoryModuleSpec extends WordSpec {
 
-    default Counter incrementCounter() { return counter().increment(); }
+  "Make a counter factory" in {
+    val module = Incubator.breed[CounterFactoryModule]
+    val factory = module.counterFactory
+    module.counterFactory should be theSameInstanceAs factory
+    factory.counter should not be theSameInstanceAs(factory.counter)
+  }
 }

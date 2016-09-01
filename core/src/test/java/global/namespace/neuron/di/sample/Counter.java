@@ -19,7 +19,7 @@ public class Counter {
 
     public int count;
 
-    public Counter inc() {
+    public Counter increment() {
         count++;
         return this;
     }

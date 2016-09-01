@@ -15,10 +15,7 @@
  */
 package global.namespace.neuron.di.sample;
 
-import global.namespace.neuron.di.api.Neuron;
+public interface HasCounter {
 
-@Neuron
-public interface Metric extends HasCounter {
-
-    default Counter incrementCounter() { return counter().increment(); }
+    Counter counter();
 }

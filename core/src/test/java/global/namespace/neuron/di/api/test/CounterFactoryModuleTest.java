@@ -16,22 +16,19 @@
 package global.namespace.neuron.di.api.test;
 
 import global.namespace.neuron.di.api.Incubator;
-import global.namespace.neuron.di.sample.Greeting;
-import global.namespace.neuron.di.sample.RealFormatter;
+import global.namespace.neuron.di.sample.CounterFactory;
 import org.junit.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
-public class GreetingModuleTest {
+public class CounterFactoryModuleTest {
 
     @Test
-    public void testGreetingModule() {
-        final GreetingModule module = Incubator.breed(GreetingModule.class);
-        final Greeting greeting = module.greeting();
-        assertThat(module.greeting(), is(sameInstance(greeting)));
-        assertThat(greeting.formatter(), is(instanceOf(RealFormatter.class)));
-        assertThat(greeting.formatter(), is(sameInstance(greeting.formatter())));
-        assertThat(greeting.message(), is("Hello Christian!"));
+    public void testCounterFactoryModule() {
+        final CounterFactoryModule module = Incubator.breed(CounterFactoryModule.class);
+        final CounterFactory factory = module.counterFactory();
+        assertThat(module.counterFactory(), is(sameInstance(factory)));
+        assertThat(factory.counter(), is(not(sameInstance(factory.counter()))));
     }
 }

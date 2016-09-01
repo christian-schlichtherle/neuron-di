@@ -13,12 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package global.namespace.neuron.di.sample;
+package global.namespace.neuron.di.api.scala.test
 
-import global.namespace.neuron.di.api.Neuron;
+import global.namespace.neuron.di.api.scala.Incubator
+import global.namespace.neuron.di.sample.{Greeting, RealFormatter}
 
-@Neuron
-public interface Metric extends HasCounter {
+class GreetingModule {
 
-    default Counter incrementCounter() { return counter().increment(); }
+  lazy val greeting = Incubator
+    .stub[Greeting]
+    .bind(_.formatter).to(formatter)
+    .breed
+
+  private def formatter = new RealFormatter("Hello %s!")
 }

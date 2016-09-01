@@ -13,12 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package global.namespace.neuron.di.sample;
+package global.namespace.neuron.di.api.test;
 
+import global.namespace.neuron.di.api.Caching;
+import global.namespace.neuron.di.api.Incubator;
 import global.namespace.neuron.di.api.Neuron;
+import global.namespace.neuron.di.sample.Formatter;
+import global.namespace.neuron.di.sample.Greeting;
+import global.namespace.neuron.di.sample.RealFormatter;
 
 @Neuron
-public interface Metric extends HasCounter {
+abstract class GreetingModule {
 
-    default Counter incrementCounter() { return counter().increment(); }
+    @Caching
+    Greeting greeting() {
+        return Incubator
+                .stub(Greeting.class)
+                .bind(Greeting::formatter).to(this::formatter)
+                .breed();
+    }
+
+    private Formatter formatter() { return new RealFormatter("Hello %s!"); }
 }
