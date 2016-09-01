@@ -18,14 +18,10 @@ package global.namespace.neuron.di.guice.test;
 import com.google.inject.Module;
 import global.namespace.neuron.di.api.Neuron;
 import global.namespace.neuron.di.api.junit.NeuronJUnitRunner;
-import global.namespace.neuron.di.guice.NeuronModule;
-import global.namespace.neuron.di.guice.sample.Formatter;
 import global.namespace.neuron.di.guice.sample.Greeting;
 import global.namespace.neuron.di.guice.sample.RealFormatter;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import javax.inject.Singleton;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -35,17 +31,7 @@ import static org.hamcrest.Matchers.*;
 public class GreetingModuleTest implements ModuleTest {
 
     @Override
-    public Module module() {
-        return new NeuronModule() {
-
-            @Override
-            protected void configure() {
-                bindNeuron(Greeting.class).in(Singleton.class);
-                bind(Formatter.class).to(RealFormatter.class);
-                bindConstantNamed("format").to("Hello %s!");
-            }
-        };
-    }
+    public Module module() { return new GreetingModule(); }
 
     @Test
     public void testModule() {

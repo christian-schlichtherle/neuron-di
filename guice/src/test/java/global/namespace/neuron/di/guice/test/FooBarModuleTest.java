@@ -16,18 +16,13 @@
 package global.namespace.neuron.di.guice.test;
 
 import com.google.inject.Module;
-import com.google.inject.name.Names;
 import global.namespace.neuron.di.api.Neuron;
 import global.namespace.neuron.di.api.junit.NeuronJUnitRunner;
-import global.namespace.neuron.di.guice.NeuronModule;
 import global.namespace.neuron.di.guice.sample.Bar;
 import global.namespace.neuron.di.guice.sample.BarImpl;
-import global.namespace.neuron.di.guice.sample.Foo;
 import global.namespace.neuron.di.guice.sample.FooImpl;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import javax.inject.Singleton;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -37,20 +32,7 @@ import static org.hamcrest.Matchers.*;
 public class FooBarModuleTest implements ModuleTest {
 
     @Override
-    public Module module() {
-        return new NeuronModule() {
-
-            @Override
-            protected void configure() {
-                bindConstantNamed("one").to(1);
-                bind(Foo.class)
-                        .annotatedWith(Names.named("impl"))
-                        .to(FooImpl.class)
-                        .in(Singleton.class);
-                bind(Bar.class).to(BarImpl.class);
-            }
-        };
-    }
+    public Module module() { return new FooBarModule(); }
 
     @Test
     public void testModule() {

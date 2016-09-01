@@ -15,9 +15,19 @@
  */
 package global.namespace.neuron.di.guice.scala.test
 
-import global.namespace.neuron.di.guice.test.{GreetingModuleTest => jGreetingModuleTest}
+import javax.inject.Singleton
 
-class GreetingModuleTest extends jGreetingModuleTest {
+import global.namespace.neuron.di.guice.sample.{Bar, BarImpl, Foo, FooImpl}
+import global.namespace.neuron.di.guice.scala._
 
-  override def module = new GreetingModule
+class FooBarModule extends NeuronModule {
+
+  def configure() {
+    bindConstantNamed("one").to(1)
+    bindClass[Foo]
+      .named("impl")
+      .toClass[FooImpl]
+      .inScope[Singleton]
+    bindClass[Bar].toClass[BarImpl]
+  }
 }
