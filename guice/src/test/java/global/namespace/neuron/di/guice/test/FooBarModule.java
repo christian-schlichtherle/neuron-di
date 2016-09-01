@@ -15,7 +15,6 @@
  */
 package global.namespace.neuron.di.guice.test;
 
-import com.google.inject.name.Names;
 import global.namespace.neuron.di.guice.NeuronModule;
 import global.namespace.neuron.di.guice.sample.Bar;
 import global.namespace.neuron.di.guice.sample.BarImpl;
@@ -24,13 +23,15 @@ import global.namespace.neuron.di.guice.sample.FooImpl;
 
 import javax.inject.Singleton;
 
+import static com.google.inject.name.Names.named;
+
 class FooBarModule extends NeuronModule {
 
     @Override
     protected void configure() {
         bindConstantNamed("one").to(1);
         bind(Foo.class)
-                .annotatedWith(Names.named("impl"))
+                .annotatedWith(named("impl"))
                 .to(FooImpl.class)
                 .in(Singleton.class);
         bind(Bar.class).to(BarImpl.class);
