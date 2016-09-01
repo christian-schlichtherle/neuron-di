@@ -22,7 +22,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>global.namespace.neuron-di</groupId>
-    <artifactId>neuron-di</artifactId>
+    <artifactId>neuron-di-parent</artifactId>
     <version>0.1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
@@ -61,10 +61,9 @@
     </developers>
 
     <modules>
-        <module>neuron-di-guice</module>
-        <module>neuron-di-core</module>
-        <module>neuron-di-nodep</module>
-        <module>neuron-di-sample</module>
+        <module>core</module>
+        <module>guice</module>
+        <module>nodep</module>
     </modules>
 
     <properties>
@@ -121,7 +120,7 @@
             </dependency>
             <dependency>
                 <groupId>global.namespace.neuron-di</groupId>
-                <artifactId>neuron-di-core</artifactId>
+                <artifactId>neuron-di</artifactId>
                 <version>0.1.0-SNAPSHOT</version>
             </dependency>
             <dependency>
@@ -226,6 +225,10 @@
                  <plugin>
                      <artifactId>maven-compiler-plugin</artifactId>
                      <version>3.5.1</version>
+                 </plugin>
+                 <plugin>
+                     <artifactId>maven-deploy-plugin</artifactId>
+                     <version>2.8.2</version>
                  </plugin>
                  <plugin>
                      <artifactId>maven-gpg-plugin</artifactId>
@@ -462,12 +465,13 @@ limitations under the License.
             <build>
                 <plugins>
                     <plugin>
-                        <artifactId>maven-source-plugin</artifactId>
+                        <artifactId>maven-gpg-plugin</artifactId>
                         <executions>
                             <execution>
-                                <id>attach-sources</id>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
                                 <goals>
-                                    <goal>jar-no-fork</goal>
+                                    <goal>sign</goal>
                                 </goals>
                             </execution>
                         </executions>
@@ -484,13 +488,12 @@ limitations under the License.
                         </executions>
                     </plugin>
                     <plugin>
-                        <artifactId>maven-gpg-plugin</artifactId>
+                        <artifactId>maven-source-plugin</artifactId>
                         <executions>
                             <execution>
-                                <id>sign-artifacts</id>
-                                <phase>verify</phase>
+                                <id>attach-sources</id>
                                 <goals>
-                                    <goal>sign</goal>
+                                    <goal>jar-no-fork</goal>
                                 </goals>
                             </execution>
                         </executions>
