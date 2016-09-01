@@ -16,8 +16,8 @@
 package global.namespace.neuron.di.api.test;
 
 import global.namespace.neuron.di.api.Incubator;
-import global.namespace.neuron.di.sample.Formatter;
 import global.namespace.neuron.di.sample.Greeting;
+import global.namespace.neuron.di.sample.GreetingModule;
 import global.namespace.neuron.di.sample.RealFormatter;
 import org.junit.Test;
 
@@ -28,17 +28,9 @@ public class GreetingModuleTest {
 
     @Test
     public void testGreeting() {
-        final Greeting greeting = new Object() {
-
-            Formatter formatter() { return new RealFormatter("Hello %s!"); }
-
-            Greeting greeting() {
-                return Incubator
-                        .stub(Greeting.class)
-                        .bind(Greeting::formatter).to(this::formatter)
-                        .breed();
-            }
-        }.greeting();
+        final GreetingModule module = Incubator.breed(GreetingModule.class);
+        final Greeting greeting = module.greeting();
+        assertThat(module.greeting(), is(sameInstance(greeting)));
         assertThat(greeting.formatter(), is(instanceOf(RealFormatter.class)));
         assertThat(greeting.formatter(), is(sameInstance(greeting.formatter())));
         assertThat(greeting.message(), is("Hello Christian!"));

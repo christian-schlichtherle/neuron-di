@@ -16,14 +16,17 @@
 package global.namespace.neuron.di.sample;
 
 import global.namespace.neuron.di.api.Caching;
+import global.namespace.neuron.di.api.CachingStrategy;
 import global.namespace.neuron.di.api.Neuron;
+
+import static global.namespace.neuron.di.api.CachingStrategy.DISABLED;
 
 @Neuron
 public abstract class Greeting {
 
     public String message() { return formatter().message("Christian"); }
 
-    // This annotation is actually redundant, but documents the default behavior:
-    @Caching
+    // This annotation is redundant, but documents the default behavior:
+    @Caching(DISABLED)
     public abstract Formatter formatter();
 }
