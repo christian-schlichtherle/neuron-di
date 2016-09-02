@@ -17,7 +17,7 @@ package global.namespace.neuron.di.guice
 
 import com.google.inject.binder.{AnnotatedBindingBuilder, AnnotatedConstantBindingBuilder, ConstantBindingBuilder, ScopedBindingBuilder}
 import com.google.inject.name.Names.named
-import com.google.inject.{Binder, Injector, Provider}
+import com.google.inject._
 import global.namespace.neuron.di.guice.scala._
 import org.mockito.ArgumentCaptor
 import org.mockito.Mockito._
@@ -48,7 +48,7 @@ class BinderLikeSpec extends WordSpec with Mockito {
         val injectorProvider = mock[Provider[Injector]]
         val injector = mock[Injector]
 
-        binder.bindClass[BinderLike] returns builder1
+        binder bind (Key get classOf[BinderLike]) returns builder1
         builder1 toProvider any[Provider[BinderLike]] returns builder2
         binder.getProviderClass[Injector] returns injectorProvider
         injectorProvider.get returns injector
@@ -61,7 +61,7 @@ class BinderLikeSpec extends WordSpec with Mockito {
         verify(builder1) toProvider neuronProviderCaptor.capture
         val neuronProvider = neuronProviderCaptor.getValue.asInstanceOf[NeuronProvider[BinderLike]]
         neuronProvider.injector should be theSameInstanceAs injector
-        neuronProvider.runtimeClass should be theSameInstanceAs classOf[BinderLike]
+        neuronProvider.typeLiteral should be (TypeLiteral get classOf[BinderLike])
 
         there was one(injectorProvider).get
         there were noMoreCallsTo(injector)

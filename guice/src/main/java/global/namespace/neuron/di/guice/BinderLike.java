@@ -15,9 +15,7 @@
  */
 package global.namespace.neuron.di.guice;
 
-import com.google.inject.Binder;
-import com.google.inject.Injector;
-import com.google.inject.Provider;
+import com.google.inject.*;
 import com.google.inject.binder.ConstantBindingBuilder;
 import com.google.inject.binder.ScopedBindingBuilder;
 import global.namespace.neuron.di.api.Incubator;
@@ -34,19 +32,37 @@ public interface BinderLike {
         return binder().bindConstant().annotatedWith(named(name));
     }
 
-    default <T> ScopedBindingBuilder bindNeuron(Class<T> runtimeClass) {
-        return binder().skipSources(BinderLike.class)
-                .bind(runtimeClass).toProvider(neuronProvider(runtimeClass));
+    default <T> ScopedBindingBuilder bindNeuron(Class<T> type) {
+        return bindNeuron(TypeLiteral.get(type));
+    }
+
+    default <T> ScopedBindingBuilder bindNeuron(TypeLiteral<T> typeLiteral) {
+        return bindNeuron(Key.get(typeLiteral));
+    }
+
+    default <T> ScopedBindingBuilder bindNeuron(Key<T> key) {
+        return binder()
+                .skipSources(BinderLike.class)
+                .bind(key)
+                .toProvider(neuronProvider(key));
+    }
+
+    default <T> Provider<T> neuronProvider(Class<T> type){
+        return neuronProvider(TypeLiteral.get(type));
     }
 
     @SuppressWarnings("unchecked")
-    default <T> Provider<T> neuronProvider(final Class<T> runtimeClass) {
-        final Provider<Injector> injectorProvider =
-                binder().getProvider(Injector.class);
+    default <T> Provider<T> neuronProvider(final TypeLiteral<T> typeLiteral) {
+        final Provider<Injector> injectorProvider = binder()
+                .getProvider(Injector.class);
         return Incubator
                 .stub(NeuronProvider.class)
                 .bind(NeuronProvider::injector).to(injectorProvider::get)
-                .bind(NeuronProvider::runtimeClass).to(runtimeClass)
+                .bind(NeuronProvider::typeLiteral).to(typeLiteral)
                 .breed();
+    }
+
+    default <T> Provider<T> neuronProvider(Key<T> key) {
+        return neuronProvider(key.getTypeLiteral());
     }
 }

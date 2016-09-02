@@ -15,17 +15,13 @@
  */
 package global.namespace.neuron.di.guice;
 
-import com.google.inject.BindingAnnotation;
-import com.google.inject.Injector;
-import com.google.inject.Key;
-import com.google.inject.Provider;
+import com.google.inject.*;
 import global.namespace.neuron.di.api.Incubator;
 import global.namespace.neuron.di.api.Neuron;
 
 import javax.inject.Qualifier;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.function.Supplier;
 
@@ -34,19 +30,22 @@ abstract class NeuronProvider<T> implements Provider<T> {
 
     abstract Injector injector();
 
-    abstract Class<T> runtimeClass();
+    abstract TypeLiteral<T> typeLiteral();
 
-    public T get() { return Incubator.breed(runtimeClass(), this::resolve); }
+    public T get() {
+        return (T) Incubator.breed(typeLiteral().getRawType(), this::resolve);
+    }
 
     private Supplier<?> resolve(final Method method) {
-        final Type type = method.getGenericReturnType();
-        final Key<?> key = Arrays
+        final TypeLiteral<?> returnTypeLiteral = typeLiteral()
+                .getReturnType(method);
+        final Key<?> returnKey = Arrays
                 .stream(method.getAnnotations())
                 .filter(NeuronProvider::isQualifierOrBindingAnnotation)
                 .findFirst()
-                .<Key<?>>map(annotation -> Key.get(type, annotation))
-                .orElseGet(() -> Key.get(type));
-        final Provider<?> provider = injector().getProvider(key);
+                .<Key<?>>map(annotation -> Key.get(returnTypeLiteral, annotation))
+                .orElseGet(() -> Key.get(returnTypeLiteral));
+        final Provider<?> provider = injector().getProvider(returnKey);
         return provider::get;
     }
 
