@@ -16,21 +16,13 @@
 package global.namespace.neuron.di.guice;
 
 import com.google.inject.Binder;
-import com.google.inject.BindingAnnotation;
 import com.google.inject.Injector;
-import com.google.inject.Key;
 import com.google.inject.binder.ConstantBindingBuilder;
 import com.google.inject.binder.ScopedBindingBuilder;
 import global.namespace.neuron.di.api.Incubator;
 import global.namespace.neuron.di.api.Neuron;
 
 import javax.inject.Provider;
-import javax.inject.Qualifier;
-import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.Optional;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 import static com.google.inject.name.Names.named;
 
