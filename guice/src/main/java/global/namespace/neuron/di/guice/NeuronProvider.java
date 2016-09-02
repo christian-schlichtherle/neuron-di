@@ -25,6 +25,7 @@ import global.namespace.neuron.di.api.Neuron;
 import javax.inject.Qualifier;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.function.Supplier;
 
@@ -38,18 +39,18 @@ abstract class NeuronProvider<T> implements Provider<T> {
     public T get() { return Incubator.breed(runtimeClass(), this::resolve); }
 
     private Supplier<?> resolve(final Method method) {
-        final Class<?> returnType = method.getReturnType();
+        final Type type = method.getGenericReturnType();
         final Key<?> key = Arrays
                 .stream(method.getAnnotations())
-                .filter(NeuronProvider::isQualifier)
+                .filter(NeuronProvider::isQualifierOrBindingAnnotation)
                 .findFirst()
-                .<Key<?>>map(annotation -> Key.get(returnType, annotation))
-                .orElseGet(() -> Key.get(returnType));
+                .<Key<?>>map(annotation -> Key.get(type, annotation))
+                .orElseGet(() -> Key.get(type));
         final Provider<?> provider = injector().getProvider(key);
         return provider::get;
     }
 
-    private static boolean isQualifier(final Annotation annotation) {
+    private static boolean isQualifierOrBindingAnnotation(final Annotation annotation) {
         final Class<? extends Annotation> type = annotation.annotationType();
         return type.isAnnotationPresent(Qualifier.class) ||
                 type.isAnnotationPresent(BindingAnnotation.class);
