@@ -18,7 +18,6 @@ package global.namespace.neuron.di.guice
 import com.google.inject.binder.{AnnotatedBindingBuilder, AnnotatedConstantBindingBuilder, ConstantBindingBuilder, ScopedBindingBuilder}
 import com.google.inject.name.Names.named
 import com.google.inject.{Binder, Injector, Provider}
-import global.namespace.neuron.di.api.scala.Incubator
 import global.namespace.neuron.di.guice.scala._
 import org.mockito.ArgumentCaptor
 import org.mockito.Mockito._
@@ -50,12 +49,12 @@ class BinderLikeSpec extends WordSpec with Mockito {
 
       binder.bindClass[BinderLike] returns builder1
       builder1.toProvider(any[Provider[BinderLike]]) returns builder2
-      binder.getProvider(classOf[Injector]) returns injectorProvider
+      binder.getProviderClass[Injector] returns injectorProvider
       injectorProvider.get returns injector
 
       binder.bindNeuronClass[BinderLike] should be theSameInstanceAs builder2
 
-      there was one(binder).getProvider(classOf[Injector])
+      there was one(binder).getProviderClass[Injector]
 
       val neuronProviderCaptor = ArgumentCaptor.forClass(classOf[Provider[BinderLike]])
       verify(builder1).toProvider(neuronProviderCaptor.capture)

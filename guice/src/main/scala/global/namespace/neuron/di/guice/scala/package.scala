@@ -52,6 +52,9 @@ package object scala {
 
     def bindClass[A <: AnyRef : ClassTag]: AnnotatedBindingBuilder[A] =
       binder bind runtimeClassOf[A]
+
+    def getProviderClass[A <: AnyRef](implicit ct: ClassTag[A]): Provider[A] =
+      binder getProvider runtimeClassOf(ct)
   }
 
   implicit class AnnotatedConstantBindingBuilderOps(val builder: AnnotatedConstantBindingBuilder)
