@@ -16,12 +16,11 @@
 package global.namespace.neuron.di.guice.test;
 
 import com.google.inject.Module;
-import global.namespace.neuron.di.api.Caching;
 import global.namespace.neuron.di.guice.sample.NeuronWithQualifiedSynapses;
 import org.junit.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.is;
 
 public class NeuronWithQualifiedSynapsesModuleTest extends ModuleTest {
 
