@@ -44,7 +44,7 @@ public interface BinderLike {
         return binder()
                 .skipSources(BinderLike.class)
                 .bind(key)
-                .toProvider(neuronProvider(key));
+                .toProvider(neuronProvider(key.getTypeLiteral()));
     }
 
     default <T> Provider<T> neuronProvider(Class<T> type){
@@ -67,9 +67,5 @@ public interface BinderLike {
                 .bind(NeuronProvider::membersInjector).to(membersInjector)
                 .bind(NeuronProvider::typeLiteral).to(typeLiteral)
                 .breed();
-    }
-
-    default <T> Provider<T> neuronProvider(Key<T> key) {
-        return neuronProvider(key.getTypeLiteral());
     }
 }
