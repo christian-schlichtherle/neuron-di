@@ -32,8 +32,12 @@ abstract class NeuronProvider<T> implements Provider<T> {
 
     abstract TypeLiteral<T> typeLiteral();
 
+    abstract MembersInjector<T> membersInjector();
+
     public T get() {
-        return (T) Incubator.breed(typeLiteral().getRawType(), this::resolve);
+        final T instance = (T) Incubator.breed(typeLiteral().getRawType(), this::resolve);
+        membersInjector().injectMembers(instance);
+        return instance;
     }
 
     private Supplier<?> resolve(final Method method) {

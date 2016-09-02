@@ -15,15 +15,21 @@
  */
 package global.namespace.neuron.di.guice
 
+import com.google.inject._
 import com.google.inject.name.Names.named
-import com.google.inject.{Injector, Key, Provider, TypeLiteral}
 import global.namespace.neuron.di.api.scala.Incubator
 import global.namespace.neuron.di.guice.sample.{NeuronWithQualifiedSynapses, TestBindingAnnotation, TestQualifier}
-import org.scalatest.WordSpec
 import org.scalatest.Matchers._
+import org.scalatest.WordSpec
 import org.specs2.mock.Mockito
 
 class NeuronProviderSpec extends WordSpec with Mockito {
+
+  private object noOpMembersInjector
+    extends MembersInjector[NeuronWithQualifiedSynapses] {
+
+    def injectMembers(instance: NeuronWithQualifiedSynapses) { }
+  }
 
   "A neuron provider" should {
     "use a given injector to create providers for keys with qualifying and binding annotations" in {
@@ -31,6 +37,7 @@ class NeuronProviderSpec extends WordSpec with Mockito {
       val provider = Incubator
         .stub[NeuronProvider[NeuronWithQualifiedSynapses]]
         .bind(_.injector).to(injector)
+        .bind(_.membersInjector).to(noOpMembersInjector)
         .bind(_.typeLiteral).to(TypeLiteral get classOf[NeuronWithQualifiedSynapses])
         .breed
       val fooKey = Key.get(classOf[String], named("foo"))

@@ -55,9 +55,16 @@ public interface BinderLike {
     default <T> Provider<T> neuronProvider(final TypeLiteral<T> typeLiteral) {
         final Provider<Injector> injectorProvider = binder()
                 .getProvider(Injector.class);
+        final MembersInjector<T> membersInjector;
+        if (typeLiteral.getRawType().isInterface()) {
+            membersInjector = instance -> { };
+        } else {
+            membersInjector = binder().getMembersInjector(typeLiteral);
+        }
         return Incubator
                 .stub(NeuronProvider.class)
                 .bind(NeuronProvider::injector).to(injectorProvider::get)
+                .bind(NeuronProvider::membersInjector).to(membersInjector)
                 .bind(NeuronProvider::typeLiteral).to(typeLiteral)
                 .breed();
     }
