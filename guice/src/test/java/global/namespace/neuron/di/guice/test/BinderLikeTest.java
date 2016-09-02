@@ -17,6 +17,7 @@ package global.namespace.neuron.di.guice.test;
 
 import com.google.inject.Binder;
 import com.google.inject.Injector;
+import com.google.inject.Key;
 import com.google.inject.binder.AnnotatedBindingBuilder;
 import com.google.inject.binder.AnnotatedConstantBindingBuilder;
 import com.google.inject.binder.ConstantBindingBuilder;
@@ -65,10 +66,15 @@ public class BinderLikeTest {
                 mock(ScopedBindingBuilder.class);
         final com.google.inject.Provider injectorProvider =
                 mock(com.google.inject.Provider.class);
+        final Injector injector = mock(Injector.class);
+        final com.google.inject.Provider binderProvider =
+                mock(com.google.inject.Provider.class);
 
         when(binder.bind(BinderLike.class)).thenReturn(builder1);
         when(builder1.toProvider(any(Provider.class))).thenReturn(builder2);
         when(binder.getProvider(Injector.class)).thenReturn(injectorProvider);
+        when(injectorProvider.get()).thenReturn(injector);
+        when(injector.getProvider(any(Key.class))).thenReturn(binderProvider);
 
         assertThat(binderLike.bindNeuron(BinderLike.class), is(sameInstance(builder2)));
 

@@ -19,7 +19,7 @@ import javax.inject.Provider
 
 import com.google.inject.binder.{AnnotatedBindingBuilder, AnnotatedConstantBindingBuilder, ConstantBindingBuilder, ScopedBindingBuilder}
 import com.google.inject.name.Names.named
-import com.google.inject.{Binder, Injector, Provider => gProvider}
+import com.google.inject.{Binder, Injector, Key, Provider => gProvider}
 import global.namespace.neuron.di.api.scala.Incubator
 import global.namespace.neuron.di.guice.scala._
 import global.namespace.neuron.di.guice.{BinderLike => jBinderLike}
@@ -54,10 +54,14 @@ class BinderLikeSpec extends WordSpec with Mockito {
       val builder1 = mock[AnnotatedBindingBuilder[jBinderLike]]
       val builder2 = mock[ScopedBindingBuilder]
       val injectorProvider = mock[gProvider[Injector]]
+      val injector = mock[Injector]
+      val binderProvider = mock[gProvider[Binder]]
 
       binder.bindClass[jBinderLike] returns builder1
       builder1.toProvider(any[Provider[jBinderLike]]) returns builder2
       binder.getProvider(classOf[Injector]) returns injectorProvider
+      injectorProvider.get returns injector
+      injector.getProvider(any[Key[Binder]]) returns binderProvider
 
       binderLike.bindNeuron(classOf[jBinderLike]) should be theSameInstanceAs builder2
 

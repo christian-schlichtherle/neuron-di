@@ -16,15 +16,21 @@
 package global.namespace.neuron.di.guice;
 
 import com.google.inject.Binder;
+import com.google.inject.BindingAnnotation;
 import com.google.inject.Injector;
+import com.google.inject.Key;
 import com.google.inject.binder.ConstantBindingBuilder;
 import com.google.inject.binder.ScopedBindingBuilder;
 import global.namespace.neuron.di.api.Incubator;
 import global.namespace.neuron.di.api.Neuron;
 
 import javax.inject.Provider;
+import javax.inject.Qualifier;
 import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.Optional;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import static com.google.inject.name.Names.named;
 
@@ -41,24 +47,14 @@ public interface BinderLike {
         return binder().bind(runtimeClass).toProvider(neuronProvider(runtimeClass));
     }
 
+    @SuppressWarnings("unchecked")
     default <T> Provider<T> neuronProvider(final Class<T> runtimeClass) {
-        return new Provider<T>() {
-
-            final Provider<Injector> injectorProvider =
-                    BinderLike.this.binder().getProvider(Injector.class);
-
-            @Override
-            public T get() {
-                return Incubator.breed(runtimeClass, this::resolve);
-            }
-
-            Supplier<Object> resolve(final Method method) {
-                final Injector injector = injector();
-                final Class<?> returnType = method.getReturnType();
-                return () -> injector.getInstance(returnType);
-            }
-
-            Injector injector() { return injectorProvider.get(); }
-        };
+        final Provider<Injector> injectorProvider =
+                binder().getProvider(Injector.class);
+        return Incubator
+                .stub(NeuronProvider.class)
+                .bind(NeuronProvider::injector).to(injectorProvider::get)
+                .bind(NeuronProvider::runtimeClass).to(runtimeClass)
+                .breed();
     }
 }
