@@ -35,7 +35,8 @@ public interface BinderLike {
     }
 
     default <T> ScopedBindingBuilder bindNeuron(Class<T> runtimeClass) {
-        return binder().bind(runtimeClass).toProvider(neuronProvider(runtimeClass));
+        return binder().skipSources(BinderLike.class)
+                .bind(runtimeClass).toProvider(neuronProvider(runtimeClass));
     }
 
     @SuppressWarnings("unchecked")
