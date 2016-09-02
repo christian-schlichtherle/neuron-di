@@ -64,7 +64,7 @@ public class Incubator {
                 return neuron;
             }
 
-            Supplier<Object> resolve(final Method method) {
+            Supplier<?> resolve(final Method method) {
                 final Supplier<Function<? super T, ?>> replacementProxy =
                         replacementProxy(method);
                 return () -> replacementProxy.get().apply(neuron);
