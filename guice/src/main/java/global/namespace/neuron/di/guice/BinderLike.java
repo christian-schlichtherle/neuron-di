@@ -57,7 +57,7 @@ public interface BinderLike {
                 .getProvider(Injector.class);
         final MembersInjector<T> membersInjector;
         if (typeLiteral.getRawType().isInterface()) {
-            membersInjector = instance -> { };
+            membersInjector = instance -> injectorProvider.get().injectMembers(instance);
         } else {
             membersInjector = binder().getMembersInjector(typeLiteral);
         }
