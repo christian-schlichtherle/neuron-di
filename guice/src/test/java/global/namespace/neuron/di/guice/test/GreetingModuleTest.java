@@ -16,25 +16,20 @@
 package global.namespace.neuron.di.guice.test;
 
 import com.google.inject.Module;
-import global.namespace.neuron.di.api.Neuron;
-import global.namespace.neuron.di.api.junit.NeuronJUnitRunner;
 import global.namespace.neuron.di.guice.sample.Greeting;
 import global.namespace.neuron.di.guice.sample.RealFormatter;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
-@Neuron
-@RunWith(NeuronJUnitRunner.class)
-public class GreetingModuleTest implements ModuleTest {
+public class GreetingModuleTest extends ModuleTest {
 
     @Override
-    public Module module() { return new GreetingModule(); }
+    protected Module module() { return new GreetingModule(); }
 
     @Test
-    public void testModule() {
+    public void testGreetingModule() {
         final Greeting greeting = getInstance(Greeting.class);
         assertThat(getInstance(Greeting.class), is(sameInstance(greeting)));
         assertThat(greeting.formatter(), is(instanceOf(RealFormatter.class)));

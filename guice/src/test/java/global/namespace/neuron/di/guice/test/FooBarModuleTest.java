@@ -16,26 +16,21 @@
 package global.namespace.neuron.di.guice.test;
 
 import com.google.inject.Module;
-import global.namespace.neuron.di.api.Neuron;
-import global.namespace.neuron.di.api.junit.NeuronJUnitRunner;
 import global.namespace.neuron.di.guice.sample.Bar;
 import global.namespace.neuron.di.guice.sample.BarImpl;
 import global.namespace.neuron.di.guice.sample.FooImpl;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
-@Neuron
-@RunWith(NeuronJUnitRunner.class)
-public class FooBarModuleTest implements ModuleTest {
+public class FooBarModuleTest extends ModuleTest {
 
     @Override
-    public Module module() { return new FooBarModule(); }
+    protected Module module() { return new FooBarModule(); }
 
     @Test
-    public void testModule() {
+    public void testFooBarModule() {
         final Bar bar1 = getInstance(Bar.class);
         final Bar bar2 = getInstance(Bar.class);
         assertThat(bar1, is(not(sameInstance(bar2))));

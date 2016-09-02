@@ -18,17 +18,22 @@ package global.namespace.neuron.di.guice.test;
 import com.google.inject.Injector;
 import com.google.inject.Module;
 import global.namespace.neuron.di.api.Caching;
+import global.namespace.neuron.di.api.Neuron;
+import global.namespace.neuron.di.api.junit.NeuronJUnitRunner;
+import org.junit.runner.RunWith;
 
 import static com.google.inject.Guice.createInjector;
 
-public interface ModuleTest {
+@Neuron
+@RunWith(NeuronJUnitRunner.class)
+public abstract class ModuleTest {
 
-    Module module();
+    protected abstract Module module();
 
     @Caching
-    default Injector injector() { return createInjector(module()); }
+    protected Injector injector() { return createInjector(module()); }
 
-    default <T> T getInstance(Class<T> runtimeClass) {
+    protected <T> T getInstance(Class<T> runtimeClass) {
         return injector().getInstance(runtimeClass);
     }
 }
