@@ -18,6 +18,7 @@ package global.namespace.neuron.di.guice.test;
 import com.google.inject.Binder;
 import com.google.inject.Injector;
 import com.google.inject.Key;
+import com.google.inject.Provider;
 import com.google.inject.binder.AnnotatedBindingBuilder;
 import com.google.inject.binder.AnnotatedConstantBindingBuilder;
 import com.google.inject.binder.ConstantBindingBuilder;
@@ -27,13 +28,10 @@ import global.namespace.neuron.di.guice.BinderLike;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
-import javax.inject.Provider;
-
 import static com.google.inject.name.Names.named;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.sameInstance;
+import static org.hamcrest.Matchers.*;
+import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.*;
 
 public class BinderLikeTest {

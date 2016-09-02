@@ -18,10 +18,10 @@ package global.namespace.neuron.di.guice;
 import com.google.inject.BindingAnnotation;
 import com.google.inject.Injector;
 import com.google.inject.Key;
+import com.google.inject.Provider;
 import global.namespace.neuron.di.api.Incubator;
 import global.namespace.neuron.di.api.Neuron;
 
-import javax.inject.Provider;
 import javax.inject.Qualifier;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;

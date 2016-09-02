@@ -17,12 +17,11 @@ package global.namespace.neuron.di.guice;
 
 import com.google.inject.Binder;
 import com.google.inject.Injector;
+import com.google.inject.Provider;
 import com.google.inject.binder.ConstantBindingBuilder;
 import com.google.inject.binder.ScopedBindingBuilder;
 import global.namespace.neuron.di.api.Incubator;
 import global.namespace.neuron.di.api.Neuron;
-
-import javax.inject.Provider;
 
 import static com.google.inject.name.Names.named;
 

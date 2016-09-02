@@ -16,11 +16,10 @@
 package global.namespace.neuron.di.guice
 
 import java.lang.annotation.Annotation
-import javax.inject.Provider
 
 import com.google.inject.binder._
 import com.google.inject.name.Names
-import com.google.inject.{Binder, Injector}
+import com.google.inject.{Binder, Injector, Provider}
 import global.namespace.neuron.di.api.scala._
 import global.namespace.neuron.di.guice.{BinderLike => jBinderLike, NeuronModule => jNeuronModule}
 

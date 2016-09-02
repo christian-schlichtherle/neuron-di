@@ -89,6 +89,8 @@
         <scala.version>2.11.8</scala.version>
 
         <sonatypeOssSnapshotsRepository>https://oss.sonatype.org/content/repositories/snapshots/</sonatypeOssSnapshotsRepository>
+
+        <guice.version>3.0</guice.version>
     </properties>
 
     <distributionManagement>
@@ -113,10 +115,8 @@
             </dependency>
             <dependency>
                 <groupId>com.google.inject</groupId>
-                <artifactId>guice-bom</artifactId>
-                <version>4.1.0</version>
-                <type>pom</type>
-                <scope>import</scope>
+                <artifactId>guice</artifactId>
+                <version>${guice.version}</version>
             </dependency>
             <dependency>
                 <groupId>global.namespace.neuron-di</groupId>

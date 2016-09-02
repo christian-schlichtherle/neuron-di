@@ -15,8 +15,6 @@
  */
 package global.namespace.neuron.di.guice.scala.test
 
-import javax.inject.Provider
-
 import com.google.inject.binder.{AnnotatedBindingBuilder, AnnotatedConstantBindingBuilder, ConstantBindingBuilder, ScopedBindingBuilder}
 import com.google.inject.name.Names.named
 import com.google.inject.{Binder, Injector, Key, Provider => gProvider}
@@ -58,7 +56,7 @@ class BinderLikeSpec extends WordSpec with Mockito {
       val binderProvider = mock[gProvider[Binder]]
 
       binder.bindClass[jBinderLike] returns builder1
-      builder1.toProvider(any[Provider[jBinderLike]]) returns builder2
+      builder1.toProvider(any[gProvider[jBinderLike]]) returns builder2
       binder.getProvider(classOf[Injector]) returns injectorProvider
       injectorProvider.get returns injector
       injector.getProvider(any[Key[Binder]]) returns binderProvider
@@ -67,7 +65,7 @@ class BinderLikeSpec extends WordSpec with Mockito {
 
       there was one(binder).getProvider(classOf[Injector])
 
-      val binderLikeProvider = ArgumentCaptor.forClass(classOf[Provider[jBinderLike]])
+      val binderLikeProvider = ArgumentCaptor.forClass(classOf[gProvider[jBinderLike]])
       verify(builder1).toProvider(binderLikeProvider.capture)
       binderLikeProvider.getValue.get shouldBe a[jBinderLike]
 
