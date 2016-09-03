@@ -58,13 +58,13 @@ public class Incubator {
                     if (null != neuron) {
                         throw new IllegalStateException("`breed()` has already been called");
                     }
-                    neuron = Incubator.breed(runtimeClass, this::resolve);
+                    neuron = Incubator.breed(runtimeClass, this::bind);
                 }
                 initReplacementProxies();
                 return neuron;
             }
 
-            Supplier<?> resolve(final Method method) {
+            Supplier<?> bind(final Method method) {
                 final Supplier<Function<? super T, ?>> replacementProxy =
                         replacementProxy(method);
                 return () -> replacementProxy.get().apply(neuron);
@@ -127,21 +127,20 @@ public class Incubator {
      * dependencies lazily.
      * This method is usually called from plugins for DI frameworks in order to
      * integrate Neuron DI into the framework.
-     * The {@code resolve} function then typically calls back into the DI
-     * framework in order to look up a binding for the synapse method (the
-     * injection point) and return a supplier for the resolved dependency.
      *
-     * @param resolve a function which looks up a binding for a given synapse
-     *                method (the injection point) and returns a supplier for
-     *                the resolved dependency.
-     *                When evaluating the function or the supplier, the
-     *                implementation may recursively call this method again.
-     *                If necessary, this should be done in the function in order
-     *                to provide best performance.
+     * @param bind a function which looks up a binding for a given synapse
+     *             method (the injection point) and returns a supplier for the
+     *             resolved dependency.
+     *             This function is called before the call to {@code breed}
+     *             terminates in order to look up the binding eagerly.
+     *             The returned supplier is called when the synapse method is
+     *             accessed in order to resolve the dependency lazily.
+     *             Depending on the caching strategy for the synapse method, the
+     *             supplied value may get cached for future use.
      */
     public static <T> T breed(Class<T> runtimeClass,
-                              Function<Method, Supplier<?>> resolve) {
-        return IncubatorImpl.breed(runtimeClass, resolve);
+                              Function<Method, Supplier<?>> bind) {
+        return IncubatorImpl.breed(runtimeClass, bind);
     }
 
     public interface Stub<T> {

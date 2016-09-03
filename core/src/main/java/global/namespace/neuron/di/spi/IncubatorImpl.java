@@ -28,7 +28,7 @@ public class IncubatorImpl {
     private IncubatorImpl() { }
 
     public static <T> T breed(final Class<T> runtimeClass,
-                              final Function<Method, Supplier<?>> resolve) {
+                              final Function<Method, Supplier<?>> bind) {
 
         class ClassVisitor implements Visitor {
 
@@ -58,7 +58,7 @@ public class IncubatorImpl {
 
                         @Override
                         public void visitSynapse(final SynapseElement element) {
-                            final Supplier<?> supplier = resolve.apply(element.method());
+                            final Supplier<?> supplier = bind.apply(element.method());
                             callback = element.synapseCallback(supplier::get);
                         }
 
