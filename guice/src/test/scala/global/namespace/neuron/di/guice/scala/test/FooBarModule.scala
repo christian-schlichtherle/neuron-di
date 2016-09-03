@@ -20,7 +20,7 @@ import javax.inject.Singleton
 import global.namespace.neuron.di.guice.sample.{Bar, BarImpl, Foo, FooImpl}
 import global.namespace.neuron.di.guice.scala._
 
-class FooBarModule extends NeuronModule {
+private class FooBarModule extends NeuronModule {
 
   def configure() {
     bindConstantNamed("one").to(1)

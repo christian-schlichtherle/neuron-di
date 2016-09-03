@@ -13,20 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package global.namespace.neuron.di.api.junit;
+package global.namespace.neuron.di.guice.java.test;
 
-import global.namespace.neuron.di.api.java.Incubator;
-import org.junit.runners.BlockJUnit4ClassRunner;
-import org.junit.runners.model.InitializationError;
+import com.google.inject.TypeLiteral;
+import global.namespace.neuron.di.guice.java.NeuronModule;
+import global.namespace.neuron.di.guice.sample.NeuronWithGenericSynapses;
 
-public class NeuronJUnitRunner extends BlockJUnit4ClassRunner {
+import java.util.Arrays;
+import java.util.List;
 
-    public NeuronJUnitRunner(Class<?> klass) throws InitializationError {
-        super(klass);
-    }
+class NeuronWithGenericSynapsesModule extends NeuronModule {
 
     @Override
-    protected Object createTest() throws Exception {
-        return Incubator.breed(getTestClass().getJavaClass());
+    protected void configure() {
+        bindNeuron(NeuronWithGenericSynapses.class);
+        bind(new TypeLiteral<List<String>>() { })
+                .toInstance(Arrays.asList("foo", "bar"));
+        bind(new TypeLiteral<List<Integer>>() { })
+                .toInstance(Arrays.asList(1, 2));
     }
 }

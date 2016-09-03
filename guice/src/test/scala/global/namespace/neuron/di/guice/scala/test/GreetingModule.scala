@@ -20,7 +20,7 @@ import javax.inject.Singleton
 import global.namespace.neuron.di.guice.sample.{Formatter, Greeting, RealFormatter}
 import global.namespace.neuron.di.guice.scala._
 
-class GreetingModule extends NeuronModule {
+private class GreetingModule extends NeuronModule {
 
   def configure() {
     bindNeuronClass[Greeting].inScope[Singleton]

@@ -13,21 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package global.namespace.neuron.di.api.scala.test
+package global.namespace.neuron.di.spi
 
-import global.namespace.neuron.di.api.scala.Incubator
-import global.namespace.neuron.di.api.java.test.MetricModule
-import org.scalatest.WordSpec
-import org.scalatest.Matchers._
+import reflect.{ClassTag, classTag}
 
-class MetricModuleSpec extends WordSpec {
+package object scala {
 
-  "Make a metric" in {
-    val module = Incubator.breed[MetricModule]
-    val metric = module.metric
-    module.metric should be theSameInstanceAs metric
-    metric.counter should be theSameInstanceAs metric.counter
-    metric.counter.count shouldBe 0
-    metric.incrementCounter.count shouldBe 1
+  def runtimeClassOf[A](implicit ct: ClassTag[A]): Class[A] = {
+    require(ct != classTag[Nothing], "Missing type parameter.")
+    ct.runtimeClass.asInstanceOf[Class[A]]
   }
 }

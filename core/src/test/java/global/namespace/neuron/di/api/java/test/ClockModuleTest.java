@@ -13,20 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package global.namespace.neuron.di.api.junit;
+package global.namespace.neuron.di.api.java.test;
 
 import global.namespace.neuron.di.api.java.Incubator;
-import org.junit.runners.BlockJUnit4ClassRunner;
-import org.junit.runners.model.InitializationError;
+import global.namespace.neuron.di.sample.Clock;
+import org.junit.Test;
 
-public class NeuronJUnitRunner extends BlockJUnit4ClassRunner {
+import java.util.Date;
 
-    public NeuronJUnitRunner(Class<?> klass) throws InitializationError {
-        super(klass);
-    }
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 
-    @Override
-    protected Object createTest() throws Exception {
-        return Incubator.breed(getTestClass().getJavaClass());
+public class ClockModuleTest {
+
+    @Test
+    public void testClockModule() {
+        final ClockModule module = Incubator.breed(ClockModule.class);
+        final Clock clock = module.clock();
+        assertThat(module.clock(), is(sameInstance(clock)));
+        assertThat(clock.now(), is(not(sameInstance(clock.now()))));
+        assertThat(clock.now(), is(lessThanOrEqualTo(new Date())));
     }
 }

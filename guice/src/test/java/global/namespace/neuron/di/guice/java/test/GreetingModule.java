@@ -13,21 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package global.namespace.neuron.di.api.scala.test
+package global.namespace.neuron.di.guice.java.test;
 
-import global.namespace.neuron.di.api.scala.Incubator
-import global.namespace.neuron.di.api.java.test.MetricModule
-import org.scalatest.WordSpec
-import org.scalatest.Matchers._
+import global.namespace.neuron.di.guice.java.NeuronModule;
+import global.namespace.neuron.di.guice.sample.Formatter;
+import global.namespace.neuron.di.guice.sample.Greeting;
+import global.namespace.neuron.di.guice.sample.RealFormatter;
 
-class MetricModuleSpec extends WordSpec {
+import javax.inject.Singleton;
 
-  "Make a metric" in {
-    val module = Incubator.breed[MetricModule]
-    val metric = module.metric
-    module.metric should be theSameInstanceAs metric
-    metric.counter should be theSameInstanceAs metric.counter
-    metric.counter.count shouldBe 0
-    metric.incrementCounter.count shouldBe 1
-  }
+class GreetingModule extends NeuronModule {
+
+    @Override
+    protected void configure() {
+        bindNeuron(Greeting.class).in(Singleton.class);
+        bind(Formatter.class).to(RealFormatter.class);
+        bindConstantNamed("format").to("Hello %s!");
+    }
 }

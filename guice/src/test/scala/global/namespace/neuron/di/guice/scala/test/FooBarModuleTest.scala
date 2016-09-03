@@ -15,9 +15,10 @@
  */
 package global.namespace.neuron.di.guice.scala.test
 
-import global.namespace.neuron.di.guice.test.{FooBarModuleTest => jFooBarModuleTest}
+import com.google.inject.Module
+import global.namespace.neuron.di.guice.java.test.{FooBarModuleTest => jFooBarModuleTest}
 
 class FooBarModuleTest extends jFooBarModuleTest {
 
-  override def module = new FooBarModule
+  override def module: Module = new FooBarModule
 }

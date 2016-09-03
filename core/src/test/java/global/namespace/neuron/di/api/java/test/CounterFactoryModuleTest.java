@@ -13,20 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package global.namespace.neuron.di.api.junit;
+package global.namespace.neuron.di.api.java.test;
 
 import global.namespace.neuron.di.api.java.Incubator;
-import org.junit.runners.BlockJUnit4ClassRunner;
-import org.junit.runners.model.InitializationError;
+import global.namespace.neuron.di.sample.CounterFactory;
+import org.junit.Test;
 
-public class NeuronJUnitRunner extends BlockJUnit4ClassRunner {
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 
-    public NeuronJUnitRunner(Class<?> klass) throws InitializationError {
-        super(klass);
-    }
+public class CounterFactoryModuleTest {
 
-    @Override
-    protected Object createTest() throws Exception {
-        return Incubator.breed(getTestClass().getJavaClass());
+    @Test
+    public void testCounterFactoryModule() {
+        final CounterFactoryModule module = Incubator.breed(CounterFactoryModule.class);
+        final CounterFactory factory = module.counterFactory();
+        assertThat(module.counterFactory(), is(sameInstance(factory)));
+        assertThat(factory.counter(), is(not(sameInstance(factory.counter()))));
     }
 }

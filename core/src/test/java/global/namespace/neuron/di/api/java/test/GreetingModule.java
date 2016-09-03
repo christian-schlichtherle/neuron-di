@@ -13,20 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package global.namespace.neuron.di.api.junit;
+package global.namespace.neuron.di.api.java.test;
 
+import global.namespace.neuron.di.api.Caching;
+import global.namespace.neuron.di.api.Neuron;
 import global.namespace.neuron.di.api.java.Incubator;
-import org.junit.runners.BlockJUnit4ClassRunner;
-import org.junit.runners.model.InitializationError;
+import global.namespace.neuron.di.sample.Formatter;
+import global.namespace.neuron.di.sample.Greeting;
+import global.namespace.neuron.di.sample.RealFormatter;
 
-public class NeuronJUnitRunner extends BlockJUnit4ClassRunner {
+@Neuron
+abstract class GreetingModule {
 
-    public NeuronJUnitRunner(Class<?> klass) throws InitializationError {
-        super(klass);
+    @Caching
+    Greeting greeting() {
+        return Incubator
+                .stub(Greeting.class)
+                .bind(Greeting::formatter).to(this::formatter)
+                .breed();
     }
 
-    @Override
-    protected Object createTest() throws Exception {
-        return Incubator.breed(getTestClass().getJavaClass());
-    }
+    private Formatter formatter() { return new RealFormatter("Hello %s!"); }
 }
