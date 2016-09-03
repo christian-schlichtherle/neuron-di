@@ -81,31 +81,20 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>${project.build.sourceEncoding}</project.reporting.outputEncoding>
 
-        <!-- maven-release-plugin -->
-        <arguments>-Psonatype-oss-release</arguments>
-        <autoVersionSubmodules>true</autoVersionSubmodules>
-        <mavenExecutorId>forked-path</mavenExecutorId>
-        <preparationGoals>clean install</preparationGoals>
-        <useReleaseProfile>false</useReleaseProfile>
-
         <!-- scala-maven-plugin -->
         <scala.lang.version>2.11</scala.lang.version>
         <scala.version>2.11.8</scala.version>
-
-        <sonatypeOssSnapshotsRepository>https://oss.sonatype.org/content/repositories/snapshots/</sonatypeOssSnapshotsRepository>
 
         <guice.version>3.0</guice.version>
     </properties>
 
     <distributionManagement>
         <snapshotRepository>
-            <id>sonatype-nexus-snapshots</id>
-            <name>Sonatype Nexus Snapshots</name>
-            <url>${sonatypeOssSnapshotsRepository}</url>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
         </snapshotRepository>
         <repository>
-            <id>sonatype-nexus-staging</id>
-            <name>Nexus Release Repository</name>
+            <id>ossrh</id>
             <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
         </repository>
     </distributionManagement>
@@ -228,6 +217,15 @@
                  <plugin>
                      <artifactId>maven-jar-plugin</artifactId>
                      <version>3.0.2</version>
+                 </plugin>
+                 <plugin>
+                     <artifactId>maven-release-plugin</artifactId>
+                     <version>2.5.3</version>
+                     <configuration>
+                         <autoVersionSubmodules>true</autoVersionSubmodules>
+                         <releaseProfiles>release</releaseProfiles>
+                         <useReleaseProfile>false</useReleaseProfile>
+                     </configuration>
                  </plugin>
                  <plugin>
                      <artifactId>maven-remote-resources-plugin</artifactId>
@@ -444,7 +442,7 @@ limitations under the License.
             </build>
         </profile>
         <profile>
-            <id>sonatype-oss-release</id>
+            <id>release</id>
             <build>
                 <plugins>
                     <plugin>
