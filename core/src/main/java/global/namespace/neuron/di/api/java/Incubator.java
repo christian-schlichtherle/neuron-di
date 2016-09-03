@@ -136,7 +136,7 @@ public class Incubator {
      *             The returned supplier is called when the synapse method is
      *             accessed in order to resolve the dependency lazily.
      *             Depending on the caching strategy for the synapse method, the
-     *             supplied value may get cached for future use.
+     *             supplied dependency may get cached for future use.
      */
     public static <T> T breed(Class<T> runtimeClass,
                               Function<Method, Supplier<?>> bind) {
