@@ -35,12 +35,12 @@ abstract class NeuronProvider<T> implements Provider<T> {
     abstract MembersInjector<T> membersInjector();
 
     public T get() {
-        final T instance = (T) Incubator.breed(typeLiteral().getRawType(), this::resolve);
+        final T instance = (T) Incubator.breed(typeLiteral().getRawType(), this::bind);
         membersInjector().injectMembers(instance);
         return instance;
     }
 
-    private Supplier<?> resolve(final Method method) {
+    private Supplier<?> bind(final Method method) {
         final TypeLiteral<?> returnTypeLiteral = typeLiteral()
                 .getReturnType(method);
         final Key<?> returnKey = Arrays
@@ -49,8 +49,10 @@ abstract class NeuronProvider<T> implements Provider<T> {
                 .findFirst()
                 .<Key<?>>map(annotation -> Key.get(returnTypeLiteral, annotation))
                 .orElseGet(() -> Key.get(returnTypeLiteral));
-        final Provider<?> provider = injector().getProvider(returnKey);
-        return provider::get;
+        final Injector injector = injector();
+        // Don't ask the injector for a provider ahead of time: In Neuron DI,
+        // dependency resolution is done lazily!
+        return () -> injector.getInstance(returnKey);
     }
 
     private static boolean isQualifierOrBindingAnnotation(final Annotation annotation) {
