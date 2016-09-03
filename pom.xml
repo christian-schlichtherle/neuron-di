@@ -21,7 +21,7 @@
 
     <groupId>global.namespace.neuron-di</groupId>
     <artifactId>neuron-di-parent</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0</version>
     <packaging>pom</packaging>
 
     <name>Neuron DI</name>
@@ -62,7 +62,8 @@
         <connection>scm:git:git://github.com/christian-schlichtherle/neuron-di.git</connection>
         <developerConnection>scm:git:ssh://git@github.com/christian-schlichtherle/neuron-di.git</developerConnection>
         <url>https://github.com/christian-schlichtherle/neuron-di</url>
-    </scm>
+      <tag>neuron-di-1.0</tag>
+  </scm>
 
     <modules>
         <module>core</module>
@@ -104,12 +105,12 @@
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>neuron-di</artifactId>
-                <version>1.0-SNAPSHOT</version>
+                <version>1.0</version>
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>neuron-di-guice</artifactId>
-                <version>1.0-SNAPSHOT</version>
+                <version>1.0</version>
             </dependency>
 
             <dependency>
