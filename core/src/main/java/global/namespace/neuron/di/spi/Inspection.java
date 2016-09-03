@@ -20,19 +20,9 @@ import global.namespace.neuron.di.api.Neuron;
 
 class Inspection {
 
-    private final Class<?> runtimeClass;
+    private Inspection() { }
 
-    private Inspection(final Class<?> runtimeClass) {
-        this.runtimeClass = runtimeClass;
-    }
-
-    static Inspection of(Class<?> runtimeClass) {
-        return new Inspection(runtimeClass);
-    }
-
-    void accept(Visitor visitor) { element().accept(visitor); }
-
-    private Element element() {
+    static Element of(final Class<?> runtimeClass) {
 
         class RealClassElement implements ClassElement {
 
