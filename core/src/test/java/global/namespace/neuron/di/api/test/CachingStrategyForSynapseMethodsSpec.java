@@ -20,10 +20,10 @@ import global.namespace.neuron.di.sample.HasDependency;
 
 import static global.namespace.neuron.di.api.CachingStrategy.*;
 
-public class CachingStrategyForSynapsesSpec extends CachingStrategySpec {
+public class CachingStrategyForSynapseMethodsSpec extends CachingStrategySpec {
 
     @Override
-    public String subjects() { return "synapses"; }
+    public String subjects() { return "synapse methods"; }
 
     @Override
     public Class<? extends HasDependency<?>> classWithDisabledCachingStrategy() {
