@@ -15,6 +15,8 @@
  */
 package global.namespace.neuron.di.spi;
 
+import net.sf.cglib.core.DefaultNamingPolicy;
+import net.sf.cglib.core.NamingPolicy;
 import net.sf.cglib.proxy.Callback;
 import net.sf.cglib.proxy.CallbackHelper;
 import net.sf.cglib.proxy.Enhancer;
@@ -92,6 +94,7 @@ public class RealIncubator {
         e.setInterfaces(interfaces);
         e.setCallbackFilter(helper);
         e.setCallbacks(helper.getCallbacks());
+        e.setNamingPolicy(NeuronDINamingPolicy.SINGLETON);
         return e.create();
     }
 

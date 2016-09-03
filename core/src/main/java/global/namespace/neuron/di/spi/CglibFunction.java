@@ -92,6 +92,7 @@ class CglibFunction<V> implements Function<Class<?>, V> {
         e.setSuperclass(Object.class);
         e.setInterfaces(new Class<?>[] { iface });
         e.setCallbackType(NoOp.class);
+        e.setNamingPolicy(NeuronDINamingPolicy.SINGLETON);
         return e.createClass();
     }
 }
