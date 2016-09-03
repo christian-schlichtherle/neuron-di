@@ -92,6 +92,7 @@
                                     <shadedPattern>global.namespace.neuron.di.internal.asm</shadedPattern>
                                 </relocation>
                             </relocations>
+                            <shadedArtifactAttached>true</shadedArtifactAttached>
                         </configuration>
                     </execution>
                 </executions>
