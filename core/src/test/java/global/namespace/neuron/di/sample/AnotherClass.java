@@ -15,4 +15,4 @@
  */
 package global.namespace.neuron.di.sample;
 
-public interface AnotherInterface extends SomeNeuronInterface { }
+public abstract class AnotherClass implements SomeNeuronInterface { }

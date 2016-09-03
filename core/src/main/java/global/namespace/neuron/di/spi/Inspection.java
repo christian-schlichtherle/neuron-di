@@ -18,10 +18,6 @@ package global.namespace.neuron.di.spi;
 import global.namespace.neuron.di.api.CachingStrategy;
 import global.namespace.neuron.di.api.Neuron;
 
-import java.lang.reflect.Method;
-import java.util.Collection;
-import java.util.LinkedList;
-
 class Inspection {
 
     private final Class<?> runtimeClass;
@@ -32,17 +28,6 @@ class Inspection {
 
     static Inspection of(Class<?> runtimeClass) {
         return new Inspection(runtimeClass);
-    }
-
-    Collection<Method> synapses() {
-        final LinkedList<Method> synapses = new LinkedList<>();
-        element().accept(new Visitor() {
-            @Override
-            public void visitSynapse(SynapseElement element) {
-                synapses.add(element.method());
-            }
-        });
-        return synapses;
     }
 
     void accept(Visitor visitor) { element().accept(visitor); }
