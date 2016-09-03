@@ -21,7 +21,7 @@
 
     <groupId>de.schlichtherle.neuron-di</groupId>
     <artifactId>neuron-di-parent</artifactId>
-    <version>1.1-SNAPSHOT</version>
+    <version>1.0.1-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Neuron DI</name>
@@ -68,7 +68,6 @@
     <modules>
         <module>core</module>
         <module>guice</module>
-        <module>nodep</module>
     </modules>
 
     <properties>
@@ -105,12 +104,12 @@
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>neuron-di</artifactId>
-                <version>1.1-SNAPSHOT</version>
+                <version>1.0.1-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>neuron-di-guice</artifactId>
-                <version>1.1-SNAPSHOT</version>
+                <version>1.0.1-SNAPSHOT</version>
             </dependency>
 
             <dependency>

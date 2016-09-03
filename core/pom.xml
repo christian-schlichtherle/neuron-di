@@ -22,7 +22,7 @@
     <parent>
         <groupId>de.schlichtherle.neuron-di</groupId>
         <artifactId>neuron-di-parent</artifactId>
-        <version>1.1-SNAPSHOT</version>
+        <version>1.0.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>neuron-di</artifactId>
@@ -44,11 +44,13 @@
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <optional>true</optional>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.scala-lang</groupId>
             <artifactId>scala-library</artifactId>
             <optional>true</optional>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 
@@ -56,6 +58,43 @@
         <plugins>
             <plugin>
                 <artifactId>maven-remote-resources-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <artifactId>maven-shade-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <filters>
+                                <filter>
+                                    <artifact>*:asm</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/maven/**</exclude>
+                                    </excludes>
+                                </filter>
+                                <filter>
+                                    <artifact>*:cglib</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/maven/**</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
+                            <minimizeJar>true</minimizeJar>
+                            <relocations>
+                                <relocation>
+                                    <pattern>net.sf.cglib</pattern>
+                                    <shadedPattern>global.namespace.neuron.di.internal.cglib</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.objectweb.asm</pattern>
+                                    <shadedPattern>global.namespace.neuron.di.internal.asm</shadedPattern>
+                                </relocation>
+                            </relocations>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
