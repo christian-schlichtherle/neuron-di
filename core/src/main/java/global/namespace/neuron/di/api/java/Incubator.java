@@ -33,6 +33,26 @@ public class Incubator {
 
     private Incubator() { }
 
+    /**
+     * Starts constructing an instance of the given runtime class.
+     * This is a generic substitute for the {@code new} statement for use with
+     * neuron classes and interfaces.
+     * Note that the {@code new} statement cannot be used with neuron classes
+     * and interfaces because they are abstract.
+     * <p>
+     * If the given runtime class is a neuron class or interface, then when
+     * {@linkplain Stub#breed() breeding} the neuron, the binding definitions
+     * will be examined eagerly in order to create suppliers for resolving the
+     * dependencies lazily.
+     * The suppliers will use the bound {@linkplain Bind#to(Object) values},
+     * {@linkplain Bind#to(Supplier) suppliers} or
+     * {@linkplain Bind#to(Function) functions}.
+     * <p>
+     * If the given runtime class is not a neuron class or interface, then
+     * adding bindings will have no effect and when breeding, the incubator will
+     * just create a new instance of the given class using the public
+     * constructor without parameters.
+     */
     public static <T> Stub<T> stub(final Class<T> runtimeClass) {
         return new Stub<T>() {
 
@@ -45,9 +65,9 @@ public class Incubator {
             int currentPosition;
 
             @Override
-            public <U> Bind<T, U> bind(final Function<T, U> methodReference) {
+            public <U> Bind<T, U> bind(final Function<T, U> function) {
                 return replacement -> {
-                    bindings.add(new AbstractMap.SimpleImmutableEntry<>(methodReference, replacement));
+                    bindings.add(new AbstractMap.SimpleImmutableEntry<>(function, replacement));
                     return this;
                 };
             }
@@ -65,31 +85,27 @@ public class Incubator {
             }
 
             Supplier<?> bind(final Method method) {
-                final Supplier<Function<? super T, ?>> replacementProxy =
-                        replacementProxy(method);
-                return () -> replacementProxy.get().apply(neuron);
-            }
+                final Function<? super T, ?> replacementProxy =
+                        new Function<T, Object>() {
 
-            Supplier<Function<? super T, ?>> replacementProxy(final Method method) {
-                return new Supplier<Function<? super T, ?>>() {
+                            Function<? super T, ?> replacement;
 
-                    Function<? super T, ?> replacement;
-
-                    @Override
-                    public Function<? super T, ?> get() {
-                        if (null != replacement) {
-                            return replacement;
-                        } else {
-                            replacement = currentReplacement;
-                            if (null != replacement) {
-                                throw new ControlFlowError();
-                            } else {
-                                throw new IllegalStateException(
-                                        "Insufficient stubbing: No binding defined for method `" + method + "` in neuron `" + runtimeClass + "`.");
+                            @Override
+                            public Object apply(T t) {
+                                if (null != replacement) {
+                                    return replacement.apply(t);
+                                } else {
+                                    replacement = currentReplacement;
+                                    if (null != replacement) {
+                                        throw new ControlFlowError();
+                                    } else {
+                                        throw new IllegalStateException(
+                                                "Insufficient stubbing: No binding defined for method `" + method + "` in neuron `" + runtimeClass + "`.");
+                                    }
+                                }
                             }
-                        }
-                    }
-                };
+                        };
+                return () -> replacementProxy.apply(neuron);
             }
 
             void initReplacementProxies() {
@@ -152,7 +168,7 @@ public class Incubator {
         /**
          * Breeds the stubbed neuron.
          * If the runtime class is not a neuron class or interface, this method
-         * tries to call the default constructor.
+         * simply calls the default constructor.
          */
         T breed();
     }
@@ -160,15 +176,15 @@ public class Incubator {
     @SuppressWarnings("WeakerAccess")
     public interface Bind<T, U> {
 
-        /** Binds the synapse method to the given replacement value. */
-        default Stub<T> to(U replacement) { return to(neuron -> replacement); }
+        /** Binds the synapse method to the given value. */
+        default Stub<T> to(U value) { return to(neuron -> value); }
 
-        /** Binds the synapse method to the given replacement supplier. */
-        default Stub<T> to(Supplier<? extends U> replacement) {
-            return to(neuron -> replacement.get());
+        /** Binds the synapse method to the given supplier. */
+        default Stub<T> to(Supplier<? extends U> supplier) {
+            return to(neuron -> supplier.get());
         }
 
-        /** Binds the synapse method to the given replacement function. */
-        Stub<T> to(Function<? super T, ? extends U> replacement);
+        /** Binds the synapse method to the given function. */
+        Stub<T> to(Function<? super T, ? extends U> function);
     }
 }

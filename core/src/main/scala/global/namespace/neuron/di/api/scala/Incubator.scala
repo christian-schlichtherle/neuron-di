@@ -33,13 +33,13 @@ object Incubator {
 
       private val jbind = jstub bind methodReference
 
-      def to(replacement: => B): self.type = {
-        jstub = jbind to replacement _
+      def to(value: => B): self.type = {
+        jstub = jbind to value _
         self
       }
 
-      def to[B2 <: B](replacement: A => B2): self.type = {
-        jstub = jbind to replacement
+      def to[B2 <: B](function: A => B2): self.type = {
+        jstub = jbind to function
         self
       }
     }
