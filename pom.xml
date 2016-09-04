@@ -106,11 +106,6 @@
                 <artifactId>neuron-di</artifactId>
                 <version>1.0.2-SNAPSHOT</version>
             </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>neuron-di-guice</artifactId>
-                <version>1.0.2-SNAPSHOT</version>
-            </dependency>
 
             <dependency>
                 <groupId>cglib</groupId>
@@ -289,6 +284,7 @@ limitations under the License.
                              <goals>
                                  <goal>check</goal>
                              </goals>
+                             <phase>validate</phase>
                          </execution>
                      </executions>
                  </plugin>
@@ -304,6 +300,11 @@ limitations under the License.
                              <arg>-unchecked</arg>
                          </args>
                      </configuration>
+                 </plugin>
+                 <plugin>
+                     <groupId>org.codehaus.mojo</groupId>
+                     <artifactId>build-helper-maven-plugin</artifactId>
+                     <version>1.12</version>
                  </plugin>
                  <plugin>
                      <groupId>org.scalatest</groupId>
@@ -467,6 +468,9 @@ limitations under the License.
                                 </goals>
                             </execution>
                         </executions>
+                    </plugin>
+                    <plugin>
+                        <artifactId>maven-remote-resources-plugin</artifactId>
                     </plugin>
                     <plugin>
                         <artifactId>maven-source-plugin</artifactId>
