@@ -21,7 +21,7 @@
 
     <groupId>de.schlichtherle.neuron-di</groupId>
     <artifactId>neuron-di-parent</artifactId>
-    <version>1.0.2</version>
+    <version>1.0.3-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Neuron DI</name>
@@ -62,7 +62,7 @@
         <connection>scm:git:git://github.com/christian-schlichtherle/neuron-di.git</connection>
         <developerConnection>scm:git:ssh://git@github.com/christian-schlichtherle/neuron-di.git</developerConnection>
         <url>https://github.com/christian-schlichtherle/neuron-di</url>
-      <tag>neuron-di-1.0.2</tag>
+      <tag>HEAD</tag>
   </scm>
 
     <modules>
@@ -104,7 +104,7 @@
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>neuron-di</artifactId>
-                <version>1.0.2</version>
+                <version>1.0.3-SNAPSHOT</version>
             </dependency>
 
             <dependency>
