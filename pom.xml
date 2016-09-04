@@ -470,9 +470,6 @@ limitations under the License.
                         </executions>
                     </plugin>
                     <plugin>
-                        <artifactId>maven-remote-resources-plugin</artifactId>
-                    </plugin>
-                    <plugin>
                         <artifactId>maven-source-plugin</artifactId>
                         <executions>
                             <execution>

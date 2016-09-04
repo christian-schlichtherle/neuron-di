@@ -60,6 +60,9 @@
             <build>
                 <plugins>
                     <plugin>
+                        <artifactId>maven-remote-resources-plugin</artifactId>
+                    </plugin>
+                    <plugin>
                         <artifactId>maven-shade-plugin</artifactId>
                         <executions>
                             <execution>
