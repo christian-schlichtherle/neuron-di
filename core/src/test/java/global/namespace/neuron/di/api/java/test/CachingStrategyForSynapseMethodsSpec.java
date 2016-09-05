@@ -46,14 +46,14 @@ public class CachingStrategyForSynapseMethodsSpec extends CachingStrategySpec {
     }
 
     @Neuron(cachingStrategy = DISABLED)
-    interface NeuronWithDisabledCachingStrategy extends HasDependency<Object> { }
+    private interface NeuronWithDisabledCachingStrategy extends HasDependency<Object> { }
 
     @Neuron(cachingStrategy = NOT_THREAD_SAFE)
-    interface NeuronWithNotThreadSafeCachingStrategy extends HasDependency<Object> { }
+    private interface NeuronWithNotThreadSafeCachingStrategy extends HasDependency<Object> { }
 
     @Neuron(cachingStrategy = THREAD_LOCAL)
-    interface NeuronWithThreadLocalCachingStrategy extends HasDependency<Object> { }
+    private interface NeuronWithThreadLocalCachingStrategy extends HasDependency<Object> { }
 
     @Neuron
-    interface NeuronWithThreadSafeCachingStrategy extends HasDependency<Object> { }
+    private interface NeuronWithThreadSafeCachingStrategy extends HasDependency<Object> { }
 }
