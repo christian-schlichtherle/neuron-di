@@ -17,9 +17,10 @@ package global.namespace.neuron.di.spi;
 
 import global.namespace.neuron.di.api.Neuron;
 
-import javax.annotation.processing.*;
+import javax.annotation.processing.RoundEnvironment;
+import javax.annotation.processing.SupportedAnnotationTypes;
+import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
-import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
@@ -27,11 +28,10 @@ import java.util.Set;
 
 import static javax.lang.model.element.ElementKind.CONSTRUCTOR;
 import static javax.lang.model.element.Modifier.*;
-import static javax.tools.Diagnostic.Kind.ERROR;
 
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
 @SupportedAnnotationTypes("global.namespace.neuron.di.api.Neuron")
-public final class NeuronProcessor extends AbstractProcessor {
+public final class NeuronProcessor extends CommonProcessor {
 
     @Override
     public boolean process(final Set<? extends TypeElement> annotations, final RoundEnvironment roundEnv) {
@@ -69,10 +69,4 @@ public final class NeuronProcessor extends AbstractProcessor {
         return !ctor.getModifiers().contains(PRIVATE) &&
                 ctor.getParameters().isEmpty();
     }
-
-    private void error(CharSequence message, Element e) {
-        getMessager().printMessage(ERROR, message , e);
-    }
-
-    private Messager getMessager() { return processingEnv.getMessager(); }
 }

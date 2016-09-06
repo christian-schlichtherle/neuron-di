@@ -65,12 +65,6 @@
                             <proc>none</proc>
                         </configuration>
                     </execution>
-                    <execution>
-                        <id>default-testCompile</id>
-                        <configuration>
-                            <compilerArgument>-Aglobal.namespace.neuron.di.spi.verbose=true</compilerArgument>
-                        </configuration>
-                    </execution>
                 </executions>
             </plugin>
         </plugins>
