@@ -25,13 +25,17 @@ import javax.lang.model.SourceVersion;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.type.TypeMirror;
 import java.util.Set;
 
 import static javax.lang.model.element.Modifier.*;
+import static javax.lang.model.type.TypeKind.VOID;
 
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
 @SupportedAnnotationTypes("global.namespace.neuron.di.api.Caching")
 public final class CachingProcessor extends CommonProcessor {
+
+    private static final String JAVA_LANG_VOID = Void.class.getName();
 
     @Override
     public boolean process(final Set<? extends TypeElement> annotations, final RoundEnvironment roundEnv) {
@@ -41,6 +45,9 @@ public final class CachingProcessor extends CommonProcessor {
     }
 
     private void validateMethod(final ExecutableElement method) {
+        if (null == method.getEnclosingElement().getAnnotation(Neuron.class)) {
+            error("A caching method must be a member of a neuron class or interface.", method);
+        }
         final Set<Modifier> modifiers = method.getModifiers();
         if (modifiers.contains(FINAL)) {
             error("A caching method must not be final.", method);
@@ -54,8 +61,12 @@ public final class CachingProcessor extends CommonProcessor {
         if (!method.getParameters().isEmpty()) {
             error("A caching method must not have parameters.", method);
         }
-        if (null == method.getEnclosingElement().getAnnotation(Neuron.class)) {
-            error("A caching method must be a member of a neuron class or interface.", method);
+        if (isVoid(method.getReturnType())) {
+            error("A caching method must not have a void return type.", method);
         }
+    }
+
+    private static boolean isVoid(TypeMirror type) {
+        return type.getKind() == VOID || type.toString().equals(JAVA_LANG_VOID);
     }
 }
