@@ -23,8 +23,8 @@ import static javax.tools.Diagnostic.Kind.ERROR;
 abstract class CommonProcessor extends AbstractProcessor {
 
     void error(CharSequence message, javax.lang.model.element.Element e) {
-        getMessager().printMessage(ERROR, message , e);
+        messager().printMessage(ERROR, message , e);
     }
 
-    private Messager getMessager() { return processingEnv.getMessager(); }
+    private Messager messager() { return processingEnv.getMessager(); }
 }
