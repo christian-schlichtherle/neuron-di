@@ -22,7 +22,7 @@ Assuming a system property is defined for `neuron-di.version` (see [releases]),
 the Maven coordinates for the standalone Neuron DI artifact are as follows:
 
     <dependency>
-        <groupId>de.schlichtherle</groupId>
+        <groupId>de.schlichtherle.neuron-di</groupId>
         <artifactId>neuron-di</artifactId>
         <version>${neuron-di.version}</version>
     </dependency>
@@ -30,7 +30,7 @@ the Maven coordinates for the standalone Neuron DI artifact are as follows:
 If you want to embed Neuron DI in Guice, you have to add this:
 
     <dependency>
-        <groupId>de.schlichtherle</groupId>
+        <groupId>de.schlichtherle.neuron-di</groupId>
         <artifactId>neuron-di-guice</artifactId>
         <version>${neuron-di.version}</version>
     </dependency>
