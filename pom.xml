@@ -63,7 +63,7 @@
         <developerConnection>scm:git:ssh://git@github.com/christian-schlichtherle/neuron-di.git</developerConnection>
         <url>https://github.com/christian-schlichtherle/neuron-di</url>
       <tag>HEAD</tag>
-  </scm>
+    </scm>
 
     <modules>
         <module>core</module>
