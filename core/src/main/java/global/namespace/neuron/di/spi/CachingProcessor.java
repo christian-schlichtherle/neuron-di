@@ -15,7 +15,6 @@
  */
 package global.namespace.neuron.di.spi;
 
-import global.namespace.neuron.di.api.Caching;
 import global.namespace.neuron.di.api.Neuron;
 
 import javax.annotation.processing.RoundEnvironment;
@@ -39,14 +38,18 @@ public final class CachingProcessor extends CommonProcessor {
 
     @Override
     public boolean process(final Set<? extends TypeElement> annotations, final RoundEnvironment roundEnv) {
-        roundEnv.getElementsAnnotatedWith(Caching.class)
-                .forEach(elem -> validateMethod((ExecutableElement) elem));
+        annotations.forEach(annotation ->
+                roundEnv.getElementsAnnotatedWith(annotation)
+                        .forEach(elem -> validateMethod((ExecutableElement) elem)));
         return true;
     }
 
     private void validateMethod(final ExecutableElement method) {
-        if (null == method.getEnclosingElement().getAnnotation(Neuron.class)) {
-            error("A caching method must be a member of a neuron class or interface.", method);
+        final javax.lang.model.element.Element enclElem =
+                method.getEnclosingElement();
+        if (null == enclElem.getAnnotation(Neuron.class)) {
+            error("A caching method must be a member of a neuron class or interface, but...", method);
+            error("... there is no @Neuron annotation here.", enclElem);
         }
         final Set<Modifier> modifiers = method.getModifiers();
         if (modifiers.contains(FINAL)) {

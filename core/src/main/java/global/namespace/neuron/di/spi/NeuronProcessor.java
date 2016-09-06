@@ -15,8 +15,6 @@
  */
 package global.namespace.neuron.di.spi;
 
-import global.namespace.neuron.di.api.Neuron;
-
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedSourceVersion;
@@ -35,10 +33,11 @@ public final class NeuronProcessor extends CommonProcessor {
 
     @Override
     public boolean process(final Set<? extends TypeElement> annotations, final RoundEnvironment roundEnv) {
-        roundEnv.getElementsAnnotatedWith(Neuron.class)
-                .stream()
-                .filter(elem -> elem.getKind().isClass())
-                .forEach(elem -> validateClass((TypeElement) elem));
+        annotations.forEach(annotation ->
+                roundEnv.getElementsAnnotatedWith(annotation)
+                        .stream()
+                        .filter(elem -> elem.getKind().isClass())
+                        .forEach(elem -> validateClass((TypeElement) elem)));
         return true;
     }
 
