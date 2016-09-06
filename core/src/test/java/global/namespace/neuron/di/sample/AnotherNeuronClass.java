@@ -15,4 +15,14 @@
  */
 package global.namespace.neuron.di.sample;
 
-public abstract class AnotherNeuronClass extends SomeNeuronClass { }
+import global.namespace.neuron.di.api.Caching;
+
+import java.util.Date;
+
+import static global.namespace.neuron.di.api.CachingStrategy.DISABLED;
+
+public abstract class AnotherNeuronClass extends SomeNeuronClass {
+
+    @Caching(DISABLED)
+    abstract Date now();
+}

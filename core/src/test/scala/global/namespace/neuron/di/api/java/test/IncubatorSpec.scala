@@ -17,8 +17,8 @@ package global.namespace.neuron.di.api.java.test
 
 import java.lang.reflect.Method
 
-import global.namespace.neuron.di.api.scala._
 import global.namespace.neuron.di.api.java.test.IncubatorSpec._
+import global.namespace.neuron.di.api.scala._
 import global.namespace.neuron.di.sample.{AnotherClass, AnotherNeuronClass, SomeNeuronClass, SomeNeuronInterface}
 import org.scalatest.Matchers._
 import org.scalatest.{FeatureSpec, GivenWhenThen}
@@ -50,7 +50,7 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
       Then("the incubator should visit all synapse methods of all super classes and implemented interfaces.")
       And("not yet compute their return values.")
 
-      synapsesOf[AnotherNeuronClass] shouldHaveNames ("a", "b", "c")
+      synapsesOf[AnotherNeuronClass] shouldHaveNames ("now", "a", "b", "c")
     }
 
     scenario("Breeding some neuron interface:") {
