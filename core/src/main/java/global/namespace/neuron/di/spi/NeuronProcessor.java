@@ -57,7 +57,7 @@ public final class NeuronProcessor extends CommonProcessor {
         }
     }
 
-    private boolean hasNonPrivateConstructorWithoutParameters(TypeElement type) {
+    private static boolean hasNonPrivateConstructorWithoutParameters(TypeElement type) {
         return type
                 .getEnclosedElements()
                 .stream()
@@ -65,7 +65,7 @@ public final class NeuronProcessor extends CommonProcessor {
                 .anyMatch(elem -> isNonPrivateConstructorWithoutParameters((ExecutableElement) elem));
     }
 
-    private boolean isNonPrivateConstructorWithoutParameters(ExecutableElement ctor) {
+    private static boolean isNonPrivateConstructorWithoutParameters(ExecutableElement ctor) {
         return !ctor.getModifiers().contains(PRIVATE) &&
                 ctor.getParameters().isEmpty();
     }
