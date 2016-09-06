@@ -42,18 +42,18 @@ public final class NeuronProcessor extends CommonProcessor {
         return true;
     }
 
-    private void validateClass(final TypeElement type) {
-        final Set<Modifier> modifiers = type.getModifiers();
+    private void validateClass(final TypeElement clazz) {
+        final Set<Modifier> modifiers = clazz.getModifiers();
         if (modifiers.contains(FINAL)) {
-            error("A neuron class must not be final.", type);
+            error("A neuron class must not be final.", clazz);
         }
-        if (type.getNestingKind().isNested()) {
+        if (clazz.getNestingKind().isNested()) {
             if (!modifiers.contains(STATIC)) {
-                error("A neuron class must be static.", type);
+                error("A neuron class must be static.", clazz);
             }
         }
-        if (!hasNonPrivateConstructorWithoutParameters(type)) {
-            error("A neuron class must have a non-private constructor without parameters.", type);
+        if (!hasNonPrivateConstructorWithoutParameters(clazz)) {
+            error("A neuron class must have a non-private constructor without parameters.", clazz);
         }
     }
 
