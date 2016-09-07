@@ -15,18 +15,12 @@
  */
 package global.namespace.neuron.di.sample;
 
-import global.namespace.neuron.di.api.Caching;
-import global.namespace.neuron.di.api.CachingStrategy;
 import global.namespace.neuron.di.api.Neuron;
-
-import static global.namespace.neuron.di.api.CachingStrategy.DISABLED;
 
 @Neuron
 public interface Greeting {
 
-    default String message() { return formatter().message("Christian"); }
+    default String message() { return formatter().format("Christian"); }
 
-    // This annotation is redundant, but documents the default behavior:
-    @Caching
     Formatter formatter();
 }

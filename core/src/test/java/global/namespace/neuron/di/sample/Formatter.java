@@ -17,5 +17,5 @@ package global.namespace.neuron.di.sample;
 
 public interface Formatter {
 
-    String message(String... args);
+    String format(Object... args);
 }

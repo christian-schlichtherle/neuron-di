@@ -19,12 +19,10 @@ public class RealFormatter implements Formatter {
 
     private final String format;
 
-    public RealFormatter(final String format) {
-        this.format = format;
-    }
+    public RealFormatter(final String format) { this.format = format; }
 
     @Override
-    public String message(String... args) {
+    public String format(Object... args) {
         return String.format(format, (Object[]) args);
     }
 }
