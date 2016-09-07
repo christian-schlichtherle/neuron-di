@@ -32,7 +32,7 @@ public class PerformanceTest {
 
     private static final int LOOP_TIMES = 10;
     private static final int CONSTRUCTION_TIMES = 1_000_000;
-    private static final int ACCESS_TIMES = 1_000_000;
+    private static final int INVOCATION_TIMES = 1_000_000;
 
     private static final Formatter helloFormatter =
             new RealFormatter("Hello %s!");
@@ -43,13 +43,13 @@ public class PerformanceTest {
 
             long simple, neuron;
 
-            simple = timeConstruction(new SimpleGreetingFactory());
-            neuron = timeConstruction(new NeuronGreetingFactory());
+            simple = timeConstructions(new SimpleGreetingFactory());
+            neuron = timeConstructions(new NeuronGreetingFactory());
             printf("Construction overhead [factor ]: %5.1f%n", ((double) neuron) / simple);
 
-            simple = timeAccess(new SimpleGreetingFactory().greeting());
-            neuron = timeAccess(new NeuronGreetingFactory().greeting());
-            printf("Access overhead       [percent]: %5.1f%%%n", (((double) neuron) / simple - 1d) * 100d);
+            simple = timeInvocations(new SimpleGreetingFactory().greeting());
+            neuron = timeInvocations(new NeuronGreetingFactory().greeting());
+            printf("Invocation overhead   [percent]: %5.1f%%%n", (((double) neuron) / simple - 1d) * 100d);
         }
     }
 
@@ -57,14 +57,14 @@ public class PerformanceTest {
         System.out.printf(Locale.ENGLISH, format, args);
     }
 
-    private static long timeConstruction(GreetingFactory factory) {
+    private static long timeConstructions(GreetingFactory factory) {
         return time(CONSTRUCTION_TIMES,
                 factory::greeting,
                 is(instanceOf(Greeting.class)));
     }
 
-    private static long timeAccess(Greeting greeting) {
-        return time(ACCESS_TIMES,
+    private static long timeInvocations(Greeting greeting) {
+        return time(INVOCATION_TIMES,
                 greeting::message,
                 is("Hello Christian!"));
     }
