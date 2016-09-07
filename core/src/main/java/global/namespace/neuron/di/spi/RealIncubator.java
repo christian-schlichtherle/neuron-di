@@ -26,8 +26,25 @@ public class RealIncubator {
 
     private RealIncubator() { }
 
+    /**
+     * Returns a new instance of the given runtime class which will resolve its
+     * dependencies lazily.
+     *
+     * @param bind a function which looks up a binding for a given synapse
+     *             method (the injection point) and returns some function to
+     *             resolve the dependency.
+     *             The {@code bind} function is called before the call to
+     *             {@code breed} returns in order to look up the binding
+     *             eagerly.
+     *             The returned function is called later when the synapse method
+     *             is accessed in order to resolve the dependency lazily.
+     *             The parameter to this function is the instance returned by
+     *             {@code breed}.
+     *             Depending on the caching strategy for the synapse method, the
+     *             resolved dependency may get cached for future use.
+     */
     public static <T> T breed(final Class<T> runtimeClass,
-                              final Function<Method, Function<? super T, ?>> bind) {
+                              final Function<Method, ? extends Function<? super T, ?>> bind) {
 
         class ClassVisitor implements Visitor {
 
