@@ -23,7 +23,7 @@ import java.lang.reflect.Method;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-/** A real incubator {@linkplain #breed(Class, Function) breeds} neurons. */
+/** A real incubator {@linkplain #breed(Class, Binder) breeds} neurons. */
 public class RealIncubator {
 
     private RealIncubator() { }
@@ -32,22 +32,24 @@ public class RealIncubator {
      * Returns a new instance of the given runtime class which will resolve its
      * dependencies lazily.
      *
-     * @param bind a function which looks up a binding for a given synapse
-     *             method (the injection point) and returns some supplier or
-     *             function to resolve the dependency.
-     *             The {@code bind} function is called before the call to
-     *             {@code breed} returns in order to look up the binding
-     *             eagerly.
-     *             The returned supplier or function is called later when the
-     *             synapse method is accessed in order to resolve the dependency
-     *             lazily.
-     *             If a function is provided, its parameter will be the instance
-     *             returned by {@code breed}.
-     *             Depending on the caching strategy for the synapse method, the
-     *             resolved dependency may get cached for future use.
+     * @param binder binds a given synapse method (the injection point) to some
+     *               supplier or function in order to resolve the dependency.
+     *               The {@link Binder#bind(Synapse)} method is called before
+     *               the call to {@code breed} returns.
+     *               The implementation is expected to call
+     *               {@link Synapse#bindTo(Supplier)} or
+     *               {@link Synapse#bindTo(Function)} in to define the binding
+     *               eagerly.
+     *               The provided supplier or function is called later when the
+     *               synapse method is accessed in order to resolve the
+     *               dependency lazily.
+     *               If a function is provided, its parameter will be the
+     *               instance returned by {@code breed}.
+     *               Depending on the caching strategy for the synapse method,
+     *               the resolved dependency may get cached for future use.
      */
     public static <T> T breed(final Class<T> runtimeClass,
-                              final Function<Method, ?> bind) {
+                              final Binder<T> binder) {
 
         class ClassVisitor implements Visitor {
 
@@ -77,15 +79,22 @@ public class RealIncubator {
 
                         @SuppressWarnings("unchecked")
                         @Override
-                        public void visitSynapse(final SynapseElement element) {
-                            final Object resolve = bind.apply(element.method());
-                            if (resolve instanceof Supplier) {
-                                callback = element.synapseCallback(
-                                        ((Supplier<?>) resolve)::get);
-                            } else {
-                                callback = element.synapseCallback(
-                                        (obj, method, args) -> ((Function<? super T, ?>) resolve).apply((T) obj));
-                            }
+                        public void visitSynapse(SynapseElement element) {
+                            binder.bind(new Synapse<T>() {
+
+                                public Method method() {
+                                    return element.method();
+                                }
+
+                                public void bindTo(Supplier<?> resolve) {
+                                    callback = element.synapseCallback(resolve::get);
+                                }
+
+                                public void bindTo(Function<? super T, ?> resolve) {
+                                    callback = element.synapseCallback(
+                                            (obj, method, args) -> resolve.apply((T) obj));
+                                }
+                            });
                         }
 
                         @Override

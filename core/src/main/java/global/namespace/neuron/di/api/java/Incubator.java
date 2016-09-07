@@ -16,6 +16,7 @@
 package global.namespace.neuron.di.api.java;
 
 import global.namespace.neuron.di.spi.RealIncubator;
+import global.namespace.neuron.di.spi.Synapse;
 
 import java.lang.reflect.Method;
 import java.util.AbstractMap;
@@ -39,8 +40,8 @@ public class Incubator {
      */
     public static <T> T breed(Class<T> runtimeClass) {
         return RealIncubator.breed(runtimeClass, synapse -> {
-            final Class<?> returnType = synapse.getReturnType();
-            return (Supplier<?>) () -> breed(returnType);
+            final Class<?> returnType = synapse.method().getReturnType();
+            synapse.bindTo(() -> breed(returnType));
         });
     }
 
@@ -63,10 +64,8 @@ public class Incubator {
      */
     public static <T> T breed(Class<T> runtimeClass,
                               Function<Method, Supplier<?>> bind) {
-        return RealIncubator.breed(runtimeClass, method -> {
-            final Supplier<?> supplier = bind.apply(method);
-            return (Supplier<?>) supplier::get;
-        });
+        return RealIncubator.breed(runtimeClass,
+                synapse -> synapse.bindTo(bind.apply(synapse.method())));
     }
 
     /**
@@ -120,8 +119,8 @@ public class Incubator {
                 return neuron;
             }
 
-            Function<? super T, ?> bind(final Method method) {
-                return new Function<T, Object>() {
+            void bind(Synapse<T> synapse) {
+                synapse.bindTo(new Function<T, Object>() {
 
                     Function<? super T, ?> replacement;
 
@@ -135,11 +134,11 @@ public class Incubator {
                                 throw new ControlFlowError();
                             } else {
                                 throw new IllegalStateException(
-                                        "Insufficient stubbing: No binding defined for method `" + method + "` in neuron `" + runtimeClass + "`.");
+                                        "Insufficient stubbing: No binding defined for synapse method `" + synapse.method() + "` in neuron `" + runtimeClass + "`.");
                             }
                         }
                     }
-                };
+                });
             }
 
             void initReplacementProxies() {
