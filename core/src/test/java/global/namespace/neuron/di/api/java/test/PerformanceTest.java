@@ -70,8 +70,8 @@ public class PerformanceTest {
     }
 
     private static <T> long time(final int times,
-                                     final Supplier<T> supplier,
-                                     final Matcher<T> matcher) {
+                                 final Supplier<T> supplier,
+                                 final Matcher<T> matcher) {
         final long start = System.nanoTime();
         for (int i = 0; i < times; i++) {
             assertThat(supplier.get(), matcher);
