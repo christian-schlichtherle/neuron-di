@@ -22,11 +22,11 @@ import global.namespace.neuron.di.api.Neuron;
 import static global.namespace.neuron.di.api.CachingStrategy.DISABLED;
 
 @Neuron
-public abstract class Greeting {
+public interface Greeting {
 
-    public String message() { return formatter().message("Christian"); }
+    default String message() { return formatter().message("Christian"); }
 
     // This annotation is redundant, but documents the default behavior:
     @Caching
-    public abstract Formatter formatter();
+    Formatter formatter();
 }
