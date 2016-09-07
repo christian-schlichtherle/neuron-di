@@ -15,10 +15,23 @@
  */
 package global.namespace.neuron.di.spi;
 
+import net.sf.cglib.proxy.Enhancer;
+
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
+
 interface Visitor {
 
     default void visitNeuron(NeuronElement element) {
-        element.traverseMethods(this);
+        new CglibFunction<>((superclass, interfaces) -> {
+            final List<Method> methods = new ArrayList<>();
+            Enhancer.getMethods(superclass, interfaces, methods);
+            for (Method method : methods) {
+                element.element(method).accept(this);
+            }
+            return null;
+        }).apply(element.runtimeClass());
     }
 
     default void visitClass(ClassElement element) { }

@@ -17,12 +17,9 @@ package global.namespace.neuron.di.spi;
 
 import global.namespace.neuron.di.api.Caching;
 import global.namespace.neuron.di.api.CachingStrategy;
-import net.sf.cglib.proxy.Enhancer;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 import static global.namespace.neuron.di.api.CachingStrategy.DISABLED;
@@ -32,18 +29,7 @@ interface NeuronElement extends ClassElement, HasCachingStrategy {
     @Override
     default void accept(Visitor visitor) { visitor.visitNeuron(this); }
 
-    default void traverseMethods(final Visitor visitor) {
-        new CglibFunction<>((superclass, interfaces) -> {
-            final List<Method> methods = new ArrayList<>();
-            Enhancer.getMethods(superclass, interfaces, methods);
-            for (Method method : methods) {
-                element(method).accept(visitor);
-            }
-            return null;
-        }).apply(runtimeClass());
-    }
-
-    default Element element(final Method method) {
+    default MethodElement element(final Method method) {
 
         class MethodBase {
 
