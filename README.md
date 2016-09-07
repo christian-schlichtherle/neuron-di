@@ -8,12 +8,12 @@ Guice.
 When using it standalone, programmers enjoy a simple, yet versatile domain
 specific language (DSL) for writing self-contained binding definitions.
 Thanks to the (Java or Scala) compiler, self-contained binding definitions 
-alleviate the need for testing them. 
+alleviate the need for testing them separately. 
 
-When using Neuron DI embedded, programmers can extend their familiar DI
-framework with lazy dependency resolution and caching.
+When using Neuron DI embedded, programmers can add lazy dependency resolution 
+and caching to their DI framework of choice.
 Guice users also enjoy extensions to the Guice binding DSL which make it simpler 
-to use, especially for Scala.
+to use, especially when using Guice with Scala.
 
 Neuron DI is covered by the [Apache License, Version 2.0].
 

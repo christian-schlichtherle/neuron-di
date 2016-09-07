@@ -26,19 +26,55 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
- * An incubator {@linkplain #breed(Class) breeds} neurons.
- * For testing purposes, it can also {@linkplain #stub(Class) stub} neurons.
+ * An incubator {@linkplain #breed(Class) breeds} or
+ * {@linkplain #stub(Class) stubs} neurons.
  */
 public class Incubator {
 
     private Incubator() { }
 
     /**
+     * Returns a new instance of the given runtime class which will resolve its
+     * dependencies lazily by recursively calling this method.
+     */
+    public static <T> T breed(Class<T> runtimeClass) {
+        return RealIncubator.breed(runtimeClass, synapse -> {
+            final Class<?> returnType = synapse.getReturnType();
+            return neuron -> breed(returnType);
+        });
+    }
+
+    /**
+     * Constructs an instance of the given runtime class which will resolve its
+     * dependencies lazily.
+     * This method is usually called from plugins for DI frameworks in order to
+     * integrate Neuron DI into the DI framework.
+     *
+     * @param bind a function which looks up a binding for a given synapse
+     *             method (the injection point) and returns some supplier to
+     *             resolve the dependency.
+     *             The {@code bind} function is called before the call to
+     *             {@code breed} returns in order to look up the binding
+     *             eagerly.
+     *             The returned supplier is called later when the synapse method
+     *             is accessed in order to resolve the dependency lazily.
+     *             Depending on the caching strategy for the synapse method, the
+     *             supplied dependency may get cached for future use.
+     */
+    public static <T> T breed(Class<T> runtimeClass,
+                              Function<Method, Supplier<?>> bind) {
+        return RealIncubator.breed(runtimeClass, method -> {
+            final Supplier<?> supplier = bind.apply(method);
+            return neuron -> supplier.get();
+        });
+    }
+
+    /**
      * Starts constructing an instance of the given runtime class.
      * This is a generic substitute for the {@code new} statement for use with
      * neuron classes and interfaces.
-     * Note that the {@code new} statement cannot be used with neuron classes
-     * and interfaces because they are abstract.
+     * Note that the {@code new} statement can neither be used with neuron
+     * classes nor interfaces because they are abstract.
      * <p>
      * If the given runtime class is a neuron class or interface, then when
      * {@linkplain Stub#breed() breeding} the neuron, the binding definitions
@@ -123,42 +159,6 @@ public class Incubator {
                 }
             }
         };
-    }
-
-    /**
-     * Returns a new instance of the given runtime class which will resolve its
-     * dependencies lazily by recursively calling this method.
-     */
-    public static <T> T breed(Class<T> runtimeClass) {
-        return RealIncubator.breed(runtimeClass, synapse -> {
-            final Class<?> returnType = synapse.getReturnType();
-            return neuron -> breed(returnType);
-        });
-    }
-
-    /**
-     * Returns a new instance of the given runtime class which will resolve its
-     * dependencies lazily.
-     * This method is usually called from plugins for DI frameworks in order to
-     * integrate Neuron DI into the framework.
-     *
-     * @param bind a function which looks up a binding for a given synapse
-     *             method (the injection point) and returns some supplier to
-     *             resolve the dependency.
-     *             The {@code bind} function is called before the call to
-     *             {@code breed} returns in order to look up the binding
-     *             eagerly.
-     *             The returned supplier is called later when the synapse method
-     *             is accessed in order to resolve the dependency lazily.
-     *             Depending on the caching strategy for the synapse method, the
-     *             supplied dependency may get cached for future use.
-     */
-    public static <T> T breed(Class<T> runtimeClass,
-                              Function<Method, Supplier<?>> bind) {
-        return RealIncubator.breed(runtimeClass, method -> {
-            final Supplier<?> supplier = bind.apply(method);
-            return neuron -> supplier.get();
-        });
     }
 
     @SuppressWarnings("WeakerAccess")

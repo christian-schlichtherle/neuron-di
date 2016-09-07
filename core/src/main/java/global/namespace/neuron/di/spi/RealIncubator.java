@@ -22,6 +22,7 @@ import net.sf.cglib.proxy.Enhancer;
 import java.lang.reflect.Method;
 import java.util.function.Function;
 
+/** A real incubator {@linkplain #breed(Class, Function) breeds} neurons. */
 public class RealIncubator {
 
     private RealIncubator() { }
