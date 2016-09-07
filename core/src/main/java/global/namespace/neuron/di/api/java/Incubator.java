@@ -16,13 +16,12 @@
 package global.namespace.neuron.di.api.java;
 
 import global.namespace.neuron.di.spi.RealIncubator;
-import global.namespace.neuron.di.spi.RealIncubator.Synapse;
 
 import java.lang.reflect.Method;
-import java.util.AbstractMap;
+import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
+import java.util.Map.Entry;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -40,8 +39,8 @@ public class Incubator {
      */
     public static <T> T breed(Class<T> runtimeClass) {
         return RealIncubator.breed(runtimeClass, synapse -> {
-            final Class<?> returnType = synapse.method().getReturnType();
-            synapse.bindTo(() -> breed(returnType));
+            final Class<?> returnType = synapse.getReturnType();
+            return () -> breed(returnType);
         });
     }
 
@@ -64,8 +63,7 @@ public class Incubator {
      */
     public static <T> T breed(Class<T> runtimeClass,
                               Function<Method, Supplier<?>> bind) {
-        return RealIncubator.breed(runtimeClass,
-                synapse -> synapse.bindTo(bind.apply(synapse.method())));
+        return RealIncubator.breed(runtimeClass, bind);
     }
 
     /**
@@ -91,7 +89,7 @@ public class Incubator {
     public static <T> Stub<T> stub(final Class<T> runtimeClass) {
         return new Stub<T>() {
 
-            final List<Map.Entry<Function<T, ?>, Function<? super T, ?>>> bindings =
+            final List<Entry<Function<T, ?>, Function<? super T, ?>>> bindings =
                     new LinkedList<>();
 
             T neuron;
@@ -100,9 +98,9 @@ public class Incubator {
             int currentPosition;
 
             @Override
-            public <U> Bind<T, U> bind(final Function<T, U> function) {
+            public <U> Bind<T, U> bind(final Function<T, U> methodReference) {
                 return replacement -> {
-                    bindings.add(new AbstractMap.SimpleImmutableEntry<>(function, replacement));
+                    bindings.add(new SimpleImmutableEntry<>(methodReference, replacement));
                     return this;
                 };
             }
@@ -119,31 +117,31 @@ public class Incubator {
                 return neuron;
             }
 
-            void bind(Synapse<T> synapse) {
-                synapse.bindTo(new Function<T, Object>() {
+            Supplier<?> bind(final Method method) {
+                return new Supplier<Object>() {
 
                     Function<? super T, ?> replacement;
 
                     @Override
-                    public Object apply(T t) {
+                    public Object get() {
                         if (null != replacement) {
-                            return replacement.apply(t);
+                            return replacement.apply(neuron);
                         } else {
                             replacement = currentReplacement;
                             if (null != replacement) {
                                 throw new ControlFlowError();
                             } else {
                                 throw new IllegalStateException(
-                                        "Insufficient stubbing: No binding defined for synapse method `" + synapse.method() + "` in neuron `" + runtimeClass + "`.");
+                                        "Insufficient stubbing: No binding defined for synapse method `" + method + ".");
                             }
                         }
                     }
-                });
+                };
             }
 
             void initReplacementProxies() {
                 try {
-                    for (final Map.Entry<Function<T, ?>, Function<? super T, ?>> binding : bindings) {
+                    for (final Entry<Function<T, ?>, Function<? super T, ?>> binding : bindings) {
                         final Function<T, ?> methodReference = binding.getKey();
                         currentReplacement = binding.getValue();
                         currentPosition++;

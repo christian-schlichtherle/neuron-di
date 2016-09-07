@@ -23,7 +23,7 @@ import java.lang.reflect.Method;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-/** A real incubator {@linkplain #breed(Class, Binder) breeds} neurons. */
+/** A real incubator {@linkplain #breed(Class, Function) breeds} neurons. */
 public class RealIncubator {
 
     private RealIncubator() { }
@@ -32,25 +32,19 @@ public class RealIncubator {
      * Returns a new instance of the given runtime class which will resolve its
      * dependencies lazily.
      *
-     * @param binder binds a given synapse method (the injection point) to some
-     *               supplier or function in order to resolve the dependency.
-     *               The {@link Binder#bind(Synapse)} method is called before
-     *               the call to {@code breed} returns.
-     *               The implementation must call
-     *               {@link Synapse#bindTo(Supplier)} or
-     *               {@link Synapse#bindTo(Function)} in order to define the
-     *               binding for the dependency eagerly.
-     *               It is an error to call the {@link Synapse} later.
-     *               The provided supplier or function is called later when the
-     *               synapse method is accessed in order to resolve the
-     *               dependency lazily.
-     *               If a function is provided, its parameter will be the
-     *               instance returned by {@code breed}.
-     *               Depending on the caching strategy for the synapse method,
-     *               the resolved dependency may get cached for future use.
+     * @param bind a function which looks up a binding for a given synapse
+     *             method (the injection point) and returns some supplier to
+     *             resolve the dependency.
+     *             The {@code bind} function is called before the call to
+     *             {@code breed} returns in order to look up the binding
+     *             eagerly.
+     *             The returned supplier is called later when the synapse method
+     *             is accessed in order to resolve the dependency lazily.
+     *             Depending on the caching strategy for the synapse method, the
+     *             supplied dependency may get cached for future use.
      */
     public static <T> T breed(final Class<T> runtimeClass,
-                              final Binder<T> binder) {
+                              final Function<Method, Supplier<?>> bind) {
 
         class ClassVisitor implements Visitor {
 
@@ -86,30 +80,12 @@ public class RealIncubator {
                         @SuppressWarnings("unchecked")
                         @Override
                         public void visitSynapse(SynapseElement element) {
-                            binder.bind(new Synapse<T>() {
-
-                                public Method method() {
-                                    return element.method();
-                                }
-
-                                public void bindTo(Supplier<?> resolve) {
-                                    checkState();
-                                    callback = element.synapseCallback(resolve::get);
-                                }
-
-                                public void bindTo(Function<? super T, ?> resolve) {
-                                    checkState();
-                                    callback = element.synapseCallback(
-                                            (obj, method, args) -> resolve.apply((T) obj));
-                                }
-
-                                void checkState() {
-                                    if (null != callback) {
-                                        throw new IllegalStateException(
-                                                "Binding already defined for synapse method " + method() + ".");
-                                    }
-                                }
-                            });
+                            if (null != callback) {
+                                throw new IllegalStateException(
+                                        "Binding already defined for synapse method " + element.method() + ".");
+                            }
+                            final Supplier<?> resolve = bind.apply(element.method());
+                            callback = element.synapseCallback(resolve::get);
                         }
 
                         @Override
@@ -156,19 +132,5 @@ public class RealIncubator {
             throw (IllegalAccessError)
                     new IllegalAccessError(e.getMessage()).initCause(e);
         }
-    }
-
-    public interface Binder<T> {
-
-        void bind(Synapse<T> synapse);
-    }
-
-    public interface Synapse<T> {
-
-        Method method();
-
-        void bindTo(Supplier<?> resolve);
-
-        void bindTo(Function<? super T, ?> resolve);
     }
 }
