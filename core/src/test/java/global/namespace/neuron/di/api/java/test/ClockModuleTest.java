@@ -32,6 +32,7 @@ public class ClockModuleTest {
         final Clock clock = module.clock();
         assertThat(module.clock(), is(sameInstance(clock)));
         assertThat(clock.now(), is(not(sameInstance(clock.now()))));
-        assertThat(clock.now(), is(lessThanOrEqualTo(new Date())));
+        final Date time = new Date();
+        assertThat(clock.now(), is(greaterThanOrEqualTo(time)));
     }
 }
