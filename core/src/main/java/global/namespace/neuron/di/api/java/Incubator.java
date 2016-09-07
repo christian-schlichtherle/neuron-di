@@ -78,34 +78,32 @@ public class Incubator {
                     if (null != neuron) {
                         throw new IllegalStateException("`breed()` has already been called");
                     }
-                    neuron = Incubator.breed(runtimeClass, this::bind);
+                    neuron = RealIncubator.breed(runtimeClass, this::bind);
                 }
                 initReplacementProxies();
                 return neuron;
             }
 
-            Supplier<?> bind(final Method method) {
-                final Function<? super T, ?> replacementProxy =
-                        new Function<T, Object>() {
+            Function<? super T, ?> bind(final Method method) {
+                return new Function<T, Object>() {
 
-                            Function<? super T, ?> replacement;
+                    Function<? super T, ?> replacement;
 
-                            @Override
-                            public Object apply(T t) {
-                                if (null != replacement) {
-                                    return replacement.apply(t);
-                                } else {
-                                    replacement = currentReplacement;
-                                    if (null != replacement) {
-                                        throw new ControlFlowError();
-                                    } else {
-                                        throw new IllegalStateException(
-                                                "Insufficient stubbing: No binding defined for method `" + method + "` in neuron `" + runtimeClass + "`.");
-                                    }
-                                }
+                    @Override
+                    public Object apply(T t) {
+                        if (null != replacement) {
+                            return replacement.apply(t);
+                        } else {
+                            replacement = currentReplacement;
+                            if (null != replacement) {
+                                throw new ControlFlowError();
+                            } else {
+                                throw new IllegalStateException(
+                                        "Insufficient stubbing: No binding defined for method `" + method + "` in neuron `" + runtimeClass + "`.");
                             }
-                        };
-                return () -> replacementProxy.apply(neuron);
+                        }
+                    }
+                };
             }
 
             void initReplacementProxies() {
@@ -132,9 +130,9 @@ public class Incubator {
      * dependencies lazily by recursively calling this method.
      */
     public static <T> T breed(Class<T> runtimeClass) {
-        return breed(runtimeClass, synapse -> {
+        return RealIncubator.breed(runtimeClass, synapse -> {
             final Class<?> returnType = synapse.getReturnType();
-            return () -> breed(returnType);
+            return neuron -> breed(returnType);
         });
     }
 
@@ -145,12 +143,13 @@ public class Incubator {
      * integrate Neuron DI into the framework.
      *
      * @param bind a function which looks up a binding for a given synapse
-     *             method (the injection point) and returns a supplier for the
-     *             resolved dependency.
-     *             This function is called before the call to {@code breed}
-     *             terminates in order to look up the binding eagerly.
-     *             The returned supplier is called when the synapse method is
-     *             accessed in order to resolve the dependency lazily.
+     *             method (the injection point) and returns some supplier to
+     *             resolve the dependency.
+     *             The {@code bind} function is called before the call to
+     *             {@code breed} returns in order to look up the binding
+     *             eagerly.
+     *             The returned supplier is called later when the synapse method
+     *             is accessed in order to resolve the dependency lazily.
      *             Depending on the caching strategy for the synapse method, the
      *             supplied dependency may get cached for future use.
      */
