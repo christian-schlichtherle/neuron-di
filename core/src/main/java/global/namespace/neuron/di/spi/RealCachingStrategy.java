@@ -28,7 +28,7 @@ enum RealCachingStrategy {
     DISABLED {
 
         @Override
-        Callback synapseCallback(MethodInterceptor callback) {
+        Callback synapseCallback(InvocationHandler callback) {
             return callback;
         }
 
@@ -41,14 +41,14 @@ enum RealCachingStrategy {
     NOT_THREAD_SAFE {
 
         @Override
-        Callback synapseCallback(final MethodInterceptor callback) {
+        Callback synapseCallback(final InvocationHandler callback) {
 
             class SynapseCallback
                     extends NotThreadSafeCache
-                    implements MethodInterceptorCache {
+                    implements InvocationHandlerCache  {
 
                 @Override
-                public MethodInterceptor callback() { return callback; }
+                public InvocationHandler callback() { return callback; }
             }
 
             return new SynapseCallback();
@@ -71,14 +71,14 @@ enum RealCachingStrategy {
     THREAD_SAFE {
 
         @Override
-        Callback synapseCallback(final MethodInterceptor callback) {
+        Callback synapseCallback(final InvocationHandler callback) {
 
             class SynapseCallback
                     extends ThreadSafeCache
-                    implements MethodInterceptorCache {
+                    implements InvocationHandlerCache  {
 
                 @Override
-                public MethodInterceptor callback() { return callback; }
+                public InvocationHandler callback() { return callback; }
             }
 
             return new SynapseCallback();
@@ -101,14 +101,14 @@ enum RealCachingStrategy {
     THREAD_LOCAL {
 
         @Override
-        Callback synapseCallback(final MethodInterceptor callback) {
+        Callback synapseCallback(final InvocationHandler callback) {
 
             class SynapseCallback
                     extends ThreadLocalCache
-                    implements MethodInterceptorCache {
+                    implements InvocationHandlerCache {
 
                 @Override
-                public MethodInterceptor callback() { return callback; }
+                public InvocationHandler callback() { return callback; }
             }
 
             return new SynapseCallback();
@@ -133,7 +133,7 @@ enum RealCachingStrategy {
         return valueOf(strategy.name());
     }
 
-    abstract Callback synapseCallback(MethodInterceptor callback);
+    abstract Callback synapseCallback(InvocationHandler callback);
 
     abstract Callback methodCallback();
 
@@ -177,6 +177,16 @@ enum RealCachingStrategy {
                 results.set(result = proxy.get());
             }
             return result;
+        }
+    }
+
+    private interface InvocationHandlerCache
+            extends InvocationHandler, CallbackCache<InvocationHandler> {
+
+        @Override
+        default Object invoke(Object proxy, Method method, Object[] args)
+                throws Throwable {
+            return apply(() -> callback().invoke(proxy, method, args));
         }
     }
 

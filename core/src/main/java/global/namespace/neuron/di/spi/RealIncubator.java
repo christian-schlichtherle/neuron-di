@@ -78,7 +78,7 @@ public class RealIncubator {
                         public void visitSynapse(final SynapseElement element) {
                             final Function<? super T, ?> resolve = bind.apply(element.method());
                             callback = element.synapseCallback(
-                                    (obj, method, args, proxy) -> resolve.apply((T) obj));
+                                    (obj, method, args) -> resolve.apply((T) obj));
                         }
 
                         @Override
