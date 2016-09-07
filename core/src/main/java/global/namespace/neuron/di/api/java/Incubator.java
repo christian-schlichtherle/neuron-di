@@ -16,7 +16,7 @@
 package global.namespace.neuron.di.api.java;
 
 import global.namespace.neuron.di.spi.RealIncubator;
-import global.namespace.neuron.di.spi.Synapse;
+import global.namespace.neuron.di.spi.RealIncubator.Synapse;
 
 import java.lang.reflect.Method;
 import java.util.AbstractMap;

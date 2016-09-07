@@ -36,10 +36,11 @@ public class RealIncubator {
      *               supplier or function in order to resolve the dependency.
      *               The {@link Binder#bind(Synapse)} method is called before
      *               the call to {@code breed} returns.
-     *               The implementation is expected to call
+     *               The implementation must call
      *               {@link Synapse#bindTo(Supplier)} or
-     *               {@link Synapse#bindTo(Function)} in to define the binding
-     *               eagerly.
+     *               {@link Synapse#bindTo(Function)} in order to define the
+     *               binding for the dependency eagerly.
+     *               It is an error to call the {@link Synapse} later.
      *               The provided supplier or function is called later when the
      *               synapse method is accessed in order to resolve the
      *               dependency lazily.
@@ -73,8 +74,13 @@ public class RealIncubator {
                         @Override
                         protected Callback getCallback(Method method) {
                             element.element(method).accept(this);
-                            assert null != callback;
-                            return callback;
+                            final Callback c = callback;
+                            if (null == c) {
+                                throw new IllegalStateException(
+                                        "No binding defined for synapse method " + method + ".");
+                            }
+                            callback = null;
+                            return c;
                         }
 
                         @SuppressWarnings("unchecked")
@@ -87,12 +93,21 @@ public class RealIncubator {
                                 }
 
                                 public void bindTo(Supplier<?> resolve) {
+                                    checkState();
                                     callback = element.synapseCallback(resolve::get);
                                 }
 
                                 public void bindTo(Function<? super T, ?> resolve) {
+                                    checkState();
                                     callback = element.synapseCallback(
                                             (obj, method, args) -> resolve.apply((T) obj));
+                                }
+
+                                void checkState() {
+                                    if (null != callback) {
+                                        throw new IllegalStateException(
+                                                "Binding already defined for synapse method " + method() + ".");
+                                    }
                                 }
                             });
                         }
@@ -141,5 +156,19 @@ public class RealIncubator {
             throw (IllegalAccessError)
                     new IllegalAccessError(e.getMessage()).initCause(e);
         }
+    }
+
+    public interface Binder<T> {
+
+        void bind(Synapse<T> synapse);
+    }
+
+    public interface Synapse<T> {
+
+        Method method();
+
+        void bindTo(Supplier<?> resolve);
+
+        void bindTo(Function<? super T, ?> resolve);
     }
 }
