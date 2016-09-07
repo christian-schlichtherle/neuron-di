@@ -25,7 +25,7 @@ import scala.reflect._
 
 object Incubator {
 
-  final case class stub[A](implicit classTag: ClassTag[A]) { self =>
+  case class stub[A <: AnyRef](implicit classTag: ClassTag[A]) { self =>
 
     private var jstub = jIncubator stub runtimeClassOf[A]
 
@@ -38,7 +38,7 @@ object Incubator {
         self
       }
 
-      def to[B2 <: B](function: A => B2): self.type = {
+      def to[C <: B](function: A => C): self.type = {
         jstub = jbind to function
         self
       }
@@ -47,10 +47,9 @@ object Incubator {
     def breed: A = jstub.breed
   }
 
-  final def breed[A : ClassTag]: A =
-    jIncubator breed runtimeClassOf[A]
+  def breed[A <: AnyRef : ClassTag]: A = jIncubator breed runtimeClassOf[A]
 
-  final def breed[A : ClassTag](bind: Method => () => _): A = {
+  def breed[A <: AnyRef : ClassTag](bind: Method => () => _): A = {
     jIncubator.breed(runtimeClassOf[A],
       (method: Method) => bind(method): jSupplier[_])
   }
