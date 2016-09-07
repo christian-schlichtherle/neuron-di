@@ -33,6 +33,9 @@ enum RealCachingStrategy {
         }
 
         @Override
+        Callback synapseCallback(FixedValue callback) { return callback; }
+
+        @Override
         Callback methodCallback() { return NoOp.INSTANCE; }
     },
 
@@ -49,6 +52,20 @@ enum RealCachingStrategy {
 
                 @Override
                 public InvocationHandler callback() { return callback; }
+            }
+
+            return new SynapseCallback();
+        }
+
+        @Override
+        Callback synapseCallback(final FixedValue callback) {
+
+            class SynapseCallback
+                    extends NotThreadSafeCache
+                    implements FixedValueCache {
+
+                @Override
+                public FixedValue callback() { return callback; }
             }
 
             return new SynapseCallback();
@@ -85,6 +102,20 @@ enum RealCachingStrategy {
         }
 
         @Override
+        Callback synapseCallback(final FixedValue callback) {
+
+            class SynapseCallback
+                    extends ThreadSafeCache
+                    implements FixedValueCache {
+
+                @Override
+                public FixedValue callback() { return callback; }
+            }
+
+            return new SynapseCallback();
+        }
+
+        @Override
         Callback methodCallback() {
 
             class MethodInterceptorCallback
@@ -115,6 +146,20 @@ enum RealCachingStrategy {
         }
 
         @Override
+        Callback synapseCallback(final FixedValue callback) {
+
+            class SynapseCallback
+                    extends ThreadLocalCache
+                    implements FixedValueCache {
+
+                @Override
+                public FixedValue callback() { return callback; }
+            }
+
+            return new SynapseCallback();
+        }
+
+        @Override
         Callback methodCallback() {
 
             class MethodInterceptorCallback
@@ -134,6 +179,8 @@ enum RealCachingStrategy {
     }
 
     abstract Callback synapseCallback(InvocationHandler callback);
+
+    abstract Callback synapseCallback(FixedValue callback);
 
     abstract Callback methodCallback();
 
@@ -180,16 +227,6 @@ enum RealCachingStrategy {
         }
     }
 
-    private interface InvocationHandlerCache
-            extends InvocationHandler, CallbackCache<InvocationHandler> {
-
-        @Override
-        default Object invoke(Object proxy, Method method, Object[] args)
-                throws Throwable {
-            return apply(() -> callback().invoke(proxy, method, args));
-        }
-    }
-
     private interface MethodInterceptorCache
             extends MethodInterceptor, CallbackCache<MethodInterceptor> {
 
@@ -202,6 +239,25 @@ enum RealCachingStrategy {
 
         @Override
         default MethodInterceptor callback() { return invokeSuper; }
+    }
+
+    private interface InvocationHandlerCache
+            extends InvocationHandler, CallbackCache<InvocationHandler> {
+
+        @Override
+        default Object invoke(Object proxy, Method method, Object[] args)
+                throws Throwable {
+            return apply(() -> callback().invoke(proxy, method, args));
+        }
+    }
+
+    private interface FixedValueCache
+            extends FixedValue, CallbackCache<FixedValue> {
+
+        @Override
+        default Object loadObject() throws Exception {
+            return apply(() -> callback().loadObject());
+        }
     }
 
     private interface CallbackCache<C extends Callback> extends Cache {

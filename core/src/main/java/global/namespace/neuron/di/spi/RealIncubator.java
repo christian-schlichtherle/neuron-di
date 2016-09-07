@@ -21,6 +21,7 @@ import net.sf.cglib.proxy.Enhancer;
 
 import java.lang.reflect.Method;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 /** A real incubator {@linkplain #breed(Class, Function) breeds} neurons. */
 public class RealIncubator {
@@ -32,20 +33,21 @@ public class RealIncubator {
      * dependencies lazily.
      *
      * @param bind a function which looks up a binding for a given synapse
-     *             method (the injection point) and returns some function to
-     *             resolve the dependency.
+     *             method (the injection point) and returns some supplier or
+     *             function to resolve the dependency.
      *             The {@code bind} function is called before the call to
      *             {@code breed} returns in order to look up the binding
      *             eagerly.
-     *             The returned function is called later when the synapse method
-     *             is accessed in order to resolve the dependency lazily.
-     *             The parameter to this function is the instance returned by
-     *             {@code breed}.
+     *             The returned supplier or function is called later when the
+     *             synapse method is accessed in order to resolve the dependency
+     *             lazily.
+     *             If a function is provided, its parameter will be the instance
+     *             returned by {@code breed}.
      *             Depending on the caching strategy for the synapse method, the
      *             resolved dependency may get cached for future use.
      */
     public static <T> T breed(final Class<T> runtimeClass,
-                              final Function<Method, ? extends Function<? super T, ?>> bind) {
+                              final Function<Method, ?> bind) {
 
         class ClassVisitor implements Visitor {
 
@@ -76,9 +78,14 @@ public class RealIncubator {
                         @SuppressWarnings("unchecked")
                         @Override
                         public void visitSynapse(final SynapseElement element) {
-                            final Function<? super T, ?> resolve = bind.apply(element.method());
-                            callback = element.synapseCallback(
-                                    (obj, method, args) -> resolve.apply((T) obj));
+                            final Object resolve = bind.apply(element.method());
+                            if (resolve instanceof Supplier) {
+                                callback = element.synapseCallback(
+                                        ((Supplier<?>) resolve)::get);
+                            } else {
+                                callback = element.synapseCallback(
+                                        (obj, method, args) -> ((Function<? super T, ?>) resolve).apply((T) obj));
+                            }
                         }
 
                         @Override

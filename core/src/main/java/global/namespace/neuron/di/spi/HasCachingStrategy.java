@@ -17,12 +17,16 @@ package global.namespace.neuron.di.spi;
 
 import global.namespace.neuron.di.api.CachingStrategy;
 import net.sf.cglib.proxy.Callback;
+import net.sf.cglib.proxy.FixedValue;
 import net.sf.cglib.proxy.InvocationHandler;
-import net.sf.cglib.proxy.MethodInterceptor;
 
 interface HasCachingStrategy {
 
     default Callback synapseCallback(InvocationHandler callback) {
+        return realCachingStrategy().synapseCallback(callback);
+    }
+
+    default Callback synapseCallback(FixedValue callback) {
         return realCachingStrategy().synapseCallback(callback);
     }
 

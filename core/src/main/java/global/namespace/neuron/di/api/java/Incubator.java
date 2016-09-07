@@ -40,7 +40,7 @@ public class Incubator {
     public static <T> T breed(Class<T> runtimeClass) {
         return RealIncubator.breed(runtimeClass, synapse -> {
             final Class<?> returnType = synapse.getReturnType();
-            return neuron -> breed(returnType);
+            return (Supplier<?>) () -> breed(returnType);
         });
     }
 
@@ -65,7 +65,7 @@ public class Incubator {
                               Function<Method, Supplier<?>> bind) {
         return RealIncubator.breed(runtimeClass, method -> {
             final Supplier<?> supplier = bind.apply(method);
-            return neuron -> supplier.get();
+            return (Supplier<?>) supplier::get;
         });
     }
 
