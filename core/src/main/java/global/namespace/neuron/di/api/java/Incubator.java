@@ -156,7 +156,10 @@ public class Incubator {
      */
     public static <T> T breed(Class<T> runtimeClass,
                               Function<Method, Supplier<?>> bind) {
-        return RealIncubator.breed(runtimeClass, bind);
+        return RealIncubator.breed(runtimeClass, method -> {
+            final Supplier<?> supplier = bind.apply(method);
+            return neuron -> supplier.get();
+        });
     }
 
     @SuppressWarnings("WeakerAccess")

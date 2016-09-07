@@ -15,22 +15,19 @@
  */
 package global.namespace.neuron.di.spi;
 
-import net.sf.cglib.core.DefaultNamingPolicy;
-import net.sf.cglib.core.NamingPolicy;
 import net.sf.cglib.proxy.Callback;
 import net.sf.cglib.proxy.CallbackHelper;
 import net.sf.cglib.proxy.Enhancer;
 
 import java.lang.reflect.Method;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 public class RealIncubator {
 
     private RealIncubator() { }
 
     public static <T> T breed(final Class<T> runtimeClass,
-                              final Function<Method, Supplier<?>> bind) {
+                              final Function<Method, Function<? super T, ?>> bind) {
 
         class ClassVisitor implements Visitor {
 
@@ -58,10 +55,12 @@ public class RealIncubator {
                             return callback;
                         }
 
+                        @SuppressWarnings("unchecked")
                         @Override
                         public void visitSynapse(final SynapseElement element) {
-                            final Supplier<?> supplier = bind.apply(element.method());
-                            callback = element.synapseCallback(supplier::get);
+                            final Function<? super T, ?> resolve = bind.apply(element.method());
+                            callback = element.synapseCallback(
+                                    (obj, method, args, proxy) -> resolve.apply((T) obj));
                         }
 
                         @Override

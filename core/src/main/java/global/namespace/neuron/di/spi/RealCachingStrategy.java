@@ -28,7 +28,9 @@ enum RealCachingStrategy {
     DISABLED {
 
         @Override
-        Callback synapseCallback(FixedValue callback) { return callback; }
+        Callback synapseCallback(MethodInterceptor callback) {
+            return callback;
+        }
 
         @Override
         Callback methodCallback() { return NoOp.INSTANCE; }
@@ -39,14 +41,14 @@ enum RealCachingStrategy {
     NOT_THREAD_SAFE {
 
         @Override
-        Callback synapseCallback(final FixedValue callback) {
+        Callback synapseCallback(final MethodInterceptor callback) {
 
             class SynapseCallback
                     extends NotThreadSafeCache
-                    implements SynapseCache {
+                    implements MethodInterceptorCache {
 
                 @Override
-                public FixedValue callback() { return callback; }
+                public MethodInterceptor callback() { return callback; }
             }
 
             return new SynapseCallback();
@@ -55,12 +57,12 @@ enum RealCachingStrategy {
         @Override
         Callback methodCallback() {
 
-            class MethodCallback
+            class MethodInterceptorCallback
                     extends NotThreadSafeCache
-                    implements MethodCache {
+                    implements MethodInterceptorCache {
             }
 
-            return new MethodCallback();
+            return new MethodInterceptorCallback();
         }
     },
 
@@ -69,14 +71,14 @@ enum RealCachingStrategy {
     THREAD_SAFE {
 
         @Override
-        Callback synapseCallback(final FixedValue callback) {
+        Callback synapseCallback(final MethodInterceptor callback) {
 
             class SynapseCallback
                     extends ThreadSafeCache
-                    implements SynapseCache {
+                    implements MethodInterceptorCache {
 
                 @Override
-                public FixedValue callback() { return callback; }
+                public MethodInterceptor callback() { return callback; }
             }
 
             return new SynapseCallback();
@@ -85,12 +87,12 @@ enum RealCachingStrategy {
         @Override
         Callback methodCallback() {
 
-            class MethodCallback
+            class MethodInterceptorCallback
                     extends ThreadSafeCache
-                    implements MethodCache {
+                    implements MethodInterceptorCache {
             }
 
-            return new MethodCallback();
+            return new MethodInterceptorCallback();
         }
     },
 
@@ -99,14 +101,14 @@ enum RealCachingStrategy {
     THREAD_LOCAL {
 
         @Override
-        Callback synapseCallback(final FixedValue callback) {
+        Callback synapseCallback(final MethodInterceptor callback) {
 
             class SynapseCallback
                     extends ThreadLocalCache
-                    implements SynapseCache {
+                    implements MethodInterceptorCache {
 
                 @Override
-                public FixedValue callback() { return callback; }
+                public MethodInterceptor callback() { return callback; }
             }
 
             return new SynapseCallback();
@@ -115,12 +117,12 @@ enum RealCachingStrategy {
         @Override
         Callback methodCallback() {
 
-            class MethodCallback
+            class MethodInterceptorCallback
                     extends ThreadLocalCache
-                    implements MethodCache {
+                    implements MethodInterceptorCache {
             }
 
-            return new MethodCallback();
+            return new MethodInterceptorCallback();
         }
     };
 
@@ -131,7 +133,7 @@ enum RealCachingStrategy {
         return valueOf(strategy.name());
     }
 
-    abstract Callback synapseCallback(FixedValue callback);
+    abstract Callback synapseCallback(MethodInterceptor callback);
 
     abstract Callback methodCallback();
 
@@ -178,16 +180,7 @@ enum RealCachingStrategy {
         }
     }
 
-    private interface SynapseCache
-            extends FixedValue, CallbackCache<FixedValue> {
-
-        @Override
-        default Object loadObject() throws Exception {
-            return apply(() -> callback().loadObject());
-        }
-    }
-
-    private interface MethodCache
+    private interface MethodInterceptorCache
             extends MethodInterceptor, CallbackCache<MethodInterceptor> {
 
         @Override
