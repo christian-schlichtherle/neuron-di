@@ -35,8 +35,9 @@ If you want to embed Neuron DI in Guice, you have to add this:
         <version>${neuron-di.version}</version>
     </dependency>
 
-For API documentation, please check out the test code for this project.
-A detailed manual will be added soon - sorry.
+For documentation, please refer to the [Wiki].
+Note that this is work in progress, so please check again whenever required.
+Any feedback and contributions are welcome, too.
 
 [Apache License, Version 2.0]: https://www.apache.org/licenses/LICENSE-2.0
 [Releases]: https://github.com/christian-schlichtherle/neuron-di/releases
