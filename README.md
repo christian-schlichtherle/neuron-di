@@ -41,3 +41,4 @@ Any feedback and contributions are welcome, too.
 
 [Apache License, Version 2.0]: https://www.apache.org/licenses/LICENSE-2.0
 [Releases]: https://github.com/christian-schlichtherle/neuron-di/releases
+[Wiki]: https://github.com/christian-schlichtherle/neuron-di/wiki
