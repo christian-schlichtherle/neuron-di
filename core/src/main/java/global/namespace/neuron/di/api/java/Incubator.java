@@ -147,7 +147,7 @@ public class Incubator {
                         currentPosition++;
                         try {
                             methodReference.apply(neuron);
-                            throw new IllegalStateException("Illegal stubbing at position " + currentPosition + ": The function parameter of the `bind` call does not call a synapse method.");
+                            throw new IllegalStateException("Illegal stubbing: The function parameter of the `bind` call at position " + currentPosition + " does not call a synapse method.");
                         } catch (ControlFlowError ignored) {
                         }
                     }
