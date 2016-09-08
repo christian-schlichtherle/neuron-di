@@ -19,7 +19,7 @@ import java.lang.reflect.Method
 
 import global.namespace.neuron.di.api.java.test.IncubatorSpec._
 import global.namespace.neuron.di.api.scala._
-import global.namespace.neuron.di.sample.{AnotherClass, AnotherNeuronClass, SomeNeuronClass, SomeNeuronInterface}
+import global.namespace.neuron.di.sample._
 import org.scalatest.Matchers._
 import org.scalatest.{FeatureSpec, GivenWhenThen}
 
@@ -71,6 +71,35 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
       And("so the class is NOT a neuron.")
 
       intercept[InstantiationError] { synapsesOf[AnotherClass] }
+    }
+  }
+
+  feature("For each neuron class or interface (and class loader), there is at most one proxy class:") {
+
+    info("As an application architect")
+    info("I want to rest assured that Neuron DI scales nicely")
+    info("because it will create at most one proxy class per neuron class or interface (and class loader)")
+    info("no matter how many instances of them are created.")
+
+    scenario("Breeding some generic neuron interface:") {
+
+      Given("a generic interface annotated with @Neuron")
+      When("breeding two instances stubbed with different properties of different types")
+      Then("the incubator returns two instances of the same proxy class.")
+
+      val string = Incubator
+        .stub[HasDependency[String]]
+        .bind(_.dependency).to("Hello world!")
+        .breed
+      string.dependency shouldBe "Hello world!"
+
+      val integer = Incubator
+        .stub[HasDependency[Int]]
+        .bind(_.dependency).to(1)
+        .breed
+      integer.dependency shouldBe 1
+
+      string.getClass should be theSameInstanceAs integer.getClass
     }
   }
 }

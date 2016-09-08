@@ -15,11 +15,12 @@
  */
 package global.namespace.neuron.di.spi;
 
-import net.sf.cglib.proxy.Callback;
-import net.sf.cglib.proxy.CallbackHelper;
-import net.sf.cglib.proxy.Enhancer;
+import net.sf.cglib.proxy.*;
 
 import java.lang.reflect.Method;
+import java.util.Collections;
+import java.util.Map;
+import java.util.WeakHashMap;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -104,14 +105,42 @@ public class RealIncubator {
     private static Object createProxy(final Class<?> superclass,
                                       final Class<?>[] interfaces,
                                       final CallbackHelper helper) {
-        final Enhancer e = new Enhancer();
-        e.setSuperclass(superclass);
-        e.setInterfaces(interfaces);
-        e.setCallbackFilter(helper);
-        e.setCallbacks(helper.getCallbacks());
-        e.setNamingPolicy(NeuronDINamingPolicy.SINGLETON);
-        return e.create();
+        assert interfaces.length != 1 || superclass == Object.class;
+        final Class<?> key = interfaces.length == 1 ? interfaces[0] : superclass;
+        final Factory factory = factories.computeIfAbsent(key, ignored -> {
+            final Enhancer e = new Enhancer();
+            e.setSuperclass(superclass);
+            e.setInterfaces(interfaces);
+            e.setCallbackFilter(helper);
+            e.setCallbacks(invalidate(helper.getCallbacks()));
+            e.setNamingPolicy(NeuronDINamingPolicy.SINGLETON);
+            e.setUseCache(false);
+            return (Factory) e.create();
+        });
+        return factory.newInstance(helper.getCallbacks());
     }
+
+    private static final Map<Class<?>, Factory> factories =
+            Collections.synchronizedMap(new WeakHashMap<>());
+
+    private static Callback[] invalidate(final Callback[] callbacks) {
+        final Callback[] results = callbacks.clone();
+        for (int i = results.length; --i >= 0; ) {
+            final Callback result = results[i];
+            if (result instanceof FixedValue) {
+                results[i] = INVALID_FIXED_VALUE;
+            } else if (result instanceof MethodInterceptor) {
+                results[i] = INVALID_METHOD_INTERCEPTOR;
+            }
+        }
+        return results;
+    }
+
+    private static final FixedValue INVALID_FIXED_VALUE =
+            () -> { throw new AssertionError(); };
+
+    private static final MethodInterceptor INVALID_METHOD_INTERCEPTOR =
+            (obj, method, args, proxy) -> { throw new AssertionError(); };
 
     private static <T> T createInstance(final Class<T> clazz) {
         try {

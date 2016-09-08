@@ -15,6 +15,9 @@
  */
 package global.namespace.neuron.di.sample;
 
+import global.namespace.neuron.di.api.Neuron;
+
+@Neuron
 public interface HasDependency<T> {
 
     T dependency();
