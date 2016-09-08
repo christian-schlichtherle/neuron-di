@@ -17,7 +17,7 @@ to use, especially when using Guice with Scala.
 
 Neuron DI is covered by the [Apache License, Version 2.0].
 
-Release artifacts are hosted on Maven Central. 
+Release artifacts are hosted on [Maven Central](https://search.maven.org/#search%7Cga%7C1%7Cg%3A%22global.namespace.neuron-di%22). 
 Assuming a system property is defined for `neuron-di.version` (see [releases]), 
 the Maven coordinates for the standalone Neuron DI artifact are as follows:
 
@@ -39,4 +39,4 @@ For API documentation, please check out the test code for this project.
 A detailed manual will be added soon - sorry.
 
 [Apache License, Version 2.0]: https://www.apache.org/licenses/LICENSE-2.0
-[releases]: https://github.com/christian-schlichtherle/neuron-di/releases
+[Releases]: https://github.com/christian-schlichtherle/neuron-di/releases
