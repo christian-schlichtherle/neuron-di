@@ -28,7 +28,7 @@ public class RealFormatter implements Formatter {
     }
 
     @Override
-    public String message(String... args) {
+    public String format(String... args) {
         return String.format(format, (Object[]) args);
     }
 }

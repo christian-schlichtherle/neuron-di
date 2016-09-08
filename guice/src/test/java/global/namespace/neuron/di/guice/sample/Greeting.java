@@ -21,7 +21,7 @@ import global.namespace.neuron.di.api.Neuron;
 @Neuron
 public abstract class Greeting {
 
-    public String message() { return formatter().message("Christian"); }
+    public String message() { return formatter().format("Christian"); }
 
     // This annotation is actually redundant, but documents the default behavior:
     @Caching
