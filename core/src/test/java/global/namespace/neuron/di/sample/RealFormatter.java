@@ -15,14 +15,15 @@
  */
 package global.namespace.neuron.di.sample;
 
-public class RealFormatter implements Formatter {
+import global.namespace.neuron.di.api.Neuron;
 
-    private final String format;
-
-    public RealFormatter(final String format) { this.format = format; }
+@Neuron
+public interface RealFormatter extends Formatter {
 
     @Override
-    public String format(Object... args) {
-        return String.format(format, (Object[]) args);
+    default String format(Object... args) {
+        return String.format(getFormat(), (Object[]) args);
     }
+
+    String getFormat();
 }

@@ -23,15 +23,20 @@ import global.namespace.neuron.di.sample.Greeting;
 import global.namespace.neuron.di.sample.RealFormatter;
 
 @Neuron
-abstract class GreetingModule {
+interface GreetingModule {
 
     @Caching
-    Greeting greeting() {
+    default Greeting greeting() {
         return Incubator
                 .stub(Greeting.class)
                 .bind(Greeting::formatter).to(this::formatter)
                 .breed();
     }
 
-    private Formatter formatter() { return new RealFormatter("Hello %s!"); }
+    default Formatter formatter() {
+        return Incubator
+            .stub(RealFormatter.class)
+            .bind(RealFormatter::getFormat).to("Hello %s!")
+            .breed();
+    }
 }

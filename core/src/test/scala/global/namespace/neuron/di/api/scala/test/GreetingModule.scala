@@ -18,12 +18,15 @@ package global.namespace.neuron.di.api.scala.test
 import global.namespace.neuron.di.api.scala.Incubator
 import global.namespace.neuron.di.sample.{Greeting, RealFormatter}
 
-class GreetingModule {
+class GreetingModule { self =>
 
   lazy val greeting = Incubator
     .stub[Greeting]
     .bind(_.formatter).to(formatter)
     .breed
 
-  private def formatter = new RealFormatter("Hello %s!")
+  private def formatter = Incubator
+    .stub[RealFormatter]
+    .bind(_.getFormat).to("Hello %s!")
+    .breed
 }

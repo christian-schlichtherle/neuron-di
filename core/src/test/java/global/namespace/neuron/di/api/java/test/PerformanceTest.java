@@ -34,8 +34,10 @@ public class PerformanceTest {
     private static final int CONSTRUCTION_TIMES = 1_000_000;
     private static final int INVOCATION_TIMES = 1_000_000;
 
-    private static final Formatter helloFormatter =
-            new RealFormatter("Hello %s!");
+    private static final Formatter helloFormatter = Incubator
+            .stub(RealFormatter.class)
+            .bind(RealFormatter::getFormat).to("Hello %s!")
+            .breed();
 
     public static void main(String[] args) {
         for (int i = 0; i < LOOP_TIMES; ) {

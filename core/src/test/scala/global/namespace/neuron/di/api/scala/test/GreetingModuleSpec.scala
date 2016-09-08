@@ -26,7 +26,8 @@ class GreetingModuleSpec extends WordSpec {
     val greeting = module.greeting
     module.greeting should be theSameInstanceAs greeting
     greeting.formatter shouldBe a[RealFormatter]
-    greeting.formatter should be theSameInstanceAs greeting.formatter
+    greeting.formatter should not be theSameInstanceAs(greeting.formatter)
+    greeting.message should be theSameInstanceAs greeting.message
     greeting.message shouldBe "Hello Christian!"
   }
 }
