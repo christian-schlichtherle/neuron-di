@@ -68,22 +68,13 @@ public class RealIncubator {
                         @Override
                         protected Callback getCallback(Method method) {
                             element.element(method).accept(this);
-                            final Callback c = callback;
-                            if (null == c) {
-                                throw new IllegalStateException(
-                                        "No binding defined for synapse method " + method + ".");
-                            }
-                            callback = null;
-                            return c;
+                            assert null != callback;
+                            return callback;
                         }
 
                         @SuppressWarnings("unchecked")
                         @Override
                         public void visitSynapse(SynapseElement element) {
-                            if (null != callback) {
-                                throw new IllegalStateException(
-                                        "Binding already defined for synapse method " + element.method() + ".");
-                            }
                             final Supplier<?> resolve = bind.apply(element.method());
                             callback = element.synapseCallback(resolve::get);
                         }
