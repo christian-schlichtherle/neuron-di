@@ -18,9 +18,7 @@ package global.namespace.neuron.di.spi;
 import net.sf.cglib.proxy.*;
 
 import java.lang.reflect.Method;
-import java.util.Collections;
-import java.util.Map;
-import java.util.WeakHashMap;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -56,37 +54,34 @@ public class RealIncubator {
                 assert runtimeClass == element.runtimeClass();
                 instance = new CglibFunction<>((superclass, interfaces) -> {
 
-                    class MethodVisitor
-                            extends CallbackHelper
-                            implements Visitor {
+                    final Filter filter = RealIncubator
+                            .filters
+                            .computeIfAbsent(runtimeClass, ignored -> {
+                                final ArrayList<Method> methods = new ArrayList<>();
+                                Enhancer.getMethods(superclass, interfaces, methods);
+                                return new Filter(methods);
+                            });
 
-                        private Callback callback;
+                    final Callback[] callbacks = new Callback[filter.size()];
+                    for (Method method : filter.methods()) {
+                        element.element(method).accept(new Visitor() {
 
-                        private MethodVisitor() {
-                            super(superclass, interfaces);
-                        }
+                            final int index = filter.accept(method);
 
-                        @Override
-                        protected Callback getCallback(Method method) {
-                            element.element(method).accept(this);
-                            assert null != callback;
-                            return callback;
-                        }
+                            @Override
+                            public void visitSynapse(SynapseElement element) {
+                                final Supplier<?> resolve = bind.apply(method);
+                                callbacks[index] = element.synapseCallback(resolve::get);
+                            }
 
-                        @SuppressWarnings("unchecked")
-                        @Override
-                        public void visitSynapse(SynapseElement element) {
-                            final Supplier<?> resolve = bind.apply(element.method());
-                            callback = element.synapseCallback(resolve::get);
-                        }
-
-                        @Override
-                        public void visitMethod(MethodElement element) {
-                            callback = element.methodCallback();
-                        }
+                            @Override
+                            public void visitMethod(MethodElement element) {
+                                callbacks[index] = element.methodCallback();
+                            }
+                        });
                     }
 
-                    return runtimeClass.cast(createProxy(superclass, interfaces, new MethodVisitor()));
+                    return runtimeClass.cast(createProxy(superclass, interfaces, filter, callbacks));
                 }).apply(runtimeClass);
             }
 
@@ -102,22 +97,57 @@ public class RealIncubator {
         return visitor.instance;
     }
 
+    private static final Map<Class<?>, Filter> filters =
+            Collections.synchronizedMap(new WeakHashMap<>());
+
+    private static class Filter implements CallbackFilter {
+
+        private final Map<Method, Integer> indexes;
+
+        Filter(final List<Method> methods) {
+            this.indexes = new LinkedHashMap<>(methods.size() / 3 * 4 + 1);
+            int i = 0;
+            for (Method method : methods) {
+                indexes.put(method, i++);
+            }
+        }
+
+        int size() { return indexes.size(); }
+
+        Iterable<Method> methods() { return indexes.keySet(); }
+
+        @Override
+        public int accept(Method method) { return indexes.get(method); }
+
+        @Override
+        public boolean equals(final Object obj) {
+            if (this == obj) return true;
+            if (!(obj instanceof Filter)) return false;
+            final Filter that = (Filter) obj;
+            return this.indexes.equals(that.indexes);
+        }
+
+        @Override
+        public int hashCode() { return indexes.hashCode(); }
+    }
+
     private static Object createProxy(final Class<?> superclass,
                                       final Class<?>[] interfaces,
-                                      final CallbackHelper helper) {
+                                      final CallbackFilter filter,
+                                      final Callback[] callbacks) {
         assert interfaces.length != 1 || superclass == Object.class;
         final Class<?> key = interfaces.length == 1 ? interfaces[0] : superclass;
         final Factory factory = factories.computeIfAbsent(key, ignored -> {
             final Enhancer e = new Enhancer();
             e.setSuperclass(superclass);
             e.setInterfaces(interfaces);
-            e.setCallbackFilter(helper);
-            e.setCallbacks(invalidate(helper.getCallbacks()));
+            e.setCallbackFilter(filter);
+            e.setCallbacks(invalidate(callbacks));
             e.setNamingPolicy(NeuronDINamingPolicy.SINGLETON);
             e.setUseCache(false);
             return (Factory) e.create();
         });
-        return factory.newInstance(helper.getCallbacks());
+        return factory.newInstance(callbacks);
     }
 
     private static final Map<Class<?>, Factory> factories =
