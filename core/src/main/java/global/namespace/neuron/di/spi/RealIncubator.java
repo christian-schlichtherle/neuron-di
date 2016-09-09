@@ -66,13 +66,11 @@ public class RealIncubator {
                 assert runtimeClass == element.runtimeClass();
                 instance = new CglibFunction<>((superclass, interfaces) -> {
 
-                    final Filter filter = RealIncubator
-                            .filters
-                            .computeIfAbsent(runtimeClass, ignored -> {
-                                final ArrayList<Method> methods = new ArrayList<>();
-                                Enhancer.getMethods(superclass, interfaces, methods);
-                                return new Filter(methods);
-                            });
+                    final Filter filter = filters.computeIfAbsent(runtimeClass, ignored -> {
+                        final ArrayList<Method> methods = new ArrayList<>();
+                        Enhancer.getMethods(superclass, interfaces, methods);
+                        return new Filter(methods);
+                    });
 
                     final Callback[] callbacks = new Callback[filter.size()];
                     for (Method method : filter.methods()) {
@@ -93,7 +91,18 @@ public class RealIncubator {
                         });
                     }
 
-                    return runtimeClass.cast(createProxy(superclass, interfaces, filter, callbacks));
+                    final Factory factory = factories.computeIfAbsent(runtimeClass, ignored -> {
+                        final Enhancer e = new Enhancer();
+                        e.setSuperclass(superclass);
+                        e.setInterfaces(interfaces);
+                        e.setCallbackFilter(filter);
+                        e.setCallbacks(invalidate(callbacks));
+                        e.setNamingPolicy(NeuronDINamingPolicy.SINGLETON);
+                        e.setUseCache(false);
+                        return (Factory) e.create();
+                    });
+
+                    return runtimeClass.cast(factory.newInstance(callbacks));
                 }).apply(runtimeClass);
             }
 
@@ -107,25 +116,6 @@ public class RealIncubator {
         final ClassVisitor visitor = new ClassVisitor();
         Inspection.of(runtimeClass).accept(visitor);
         return visitor.instance;
-    }
-
-    private static Object createProxy(final Class<?> superclass,
-                                      final Class<?>[] interfaces,
-                                      final CallbackFilter filter,
-                                      final Callback[] callbacks) {
-        assert interfaces.length != 1 || superclass == Object.class;
-        final Class<?> key = interfaces.length == 1 ? interfaces[0] : superclass;
-        final Factory factory = factories.computeIfAbsent(key, ignored -> {
-            final Enhancer e = new Enhancer();
-            e.setSuperclass(superclass);
-            e.setInterfaces(interfaces);
-            e.setCallbackFilter(filter);
-            e.setCallbacks(invalidate(callbacks));
-            e.setNamingPolicy(NeuronDINamingPolicy.SINGLETON);
-            e.setUseCache(false);
-            return (Factory) e.create();
-        });
-        return factory.newInstance(callbacks);
     }
 
     private static Callback[] invalidate(final Callback[] callbacks) {
