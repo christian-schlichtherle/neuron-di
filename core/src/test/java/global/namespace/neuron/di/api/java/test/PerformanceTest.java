@@ -104,6 +104,21 @@ public class PerformanceTest {
 
     private static class SimpleGreeting implements Greeting {
 
+        private volatile String message;
+
+        @Override
+        public String message() {
+            String value;
+            if (null == (value = message)) {
+                synchronized (this) {
+                    if (null == (value = message)) {
+                        message = value = formatter().format("Christian");
+                    }
+                }
+            }
+            return value;
+        }
+
         @Override
         public Formatter formatter() { return helloFormatter; }
     }
