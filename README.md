@@ -1,7 +1,7 @@
 Neuron DI is an ultra-light dependency injection framework which emphasizes
 the beauty and power of lazy dependency resolution and caching.
 It takes advantage of functional programming features available in Java SE 8 and 
-Scala 2.11 in order to provide customized APIs for these target environments. 
+Scala 2.11 in order to provide tailor-made APIs for these target environments. 
 
 Neuron DI can be used standalone or embedded in other DI frameworks, e.g. 
 Guice.
