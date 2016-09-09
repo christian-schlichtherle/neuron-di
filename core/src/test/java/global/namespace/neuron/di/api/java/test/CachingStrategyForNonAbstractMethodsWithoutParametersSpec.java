@@ -48,28 +48,28 @@ public class CachingStrategyForNonAbstractMethodsWithoutParametersSpec extends C
     }
 
     @Neuron
-    static class NeuronWithDisabledCachingStrategy implements HasDependency<Object> {
+    static abstract class NeuronWithDisabledCachingStrategy implements HasDependency<Object> {
 
         @Caching(DISABLED)
         public Object dependency() { return new Object(); }
     }
 
     @Neuron
-    static class NeuronWithNotThreadSafeCachingStrategy implements HasDependency<Object> {
+    static abstract class NeuronWithNotThreadSafeCachingStrategy implements HasDependency<Object> {
 
         @Caching(NOT_THREAD_SAFE)
         public Object dependency() { return new Object(); }
     }
 
     @Neuron
-    static class NeuronWithThreadLocalCachingStrategy implements HasDependency<Object> {
+    static abstract class NeuronWithThreadLocalCachingStrategy implements HasDependency<Object> {
 
         @Caching(THREAD_LOCAL)
         public Object dependency() { return new Object(); }
     }
 
     @Neuron
-    static class NeuronWithThreadSafeCachingStrategy implements HasDependency<Object> {
+    static abstract class NeuronWithThreadSafeCachingStrategy implements HasDependency<Object> {
 
         @Caching
         public Object dependency() { return new Object(); }

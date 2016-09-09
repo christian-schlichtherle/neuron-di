@@ -19,11 +19,16 @@ import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Messager;
 
 import static javax.tools.Diagnostic.Kind.ERROR;
+import static javax.tools.Diagnostic.Kind.WARNING;
 
 abstract class CommonProcessor extends AbstractProcessor {
 
     void error(CharSequence message, javax.lang.model.element.Element e) {
         messager().printMessage(ERROR, message , e);
+    }
+
+    void warning(CharSequence message, javax.lang.model.element.Element e) {
+        messager().printMessage(WARNING, message , e);
     }
 
     private Messager messager() { return processingEnv.getMessager(); }
