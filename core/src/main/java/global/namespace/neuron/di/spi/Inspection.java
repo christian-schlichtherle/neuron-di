@@ -18,7 +18,7 @@ package global.namespace.neuron.di.spi;
 import global.namespace.neuron.di.api.CachingStrategy;
 import global.namespace.neuron.di.api.Neuron;
 
-class Inspection {
+final class Inspection {
 
     private Inspection() { }
 

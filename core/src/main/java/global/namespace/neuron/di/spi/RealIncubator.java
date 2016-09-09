@@ -15,24 +15,18 @@
  */
 package global.namespace.neuron.di.spi;
 
-import net.sf.cglib.proxy.*;
-
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.Collections;
+import java.util.Map;
+import java.util.WeakHashMap;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
 /** A real incubator {@linkplain #breed(Class, Function) breeds} neurons. */
-public class RealIncubator {
+public final class RealIncubator {
 
-    private static final Map<Class<?>, Hack> filterAndFactories =
+    private static final Map<Class<?>, CglibHack<?>> hacks =
             Collections.synchronizedMap(new WeakHashMap<>());
-
-    private static final FixedValue INVALID_FIXED_VALUE =
-            () -> { throw new AssertionError(); };
-
-    private static final MethodInterceptor INVALID_METHOD_INTERCEPTOR =
-            (obj, method, args, proxy) -> { throw new AssertionError(); };
 
     private RealIncubator() { }
 
@@ -58,25 +52,13 @@ public class RealIncubator {
 
             private T instance;
 
+            @SuppressWarnings("unchecked")
             @Override
             public void visitNeuron(final NeuronElement element) {
                 assert runtimeClass == element.runtimeClass();
-                final Hack factory = filterAndFactories
-                        .computeIfAbsent(runtimeClass,
-                                new CglibFunction<>((superclass, interfaces) -> {
-                                    final Hack hack = new Hack(superclass, interfaces);
-                                    final Enhancer e = new Enhancer();
-                                    e.setSuperclass(superclass);
-                                    e.setInterfaces(interfaces);
-                                    e.setCallbackFilter(hack.filter);
-                                    e.setCallbacks(invalidate(hack.callbacks = hack.callbacks(bind, element::element)));
-                                    e.setNamingPolicy(NeuronDINamingPolicy.SINGLETON);
-                                    e.setUseCache(false);
-                                    hack.factory = (Factory) e.create();
-                                    return hack;
-                                })
-                        );
-                instance = runtimeClass.cast(factory.newInstance(bind, element::element));
+                final CglibHack<T> hack = (CglibHack<T>) hacks.computeIfAbsent(runtimeClass,
+                        key -> new CglibHack<>(runtimeClass, element::element, bind));
+                instance = hack.newInstance(element::element, bind);
             }
 
             @Override
@@ -91,19 +73,6 @@ public class RealIncubator {
         return visitor.instance;
     }
 
-    private static Callback[] invalidate(final Callback[] callbacks) {
-        final Callback[] results = callbacks.clone();
-        for (int i = results.length; --i >= 0; ) {
-            final Callback result = results[i];
-            if (result instanceof FixedValue) {
-                results[i] = INVALID_FIXED_VALUE;
-            } else if (result instanceof MethodInterceptor) {
-                results[i] = INVALID_METHOD_INTERCEPTOR;
-            }
-        }
-        return results;
-    }
-
     private static <T> T createInstance(final Class<T> clazz) {
         try {
             return clazz.newInstance();
@@ -114,92 +83,5 @@ public class RealIncubator {
             throw (IllegalAccessError)
                     new IllegalAccessError(e.getMessage()).initCause(e);
         }
-    }
-
-    private static class Hack {
-
-        final Filter filter;
-        Factory factory;
-        Callback[] callbacks;
-
-        Hack(final Class<?> superclass, final Class<?>[] interfaces) {
-            filter = new Filter(superclass, interfaces);
-        }
-
-        Object newInstance(Function<Method, Supplier<?>> bind,
-                           Function<Method, MethodElement> elements) {
-            return factory.newInstance(callbackSupplier(bind, elements).get());
-        }
-
-        private synchronized Supplier<Callback[]> callbackSupplier(
-                final Function<Method, Supplier<?>> bind,
-                final Function<Method, MethodElement> elements) {
-            if (null != callbacks) {
-                final Callback[] c = callbacks;
-                callbacks = null;
-                return () -> c;
-            } else {
-                return () -> callbacks(bind, elements);
-            }
-        }
-
-        private Callback[] callbacks(Function<Method, Supplier<?>> bind,
-                             Function<Method, MethodElement> elements) {
-            return filter.callbacks(bind, elements);
-        }
-    }
-
-    private static class Filter implements CallbackFilter {
-
-        private final ArrayList<Method> methods;
-
-        Filter(final Class<?> superclass, final Class<?> interfaces[]) {
-            methods = new ArrayList<>();
-            Enhancer.getMethods(superclass, interfaces, methods);
-            methods.trimToSize();
-        }
-
-        Callback[] callbacks(final Function<Method, Supplier<?>> bind,
-                             final Function<Method, MethodElement> elements) {
-            final Callback[] callbacks = new Callback[methods.size()];
-            int i = 0;
-            for (final Method method : methods) {
-                final int index = i++;
-                elements.apply(method).accept(new Visitor() {
-
-                    @Override
-                    public void visitSynapse(SynapseElement element) {
-                        final Supplier<?> resolve = bind.apply(element.method());
-                        callbacks[index] = element.synapseCallback(resolve::get);
-                    }
-
-                    @Override
-                    public void visitMethod(MethodElement element) {
-                        callbacks[index] = element.methodCallback();
-                    }
-                });
-            }
-            return callbacks;
-        }
-
-        @Override
-        public int accept(Method method) {
-            // This method is called at most once per runtime class and method,
-            // so we can easily afford the overall runtime complexity of O(n*n),
-            // where n is the number of methods, for the benefit of reduced
-            // overhead when iterating through the methods.
-            return methods.indexOf(method);
-        }
-
-        @Override
-        public boolean equals(final Object obj) {
-            if (this == obj) return true;
-            if (!(obj instanceof Filter)) return false;
-            final Filter that = (Filter) obj;
-            return this.methods.equals(that.methods);
-        }
-
-        @Override
-        public int hashCode() { return methods.hashCode(); }
     }
 }

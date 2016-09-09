@@ -35,7 +35,7 @@ import static global.namespace.neuron.di.spi.NeuronElement.isCachingEligible;
  *
  * @param <V> the return type of the adapted function.
  */
-class CglibFunction<V> implements Function<Class<?>, V> {
+final class CglibFunction<V> implements Function<Class<?>, V> {
 
     private static Class<?>[] NO_CLASSES = new Class<?>[0];
 

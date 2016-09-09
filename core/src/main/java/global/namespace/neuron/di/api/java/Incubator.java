@@ -29,7 +29,7 @@ import java.util.function.Supplier;
  * An incubator {@linkplain #breed(Class) breeds} or
  * {@linkplain #stub(Class) stubs} neurons.
  */
-public class Incubator {
+public final class Incubator {
 
     private Incubator() { }
 

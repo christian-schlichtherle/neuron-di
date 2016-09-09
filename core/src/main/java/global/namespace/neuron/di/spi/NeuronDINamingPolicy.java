@@ -18,7 +18,7 @@ package global.namespace.neuron.di.spi;
 import net.sf.cglib.core.DefaultNamingPolicy;
 import net.sf.cglib.core.Predicate;
 
-class NeuronDINamingPolicy extends DefaultNamingPolicy {
+final class NeuronDINamingPolicy extends DefaultNamingPolicy {
 
     static final NeuronDINamingPolicy SINGLETON = new NeuronDINamingPolicy();
 
