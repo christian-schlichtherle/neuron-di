@@ -16,7 +16,6 @@
 package global.namespace.neuron.di.spi;
 
 import java.lang.reflect.Method;
-import java.util.Collections;
 import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.function.Function;
@@ -26,7 +25,7 @@ import java.util.function.Supplier;
 public final class RealIncubator {
 
     private static final Map<Class<?>, CglibHack<?>> hacks =
-            Collections.synchronizedMap(new WeakHashMap<>());
+            new WeakHashMap<>();
 
     private RealIncubator() { }
 
@@ -34,19 +33,20 @@ public final class RealIncubator {
      * Returns a new instance of the given runtime class which will resolve its
      * dependencies lazily.
      *
-     * @param bind a function which looks up a binding for a given synapse
-     *             method (the injection point) and returns some supplier to
-     *             resolve the dependency.
-     *             The {@code bind} function is called before the call to
-     *             {@code breed} returns in order to look up the binding
-     *             eagerly.
-     *             The returned supplier is called later when the synapse method
-     *             is accessed in order to resolve the dependency lazily.
-     *             Depending on the caching strategy for the synapse method, the
-     *             supplied dependency may get cached for future use.
+     * @param binding a function which looks up a binding for a given synapse
+     *                method (the injection point) and returns some supplier to
+     *                resolve the dependency.
+     *                The {@code binding} function is called before the call
+     *                to {@code breed} returns in order to look up the binding
+     *                eagerly.
+     *                The returned supplier is called later when the synapse
+     *                method is accessed in order to resolve the dependency
+     *                lazily.
+     *                Depending on the caching strategy for the synapse method,
+     *                the supplied dependency may get cached for future use.
      */
     public static <T> T breed(final Class<T> runtimeClass,
-                              final Function<Method, Supplier<?>> bind) {
+                              final Function<Method, Supplier<?>> binding) {
 
         class ClassVisitor implements Visitor {
 
@@ -56,9 +56,26 @@ public final class RealIncubator {
             @Override
             public void visitNeuron(final NeuronElement element) {
                 assert runtimeClass == element.runtimeClass();
-                final CglibHack<T> hack = (CglibHack<T>) hacks.computeIfAbsent(runtimeClass,
-                        key -> new CglibHack<>(runtimeClass, element::element, bind));
-                instance = hack.newInstance(element::element, bind);
+                final CglibContext<T> ctx = new CglibContext() {
+
+                    @Override
+                    public Class runtimeClass() { return runtimeClass; }
+
+                    @Override
+                    public MethodElement element(Method method) {
+                        return element.element(method);
+                    }
+
+                    @Override
+                    public Supplier<?> supplier(Method method) {
+                        return binding.apply(method);
+                    }
+                };
+                synchronized (hacks) {
+                    instance = ((CglibHack<T>) hacks
+                            .computeIfAbsent(runtimeClass, key -> new CglibHack<>(ctx)))
+                            .newInstance(ctx);
+                }
             }
 
             @Override
@@ -73,9 +90,9 @@ public final class RealIncubator {
         return visitor.instance;
     }
 
-    private static <T> T createInstance(final Class<T> clazz) {
+    private static <T> T createInstance(final Class<T> runtimeClass) {
         try {
-            return clazz.newInstance();
+            return runtimeClass.newInstance();
         } catch (InstantiationException e) {
             throw (InstantiationError)
                     new InstantiationError(e.getMessage() + ": Did you forget the @Neuron annotation?").initCause(e);

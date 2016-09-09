@@ -50,20 +50,21 @@ public final class Incubator {
      * This method is usually called from plugins for DI frameworks in order to
      * integrate Neuron DI into the DI framework.
      *
-     * @param bind a function which looks up a binding for a given synapse
-     *             method (the injection point) and returns some supplier to
-     *             resolve the dependency.
-     *             The {@code bind} function is called before the call to
-     *             {@code breed} returns in order to look up the binding
-     *             eagerly.
-     *             The returned supplier is called later when the synapse method
-     *             is accessed in order to resolve the dependency lazily.
-     *             Depending on the caching strategy for the synapse method, the
-     *             supplied dependency may get cached for future use.
+     * @param binding a function which looks up a binding for a given synapse
+     *                method (the injection point) and returns some supplier to
+     *                resolve the dependency.
+     *                The {@code binding} function is called before the call
+     *                to {@code breed} returns in order to look up the binding
+     *                eagerly.
+     *                The returned supplier is called later when the synapse
+     *                method is accessed in order to resolve the dependency
+     *                lazily.
+     *                Depending on the caching strategy for the synapse method,
+     *                the supplied dependency may get cached for future use.
      */
     public static <T> T breed(Class<T> runtimeClass,
-                              Function<Method, Supplier<?>> bind) {
-        return RealIncubator.breed(runtimeClass, bind);
+                              Function<Method, Supplier<?>> binding) {
+        return RealIncubator.breed(runtimeClass, binding);
     }
 
     /**

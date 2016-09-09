@@ -34,27 +34,32 @@ final class CglibFilter implements CallbackFilter {
         methods.trimToSize();
     }
 
-    Callback[] callbacks(final Function<Method, MethodElement> elements,
-                         final Function<Method, Supplier<?>> bind) {
-        final Callback[] callbacks = new Callback[methods.size()];
-        int i = 0;
-        for (final Method method : methods) {
-            final int index = i++;
-            elements.apply(method).accept(new Visitor() {
+    Callback[] callbacks(final CglibContext<?> ctx) {
+        return new Visitor() {
 
-                @Override
-                public void visitSynapse(SynapseElement element) {
-                    final Supplier<?> resolve = bind.apply(element.method());
-                    callbacks[index] = element.synapseCallback(resolve::get);
-                }
+            final Callback[] callbacks = new Callback[methods.size()];
 
-                @Override
-                public void visitMethod(MethodElement element) {
-                    callbacks[index] = element.methodCallback();
+            int index;
+
+            @Override
+            public void visitSynapse(final SynapseElement element) {
+                final Supplier<?> resolve = ctx.supplier(element.method());
+                callbacks[index] = element.synapseCallback(resolve::get);
+            }
+
+            @Override
+            public void visitMethod(MethodElement element) {
+                callbacks[index] = element.methodCallback();
+            }
+
+            Callback[] callbacks() {
+                for (final Method method : methods) {
+                    ctx.element(method).accept(this);
+                    index++;
                 }
-            });
-        }
-        return callbacks;
+                return callbacks;
+            }
+        }.callbacks();
     }
 
     @Override
@@ -75,7 +80,5 @@ final class CglibFilter implements CallbackFilter {
     }
 
     @Override
-    public int hashCode() {
-        return methods.hashCode();
-    }
+    public int hashCode() { return methods.hashCode(); }
 }

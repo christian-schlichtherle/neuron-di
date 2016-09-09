@@ -49,9 +49,9 @@ object Incubator {
 
   def breed[A <: AnyRef : ClassTag]: A = jIncubator breed runtimeClassOf[A]
 
-  def breed[A <: AnyRef : ClassTag](bind: Method => () => _): A = {
+  def breed[A <: AnyRef : ClassTag](binding: Method => () => _): A = {
     jIncubator.breed(runtimeClassOf[A],
-      (method: Method) => bind(method): jSupplier[_])
+      (method: Method) => binding(method): jSupplier[_])
   }
 
   private implicit class FunctionAdapter[A, B](fun: A => B) extends jFunction[A, B] {

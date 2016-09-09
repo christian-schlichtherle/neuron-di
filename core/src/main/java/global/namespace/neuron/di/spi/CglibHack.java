@@ -17,8 +17,6 @@ package global.namespace.neuron.di.spi;
 
 import net.sf.cglib.proxy.*;
 
-import java.lang.reflect.Method;
-import java.util.function.Function;
 import java.util.function.Supplier;
 
 final class CglibHack<T> {
@@ -33,21 +31,19 @@ final class CglibHack<T> {
     private Factory factory;
     private Callback[] callbacks;
 
-    CglibHack(final Class<T> runtimeClass,
-              final Function<Method, MethodElement> elements,
-              final Function<Method, Supplier<?>> bind) {
+    CglibHack(final CglibContext<T> ctx) {
         new CglibFunction<>((superclass, interfaces) -> {
             filter = new CglibFilter(superclass, interfaces);
             final Enhancer e = new Enhancer();
             e.setSuperclass(superclass);
             e.setInterfaces(interfaces);
             e.setCallbackFilter(filter);
-            e.setCallbacks(invalidate(callbacks = callbacks(elements, bind)));
+            e.setCallbacks(invalidate(callbacks = callbacks(ctx)));
             e.setNamingPolicy(NeuronDINamingPolicy.SINGLETON);
             e.setUseCache(false);
             factory = (Factory) e.create();
             return null;
-        }).apply(runtimeClass);
+        }).apply(ctx.runtimeClass());
     }
 
     private static Callback[] invalidate(final Callback[] callbacks) {
@@ -64,25 +60,23 @@ final class CglibHack<T> {
     }
 
     @SuppressWarnings("unchecked")
-    T newInstance(Function<Method, MethodElement> elements,
-                  Function<Method, Supplier<?>> bind) {
-        return (T) factory.newInstance(callbacksSupplier(elements, bind).get());
+    T newInstance(CglibContext<T> ctx) {
+        return (T) factory.newInstance(callbacks(ctx));
+    }
+
+    private Callback[] callbacks(CglibContext<T> ctx) {
+        return callbacksSupplier(ctx).get();
     }
 
     private synchronized Supplier<Callback[]> callbacksSupplier(
-            final Function<Method, MethodElement> elements,
-            final Function<Method, Supplier<?>> bind) {
+            final CglibContext<T> ctx) {
         if (null != callbacks) {
             final Callback[] c = callbacks;
             callbacks = null;
             return () -> c;
         } else {
-            return () -> callbacks(elements, bind);
+            return () -> filter.callbacks(ctx);
         }
     }
-
-    private Callback[] callbacks(Function<Method, MethodElement> elements,
-                                 Function<Method, Supplier<?>> bind) {
-        return filter.callbacks(elements, bind);
-    }
 }
+
