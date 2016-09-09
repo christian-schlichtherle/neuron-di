@@ -25,6 +25,18 @@ import java.util.function.Supplier;
 /** A real incubator {@linkplain #breed(Class, Function) breeds} neurons. */
 public class RealIncubator {
 
+    private static final Map<Class<?>, Filter> filters =
+            Collections.synchronizedMap(new WeakHashMap<>());
+
+    private static final Map<Class<?>, Factory> factories =
+            Collections.synchronizedMap(new WeakHashMap<>());
+
+    private static final FixedValue INVALID_FIXED_VALUE =
+            () -> { throw new AssertionError(); };
+
+    private static final MethodInterceptor INVALID_METHOD_INTERCEPTOR =
+            (obj, method, args, proxy) -> { throw new AssertionError(); };
+
     private RealIncubator() { }
 
     /**
@@ -97,8 +109,49 @@ public class RealIncubator {
         return visitor.instance;
     }
 
-    private static final Map<Class<?>, Filter> filters =
-            Collections.synchronizedMap(new WeakHashMap<>());
+    private static Object createProxy(final Class<?> superclass,
+                                      final Class<?>[] interfaces,
+                                      final CallbackFilter filter,
+                                      final Callback[] callbacks) {
+        assert interfaces.length != 1 || superclass == Object.class;
+        final Class<?> key = interfaces.length == 1 ? interfaces[0] : superclass;
+        final Factory factory = factories.computeIfAbsent(key, ignored -> {
+            final Enhancer e = new Enhancer();
+            e.setSuperclass(superclass);
+            e.setInterfaces(interfaces);
+            e.setCallbackFilter(filter);
+            e.setCallbacks(invalidate(callbacks));
+            e.setNamingPolicy(NeuronDINamingPolicy.SINGLETON);
+            e.setUseCache(false);
+            return (Factory) e.create();
+        });
+        return factory.newInstance(callbacks);
+    }
+
+    private static Callback[] invalidate(final Callback[] callbacks) {
+        final Callback[] results = callbacks.clone();
+        for (int i = results.length; --i >= 0; ) {
+            final Callback result = results[i];
+            if (result instanceof FixedValue) {
+                results[i] = INVALID_FIXED_VALUE;
+            } else if (result instanceof MethodInterceptor) {
+                results[i] = INVALID_METHOD_INTERCEPTOR;
+            }
+        }
+        return results;
+    }
+
+    private static <T> T createInstance(final Class<T> clazz) {
+        try {
+            return clazz.newInstance();
+        } catch (InstantiationException e) {
+            throw (InstantiationError)
+                    new InstantiationError(e.getMessage() + ": Did you forget the @Neuron annotation?").initCause(e);
+        } catch (IllegalAccessException e) {
+            throw (IllegalAccessError)
+                    new IllegalAccessError(e.getMessage()).initCause(e);
+        }
+    }
 
     private static class Filter implements CallbackFilter {
 
@@ -129,58 +182,5 @@ public class RealIncubator {
 
         @Override
         public int hashCode() { return indexes.hashCode(); }
-    }
-
-    private static Object createProxy(final Class<?> superclass,
-                                      final Class<?>[] interfaces,
-                                      final CallbackFilter filter,
-                                      final Callback[] callbacks) {
-        assert interfaces.length != 1 || superclass == Object.class;
-        final Class<?> key = interfaces.length == 1 ? interfaces[0] : superclass;
-        final Factory factory = factories.computeIfAbsent(key, ignored -> {
-            final Enhancer e = new Enhancer();
-            e.setSuperclass(superclass);
-            e.setInterfaces(interfaces);
-            e.setCallbackFilter(filter);
-            e.setCallbacks(invalidate(callbacks));
-            e.setNamingPolicy(NeuronDINamingPolicy.SINGLETON);
-            e.setUseCache(false);
-            return (Factory) e.create();
-        });
-        return factory.newInstance(callbacks);
-    }
-
-    private static final Map<Class<?>, Factory> factories =
-            Collections.synchronizedMap(new WeakHashMap<>());
-
-    private static Callback[] invalidate(final Callback[] callbacks) {
-        final Callback[] results = callbacks.clone();
-        for (int i = results.length; --i >= 0; ) {
-            final Callback result = results[i];
-            if (result instanceof FixedValue) {
-                results[i] = INVALID_FIXED_VALUE;
-            } else if (result instanceof MethodInterceptor) {
-                results[i] = INVALID_METHOD_INTERCEPTOR;
-            }
-        }
-        return results;
-    }
-
-    private static final FixedValue INVALID_FIXED_VALUE =
-            () -> { throw new AssertionError(); };
-
-    private static final MethodInterceptor INVALID_METHOD_INTERCEPTOR =
-            (obj, method, args, proxy) -> { throw new AssertionError(); };
-
-    private static <T> T createInstance(final Class<T> clazz) {
-        try {
-            return clazz.newInstance();
-        } catch (InstantiationException e) {
-            throw (InstantiationError)
-                    new InstantiationError(e.getMessage() + ": Did you forget the @Neuron annotation?").initCause(e);
-        } catch (IllegalAccessException e) {
-            throw (IllegalAccessError)
-                    new IllegalAccessError(e.getMessage()).initCause(e);
-        }
     }
 }
