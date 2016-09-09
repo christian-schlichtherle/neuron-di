@@ -15,8 +15,6 @@
  */
 package global.namespace.neuron.di.spi;
 
-import org.junit.runner.RunWith;
-
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedSourceVersion;
@@ -24,9 +22,7 @@ import javax.lang.model.SourceVersion;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
-import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Stream;
 
 import static javax.lang.model.element.ElementKind.CONSTRUCTOR;
 import static javax.lang.model.element.Modifier.*;
@@ -63,14 +59,14 @@ public final class NeuronProcessor extends CommonProcessor {
         }
     }
 
-    private static boolean isRunWithNeuronJUnitRunner(TypeElement clazz) {
-        return clazz.getAnnotationMirrors()
+    private boolean isRunWithNeuronJUnitRunner(TypeElement clazz) {
+        return elementUtils()
+                .getAllAnnotationMirrors(clazz)
                 .stream()
                 .filter(mirror -> mirror.getAnnotationType().toString().equals("org.junit.runner.RunWith"))
                 .flatMap(mirror -> mirror.getElementValues().entrySet().stream())
                 .filter(entry -> entry.getKey().getSimpleName().toString().equals("value"))
-                .map(entry -> entry.getValue().getValue())
-                .anyMatch(value -> value instanceof Class && ((Class<?>) value).getName().equals("global.namespace.neuron.di.api.junit.NeuronJUnitRunner"));
+                .anyMatch(entry -> entry.getValue().getValue().toString().equals("global.namespace.neuron.di.api.junit.NeuronJUnitRunner"));
     }
 
     private static boolean hasNonPrivateConstructorWithoutParameters(TypeElement type) {

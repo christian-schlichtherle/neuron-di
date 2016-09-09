@@ -17,6 +17,7 @@ package global.namespace.neuron.di.spi;
 
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Messager;
+import javax.lang.model.util.Elements;
 
 import static javax.tools.Diagnostic.Kind.ERROR;
 import static javax.tools.Diagnostic.Kind.WARNING;
@@ -32,4 +33,6 @@ abstract class CommonProcessor extends AbstractProcessor {
     }
 
     private Messager messager() { return processingEnv.getMessager(); }
+
+    Elements elementUtils() { return processingEnv.getElementUtils(); }
 }
