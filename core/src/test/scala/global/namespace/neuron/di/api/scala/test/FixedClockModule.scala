@@ -17,7 +17,6 @@ package global.namespace.neuron.di.api.scala.test
 
 import java.util.Date
 
-import global.namespace.neuron.di.api.{Caching, Neuron}
 import global.namespace.neuron.di.sample.Clock
 
 class FixedClockModule extends ClockModule {

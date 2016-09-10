@@ -13,16 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package global.namespace.neuron.di.api;
+package global.namespace.neuron.di.api.java;
 
 import java.lang.annotation.*;
 
-/** Requests that the return value of the annotated method gets cached. */
 @Documented
+@Inherited
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.METHOD)
-public @interface Caching {
+@Target(ElementType.TYPE)
+public @interface Neuron {
 
-    /** Configures the caching strategy to apply. */
-    CachingStrategy value() default CachingStrategy.THREAD_SAFE;
+    /**
+     * Configures the strategy for caching the return value of synapse methods
+     * which are not annotated with {@link Caching}.
+     */
+    CachingStrategy cachingStrategy() default CachingStrategy.DISABLED;
 }

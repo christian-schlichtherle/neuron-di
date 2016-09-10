@@ -15,7 +15,7 @@
  */
 package global.namespace.neuron.di.spi;
 
-import global.namespace.neuron.di.api.CachingStrategy;
+import global.namespace.neuron.di.api.java.CachingStrategy;
 import net.sf.cglib.proxy.Callback;
 import net.sf.cglib.proxy.FixedValue;
 

@@ -15,7 +15,7 @@
  */
 package global.namespace.neuron.di.sample;
 
-import global.namespace.neuron.di.api.Neuron;
+import global.namespace.neuron.di.api.java.Neuron;
 
 @Neuron
 public interface SomeNeuronInterface extends HasA, HasB, HasC { }

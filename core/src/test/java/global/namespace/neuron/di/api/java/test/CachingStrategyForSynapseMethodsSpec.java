@@ -15,10 +15,10 @@
  */
 package global.namespace.neuron.di.api.java.test;
 
-import global.namespace.neuron.di.api.Neuron;
+import global.namespace.neuron.di.api.java.Neuron;
 import global.namespace.neuron.di.sample.HasDependency;
 
-import static global.namespace.neuron.di.api.CachingStrategy.*;
+import static global.namespace.neuron.di.api.java.CachingStrategy.*;
 
 public class CachingStrategyForSynapseMethodsSpec extends CachingStrategySpec {
 

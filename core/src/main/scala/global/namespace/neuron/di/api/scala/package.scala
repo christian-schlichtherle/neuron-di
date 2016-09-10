@@ -19,7 +19,7 @@ import annotation.meta.getter
 
 package object scala {
 
-  type Caching = global.namespace.neuron.di.api.Caching @getter
-  type CachingStrategy = global.namespace.neuron.di.api.CachingStrategy
-  type Neuron = global.namespace.neuron.di.api.Neuron
+  type Caching = global.namespace.neuron.di.api.java.Caching @getter
+  type CachingStrategy = global.namespace.neuron.di.api.java.CachingStrategy
+  type Neuron = global.namespace.neuron.di.api.java.Neuron
 }

@@ -15,11 +15,12 @@
  */
 package global.namespace.neuron.di.api.java.test;
 
-import global.namespace.neuron.di.api.Caching;
-import global.namespace.neuron.di.api.Neuron;
+import global.namespace.neuron.di.api.java.Caching;
+import global.namespace.neuron.di.api.java.Neuron;
 import global.namespace.neuron.di.sample.HasDependency;
 
-import static global.namespace.neuron.di.api.CachingStrategy.*;
+import static global.namespace.neuron.di.api.java.CachingStrategy.NOT_THREAD_SAFE;
+import static global.namespace.neuron.di.api.java.CachingStrategy.THREAD_LOCAL;
 
 public class CachingStrategyForDefaultMethodsWithoutParametersSpec extends CachingStrategySpec {
 

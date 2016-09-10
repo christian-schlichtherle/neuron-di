@@ -15,7 +15,7 @@
  */
 package global.namespace.neuron.di.api.scala.test
 
-import global.namespace.neuron.di.api.scala.{Incubator, Neuron}
+import global.namespace.neuron.di.api.scala._
 
 import scala.concurrent.forkjoin.ThreadLocalRandom
 

@@ -15,8 +15,8 @@
  */
 package global.namespace.neuron.di.spi;
 
-import global.namespace.neuron.di.api.CachingStrategy;
-import global.namespace.neuron.di.api.Neuron;
+import global.namespace.neuron.di.api.java.CachingStrategy;
+import global.namespace.neuron.di.api.java.Neuron;
 
 final class Inspection {
 

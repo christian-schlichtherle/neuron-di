@@ -28,7 +28,7 @@ import static javax.lang.model.element.ElementKind.CONSTRUCTOR;
 import static javax.lang.model.element.Modifier.*;
 
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
-@SupportedAnnotationTypes("global.namespace.neuron.di.api.Neuron")
+@SupportedAnnotationTypes("global.namespace.neuron.di.api.java.Neuron")
 public final class NeuronProcessor extends CommonProcessor {
 
     @Override

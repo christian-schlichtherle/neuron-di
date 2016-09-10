@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package global.namespace.neuron.di.api;
+package global.namespace.neuron.di.api.java;
 
 /** Enumerates strategies for caching the return values of methods. */
 public enum CachingStrategy {

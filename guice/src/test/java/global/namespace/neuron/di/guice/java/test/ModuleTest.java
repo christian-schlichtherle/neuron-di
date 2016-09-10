@@ -17,8 +17,8 @@ package global.namespace.neuron.di.guice.java.test;
 
 import com.google.inject.Injector;
 import com.google.inject.Module;
-import global.namespace.neuron.di.api.Caching;
-import global.namespace.neuron.di.api.Neuron;
+import global.namespace.neuron.di.api.java.Caching;
+import global.namespace.neuron.di.api.java.Neuron;
 import global.namespace.neuron.di.api.junit.NeuronJUnitRunner;
 import org.junit.runner.RunWith;
 

@@ -16,8 +16,8 @@
 package global.namespace.neuron.di.guice.java;
 
 import com.google.inject.*;
-import global.namespace.neuron.di.api.Neuron;
 import global.namespace.neuron.di.api.java.Incubator;
+import global.namespace.neuron.di.api.java.Neuron;
 
 import javax.inject.Qualifier;
 import java.lang.annotation.Annotation;

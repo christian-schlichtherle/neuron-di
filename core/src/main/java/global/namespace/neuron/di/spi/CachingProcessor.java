@@ -15,7 +15,7 @@
  */
 package global.namespace.neuron.di.spi;
 
-import global.namespace.neuron.di.api.Neuron;
+import global.namespace.neuron.di.api.java.Neuron;
 
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
@@ -31,7 +31,7 @@ import static javax.lang.model.element.Modifier.*;
 import static javax.lang.model.type.TypeKind.VOID;
 
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
-@SupportedAnnotationTypes("global.namespace.neuron.di.api.Caching")
+@SupportedAnnotationTypes("global.namespace.neuron.di.api.java.Caching")
 public final class CachingProcessor extends CommonProcessor {
 
     private static final String JAVA_LANG_VOID = Void.class.getName();

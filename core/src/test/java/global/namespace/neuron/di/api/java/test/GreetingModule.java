@@ -15,9 +15,9 @@
  */
 package global.namespace.neuron.di.api.java.test;
 
-import global.namespace.neuron.di.api.Caching;
-import global.namespace.neuron.di.api.Neuron;
+import global.namespace.neuron.di.api.java.Caching;
 import global.namespace.neuron.di.api.java.Incubator;
+import global.namespace.neuron.di.api.java.Neuron;
 import global.namespace.neuron.di.sample.Formatter;
 import global.namespace.neuron.di.sample.Greeting;
 import global.namespace.neuron.di.sample.RealFormatter;

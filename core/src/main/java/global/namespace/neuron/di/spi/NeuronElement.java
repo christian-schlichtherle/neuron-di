@@ -15,14 +15,14 @@
  */
 package global.namespace.neuron.di.spi;
 
-import global.namespace.neuron.di.api.Caching;
-import global.namespace.neuron.di.api.CachingStrategy;
+import global.namespace.neuron.di.api.java.Caching;
+import global.namespace.neuron.di.api.java.CachingStrategy;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Optional;
 
-import static global.namespace.neuron.di.api.CachingStrategy.DISABLED;
+import static global.namespace.neuron.di.api.java.CachingStrategy.DISABLED;
 
 interface NeuronElement extends ClassElement, HasCachingStrategy {
 

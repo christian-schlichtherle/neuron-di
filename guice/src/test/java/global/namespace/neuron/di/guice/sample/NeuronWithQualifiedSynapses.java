@@ -15,7 +15,7 @@
  */
 package global.namespace.neuron.di.guice.sample;
 
-import global.namespace.neuron.di.api.Neuron;
+import global.namespace.neuron.di.api.java.Neuron;
 
 import javax.inject.Named;
 
