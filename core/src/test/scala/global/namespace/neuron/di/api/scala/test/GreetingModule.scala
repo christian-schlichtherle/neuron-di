@@ -18,7 +18,7 @@ package global.namespace.neuron.di.api.scala.test
 import global.namespace.neuron.di.api.scala.Incubator
 import global.namespace.neuron.di.sample.{Greeting, RealFormatter}
 
-class GreetingModule { self =>
+class GreetingModule {
 
   lazy val greeting = Incubator
     .stub[Greeting]

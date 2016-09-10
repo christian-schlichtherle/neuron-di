@@ -35,4 +35,12 @@ public class ClockModuleTest {
         final Date time = new Date();
         assertThat(clock.now(), is(greaterThanOrEqualTo(time)));
     }
+
+    @Test
+    public void testClockModuleWithoutMatchers() {
+        final ClockModule module = Incubator.breed(ClockModule.class);
+        final Clock clock = module.clock();
+        assert clock == module.clock();
+        assert new Date().compareTo(clock.now()) <= 0;
+    }
 }
