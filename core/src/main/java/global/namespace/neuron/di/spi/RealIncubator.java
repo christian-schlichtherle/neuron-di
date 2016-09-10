@@ -16,6 +16,7 @@
 package global.namespace.neuron.di.spi;
 
 import java.lang.reflect.Method;
+import java.util.Collections;
 import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.function.Function;
@@ -24,8 +25,8 @@ import java.util.function.Supplier;
 /** A real incubator {@linkplain #breed(Class, Function) breeds} neurons. */
 public final class RealIncubator {
 
-    private static final Map<Class<?>, CglibHack<?>> hacks =
-            new WeakHashMap<>();
+    private static final Map<Class<?>, CGFactory> factories =
+            Collections.synchronizedMap(new WeakHashMap<>());
 
     private RealIncubator() { }
 
@@ -56,26 +57,10 @@ public final class RealIncubator {
             @Override
             public void visitNeuron(final NeuronElement element) {
                 assert runtimeClass == element.runtimeClass();
-                final CglibContext<T> ctx = new CglibContext() {
-
-                    @Override
-                    public Class runtimeClass() { return runtimeClass; }
-
-                    @Override
-                    public MethodElement element(Method method) {
-                        return element.element(method);
-                    }
-
-                    @Override
-                    public Supplier<?> supplier(Method method) {
-                        return binding.apply(method);
-                    }
-                };
-                synchronized (hacks) {
-                    instance = ((CglibHack<T>) hacks
-                            .computeIfAbsent(runtimeClass, key -> new CglibHack<>(ctx)))
-                            .newInstance(ctx);
-                }
+                final CGContext ctx = new CGContext(element, binding);
+                instance = runtimeClass.cast(factories
+                        .computeIfAbsent(runtimeClass, key -> new CGFactory(ctx))
+                        .newInstance(ctx));
             }
 
             @Override

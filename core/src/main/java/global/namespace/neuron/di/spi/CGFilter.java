@@ -21,20 +21,22 @@ import net.sf.cglib.proxy.Enhancer;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.function.Function;
+import java.util.Iterator;
 import java.util.function.Supplier;
 
-final class CglibFilter implements CallbackFilter {
+final class CGFilter implements CallbackFilter, Iterable<Method> {
 
     private final ArrayList<Method> methods;
 
-    CglibFilter(final Class<?> superclass, final Class<?> interfaces[]) {
+    CGFilter(final Class<?> superclass, final Class<?> interfaces[]) {
         methods = new ArrayList<>();
         Enhancer.getMethods(superclass, interfaces, methods);
         methods.trimToSize();
     }
 
-    Callback[] callbacks(final CglibContext<?> ctx) {
+    public Iterator<Method> iterator() { return methods.iterator(); }
+
+    Callback[] callbacks(final CGContext ctx) {
         return new Visitor() {
 
             final Callback[] callbacks = new Callback[methods.size()];
@@ -74,8 +76,8 @@ final class CglibFilter implements CallbackFilter {
     @Override
     public boolean equals(final Object obj) {
         if (this == obj) return true;
-        if (!(obj instanceof CglibFilter)) return false;
-        final CglibFilter that = (CglibFilter) obj;
+        if (!(obj instanceof CGFilter)) return false;
+        final CGFilter that = (CGFilter) obj;
         return this.methods.equals(that.methods);
     }
 

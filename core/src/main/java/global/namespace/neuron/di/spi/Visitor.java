@@ -24,10 +24,8 @@ import java.util.List;
 interface Visitor {
 
     default void visitNeuron(NeuronElement element) {
-        new CglibFunction<>((superclass, interfaces) -> {
-            final List<Method> methods = new ArrayList<>();
-            Enhancer.getMethods(superclass, interfaces, methods);
-            for (Method method : methods) {
+        new CGFunction<>((superclass, interfaces) -> {
+            for (Method method : new CGFilter(superclass, interfaces)) {
                 element.element(method).accept(this);
             }
             return null;

@@ -17,32 +17,28 @@ package global.namespace.neuron.di.spi;
 
 import net.sf.cglib.proxy.*;
 
-import java.util.function.Supplier;
-
-final class CglibHack<T> {
-
-    private static final FixedValue INVALID_FIXED_VALUE =
-            () -> { throw new AssertionError(); };
+final class CGFactory {
 
     private static final MethodInterceptor INVALID_METHOD_INTERCEPTOR =
             (obj, method, args, proxy) -> { throw new AssertionError(); };
 
-    private CglibFilter filter;
-    private Factory factory;
-    private Callback[] callbacks;
+    private static final FixedValue INVALID_FIXED_VALUE =
+            () -> { throw new AssertionError(); };
 
-    CglibHack(final CglibContext<T> ctx) {
-        new CglibFunction<>((superclass, interfaces) -> {
-            filter = new CglibFilter(superclass, interfaces);
+    private CGFilter filter;
+    private final Factory factory;
+
+    CGFactory(final CGContext ctx) {
+        factory = new CGFunction<>((superclass, interfaces) -> {
+            filter = new CGFilter(superclass, interfaces);
             final Enhancer e = new Enhancer();
             e.setSuperclass(superclass);
             e.setInterfaces(interfaces);
             e.setCallbackFilter(filter);
-            e.setCallbacks(invalidate(callbacks = callbacks(ctx)));
+            e.setCallbacks(invalidate(callbacks(ctx)));
             e.setNamingPolicy(NeuronDINamingPolicy.SINGLETON);
             e.setUseCache(false);
-            factory = (Factory) e.create();
-            return null;
+            return (Factory) e.create();
         }).apply(ctx.runtimeClass());
     }
 
@@ -50,33 +46,21 @@ final class CglibHack<T> {
         final Callback[] results = callbacks.clone();
         for (int i = results.length; --i >= 0; ) {
             final Callback result = results[i];
-            if (result instanceof FixedValue) {
-                results[i] = INVALID_FIXED_VALUE;
-            } else if (result instanceof MethodInterceptor) {
+            if (result instanceof MethodInterceptor) {
                 results[i] = INVALID_METHOD_INTERCEPTOR;
+            } else if (result instanceof FixedValue) {
+                results[i] = INVALID_FIXED_VALUE;
             }
         }
         return results;
     }
 
     @SuppressWarnings("unchecked")
-    T newInstance(CglibContext<T> ctx) {
-        return (T) factory.newInstance(callbacks(ctx));
+    Object newInstance(CGContext ctx) {
+        return factory.newInstance(callbacks(ctx));
     }
 
-    private Callback[] callbacks(CglibContext<T> ctx) {
-        return callbacksSupplier(ctx).get();
-    }
-
-    private synchronized Supplier<Callback[]> callbacksSupplier(
-            final CglibContext<T> ctx) {
-        if (null != callbacks) {
-            final Callback[] c = callbacks;
-            callbacks = null;
-            return () -> c;
-        } else {
-            return () -> filter.callbacks(ctx);
-        }
+    private Callback[] callbacks(CGContext ctx) {
+        return ctx.callbacks(() -> filter.callbacks(ctx));
     }
 }
-

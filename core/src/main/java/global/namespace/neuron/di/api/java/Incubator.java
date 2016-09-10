@@ -112,13 +112,13 @@ public final class Incubator {
                     if (null != neuron) {
                         throw new IllegalStateException("`breed()` has already been called");
                     }
-                    neuron = RealIncubator.breed(runtimeClass, this::bind);
+                    neuron = RealIncubator.breed(runtimeClass, this::binding);
                 }
                 initReplacementProxies();
                 return neuron;
             }
 
-            Supplier<?> bind(final Method method) {
+            Supplier<?> binding(final Method method) {
                 return new Supplier<Object>() {
 
                     Function<? super T, ?> replacement;
