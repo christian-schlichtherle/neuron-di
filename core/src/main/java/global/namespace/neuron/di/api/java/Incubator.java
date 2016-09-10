@@ -93,10 +93,10 @@ public final class Incubator {
         return new Stub<T>() {
 
             boolean partial;
-            final List<Entry<Function<T, ?>, Function<? super T, ?>>> bindings =
+            List<Entry<Function<T, ?>, Function<? super T, ?>>> bindings =
                     new LinkedList<>();
 
-            Set<Method> synapses = new HashSet<>();
+            List<Method> synapses = new LinkedList<>();
             T neuron;
 
             Function<? super T, ?> currentReplacement;
@@ -127,8 +127,12 @@ public final class Incubator {
                 initReplacementProxies();
                 if (!partial && !synapses.isEmpty()) {
                     throw new IllegalStateException(
-                            "Insufficient stubbing: No binding defined for the following synapse methods:" + synapses);
+                            "Partial stubbing is disabled and no binding is defined for some synapse methods: " + synapses);
                 }
+                // Support GC:
+                assert null == currentReplacement;
+                bindings = null;
+                synapses = null;
                 return neuron;
             }
 
@@ -140,16 +144,17 @@ public final class Incubator {
 
                     @Override
                     public Object get() {
-                        if (null != replacement) {
-                            return replacement.apply(neuron);
-                        } else if (null != currentReplacement) {
-                            replacement = currentReplacement;
-                            final boolean removed = synapses.remove(method);
-                            assert removed;
-                            throw new ControlFlowError();
-                        } else {
-                            return Incubator.breed(method.getReturnType());
+                        if (null == replacement) {
+                            if (null != currentReplacement) {
+                                replacement = currentReplacement;
+                                final boolean removed = synapses.remove(method);
+                                assert removed;
+                                throw new ControlFlowError();
+                            } else {
+                                replacement = neuron -> Incubator.breed(method.getReturnType());
+                            }
                         }
+                        return replacement.apply(neuron);
                     }
                 };
             }
@@ -176,6 +181,12 @@ public final class Incubator {
     @SuppressWarnings("WeakerAccess")
     public interface Stub<T> {
 
+        /**
+         * Enables or disables partial stubbing.
+         * By default, partial stubbing is disabled, resulting in an
+         * {@link IllegalStateException} when breeding a neuron and there is no
+         * binding defined for some synapse methods.
+         */
         Stub<T> partial(boolean value);
 
         /** Binds the synapse method identified by the given method reference. */

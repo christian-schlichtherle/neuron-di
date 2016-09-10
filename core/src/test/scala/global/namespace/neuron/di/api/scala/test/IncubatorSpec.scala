@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package global.namespace.neuron.di.api.java.test
+package global.namespace.neuron.di.api.scala.test
 
 import java.lang.reflect.Method
 
-import global.namespace.neuron.di.api.java.test.IncubatorSpec._
 import global.namespace.neuron.di.api.scala._
+import global.namespace.neuron.di.api.scala.test.IncubatorSpec._
 import global.namespace.neuron.di.sample._
 import org.scalatest.Matchers._
 import org.scalatest.{FeatureSpec, GivenWhenThen}
@@ -71,6 +71,42 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
       And("so the class is NOT a neuron.")
 
       intercept[InstantiationError] { synapsesOf[AnotherClass] }
+    }
+  }
+
+  feature("Partial stubbing needs to be explicitly enabled:") {
+
+    info("As a user of Neuron DI")
+    info("either I want to explicitly enable partial stubbing")
+    info("or rest assured that I would get an exception otherwise.")
+
+    scenario("Partial stubbing is disabled:") {
+
+      Given("a generic interface annotated with @Neuron")
+      When("breeding an instance")
+      And("partial stubbing has not been explicitly enabled")
+      And("no binding is defined for some synapse methods")
+      Then("an `IllegalStateException` should be thrown.")
+
+      intercept[IllegalStateException] {
+        Incubator.stub[HasDependency[_]].breed
+      }.getMessage shouldBe
+        "Partial stubbing is disabled and no binding is defined for some synapse methods: [public abstract java.lang.Object global.namespace.neuron.di.sample.HasDependency.dependency()]"
+    }
+
+    scenario("Partial stubbing is enabled:") {
+
+      Given("a generic interface annotated with @Neuron")
+      When("breeding an instance")
+      And("partial stubbing has been explicitly enabled")
+      And("no binding is defined for some synapse methods")
+      Then("the incubator should be recursively applied to resolve the dependency.")
+
+      Incubator
+        .stub[HasDependency[_ <: AnyRef]]
+        .partial(true)
+        .breed
+        .dependency should not be null
     }
   }
 

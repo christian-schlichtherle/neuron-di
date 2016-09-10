@@ -29,6 +29,11 @@ object Incubator {
 
     private var jstub = jIncubator stub runtimeClassOf[A]
 
+    def partial(value: Boolean): self.type = {
+      jstub partial value
+      self
+    }
+
     case class bind[B](methodReference: A => B) {
 
       private val jbind = jstub bind methodReference
