@@ -26,7 +26,5 @@ import java.util.Date;
 interface FixedClockModule extends ClockModule {
 
     @Caching
-    default Clock clock() {
-        return () -> new Date(0);
-    }
+    default Clock clock() { return () -> new Date(0); }
 }
