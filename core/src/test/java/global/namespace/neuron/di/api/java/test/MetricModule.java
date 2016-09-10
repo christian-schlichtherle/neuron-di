@@ -15,11 +15,13 @@
  */
 package global.namespace.neuron.di.api.java.test;
 
+import global.namespace.neuron.di.api.Caching;
 import global.namespace.neuron.di.api.Neuron;
 import global.namespace.neuron.di.sample.Metric;
 
 @Neuron
 public interface MetricModule {
 
+    @Caching
     Metric metric();
 }

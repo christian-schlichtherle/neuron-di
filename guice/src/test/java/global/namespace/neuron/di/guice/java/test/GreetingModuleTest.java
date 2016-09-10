@@ -33,7 +33,8 @@ public class GreetingModuleTest extends ModuleTest {
         final Greeting greeting = getInstance(Greeting.class);
         assertThat(getInstance(Greeting.class), is(sameInstance(greeting)));
         assertThat(greeting.formatter(), is(instanceOf(RealFormatter.class)));
-        assertThat(greeting.formatter(), is(sameInstance(greeting.formatter())));
+        assertThat(greeting.formatter(), is(not(sameInstance(greeting.formatter()))));
+        assertThat(greeting.message(), is(sameInstance(greeting.message())));
         assertThat(greeting.message(), is("Hello Christian!"));
     }
 }

@@ -27,5 +27,5 @@ public @interface Neuron {
      * Configures the strategy for caching the return value of synapse methods
      * which are not annotated with {@link Caching}.
      */
-    CachingStrategy cachingStrategy() default CachingStrategy.THREAD_SAFE;
+    CachingStrategy cachingStrategy() default CachingStrategy.DISABLED;
 }

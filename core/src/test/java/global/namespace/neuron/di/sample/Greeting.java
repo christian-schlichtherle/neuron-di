@@ -18,15 +18,11 @@ package global.namespace.neuron.di.sample;
 import global.namespace.neuron.di.api.Caching;
 import global.namespace.neuron.di.api.Neuron;
 
-import static global.namespace.neuron.di.api.CachingStrategy.DISABLED;
-import static global.namespace.neuron.di.api.CachingStrategy.THREAD_SAFE;
-
 @Neuron
 public interface Greeting {
 
-    @Caching(THREAD_SAFE)
+    @Caching
     default String message() { return formatter().format("Christian"); }
 
-    @Caching(DISABLED)
     Formatter formatter();
 }

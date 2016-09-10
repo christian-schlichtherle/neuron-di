@@ -41,6 +41,7 @@ public class ClockModuleTest {
         final ClockModule module = Incubator.breed(ClockModule.class);
         final Clock clock = module.clock();
         assert clock == module.clock();
+        assert clock.now() != clock.now();
         assert new Date().compareTo(clock.now()) <= 0;
     }
 }

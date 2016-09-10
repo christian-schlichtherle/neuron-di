@@ -15,10 +15,14 @@
  */
 package global.namespace.neuron.di.sample;
 
+import global.namespace.neuron.di.api.Caching;
 import global.namespace.neuron.di.api.Neuron;
 
 @Neuron
 public interface Metric extends HasCounter {
+
+    @Caching
+    Counter counter();
 
     default Counter incrementCounter() { return counter().increment(); }
 }

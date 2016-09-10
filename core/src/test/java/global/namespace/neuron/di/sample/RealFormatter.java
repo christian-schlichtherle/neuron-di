@@ -15,6 +15,7 @@
  */
 package global.namespace.neuron.di.sample;
 
+import global.namespace.neuron.di.api.Caching;
 import global.namespace.neuron.di.api.Neuron;
 
 @Neuron
@@ -25,5 +26,6 @@ public interface RealFormatter extends Formatter {
         return String.format(getFormat(), (Object[]) args);
     }
 
+    @Caching
     String getFormat();
 }

@@ -36,24 +36,24 @@ public class CachingStrategyForSynapseMethodsSpec extends CachingStrategySpec {
     }
 
     @Override
-    public Class<? extends HasDependency<?>> classWithThreadLocalCachingStrategy() {
-        return NeuronWithThreadLocalCachingStrategy.class;
-    }
-
-    @Override
     public Class<? extends HasDependency<?>> classWithThreadSafeCachingStrategy() {
         return NeuronWithThreadSafeCachingStrategy.class;
     }
 
-    @Neuron(cachingStrategy = DISABLED)
+    @Override
+    public Class<? extends HasDependency<?>> classWithThreadLocalCachingStrategy() {
+        return NeuronWithThreadLocalCachingStrategy.class;
+    }
+
+    @Neuron
     private interface NeuronWithDisabledCachingStrategy extends HasDependency<Object> { }
 
     @Neuron(cachingStrategy = NOT_THREAD_SAFE)
     private interface NeuronWithNotThreadSafeCachingStrategy extends HasDependency<Object> { }
 
+    @Neuron(cachingStrategy = THREAD_SAFE)
+    private interface NeuronWithThreadSafeCachingStrategy extends HasDependency<Object> { }
+
     @Neuron(cachingStrategy = THREAD_LOCAL)
     private interface NeuronWithThreadLocalCachingStrategy extends HasDependency<Object> { }
-
-    @Neuron
-    private interface NeuronWithThreadSafeCachingStrategy extends HasDependency<Object> { }
 }

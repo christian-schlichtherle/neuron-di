@@ -37,19 +37,18 @@ public class CachingStrategyForDefaultMethodsWithoutParametersSpec extends Cachi
     }
 
     @Override
-    public Class<? extends HasDependency<?>> classWithThreadLocalCachingStrategy() {
-        return NeuronWithThreadLocalCachingStrategy.class;
+    public Class<? extends HasDependency<?>> classWithThreadSafeCachingStrategy() {
+        return NeuronWithThreadSafeCachingStrategy.class;
     }
 
     @Override
-    public Class<? extends HasDependency<?>> classWithThreadSafeCachingStrategy() {
-        return NeuronWithThreadSafeCachingStrategy.class;
+    public Class<? extends HasDependency<?>> classWithThreadLocalCachingStrategy() {
+        return NeuronWithThreadLocalCachingStrategy.class;
     }
 
     @Neuron
     interface NeuronWithDisabledCachingStrategy extends HasDependency<Object> {
 
-        @Caching(DISABLED)
         default Object dependency() { return new Object(); }
     }
 
@@ -61,16 +60,16 @@ public class CachingStrategyForDefaultMethodsWithoutParametersSpec extends Cachi
     }
 
     @Neuron
-    interface NeuronWithThreadLocalCachingStrategy extends HasDependency<Object> {
+    interface NeuronWithThreadSafeCachingStrategy extends HasDependency<Object> {
 
-        @Caching(THREAD_LOCAL)
+        @Caching
         default Object dependency() { return new Object(); }
     }
 
     @Neuron
-    interface NeuronWithThreadSafeCachingStrategy extends HasDependency<Object> {
+    interface NeuronWithThreadLocalCachingStrategy extends HasDependency<Object> {
 
-        @Caching
+        @Caching(THREAD_LOCAL)
         default Object dependency() { return new Object(); }
     }
 }
