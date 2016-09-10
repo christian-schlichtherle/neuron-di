@@ -19,9 +19,11 @@ import global.namespace.neuron.di.spi.RealIncubator;
 
 import java.lang.reflect.Method;
 import java.util.AbstractMap.SimpleImmutableEntry;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -90,13 +92,21 @@ public final class Incubator {
     public static <T> Stub<T> stub(final Class<T> runtimeClass) {
         return new Stub<T>() {
 
+            boolean partial;
             final List<Entry<Function<T, ?>, Function<? super T, ?>>> bindings =
                     new LinkedList<>();
 
+            Set<Method> synapses = new HashSet<>();
             T neuron;
 
             Function<? super T, ?> currentReplacement;
             int currentPosition;
+
+            @Override
+            public Stub<T> partial(final boolean value) {
+                this.partial = value;
+                return this;
+            }
 
             @Override
             public <U> Bind<T, U> bind(final Function<T, U> methodReference) {
@@ -112,13 +122,18 @@ public final class Incubator {
                     if (null != neuron) {
                         throw new IllegalStateException("`breed()` has already been called");
                     }
-                    neuron = RealIncubator.breed(runtimeClass, this::bind);
+                    neuron = RealIncubator.breed(runtimeClass, this::binding);
                 }
                 initReplacementProxies();
+                if (!partial && !synapses.isEmpty()) {
+                    throw new IllegalStateException(
+                            "Insufficient stubbing: No binding defined for the following synapse methods:" + synapses);
+                }
                 return neuron;
             }
 
-            Supplier<?> bind(final Method method) {
+            Supplier<?> binding(final Method method) {
+                synapses.add(method);
                 return new Supplier<Object>() {
 
                     Function<? super T, ?> replacement;
@@ -127,14 +142,13 @@ public final class Incubator {
                     public Object get() {
                         if (null != replacement) {
                             return replacement.apply(neuron);
-                        } else {
+                        } else if (null != currentReplacement) {
                             replacement = currentReplacement;
-                            if (null != replacement) {
-                                throw new ControlFlowError();
-                            } else {
-                                throw new IllegalStateException(
-                                        "Insufficient stubbing: No binding defined for synapse method `" + method + ".");
-                            }
+                            final boolean removed = synapses.remove(method);
+                            assert removed;
+                            throw new ControlFlowError();
+                        } else {
+                            return Incubator.breed(method.getReturnType());
                         }
                     }
                 };
@@ -161,6 +175,8 @@ public final class Incubator {
 
     @SuppressWarnings("WeakerAccess")
     public interface Stub<T> {
+
+        Stub<T> partial(boolean value);
 
         /** Binds the synapse method identified by the given method reference. */
         <U> Bind<T, U> bind(Function<T, U> methodReference);
