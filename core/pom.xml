@@ -139,5 +139,32 @@
                 </plugins>
             </build>
         </profile>
+        <profile>
+            <id>benchmark</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <configuration>
+                            <arguments>
+                                <argument>-classpath</argument>
+                                <classpath />
+                                <argument>-d64</argument>
+                                <argument>-verbose:gc</argument>
+                                <argument>-Xbatch</argument>
+                                <argument>-Xcomp</argument>
+                                <argument>-Xmn14g</argument>
+                                <argument>-Xms14g</argument>
+                                <argument>-XX:+AggressiveOpts</argument>
+                                <argument>global.namespace.neuron.di.api.java.test.PerformanceTest</argument>
+                            </arguments>
+                            <executable>java</executable>
+                            <classpathScope>test</classpathScope>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
     </profiles>
 </project>
