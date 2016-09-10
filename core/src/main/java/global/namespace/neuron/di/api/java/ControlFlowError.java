@@ -15,7 +15,7 @@
  */
 package global.namespace.neuron.di.api.java;
 
-class ControlFlowError extends Error {
+final class ControlFlowError extends Error {
 
     ControlFlowError() { super(null, null, false, false); }
 }
