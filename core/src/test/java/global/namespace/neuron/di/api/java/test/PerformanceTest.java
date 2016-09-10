@@ -41,7 +41,7 @@ public class PerformanceTest {
 
     public static void main(String[] args) {
         for (int i = 0; i < LOOP_TIMES; ) {
-            printf("Iteration %d of %d:\n", ++i, LOOP_TIMES);
+            printf("Iteration %d of %d...%n", ++i, LOOP_TIMES);
 
             long simple, neuron;
 
