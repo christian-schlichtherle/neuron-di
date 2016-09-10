@@ -13,21 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package global.namespace.neuron.di.api.scala.test
+package global.namespace.neuron.di.sample;
 
-import java.util.Date
+import global.namespace.neuron.di.api.Caching;
+import global.namespace.neuron.di.api.Neuron;
 
-import global.namespace.neuron.di.api.scala.Incubator
-import org.scalatest.Matchers._
-import org.scalatest.WordSpec
+@Neuron
+public interface WeatherStation extends Clock {
 
-class ClockModuleSpec extends WordSpec {
+    Temperature temperature();
 
-  "Make a clock" in {
-    val module = Incubator.breed[ClockModule]
-    val clock = module.clock
-    module.clock should be theSameInstanceAs clock
-    clock.now should not be theSameInstanceAs(clock.now)
-    new Date should be <= clock.now
-  }
+    @Neuron
+    interface Temperature {
+
+        @Caching
+        double value();
+
+        @Caching
+        String unit();
+    }
 }
