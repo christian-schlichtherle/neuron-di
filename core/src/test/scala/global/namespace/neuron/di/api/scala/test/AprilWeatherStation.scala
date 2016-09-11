@@ -24,7 +24,9 @@ abstract class AprilWeatherStation extends WeatherStation {
 
   def temperature: Temperature = Incubator
     .stub[Temperature]
-    .bind(_.value).to(ThreadLocalRandom.current.nextDouble(5D, 25D))
+    .bind(_.value).to(temperatureValue)
     .bind(_.unit).to("˚ Celsius")
     .breed
+
+  def temperatureValue: Double = ThreadLocalRandom.current.nextDouble(5D, 25D)
 }
