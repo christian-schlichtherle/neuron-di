@@ -13,10 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package global.namespace.neuron.di.spi;
+package global.namespace.neuron.di.internal;
 
-interface SynapseElement extends MethodElement {
+import net.sf.cglib.core.DefaultNamingPolicy;
+import net.sf.cglib.core.Predicate;
+
+final class NeuronDINamingPolicy extends DefaultNamingPolicy {
+
+    static final NeuronDINamingPolicy SINGLETON = new NeuronDINamingPolicy();
+
+    private NeuronDINamingPolicy() { }
 
     @Override
-    default void accept(Visitor visitor) { visitor.visitSynapse(this); }
+    public String getClassName(String prefix, String source, Object key, Predicate names) {
+        return super.getClassName(prefix, "Enhancer", key, names);
+    }
+
+    @Override
+    protected String getTag() { return "ByNeuronDI"; }
 }

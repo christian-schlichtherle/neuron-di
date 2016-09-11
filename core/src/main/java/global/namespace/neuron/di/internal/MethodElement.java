@@ -13,22 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package global.namespace.neuron.di.spi;
+package global.namespace.neuron.di.internal;
 
-import net.sf.cglib.core.DefaultNamingPolicy;
-import net.sf.cglib.core.Predicate;
+import java.lang.reflect.Method;
 
-final class NeuronDINamingPolicy extends DefaultNamingPolicy {
+interface MethodElement extends Element, HasCachingStrategy {
 
-    static final NeuronDINamingPolicy SINGLETON = new NeuronDINamingPolicy();
-
-    private NeuronDINamingPolicy() { }
+    Method method();
 
     @Override
-    public String getClassName(String prefix, String source, Object key, Predicate names) {
-        return super.getClassName(prefix, "Enhancer", key, names);
-    }
-
-    @Override
-    protected String getTag() { return "ByNeuronDI"; }
+    default void accept(Visitor visitor) { visitor.visitMethod(this); }
 }

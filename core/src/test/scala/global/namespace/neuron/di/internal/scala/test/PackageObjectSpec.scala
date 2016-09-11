@@ -13,14 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package global.namespace.neuron.di.spi;
+package global.namespace.neuron.di.internal.scala.test
 
-import java.lang.reflect.Method;
+import global.namespace.neuron.di.internal.scala.runtimeClassOf
+import org.scalatest.WordSpec
 
-interface MethodElement extends Element, HasCachingStrategy {
+class PackageObjectSpec extends WordSpec {
 
-    Method method();
-
-    @Override
-    default void accept(Visitor visitor) { visitor.visitMethod(this); }
+  "The runtimeClassOf function" should {
+    "throw an illegal argument exception" in {
+      intercept[IllegalArgumentException] {
+        runtimeClassOf
+      }
+    }
+  }
 }

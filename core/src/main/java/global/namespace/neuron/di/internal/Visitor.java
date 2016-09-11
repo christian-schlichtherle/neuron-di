@@ -13,13 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package global.namespace.neuron.di.spi;
-
-import net.sf.cglib.proxy.Enhancer;
+package global.namespace.neuron.di.internal;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
 
 interface Visitor {
 

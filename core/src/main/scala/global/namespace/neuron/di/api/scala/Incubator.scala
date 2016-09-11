@@ -19,7 +19,7 @@ import java.lang.reflect.Method
 import java.util.function.{Function => jFunction, Supplier => jSupplier}
 
 import global.namespace.neuron.di.api.java.{Incubator => jIncubator}
-import global.namespace.neuron.di.spi.scala.runtimeClassOf
+import global.namespace.neuron.di.internal.scala.runtimeClassOf
 
 import scala.reflect._
 

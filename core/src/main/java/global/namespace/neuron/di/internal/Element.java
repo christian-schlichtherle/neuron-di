@@ -13,14 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package global.namespace.neuron.di.spi
+package global.namespace.neuron.di.internal;
 
-import reflect.{ClassTag, classTag}
+import java.util.function.Consumer;
 
-package object scala {
-
-  def runtimeClassOf[A](implicit ct: ClassTag[A]): Class[A] = {
-    require(ct != classTag[Nothing], "Missing type parameter.")
-    ct.runtimeClass.asInstanceOf[Class[A]]
-  }
-}
+interface Element extends Consumer<Visitor> { }

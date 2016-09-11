@@ -1,2 +1,2 @@
-global.namespace.neuron.di.spi.CachingProcessor
-global.namespace.neuron.di.spi.NeuronProcessor
+global.namespace.neuron.di.internal.CachingProcessor
+global.namespace.neuron.di.internal.NeuronProcessor

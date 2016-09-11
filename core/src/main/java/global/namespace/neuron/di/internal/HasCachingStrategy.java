@@ -13,18 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package global.namespace.neuron.di.spi.scala.test
+package global.namespace.neuron.di.internal;
 
-import global.namespace.neuron.di.spi.scala.runtimeClassOf
-import org.scalatest.WordSpec
+import global.namespace.neuron.di.api.java.CachingStrategy;
+import net.sf.cglib.proxy.Callback;
+import net.sf.cglib.proxy.FixedValue;
 
-class PackageObjectSpec extends WordSpec {
+interface HasCachingStrategy {
 
-  "The runtimeClassOf function" should {
-    "throw an illegal argument exception" in {
-      intercept[IllegalArgumentException] {
-        runtimeClassOf
-      }
+    default Callback synapseCallback(FixedValue callback) {
+        return cgCachingStrategy().synapseCallback(callback);
     }
-  }
+
+    default Callback methodCallback() {
+        return cgCachingStrategy().methodCallback();
+    }
+
+    default CGCachingStrategy cgCachingStrategy() {
+        return CGCachingStrategy.valueOf(cachingStrategy());
+    }
+
+    CachingStrategy cachingStrategy();
 }

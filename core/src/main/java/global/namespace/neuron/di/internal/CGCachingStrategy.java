@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package global.namespace.neuron.di.spi;
+package global.namespace.neuron.di.internal;
 
 import global.namespace.neuron.di.api.java.CachingStrategy;
 import net.sf.cglib.proxy.*;
@@ -21,7 +21,7 @@ import net.sf.cglib.proxy.*;
 import java.lang.reflect.Method;
 
 /** Mirrors {@link CachingStrategy}. */
-enum RealCachingStrategy {
+enum CGCachingStrategy {
 
     /** @see #valueOf(CachingStrategy) */
     @SuppressWarnings("unused")
@@ -127,7 +127,7 @@ enum RealCachingStrategy {
     private static final MethodInterceptor invokeSuper =
             (obj, method, args, proxy) -> proxy.invokeSuper(obj, args);
 
-    static RealCachingStrategy valueOf(CachingStrategy strategy) {
+    static CGCachingStrategy valueOf(CachingStrategy strategy) {
         return valueOf(strategy.name());
     }
 

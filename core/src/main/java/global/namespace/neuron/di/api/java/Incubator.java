@@ -15,15 +15,13 @@
  */
 package global.namespace.neuron.di.api.java;
 
-import global.namespace.neuron.di.spi.RealIncubator;
+import global.namespace.neuron.di.internal.RealIncubator;
 
 import java.lang.reflect.Method;
 import java.util.AbstractMap.SimpleImmutableEntry;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
 

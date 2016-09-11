@@ -13,25 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package global.namespace.neuron.di.spi;
+package global.namespace.neuron.di.internal;
 
-import global.namespace.neuron.di.api.java.CachingStrategy;
-import net.sf.cglib.proxy.Callback;
-import net.sf.cglib.proxy.FixedValue;
+interface ClassElement extends Element {
 
-interface HasCachingStrategy {
+    Class<?> runtimeClass();
 
-    default Callback synapseCallback(FixedValue callback) {
-        return realCachingStrategy().synapseCallback(callback);
-    }
-
-    default Callback methodCallback() {
-        return realCachingStrategy().methodCallback();
-    }
-
-    default RealCachingStrategy realCachingStrategy() {
-        return RealCachingStrategy.valueOf(cachingStrategy());
-    }
-
-    CachingStrategy cachingStrategy();
+    @Override
+    default void accept(Visitor visitor) { visitor.visitClass(this); }
 }

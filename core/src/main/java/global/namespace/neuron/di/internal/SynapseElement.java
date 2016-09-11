@@ -13,8 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package global.namespace.neuron.di.spi;
+package global.namespace.neuron.di.internal;
 
-import java.util.function.Consumer;
+interface SynapseElement extends MethodElement {
 
-interface Element extends Consumer<Visitor> { }
+    @Override
+    default void accept(Visitor visitor) { visitor.visitSynapse(this); }
+}

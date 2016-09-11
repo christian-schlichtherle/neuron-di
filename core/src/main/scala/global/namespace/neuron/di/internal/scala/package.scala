@@ -13,12 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package global.namespace.neuron.di.spi;
+package global.namespace.neuron.di.internal
 
-interface ClassElement extends Element {
+import reflect.{ClassTag, classTag}
 
-    Class<?> runtimeClass();
+package object scala {
 
-    @Override
-    default void accept(Visitor visitor) { visitor.visitClass(this); }
+  def runtimeClassOf[A](implicit ct: ClassTag[A]): Class[A] = {
+    require(ct != classTag[Nothing], "Missing type parameter.")
+    ct.runtimeClass.asInstanceOf[Class[A]]
+  }
 }

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package global.namespace.neuron.di.spi;
+package global.namespace.neuron.di.internal;
 
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.NoOp;
@@ -22,7 +22,7 @@ import java.lang.reflect.Method;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
-import static global.namespace.neuron.di.spi.NeuronElement.isCachingEligible;
+import static global.namespace.neuron.di.internal.NeuronElement.isCachingEligible;
 
 /**
  * Adapts a function which accepts a class object reflecting a super class
