@@ -17,7 +17,7 @@ package global.namespace.neuron.di.guice.java
 
 import com.google.inject._
 import com.google.inject.name.Names.named
-import global.namespace.neuron.di.api.scala.Incubator
+import global.namespace.neuron.di.scala.Incubator
 import global.namespace.neuron.di.guice.sample.{NeuronWithQualifiedSynapses, TestBindingAnnotation, TestQualifier}
 import org.scalatest.Matchers._
 import org.scalatest.WordSpec

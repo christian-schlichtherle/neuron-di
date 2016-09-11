@@ -15,7 +15,7 @@
  */
 package global.namespace.neuron.di.internal;
 
-import global.namespace.neuron.di.api.java.CachingStrategy;
+import global.namespace.neuron.di.java.CachingStrategy;
 import net.sf.cglib.proxy.*;
 
 import java.lang.reflect.Method;

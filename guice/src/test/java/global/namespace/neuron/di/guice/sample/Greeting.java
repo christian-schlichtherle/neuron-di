@@ -15,8 +15,8 @@
  */
 package global.namespace.neuron.di.guice.sample;
 
-import global.namespace.neuron.di.api.java.Caching;
-import global.namespace.neuron.di.api.java.Neuron;
+import global.namespace.neuron.di.java.Caching;
+import global.namespace.neuron.di.java.Neuron;
 
 @Neuron
 public abstract class Greeting {

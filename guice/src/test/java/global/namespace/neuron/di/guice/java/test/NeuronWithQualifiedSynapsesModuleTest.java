@@ -25,29 +25,19 @@ import static org.hamcrest.Matchers.is;
 public class NeuronWithQualifiedSynapsesModuleTest extends ModuleTest {
 
     @Override
-    protected Module module() {
-        return new NeuronWithQualifiedSynapsesModule();
-    }
+    protected Module module() { return new NeuronWithQualifiedSynapsesModule(); }
 
     @Test
-    public void testFoo() {
-        assertThat(neuron().foo(), is("foo"));
-    }
+    public void testFoo() { assertThat(neuron().foo(), is("foo")); }
 
     @Test
-    public void testBar() {
-        assertThat(neuron().bar(), is("bar"));
-    }
+    public void testBar() { assertThat(neuron().bar(), is("bar")); }
 
     @Test
-    public void testBoom() {
-        assertThat(neuron().boom(), is("boom"));
-    }
+    public void testBoom() { assertThat(neuron().boom(), is("boom")); }
 
     @Test
-    public void testBang() {
-        assertThat(neuron().bang(), is("bang"));
-    }
+    public void testBang() { assertThat(neuron().bang(), is("bang")); }
 
     private NeuronWithQualifiedSynapses neuron() {
         return getInstance(NeuronWithQualifiedSynapses.class);

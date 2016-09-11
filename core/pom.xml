@@ -157,7 +157,7 @@
                                 <argument>-Xmn14g</argument>
                                 <argument>-Xms14g</argument>
                                 <argument>-XX:+AggressiveOpts</argument>
-                                <argument>global.namespace.neuron.di.api.java.test.PerformanceTest</argument>
+                                <argument>global.namespace.neuron.di.java.test.PerformanceTest</argument>
                             </arguments>
                             <executable>java</executable>
                             <classpathScope>test</classpathScope>

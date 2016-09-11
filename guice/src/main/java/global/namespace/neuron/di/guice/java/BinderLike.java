@@ -18,12 +18,10 @@ package global.namespace.neuron.di.guice.java;
 import com.google.inject.*;
 import com.google.inject.binder.ConstantBindingBuilder;
 import com.google.inject.binder.ScopedBindingBuilder;
-import global.namespace.neuron.di.api.java.Incubator;
-import global.namespace.neuron.di.api.java.Neuron;
+import global.namespace.neuron.di.java.Incubator;
 
 import static com.google.inject.name.Names.named;
 
-@Neuron
 public interface BinderLike {
 
     Binder binder();

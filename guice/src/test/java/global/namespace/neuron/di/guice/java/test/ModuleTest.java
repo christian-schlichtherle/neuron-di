@@ -17,9 +17,9 @@ package global.namespace.neuron.di.guice.java.test;
 
 import com.google.inject.Injector;
 import com.google.inject.Module;
-import global.namespace.neuron.di.api.java.Caching;
-import global.namespace.neuron.di.api.java.Neuron;
-import global.namespace.neuron.di.api.junit.NeuronJUnitRunner;
+import global.namespace.neuron.di.java.Caching;
+import global.namespace.neuron.di.java.Neuron;
+import global.namespace.neuron.di.junit.NeuronJUnitRunner;
 import org.junit.runner.RunWith;
 
 import static com.google.inject.Guice.createInjector;
@@ -30,10 +30,11 @@ public abstract class ModuleTest {
 
     protected abstract Module module();
 
+    @SuppressWarnings("WeakerAccess")
     @Caching
     protected Injector injector() { return createInjector(module()); }
 
-    protected <T> T getInstance(Class<T> runtimeClass) {
+    <T> T getInstance(Class<T> runtimeClass) {
         return injector().getInstance(runtimeClass);
     }
 }

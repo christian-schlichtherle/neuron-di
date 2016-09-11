@@ -28,7 +28,7 @@ import static javax.lang.model.element.ElementKind.CONSTRUCTOR;
 import static javax.lang.model.element.Modifier.*;
 
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
-@SupportedAnnotationTypes("global.namespace.neuron.di.api.java.Neuron")
+@SupportedAnnotationTypes("global.namespace.neuron.di.java.Neuron")
 public final class NeuronProcessor extends CommonProcessor {
 
     @Override
@@ -44,7 +44,7 @@ public final class NeuronProcessor extends CommonProcessor {
     private void validateClass(final TypeElement clazz) {
         final Set<Modifier> modifiers = clazz.getModifiers();
         if (!modifiers.contains(ABSTRACT) && !isRunWithNeuronJUnitRunner(clazz)) {
-            warning("A neuron class should be abstract or annotated with @org.junit.runner.RunWith(global.namespace.neuron.di.api.junit.NeuronJUnitRunner.class).", clazz);
+            warning("A neuron class should be abstract or annotated with @org.junit.runner.RunWith(global.namespace.neuron.di.junit.NeuronJUnitRunner.class).", clazz);
         }
         if (modifiers.contains(FINAL)) {
             error("A neuron class must not be final.", clazz);
@@ -66,7 +66,7 @@ public final class NeuronProcessor extends CommonProcessor {
                 .filter(mirror -> mirror.getAnnotationType().toString().equals("org.junit.runner.RunWith"))
                 .flatMap(mirror -> mirror.getElementValues().entrySet().stream())
                 .filter(entry -> entry.getKey().getSimpleName().toString().equals("value"))
-                .anyMatch(entry -> entry.getValue().getValue().toString().equals("global.namespace.neuron.di.api.junit.NeuronJUnitRunner"));
+                .anyMatch(entry -> entry.getValue().getValue().toString().equals("global.namespace.neuron.di.junit.NeuronJUnitRunner"));
     }
 
     private static boolean hasNonPrivateConstructorWithoutParameters(TypeElement type) {
