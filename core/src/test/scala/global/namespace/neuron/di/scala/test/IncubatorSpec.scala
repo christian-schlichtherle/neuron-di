@@ -138,6 +138,24 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
       string.getClass should be theSameInstanceAs integer.getClass
     }
   }
+
+  feature("@Neuron traits cannot have non-abstract members:") {
+
+    scenario("Breeding some trait without non-abstract methods:") {
+
+      Incubator.breed[Trait1] should not be null
+    }
+
+    scenario("Breeding some trait with non-abstract methods:") {
+
+      intercept[UnsupportedOperationException] { Incubator.breed[Trait2] }
+    }
+
+    scenario("Breeding some trait extending another trait with non-abstract methods:") {
+
+      intercept[UnsupportedOperationException] { Incubator.breed[Trait3] }
+    }
+  }
 }
 
 object IncubatorSpec {
@@ -155,4 +173,22 @@ object IncubatorSpec {
 
     def shouldHaveNames(names: String*) { synapseNames shouldBe names }
   }
+}
+
+@Neuron
+trait Trait1 {
+
+  def method1: String
+}
+
+@Neuron
+trait Trait2 {
+
+  def method2 = "trait2"
+}
+
+@Neuron
+trait Trait3 extends Trait2 {
+
+  def method3: String
 }
