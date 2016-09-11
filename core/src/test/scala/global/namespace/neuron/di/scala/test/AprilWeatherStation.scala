@@ -28,5 +28,6 @@ abstract class AprilWeatherStation extends WeatherStation {
     .bind(_.unit).to("˚ Celsius")
     .breed
 
-  def temperatureValue: Double = ThreadLocalRandom.current.nextDouble(5D, 25D)
+  private def temperatureValue: Double =
+    ThreadLocalRandom.current.nextDouble(5D, 25D)
 }
