@@ -25,12 +25,12 @@ final class CGFactory {
     private static final FixedValue INVALID_FIXED_VALUE =
             () -> { throw new AssertionError(); };
 
-    private CGFilter filter;
+    private CGCallbackFilter filter;
     private final Factory factory;
 
     CGFactory(final CGContext ctx) {
-        factory = new CGFunction<>((superclass, interfaces) -> {
-            filter = new CGFilter(superclass, interfaces);
+        factory = new CGAdapterFunction<>((superclass, interfaces) -> {
+            filter = new CGCallbackFilter(superclass, interfaces);
             final Enhancer e = new Enhancer();
             e.setSuperclass(superclass);
             e.setInterfaces(interfaces);
@@ -61,6 +61,6 @@ final class CGFactory {
     }
 
     private Callback[] callbacks(CGContext ctx) {
-        return ctx.callbacks(() -> filter.callbacks(ctx));
+        return ctx.callbacks(filter);
     }
 }

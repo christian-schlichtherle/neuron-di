@@ -24,11 +24,11 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.function.Supplier;
 
-final class CGFilter implements CallbackFilter, Iterable<Method> {
+final class CGCallbackFilter implements CallbackFilter, Iterable<Method> {
 
     private final ArrayList<Method> methods;
 
-    CGFilter(final Class<?> superclass, final Class<?> interfaces[]) {
+    CGCallbackFilter(final Class<?> superclass, final Class<?> interfaces[]) {
         methods = new ArrayList<>();
         Enhancer.getMethods(superclass, interfaces, methods);
         methods.trimToSize();
@@ -76,8 +76,8 @@ final class CGFilter implements CallbackFilter, Iterable<Method> {
     @Override
     public boolean equals(final Object obj) {
         if (this == obj) return true;
-        if (!(obj instanceof CGFilter)) return false;
-        final CGFilter that = (CGFilter) obj;
+        if (!(obj instanceof CGCallbackFilter)) return false;
+        final CGCallbackFilter that = (CGCallbackFilter) obj;
         return this.methods.equals(that.methods);
     }
 

@@ -40,8 +40,10 @@ final class CGContext {
 
     Supplier<?> supplier(Method method) { return binding.apply(method); }
 
-    Callback[] callbacks(Supplier<Callback[]> supplier) {
+    Callback[] callbacks(final CGCallbackFilter filter) {
         final Callback[] callbacks = this.callbacks;
-        return null != callbacks ? callbacks : (this.callbacks = supplier.get());
+        return null != callbacks
+                ? callbacks
+                : (this.callbacks = filter.callbacks(this));
     }
 }

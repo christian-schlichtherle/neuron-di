@@ -35,7 +35,7 @@ import static global.namespace.neuron.di.internal.NeuronElement.isCachingEligibl
  *
  * @param <V> the return type of the adapted function.
  */
-final class CGFunction<V> implements Function<Class<?>, V> {
+final class CGAdapterFunction<V> implements Function<Class<?>, V> {
 
     private static Class<?>[] NO_CLASSES = new Class<?>[0];
 
@@ -47,7 +47,7 @@ final class CGFunction<V> implements Function<Class<?>, V> {
      *                 interfaces.
      *                 Returns an arbitrary value.
      */
-    CGFunction(final BiFunction<Class<?>, Class<?>[], V> function) {
+    CGAdapterFunction(final BiFunction<Class<?>, Class<?>[], V> function) {
         this.function = function;
     }
 

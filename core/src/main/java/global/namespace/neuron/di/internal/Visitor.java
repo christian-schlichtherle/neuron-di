@@ -20,8 +20,8 @@ import java.lang.reflect.Method;
 interface Visitor {
 
     default void visitNeuron(NeuronElement element) {
-        new CGFunction<>((superclass, interfaces) -> {
-            for (Method method : new CGFilter(superclass, interfaces)) {
+        new CGAdapterFunction<>((superclass, interfaces) -> {
+            for (Method method : new CGCallbackFilter(superclass, interfaces)) {
                 element.element(method).accept(this);
             }
             return null;
