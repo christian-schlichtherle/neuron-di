@@ -31,8 +31,8 @@ public class AprilWeatherStationTest {
         final WeatherStation station = Incubator.breed(AprilWeatherStation.class);
         assertThat(station.now(), is(not(sameInstance(station.now()))));
         assertThat(new Date(), is(lessThanOrEqualTo(station.now())));
-        assertThat(station.temperature(), is(not(sameInstance(station.temperature()))));
         final WeatherStation.Temperature temperature = station.temperature();
+        assertThat(temperature, is(not(sameInstance(station.temperature()))));
         assertThat(temperature.value(), is(temperature.value()));
         assertThat(temperature.value(), is(greaterThanOrEqualTo(5D)));
         assertThat(temperature.value(), is(lessThan(25D)));
@@ -45,8 +45,8 @@ public class AprilWeatherStationTest {
         final WeatherStation station = Incubator.breed(AprilWeatherStation.class);
         assert station.now() != station.now();
         assert new Date().compareTo(station.now()) <= 0;
-        assert station.temperature() != station.temperature();
         final WeatherStation.Temperature temperature = station.temperature();
+        assert temperature != station.temperature();
         assert temperature.value() == temperature.value();
         assert temperature.value() >= 5D;
         assert temperature.value() < 25D;

@@ -27,8 +27,8 @@ class AprilWeatherStationSpec extends WordSpec {
     val station = Incubator.breed[AprilWeatherStation]
     station.now should not be theSameInstanceAs(station.now)
     new Date should be <= station.now
-    station.temperature should not be theSameInstanceAs(station.temperature)
     val temperature = station.temperature
+    temperature should not be theSameInstanceAs(station.temperature)
     temperature.value shouldBe temperature.value
     temperature.value should be >= 5D
     temperature.value should be < 25D
