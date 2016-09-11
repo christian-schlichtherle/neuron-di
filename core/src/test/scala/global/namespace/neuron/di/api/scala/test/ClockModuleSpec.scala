@@ -17,6 +17,7 @@ package global.namespace.neuron.di.api.scala.test
 
 import java.util.Date
 
+import global.namespace.neuron.di.api.java.test.ClockModule
 import global.namespace.neuron.di.api.scala.Incubator
 import org.scalatest.Matchers._
 import org.scalatest.WordSpec
