@@ -93,6 +93,7 @@ final class CGAdapterFunction<V> implements Function<Class<?>, V> {
         e.setInterfaces(new Class<?>[] { iface });
         e.setCallbackType(NoOp.class);
         e.setNamingPolicy(NeuronDINamingPolicy.SINGLETON);
+        e.setUseCache(false);
         e.setUseFactory(false);
         return e.createClass();
     }
