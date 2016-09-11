@@ -40,26 +40,30 @@ public final class CachingProcessor extends CommonProcessor {
     public boolean process(final Set<? extends TypeElement> annotations, final RoundEnvironment roundEnv) {
         annotations.forEach(annotation ->
                 roundEnv.getElementsAnnotatedWith(annotation)
-                        .forEach(elem -> validateMethod((ExecutableElement) elem)));
+                        .forEach(element -> validateMethod((ExecutableElement) element)));
         return true;
     }
 
     private void validateMethod(final ExecutableElement method) {
-        final javax.lang.model.element.Element enclElem =
-                method.getEnclosingElement();
-        if (null == enclElem.getAnnotation(Neuron.class)) {
+        final TypeElement type = (TypeElement) method.getEnclosingElement();
+        if (null == type.getAnnotation(Neuron.class)) {
             error("A caching method must be a member of a neuron class or interface, but...", method);
-            error("... there is no @Neuron annotation here.", enclElem);
+            error("... there is no @Neuron annotation here.", type);
         }
         final Set<Modifier> modifiers = method.getModifiers();
+        if (modifiers.contains(STATIC)) {
+            error("A caching method must not be static.", method);
+        }
         if (modifiers.contains(FINAL)) {
             error("A caching method must not be final.", method);
         }
         if (modifiers.contains(PRIVATE)) {
             error("A caching method must not be private.", method);
         }
-        if (modifiers.contains(STATIC)) {
-            error("A caching method must not be static.", method);
+        if (isPackagePrivate(method) &&
+                !isPackagePrivate(type) &&
+                !type.getModifiers().contains(PRIVATE)) {
+            error("A package-private caching method must be a member of a package-private or private type.", method);
         }
         if (!method.getParameters().isEmpty()) {
             error("A caching method must not have parameters.", method);

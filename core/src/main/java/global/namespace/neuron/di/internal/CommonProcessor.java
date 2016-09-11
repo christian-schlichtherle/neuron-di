@@ -17,12 +17,24 @@ package global.namespace.neuron.di.internal;
 
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Messager;
+import javax.lang.model.element.AnnotationMirror;
+import javax.lang.model.element.AnnotationValue;
+import javax.lang.model.element.Element;
+import javax.lang.model.element.Modifier;
 import javax.lang.model.util.Elements;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Stream;
 
+import static javax.lang.model.element.Modifier.*;
 import static javax.tools.Diagnostic.Kind.ERROR;
 import static javax.tools.Diagnostic.Kind.WARNING;
 
 abstract class CommonProcessor extends AbstractProcessor {
+
+    private static final EnumSet<Modifier> privateProtectedOrPublic =
+            EnumSet.of(PRIVATE, PROTECTED, PUBLIC);
 
     void error(CharSequence message, javax.lang.model.element.Element e) {
         messager().printMessage(ERROR, message , e);
@@ -35,4 +47,22 @@ abstract class CommonProcessor extends AbstractProcessor {
     private Messager messager() { return processingEnv.getMessager(); }
 
     Elements elementUtils() { return processingEnv.getElementUtils(); }
+
+    static boolean isPackagePrivate(Element element) {
+        return !privateProtectedOrPublic.clone().removeAll(element.getModifiers());
+    }
+
+    static Filter filter(String annotationName, String keyName) {
+        return annotationMirrors -> annotationMirrors
+                .stream()
+                .filter(mirror -> mirror.getAnnotationType().toString().equals(annotationName))
+                .flatMap(mirror -> mirror.getElementValues().entrySet().stream())
+                .filter(entry -> entry.getKey().getSimpleName().toString().equals(keyName))
+                .map(Map.Entry::getValue);
+    }
+
+    interface Filter {
+
+        Stream<? extends AnnotationValue> where(List<? extends AnnotationMirror> where);
+    }
 }

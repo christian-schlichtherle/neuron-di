@@ -23,6 +23,7 @@ import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static javax.lang.model.element.ElementKind.CONSTRUCTOR;
 import static javax.lang.model.element.Modifier.*;
@@ -36,8 +37,8 @@ public final class NeuronProcessor extends CommonProcessor {
         annotations.forEach(annotation ->
                 roundEnv.getElementsAnnotatedWith(annotation)
                         .stream()
-                        .filter(elem -> elem.getKind().isClass())
-                        .forEach(elem -> validateClass((TypeElement) elem)));
+                        .filter(element -> element.getKind().isClass())
+                        .forEach(element -> validateClass((TypeElement) element)));
         return true;
     }
 
@@ -49,10 +50,8 @@ public final class NeuronProcessor extends CommonProcessor {
         if (modifiers.contains(FINAL)) {
             error("A neuron class must not be final.", clazz);
         }
-        if (clazz.getNestingKind().isNested()) {
-            if (!modifiers.contains(STATIC)) {
-                error("A neuron class must be static.", clazz);
-            }
+        if (clazz.getNestingKind().isNested() && !modifiers.contains(STATIC)) {
+            error("A neuron class must be static.", clazz);
         }
         if (!hasNonPrivateConstructorWithoutParameters(clazz)) {
             error("A neuron class must have a non-private constructor without parameters.", clazz);
@@ -60,13 +59,9 @@ public final class NeuronProcessor extends CommonProcessor {
     }
 
     private boolean isRunWithNeuronJUnitRunner(TypeElement clazz) {
-        return elementUtils()
-                .getAllAnnotationMirrors(clazz)
-                .stream()
-                .filter(mirror -> mirror.getAnnotationType().toString().equals("org.junit.runner.RunWith"))
-                .flatMap(mirror -> mirror.getElementValues().entrySet().stream())
-                .filter(entry -> entry.getKey().getSimpleName().toString().equals("value"))
-                .anyMatch(entry -> entry.getValue().getValue().toString().equals("global.namespace.neuron.di.junit.NeuronJUnitRunner"));
+        return filter("org.junit.runner.RunWith", "value")
+                .where(elementUtils().getAllAnnotationMirrors(clazz))
+                .anyMatch(value -> value.getValue().toString().equals("global.namespace.neuron.di.junit.NeuronJUnitRunner"));
     }
 
     private static boolean hasNonPrivateConstructorWithoutParameters(TypeElement type) {
