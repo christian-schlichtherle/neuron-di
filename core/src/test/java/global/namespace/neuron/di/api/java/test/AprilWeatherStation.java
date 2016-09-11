@@ -27,8 +27,12 @@ interface AprilWeatherStation extends WeatherStation {
     default Temperature temperature() {
         return Incubator
                 .stub(Temperature.class)
-                .bind(Temperature::value).to(() -> ThreadLocalRandom.current().nextDouble(5D, 25D))
+                .bind(Temperature::value).to(this::temperatureValue)
                 .bind(Temperature::unit).to("˚ Celsius")
                 .breed();
+    }
+
+    default double temperatureValue() {
+        return ThreadLocalRandom.current().nextDouble(5D, 25D);
     }
 }
