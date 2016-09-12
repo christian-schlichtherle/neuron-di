@@ -147,7 +147,7 @@ public final class Incubator {
                                 replacement = currentReplacement;
                                 final boolean removed = synapses.remove(method);
                                 assert removed;
-                                throw new ControlFlowError();
+                                throw new BindingSuccessException();
                             } else {
                                 replacement = neuron -> Incubator.breed(method.getReturnType());
                             }
@@ -166,7 +166,7 @@ public final class Incubator {
                         try {
                             methodReference.apply(neuron);
                             throw new IllegalStateException("Illegal stubbing: The function parameter of the `bind` call at position " + currentPosition + " does not call a synapse method.");
-                        } catch (ControlFlowError ignored) {
+                        } catch (BindingSuccessException ignored) {
                         }
                     }
                 } finally {

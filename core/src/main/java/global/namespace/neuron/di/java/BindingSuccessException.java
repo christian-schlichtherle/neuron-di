@@ -15,7 +15,7 @@
  */
 package global.namespace.neuron.di.java;
 
-final class ControlFlowError extends Error {
+final class BindingSuccessException extends RuntimeException {
 
-    ControlFlowError() { super(null, null, false, false); }
+    BindingSuccessException() { super(null, null, false, false); }
 }
