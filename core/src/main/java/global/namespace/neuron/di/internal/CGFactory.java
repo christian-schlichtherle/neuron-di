@@ -36,7 +36,7 @@ final class CGFactory {
             e.setInterfaces(interfaces);
             e.setCallbackFilter(filter);
             e.setCallbacks(invalidate(callbacks(ctx)));
-            e.setNamingPolicy(NeuronDINamingPolicy.SINGLETON);
+            e.setNamingPolicy(CGNamingPolicy.SINGLETON);
             e.setUseCache(false);
             factory = (Factory) e.create();
         }).accept(ctx.runtimeClass());

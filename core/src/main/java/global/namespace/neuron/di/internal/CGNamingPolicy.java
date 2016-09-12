@@ -15,22 +15,20 @@
  */
 package global.namespace.neuron.di.internal;
 
-import net.sf.cglib.proxy.Enhancer;
-import net.sf.cglib.proxy.NoOp;
+import net.sf.cglib.core.DefaultNamingPolicy;
+import net.sf.cglib.core.Predicate;
 
-interface ASM {
+final class CGNamingPolicy extends DefaultNamingPolicy {
 
-    static Class<?> interface2class(final Class<?> iface) {
-        if (!iface.isInterface()) {
-            throw new IllegalArgumentException();
-        }
-        final Enhancer e = new Enhancer();
-        e.setSuperclass(Object.class);
-        e.setInterfaces(new Class<?>[] { iface });
-        e.setCallbackType(NoOp.class);
-        e.setNamingPolicy(NeuronDINamingPolicy.SINGLETON);
-        e.setUseCache(false);
-        e.setUseFactory(false);
-        return e.createClass();
+    static final CGNamingPolicy SINGLETON = new CGNamingPolicy();
+
+    private CGNamingPolicy() { }
+
+    @Override
+    public String getClassName(String prefix, String source, Object key, Predicate names) {
+        return super.getClassName(prefix, "ImplementedBy", key, names);
     }
+
+    @Override
+    protected String getTag() { return "NeuronDI"; }
 }

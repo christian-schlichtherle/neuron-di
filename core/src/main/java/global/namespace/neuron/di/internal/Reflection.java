@@ -15,8 +15,10 @@
  */
 package global.namespace.neuron.di.internal;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -24,7 +26,25 @@ import java.util.function.Predicate;
 
 import static global.namespace.neuron.di.internal.NeuronElement.isCachingEligible;
 
-interface Reflection {
+class Reflection {
+
+    private static final Method getClassLoadingLock, defineClass;
+
+    static {
+        final Class<ClassLoader> classLoaderClass = ClassLoader.class;
+        try {
+            getClassLoadingLock = classLoaderClass
+                    .getDeclaredMethod("getClassLoadingLock", String.class);
+            getClassLoadingLock.setAccessible(true);
+            defineClass = classLoaderClass
+                    .getDeclaredMethod("defineClass", String.class, byte[].class, int.class, int.class);
+            defineClass.setAccessible(true);
+        } catch (NoSuchMethodException e) {
+            throw new AssertionError(e);
+        }
+    }
+
+    private Reflection() { }
 
     static boolean isTraitWithNonAbstractMembers(final Class<?> trait) {
         assert trait.isInterface();
@@ -80,7 +100,7 @@ interface Reflection {
      * Note that due to interfaces, the type hierarchy can be a graph.
      * The returned function will visit any interface at most once, however.
      */
-    static Consumer<Class<?>> traverse(final Consumer<Class<?>> consumer) {
+    private static Consumer<Class<?>> traverse(final Consumer<Class<?>> consumer) {
         return new Consumer<Class<?>>() {
 
             final Set<Class<?>> interfaces = new HashSet<>();
@@ -100,5 +120,27 @@ interface Reflection {
                 }
             }
         };
+    }
+
+    static <T> Class<? extends T> defineSubtype(Class<T> type, String name, byte[] b) {
+        return defineSubtype(type, name, b, 0, b.length);
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T> Class<? extends T> defineSubtype(final Class<T> type, final String name, final byte[] b, final int off, final int len) {
+        final ClassLoader cl = Optional
+                .ofNullable(type.getClassLoader())
+                .orElse(Optional
+                        .ofNullable(Thread.currentThread().getContextClassLoader())
+                        .orElseThrow(() -> new IllegalArgumentException("No class loader available for subtyping " + type)));
+        try {
+            synchronized (getClassLoadingLock.invoke(cl, name)) {
+                return (Class<? extends T>) defineClass.invoke(cl, name, b, off, len);
+            }
+        } catch (InvocationTargetException e) {
+            throw new IllegalArgumentException(e.getCause());
+        } catch (IllegalAccessException e) {
+            throw new AssertionError(e);
+        }
     }
 }

@@ -18,7 +18,7 @@ package global.namespace.neuron.di.internal;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-import static global.namespace.neuron.di.internal.ASM.interface2class;
+import static global.namespace.neuron.di.internal.Classes.classImplementsInterface;
 import static global.namespace.neuron.di.internal.Reflection.hasCachingEligibleDefaultMethods;
 import static global.namespace.neuron.di.internal.Reflection.isTraitWithNonAbstractMembers;
 
@@ -51,7 +51,7 @@ final class ClassAdapter implements Consumer<Class<?>> {
             if (isTraitWithNonAbstractMembers(runtimeClass)) {
                 throw new UnsupportedOperationException("Trait with non-abstract members: " + runtimeClass);
             } else if (hasCachingEligibleDefaultMethods(runtimeClass)) {
-                superclass = interface2class(runtimeClass);
+                superclass = classImplementsInterface(runtimeClass);
                 interfaces = NO_CLASSES;
             } else {
                 superclass = Object.class;
