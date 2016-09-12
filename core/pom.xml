@@ -27,7 +27,7 @@
 
     <artifactId>neuron-di</artifactId>
 
-    <name>Neuron DI Core</name>
+    <name>Neuron DI</name>
 
     <dependencies>
         <dependency>

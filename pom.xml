@@ -24,7 +24,7 @@
     <version>3.1-SNAPSHOT</version>
     <packaging>pom</packaging>
 
-    <name>Neuron DI</name>
+    <name>Neuron DI Parent</name>
     <description>
         Neuron DI is an ultra-light dependency injection framework which
         emphasizes the beauty and power of lazy dependency resolution and
