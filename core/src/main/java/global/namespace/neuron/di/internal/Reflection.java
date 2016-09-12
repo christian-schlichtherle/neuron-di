@@ -79,7 +79,7 @@ class Reflection {
      * Note that due to interfaces, the type hierarchy can be a graph.
      * The returned function will visit any interface at most once, however.
      */
-    static Function<Class<?>, Boolean> anyMatch(final Predicate<Class<?>> predicate) {
+    private static Function<Class<?>, Boolean> anyMatch(final Predicate<Class<?>> predicate) {
         return hierarchy -> {
             try {
                 traverse(type -> {
@@ -122,12 +122,8 @@ class Reflection {
         };
     }
 
-    static <T> Class<? extends T> defineSubtype(Class<T> type, String name, byte[] b) {
-        return defineSubtype(type, name, b, 0, b.length);
-    }
-
     @SuppressWarnings("unchecked")
-    private static <T> Class<? extends T> defineSubtype(final Class<T> type, final String name, final byte[] b, final int off, final int len) {
+    static <T> Class<? extends T> defineSubtype(final Class<T> type, final String name, final byte[] b) {
         final ClassLoader cl = Optional
                 .ofNullable(type.getClassLoader())
                 .orElse(Optional
@@ -135,7 +131,7 @@ class Reflection {
                         .orElseThrow(() -> new IllegalArgumentException("No class loader available for subtyping " + type)));
         try {
             synchronized (getClassLoadingLock.invoke(cl, name)) {
-                return (Class<? extends T>) defineClass.invoke(cl, name, b, off, len);
+                return (Class<? extends T>) defineClass.invoke(cl, name, b, 0, b.length);
             }
         } catch (InvocationTargetException e) {
             throw new IllegalArgumentException(e.getCause());

@@ -18,6 +18,7 @@ package global.namespace.neuron.di.internal;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 
+import static global.namespace.neuron.di.internal.Reflection.defineSubtype;
 import static org.objectweb.asm.Opcodes.*;
 
 class Classes {
@@ -30,7 +31,7 @@ class Classes {
     private static final String ACCEPTS_NOTHING_RETURNS_VOID = "()V";
     private static final String JAVA_LANG_OBJECT_FILE =
             fileName(Object.class.getName());
-    public static final String IMPLEMENTED_BY_NEURON_DI = "$$ImplementedByNeuronDI";
+    private static final String IMPLEMENTED_BY_NEURON_DI = "$$ImplementedByNeuronDI";
 
     private Classes() { }
 
@@ -61,7 +62,7 @@ class Classes {
         }
         cw.visitEnd();
 
-        return Reflection.defineSubtype(iface, className, cw.toByteArray());
+        return defineSubtype(iface, className, cw.toByteArray());
     }
 
     private static String fileName(String className) {
