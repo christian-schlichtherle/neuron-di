@@ -34,6 +34,7 @@ abstract class NeuronProvider<T> implements Provider<T> {
 
     abstract MembersInjector<T> membersInjector();
 
+    @SuppressWarnings("unchecked")
     public T get() {
         final T instance = (T) Incubator.breed(typeLiteral().getRawType(), this::binding);
         membersInjector().injectMembers(instance);
@@ -44,7 +45,7 @@ abstract class NeuronProvider<T> implements Provider<T> {
         final TypeLiteral<?> returnTypeLiteral = typeLiteral()
                 .getReturnType(method);
         final Key<?> returnKey = Arrays
-                .stream(method.getAnnotations())
+                .stream(method.getDeclaredAnnotations())
                 .filter(NeuronProvider::isQualifierOrBindingAnnotation)
                 .findFirst()
                 .<Key<?>>map(annotation -> Key.get(returnTypeLiteral, annotation))
