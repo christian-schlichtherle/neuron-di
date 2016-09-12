@@ -297,8 +297,10 @@ limitations under the License.
                              <arg>-deprecation</arg>
                              <arg>-explaintypes</arg>
                              <arg>-feature</arg>
+                             <arg>-target:jvm-${maven.compiler.target}</arg>
                              <arg>-unchecked</arg>
                          </args>
+                         <recompileMode>incremental</recompileMode>
                      </configuration>
                  </plugin>
                  <plugin>
