@@ -46,13 +46,26 @@ class Reflection {
 
     private Reflection() { }
 
+    /**
+     * Returns a consumer which applies the given consumer to all elements of
+     * the type hierarchy represented by its class parameter.
+     * Note that due to interfaces, the type hierarchy can be a graph.
+     * The returned function will visit any interface at most once, however.
+     */
+    static Consumer<Class<?>> traverse(Consumer<Class<?>> consumer) {
+        return hierarchy -> anyMatch(visitor -> {
+            consumer.accept(visitor);
+            return false;
+        }).apply(hierarchy);
+    }
+
     static boolean isTraitWithNonAbstractMembers(final Class<?> trait) {
         assert trait.isInterface();
         return anyMatch(type -> {
-            final ClassLoader loader = type.getClassLoader();
-            if (null != loader) {
+            final ClassLoader cl = type.getClassLoader();
+            if (null != cl) {
                 try {
-                    loader.loadClass(type.getName() + "$class");
+                    cl.loadClass(type.getName() + "$class");
                     return true;
                 } catch (ClassNotFoundException ignored) {
                 }
@@ -61,7 +74,7 @@ class Reflection {
         }).apply(trait);
     }
 
-    static boolean hasCachingEligibleDefaultMethods(final Class<?> iface) {
+    static boolean isInterfaceWithCachingDefaultMethods(final Class<?> iface) {
         assert iface.isInterface();
         return anyMatch(type -> {
             for (final Method method : type.getDeclaredMethods()) {
@@ -80,44 +93,30 @@ class Reflection {
      * The returned function will visit any interface at most once, however.
      */
     private static Function<Class<?>, Boolean> anyMatch(final Predicate<Class<?>> predicate) {
-        return hierarchy -> {
-            try {
-                traverse(type -> {
-                    if (predicate.test(type)) {
-                        throw new PredicateMatchException();
-                    }
-                }).accept(hierarchy);
-                return false;
-            } catch (PredicateMatchException match) {
-                return true;
-            }
-        };
-    }
-
-    /**
-     * Returns a consumer which applies the given consumer to all elements of
-     * the type hierarchy represented by its class parameter.
-     * Note that due to interfaces, the type hierarchy can be a graph.
-     * The returned function will visit any interface at most once, however.
-     */
-    private static Consumer<Class<?>> traverse(final Consumer<Class<?>> consumer) {
-        return new Consumer<Class<?>>() {
+        return new Function<Class<?>, Boolean>() {
 
             final Set<Class<?>> interfaces = new HashSet<>();
 
             @Override
-            public void accept(final Class<?> visitor) {
-                consumer.accept(visitor);
+            public Boolean apply(final Class<?> visitor) {
+                if (predicate.test(visitor)) {
+                    return true;
+                }
                 final Class<?> zuper = visitor.getSuperclass();
                 if (null != zuper) {
-                    accept(zuper);
+                    if (apply(zuper)) {
+                        return true;
+                    }
                 }
                 for (final Class<?> iface : visitor.getInterfaces()) {
                     if (!interfaces.contains(iface)) {
-                        accept(iface);
+                        if (apply(iface)) {
+                            return true;
+                        }
                         interfaces.add(iface);
                     }
                 }
+                return false;
             }
         };
     }
@@ -128,7 +127,9 @@ class Reflection {
                 .ofNullable(type.getClassLoader())
                 .orElse(Optional
                         .ofNullable(Thread.currentThread().getContextClassLoader())
-                        .orElseThrow(() -> new IllegalArgumentException("No class loader available for subtyping " + type)));
+                        .orElse(Optional
+                                .ofNullable(ClassLoader.getSystemClassLoader())
+                                .orElseThrow(() -> new IllegalArgumentException("No class loader available for subtyping " + type))));
         try {
             synchronized (getClassLoadingLock.invoke(cl, name)) {
                 return (Class<? extends T>) defineClass.invoke(cl, name, b, 0, b.length);
