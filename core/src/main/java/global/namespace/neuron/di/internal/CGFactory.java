@@ -26,10 +26,10 @@ final class CGFactory {
             () -> { throw new AssertionError(); };
 
     private CGCallbackFilter filter;
-    private final Factory factory;
+    private Factory factory;
 
     CGFactory(final CGContext ctx) {
-        factory = new CGAdapterFunction<>((superclass, interfaces) -> {
+        new ClassAdapter((superclass, interfaces) -> {
             filter = new CGCallbackFilter(superclass, interfaces);
             final Enhancer e = new Enhancer();
             e.setSuperclass(superclass);
@@ -38,8 +38,8 @@ final class CGFactory {
             e.setCallbacks(invalidate(callbacks(ctx)));
             e.setNamingPolicy(NeuronDINamingPolicy.SINGLETON);
             e.setUseCache(false);
-            return (Factory) e.create();
-        }).apply(ctx.runtimeClass());
+            factory = (Factory) e.create();
+        }).accept(ctx.runtimeClass());
     }
 
     private static Callback[] invalidate(final Callback[] callbacks) {

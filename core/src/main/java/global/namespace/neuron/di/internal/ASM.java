@@ -15,21 +15,22 @@
  */
 package global.namespace.neuron.di.internal;
 
-import java.lang.reflect.Method;
+import net.sf.cglib.proxy.Enhancer;
+import net.sf.cglib.proxy.NoOp;
 
-interface Visitor {
+interface ASM {
 
-    default void visitNeuron(NeuronElement element) {
-        new ClassAdapter((superclass, interfaces) -> {
-            for (Method method : new CGCallbackFilter(superclass, interfaces)) {
-                element.element(method).accept(this);
-            }
-        }).accept(element.runtimeClass());
+    static Class<?> interface2class(final Class<?> iface) {
+        if (!iface.isInterface()) {
+            throw new IllegalArgumentException();
+        }
+        final Enhancer e = new Enhancer();
+        e.setSuperclass(Object.class);
+        e.setInterfaces(new Class<?>[] { iface });
+        e.setCallbackType(NoOp.class);
+        e.setNamingPolicy(NeuronDINamingPolicy.SINGLETON);
+        e.setUseCache(false);
+        e.setUseFactory(false);
+        return e.createClass();
     }
-
-    default void visitClass(ClassElement element) { }
-
-    default void visitSynapse(SynapseElement element) { }
-
-    default void visitMethod(MethodElement element) { }
 }

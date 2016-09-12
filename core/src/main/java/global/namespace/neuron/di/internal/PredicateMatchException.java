@@ -15,21 +15,7 @@
  */
 package global.namespace.neuron.di.internal;
 
-import java.lang.reflect.Method;
+final class PredicateMatchException extends Error {
 
-interface Visitor {
-
-    default void visitNeuron(NeuronElement element) {
-        new ClassAdapter((superclass, interfaces) -> {
-            for (Method method : new CGCallbackFilter(superclass, interfaces)) {
-                element.element(method).accept(this);
-            }
-        }).accept(element.runtimeClass());
-    }
-
-    default void visitClass(ClassElement element) { }
-
-    default void visitSynapse(SynapseElement element) { }
-
-    default void visitMethod(MethodElement element) { }
+    PredicateMatchException() { super(null, null, false, false); }
 }
