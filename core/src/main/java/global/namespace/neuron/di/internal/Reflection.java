@@ -49,6 +49,10 @@ class Reflection {
     /**
      * Returns a consumer which applies the given consumer to all elements of
      * the type hierarchy represented by its class parameter.
+     * The traversal starts with calling the given consumer for the given type,
+     * then applies itself recursively to all of the interfaces implemented by
+     * the given type in reverse order (if any) and finally to the superclass of
+     * the given type (if existing).
      * Note that due to interfaces, the type hierarchy can be a graph.
      * The returned function will visit any interface at most once, however.
      */
@@ -102,18 +106,20 @@ class Reflection {
                 if (predicate.test(visitor)) {
                     return true;
                 }
-                final Class<?> zuper = visitor.getSuperclass();
-                if (null != zuper) {
-                    if (apply(zuper)) {
-                        return true;
-                    }
-                }
-                for (final Class<?> iface : visitor.getInterfaces()) {
+                final Class<?>[] ifaces = visitor.getInterfaces();
+                for (int i = ifaces.length; 0 <= --i; ) {
+                    final Class<?> iface = ifaces[i];
                     if (!interfaces.contains(iface)) {
                         if (apply(iface)) {
                             return true;
                         }
                         interfaces.add(iface);
+                    }
+                }
+                final Class<?> zuper = visitor.getSuperclass();
+                if (null != zuper) {
+                    if (apply(zuper)) {
+                        return true;
                     }
                 }
                 return false;

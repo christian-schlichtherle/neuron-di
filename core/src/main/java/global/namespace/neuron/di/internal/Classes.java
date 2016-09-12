@@ -15,9 +15,10 @@
  */
 package global.namespace.neuron.di.internal;
 
-import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.*;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.stream.Stream;
@@ -25,7 +26,7 @@ import java.util.stream.Stream;
 import static global.namespace.neuron.di.internal.Reflection.defineSubtype;
 import static global.namespace.neuron.di.internal.Reflection.traverse;
 import static org.objectweb.asm.Opcodes.*;
-import static org.objectweb.asm.Type.getMethodDescriptor;
+import static org.objectweb.asm.Type.*;
 
 class Classes {
 
@@ -34,7 +35,7 @@ class Classes {
     private static final int ACC_SUPER_ABSTRACT_SYNTHETIC =
             ACC_SUPER | ACC_ABSTRACT | ACC_SYNTHETIC;
     private static final String CONSTRUCTOR_NAME = "<init>";
-    private static final String ACCEPTS_NOTHING_RETURNS_VOID = "()V";
+    private static final String ACCEPTS_NOTHING_AND_RETURNS_VOID = "()V";
     private static final String JAVA_LANG_OBJECT_FILE =
             internalName(Object.class.getName());
     private static final String IMPLEMENTED_BY_NEURON_DI = "$$ImplementedByNeuronDI";
@@ -57,10 +58,10 @@ class Classes {
         final ClassWriter cw = new ClassWriter(0);
         cw.visit(V1_8, ACC_SUPER_ABSTRACT_SYNTHETIC | modifiers, internalName(implName), null, JAVA_LANG_OBJECT_FILE, new String[]{ internalName(ifaceName) });
         {
-            final MethodVisitor mv = cw.visitMethod(modifiers, CONSTRUCTOR_NAME, ACCEPTS_NOTHING_RETURNS_VOID, null, null);
+            final MethodVisitor mv = cw.visitMethod(modifiers, CONSTRUCTOR_NAME, ACCEPTS_NOTHING_AND_RETURNS_VOID, null, null);
             mv.visitCode();
             mv.visitVarInsn(ALOAD, 0);
-            mv.visitMethodInsn(INVOKESPECIAL, JAVA_LANG_OBJECT_FILE, CONSTRUCTOR_NAME, ACCEPTS_NOTHING_RETURNS_VOID, false);
+            mv.visitMethodInsn(INVOKESPECIAL, JAVA_LANG_OBJECT_FILE, CONSTRUCTOR_NAME, ACCEPTS_NOTHING_AND_RETURNS_VOID, false);
             mv.visitInsn(RETURN);
             mv.visitMaxs(1, 1);
             mv.visitEnd();
@@ -97,41 +98,117 @@ class Classes {
                 }
             }
         }).accept(traitClass);
+        final Map<Method, Method> methods = traits
+                .stream()
+                .flatMap(trait -> trait.nonAbstractMembers().entrySet().stream())
+                .collect(
+                        LinkedHashMap::new,
+                        (map, entry) -> map.putIfAbsent(entry.getKey(), entry.getValue()),
+                        Map::putAll
+                );
 
         final String traitName = traitClass.getName();
         final String implName = traitName + IMPLEMENTED_BY_NEURON_DI;
         final int modifiers = ACC_PUBLIC_PRIVATE_PROTECTED & traitClass.getModifiers();
 
-        final ClassWriter cw = new ClassWriter(0);
-        cw.visit(V1_8, ACC_SUPER_ABSTRACT_SYNTHETIC | modifiers, internalName(implName), null, JAVA_LANG_OBJECT_FILE, new String[]{ internalName(traitName) });
-
-        {
-            traits.forEach(trait -> trait.nonAbstractMembers().forEach((declaration, implementation) -> {
-                final MethodVisitor mv = cw.visitMethod(ACC_SYNTHETIC | ~ACC_ABSTRACT & declaration.getModifiers(), declaration.getName(), getMethodDescriptor(declaration), null, null);
-                mv.visitCode();
-                mv.visitVarInsn(ALOAD, 0);
-                mv.visitMethodInsn(INVOKESTATIC, trait.internalClassName(), implementation.getName(), getMethodDescriptor(implementation), false);
-                mv.visitInsn(ARETURN);
-                mv.visitMaxs(1, 1);
-                mv.visitEnd();
-            }));
+        final ClassReader cr;
+        try (InputStream in = traitClass
+                .getClassLoader()
+                .getResourceAsStream(internalName(traitName) + ".class")) {
+            cr = new ClassReader(in);
+        } catch (IOException e) {
+            throw new IllegalArgumentException(e);
         }
+        final ClassWriter cw = new ClassWriter(cr, 0);
+        cr.accept(new ClassVisitor(ASM5, cw) {
 
-        {
-            final MethodVisitor mv = cw.visitMethod(ACC_SYNTHETIC | modifiers, CONSTRUCTOR_NAME, ACCEPTS_NOTHING_RETURNS_VOID, null, null);
-            mv.visitCode();
-            mv.visitVarInsn(ALOAD, 0);
-            mv.visitMethodInsn(INVOKESPECIAL, JAVA_LANG_OBJECT_FILE, CONSTRUCTOR_NAME, ACCEPTS_NOTHING_RETURNS_VOID, false);
-            for (final Trait trait : traits) {
-                mv.visitVarInsn(ALOAD, 0);
-                mv.visitMethodInsn(INVOKESTATIC, trait.internalClassName(), "$init$", "(L" + trait.internalIfaceName() + ";)V", false);
+            @Override
+            public void visit(final int version,
+                              final int access,
+                              final String name,
+                              final String signature,
+                              final String superName,
+                              final String[] interfaces) {
+                cv.visit(version,
+                        ACC_SUPER_ABSTRACT_SYNTHETIC | modifiers,
+                        internalName(implName),
+                        signature,
+                        superName,
+                        new String[]{ internalName(traitName) });
             }
-            mv.visitInsn(RETURN);
-            mv.visitMaxs(1, 1);
-            mv.visitEnd();
-        }
 
-        cw.visitEnd();
+            @Override
+            public MethodVisitor visitMethod(final int access,
+                                             final String name,
+                                             final String desc,
+                                             final String signature,
+                                             final String[] exceptions) {
+                if (methods.keySet()
+                        .stream()
+                        .filter(declaration -> name.equals(declaration.getName()))
+                        .anyMatch(declaration -> getMethodDescriptor(declaration).equals(desc))) {
+                    return null;
+                } else {
+                    return cv.visitMethod(access, name, desc, signature, exceptions);
+                }
+            }
+
+            @Override
+            public void visitEnd() {
+                methods.forEach((declaration, implementation) -> {
+                    final int implementationParameterCount =
+                            implementation.getParameterCount();
+                    final MethodVisitor mv = cv.visitMethod(
+                            // Copy from implementation except `static` is
+                            // required.
+                            ACC_SYNTHETIC | ~ACC_STATIC & implementation.getModifiers(),
+                            declaration.getName(),
+                            getMethodDescriptor(declaration),
+                            null,
+                            null);
+                    mv.visitCode();
+                    for (int i = 0; i < implementationParameterCount; i++) {
+                        mv.visitVarInsn(ALOAD, i);
+                    }
+                    mv.visitMethodInsn(
+                            INVOKESTATIC,
+                            internalName(implementation.getDeclaringClass().getName()),
+                            implementation.getName(),
+                            getMethodDescriptor(implementation),
+                            false);
+                    mv.visitInsn(ARETURN);
+                    mv.visitMaxs(implementationParameterCount,
+                            implementationParameterCount);
+                    mv.visitEnd();
+                });
+
+                {
+                    final MethodVisitor mv = cw.visitMethod(
+                            ACC_SYNTHETIC | modifiers,
+                            CONSTRUCTOR_NAME,
+                            ACCEPTS_NOTHING_AND_RETURNS_VOID,
+                            null,
+                            null);
+                    mv.visitCode();
+                    mv.visitVarInsn(ALOAD, 0);
+                    mv.visitMethodInsn(
+                            INVOKESPECIAL,
+                            JAVA_LANG_OBJECT_FILE,
+                            CONSTRUCTOR_NAME,
+                            ACCEPTS_NOTHING_AND_RETURNS_VOID,
+                            false);
+                    for (final Trait trait : traits) {
+                        mv.visitVarInsn(ALOAD, 0);
+                        mv.visitMethodInsn(INVOKESTATIC, trait.internalClassName(), "$init$", "(L" + trait.internalIfaceName() + ";)V", false);
+                    }
+                    mv.visitInsn(RETURN);
+                    mv.visitMaxs(1, 1);
+                    mv.visitEnd();
+                }
+
+                cv.visitEnd();
+            }
+        }, 0);
 
         return defineSubtype(traitClass, implName, cw.toByteArray());
     }
@@ -158,8 +235,10 @@ class Classes {
                                     name,
                                     parameterTypes.toArray(new Class<?>[parameterTypes.size()])),
                                     method);
-                        } catch (NoSuchMethodException e) {
-                            throw new AssertionError(e);
+                        } catch (NoSuchMethodException ignored) {
+                            // This may happen if the implementation method has
+                            // the name "$init$" or access modifiers private,
+                            // final etc.
                         }
                     },
                     Map::putAll
