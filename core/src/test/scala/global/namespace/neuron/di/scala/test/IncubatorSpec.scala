@@ -143,17 +143,20 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
 
     scenario("Breeding some trait without non-abstract methods:") {
 
-      Incubator.breed[Trait1] should not be null
+      Incubator.breed[Trait1].method1 shouldBe empty
+      Incubator.breed[Class1].method1 shouldBe empty
     }
 
     scenario("Breeding some trait with non-abstract methods:") {
 
       intercept[UnsupportedOperationException] { Incubator.breed[Trait2] }
+      Incubator.breed[Class2].method2 shouldBe "method2"
     }
 
     scenario("Breeding some trait extending another trait with non-abstract methods:") {
 
       intercept[UnsupportedOperationException] { Incubator.breed[Trait3] }
+      Incubator.breed[Class3].method3 shouldBe empty
     }
   }
 }
@@ -173,22 +176,31 @@ object IncubatorSpec {
 
     def shouldHaveNames(names: String*) { synapseNames shouldBe names }
   }
-}
 
-@Neuron
-trait Trait1 {
+  @Neuron
+  trait Trait1 {
 
-  def method1: String
-}
+    def method1: String
+  }
 
-@Neuron
-trait Trait2 {
+  @Neuron
+  trait Trait2 {
 
-  def method2 = "trait2"
-}
+    def method2 = "method2"
+  }
 
-@Neuron
-trait Trait3 extends Trait2 {
+  @Neuron
+  trait Trait3 extends Trait2 {
 
-  def method3: String
+    def method3: String
+  }
+
+  @Neuron
+  abstract class Class1 extends Trait1
+
+  @Neuron
+  abstract class Class2 extends Trait2
+
+  @Neuron
+  abstract class Class3 extends Trait3
 }
