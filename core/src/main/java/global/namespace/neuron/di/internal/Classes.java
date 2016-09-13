@@ -26,7 +26,9 @@ import java.util.stream.Stream;
 import static global.namespace.neuron.di.internal.Reflection.approximateClassLoader;
 import static global.namespace.neuron.di.internal.Reflection.defineSubclass;
 import static global.namespace.neuron.di.internal.Reflection.traverse;
+import static org.objectweb.asm.ClassReader.SKIP_CODE;
 import static org.objectweb.asm.ClassReader.SKIP_DEBUG;
+import static org.objectweb.asm.ClassReader.SKIP_FRAMES;
 import static org.objectweb.asm.Opcodes.*;
 import static org.objectweb.asm.Type.*;
 
@@ -151,33 +153,49 @@ class Classes {
 
             @Override
             public void visitEnd() {
+                final ClassVisitor target = cv;
                 methods.forEach((declaration, implementation) -> {
-                    final int implementationParameterCount =
-                            implementation.getParameterCount();
-                    final MethodVisitor mv = cv.visitMethod(
-                            ACC_SYNTHETIC | ~ACC_STATIC & implementation.getModifiers(),
-                            declaration.getName(),
-                            getMethodDescriptor(declaration),
-                            null, // FIXME
-                            null); // FIXME
-                    mv.visitCode();
-                    for (int i = 0; i < implementationParameterCount; i++) {
-                        mv.visitVarInsn(ALOAD, i);
-                    }
-                    mv.visitMethodInsn(INVOKESTATIC,
-                            getInternalName(implementation.getDeclaringClass()),
-                            implementation.getName(),
-                            getMethodDescriptor(implementation),
-                            false);
-                    mv.visitInsn(ARETURN);
-                    mv.visitMaxs(implementationParameterCount,
-                            implementationParameterCount);
-                    mv.visitEnd();
+                    final ClassReader cr = classReader(declaration.getDeclaringClass());
+                    cr.accept(new ClassVisitor(ASM5) {
+
+                        @Override
+                        public MethodVisitor visitMethod(final int access,
+                                                         final String name,
+                                                         final String desc,
+                                                         final String signature,
+                                                         final String[] exceptions) {
+                            if (name.equals(declaration.getName()) &&
+                                    desc.equals(getMethodDescriptor(declaration))) {
+                                final int implementationParameterCount =
+                                        implementation.getParameterCount();
+                                final MethodVisitor mv = target.visitMethod(
+                                        ACC_SYNTHETIC | ~ACC_ABSTRACT & access,
+                                        name,
+                                        desc,
+                                        signature,
+                                        exceptions);
+                                mv.visitCode();
+                                for (int i = 0; i < implementationParameterCount; i++) {
+                                    mv.visitVarInsn(ALOAD, i);
+                                }
+                                mv.visitMethodInsn(INVOKESTATIC,
+                                        getInternalName(implementation.getDeclaringClass()),
+                                        implementation.getName(),
+                                        getMethodDescriptor(implementation),
+                                        false);
+                                mv.visitInsn(ARETURN);
+                                mv.visitMaxs(implementationParameterCount,
+                                        implementationParameterCount);
+                                mv.visitEnd();
+                            }
+                            return null;
+                        }
+                    }, SKIP_DEBUG | SKIP_CODE | SKIP_FRAMES);
                 });
 
                 insertConstructor();
 
-                cv.visitEnd();
+                target.visitEnd();
             }
 
             void insertConstructor() {
