@@ -18,8 +18,8 @@ package global.namespace.neuron.di.internal;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-import static global.namespace.neuron.di.internal.Classes.classImplementingJava;
-import static global.namespace.neuron.di.internal.Classes.classImplementingScala;
+import static global.namespace.neuron.di.internal.ASM.classImplementingJava;
+import static global.namespace.neuron.di.internal.ASM.classImplementingScala;
 import static global.namespace.neuron.di.internal.Reflection.isInterfaceWithCachingDefaultMethods;
 import static global.namespace.neuron.di.internal.Reflection.isTraitWithNonAbstractMembers;
 
