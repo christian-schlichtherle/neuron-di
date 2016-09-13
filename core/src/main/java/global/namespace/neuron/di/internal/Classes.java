@@ -15,7 +15,10 @@
  */
 package global.namespace.neuron.di.internal;
 
-import org.objectweb.asm.*;
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.MethodVisitor;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,14 +26,11 @@ import java.lang.reflect.Method;
 import java.util.*;
 import java.util.stream.Stream;
 
-import static global.namespace.neuron.di.internal.Reflection.approximateClassLoader;
-import static global.namespace.neuron.di.internal.Reflection.defineSubclass;
-import static global.namespace.neuron.di.internal.Reflection.traverse;
-import static org.objectweb.asm.ClassReader.SKIP_CODE;
-import static org.objectweb.asm.ClassReader.SKIP_DEBUG;
-import static org.objectweb.asm.ClassReader.SKIP_FRAMES;
+import static global.namespace.neuron.di.internal.Reflection.*;
+import static org.objectweb.asm.ClassReader.*;
 import static org.objectweb.asm.Opcodes.*;
-import static org.objectweb.asm.Type.*;
+import static org.objectweb.asm.Type.getInternalName;
+import static org.objectweb.asm.Type.getMethodDescriptor;
 
 class Classes {
 
@@ -86,29 +86,35 @@ class Classes {
         }
 
         final Deque<Trait> traits = new LinkedList<>();
-        traverse(ifaceClass -> {
-            final ClassLoader cl = ifaceClass.getClassLoader();
-            if (null != cl) {
-                try {
-                    final Class<?> classClass = cl.loadClass(ifaceClass.getName() + "$class");
-                    traits.addFirst(new Trait() {
+        {
+            traverse(ifaceClass -> {
+                final ClassLoader cl = ifaceClass.getClassLoader();
+                if (null != cl) {
+                    try {
+                        final Class<?> classClass = cl.loadClass(ifaceClass.getName() + "$class");
+                        traits.addFirst(new Trait() {
 
-                        @Override
-                        public Class<?> ifaceClass() { return ifaceClass; }
+                            @Override
+                            public Class<?> ifaceClass() {
+                                return ifaceClass;
+                            }
 
-                        @Override
-                        public Class<?> classClass() { return classClass; }
-                    });
-                } catch (ClassNotFoundException ignored) {
+                            @Override
+                            public Class<?> classClass() {
+                                return classClass;
+                            }
+                        });
+                    } catch (ClassNotFoundException ignored) {
+                    }
                 }
-            }
-        }).accept(traitClass);
-        final Map<Method, Method> methods = traits
+            }).accept(traitClass);
+        }
+        final Map<MethodSignature, Method> methods = traits
                 .stream()
                 .flatMap(trait -> trait.declaredNonAbstractMembers().entrySet().stream())
                 .collect(
                         LinkedHashMap::new,
-                        (map, entry) -> map.putIfAbsent(entry.getKey(), entry.getValue()),
+                        (map, entry) -> map.putIfAbsent(new MethodSignature(entry.getKey()), entry.getValue()),
                         Map::putAll
                 );
 
@@ -141,10 +147,7 @@ class Classes {
                                              final String desc,
                                              final String signature,
                                              final String[] exceptions) {
-                if (methods.keySet()
-                        .stream()
-                        .filter(declaration -> name.equals(declaration.getName()))
-                        .anyMatch(declaration -> desc.equals(getMethodDescriptor(declaration)))) {
+                if (methods.containsKey(new MethodSignature(name, desc))) {
                     return null;
                 } else {
                     return cv.visitMethod(access, name, desc, signature, exceptions);
@@ -154,8 +157,8 @@ class Classes {
             @Override
             public void visitEnd() {
                 final ClassVisitor target = cv;
-                methods.forEach((declaration, implementation) -> {
-                    final ClassReader cr = classReader(declaration.getDeclaringClass());
+                traits.forEach(trait -> {
+                    final ClassReader cr = classReader(trait.ifaceClass());
                     cr.accept(new ClassVisitor(ASM5) {
 
                         @Override
@@ -164,8 +167,9 @@ class Classes {
                                                          final String desc,
                                                          final String signature,
                                                          final String[] exceptions) {
-                            if (name.equals(declaration.getName()) &&
-                                    desc.equals(getMethodDescriptor(declaration))) {
+                            final MethodSignature s = new MethodSignature(name, desc);
+                            final Method implementation = methods.remove(s);
+                            if (null != implementation) {
                                 final int implementationParameterCount =
                                         implementation.getParameterCount();
                                 final MethodVisitor mv = target.visitMethod(
@@ -195,7 +199,7 @@ class Classes {
 
                 insertConstructor();
 
-                target.visitEnd();
+                cv.visitEnd();
             }
 
             void insertConstructor() {
@@ -281,5 +285,36 @@ class Classes {
         default String className() {  return classClass().getName(); }
 
         Class<?> classClass();
+    }
+
+    private static final class MethodSignature {
+
+        final String name;
+        final String descriptor;
+
+        private MethodSignature(Method method) {
+            this(method.getName(), getMethodDescriptor(method));
+        }
+
+        private MethodSignature(final String name, final String descriptor) {
+            this.name = name;
+            this.descriptor = descriptor;
+        }
+
+        @Override
+        public boolean equals(final Object obj) {
+            if (this == obj) return true;
+            if (!(obj instanceof MethodSignature)) return false;
+            final MethodSignature that = (MethodSignature) obj;
+            return this.name.equals(that.name) &&
+                    this.descriptor.equals(that.descriptor);
+        }
+
+        @Override
+        public int hashCode() {
+            int result = name.hashCode();
+            result = 31 * result + descriptor.hashCode();
+            return result;
+        }
     }
 }
