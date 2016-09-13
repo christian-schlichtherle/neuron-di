@@ -128,14 +128,10 @@ class Reflection {
     }
 
     @SuppressWarnings("unchecked")
-    static <T> Class<? extends T> defineSubtype(final Class<T> type, final String name, final byte[] b) {
-        final ClassLoader cl = Optional
-                .ofNullable(type.getClassLoader())
-                .orElse(Optional
-                        .ofNullable(Thread.currentThread().getContextClassLoader())
-                        .orElse(Optional
-                                .ofNullable(ClassLoader.getSystemClassLoader())
-                                .orElseThrow(() -> new IllegalArgumentException("No class loader available for subtyping " + type))));
+    static <T> Class<? extends T> defineSubclass(final Class<T> clazz,
+                                                 final String name,
+                                                 final byte[] b) {
+        final ClassLoader cl = approximateClassLoader(clazz);
         try {
             synchronized (getClassLoadingLock.invoke(cl, name)) {
                 return (Class<? extends T>) defineClass.invoke(cl, name, b, 0, b.length);
@@ -145,5 +141,15 @@ class Reflection {
         } catch (IllegalAccessException e) {
             throw new AssertionError(e);
         }
+    }
+
+    static <T> ClassLoader approximateClassLoader(Class<T> clazz) {
+        return Optional
+                .ofNullable(clazz.getClassLoader())
+                .orElse(Optional
+                        .ofNullable(Thread.currentThread().getContextClassLoader())
+                        .orElse(Optional
+                                .ofNullable(ClassLoader.getSystemClassLoader())
+                                .orElseThrow(() -> new IllegalArgumentException("No class loader available for subtyping " + clazz))));
     }
 }

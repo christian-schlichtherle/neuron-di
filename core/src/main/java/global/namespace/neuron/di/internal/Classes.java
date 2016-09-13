@@ -23,8 +23,10 @@ import java.lang.reflect.Method;
 import java.util.*;
 import java.util.stream.Stream;
 
-import static global.namespace.neuron.di.internal.Reflection.defineSubtype;
+import static global.namespace.neuron.di.internal.Reflection.approximateClassLoader;
+import static global.namespace.neuron.di.internal.Reflection.defineSubclass;
 import static global.namespace.neuron.di.internal.Reflection.traverse;
+import static org.objectweb.asm.ClassReader.SKIP_DEBUG;
 import static org.objectweb.asm.Opcodes.*;
 import static org.objectweb.asm.Type.*;
 
@@ -36,9 +38,10 @@ class Classes {
             ACC_SUPER | ACC_ABSTRACT | ACC_SYNTHETIC;
     private static final String CONSTRUCTOR_NAME = "<init>";
     private static final String ACCEPTS_NOTHING_AND_RETURNS_VOID = "()V";
-    private static final String JAVA_LANG_OBJECT_FILE =
-            internalName(Object.class.getName());
-    private static final String IMPLEMENTED_BY_NEURON_DI = "$$ImplementedByNeuronDI";
+    private static final String JAVA_LANG_OBJECT =
+            getInternalName(Object.class);
+    private static final String IMPLEMENTED_BY_NEURON_DI =
+            "$$ImplementedByNeuronDI";
 
     private Classes() { }
 
@@ -56,19 +59,19 @@ class Classes {
         final int modifiers = ACC_PUBLIC_PRIVATE_PROTECTED & ifaceClass.getModifiers();
 
         final ClassWriter cw = new ClassWriter(0);
-        cw.visit(V1_8, ACC_SUPER_ABSTRACT_SYNTHETIC | modifiers, internalName(implName), null, JAVA_LANG_OBJECT_FILE, new String[]{ internalName(ifaceName) });
-        {
-            final MethodVisitor mv = cw.visitMethod(modifiers, CONSTRUCTOR_NAME, ACCEPTS_NOTHING_AND_RETURNS_VOID, null, null);
-            mv.visitCode();
-            mv.visitVarInsn(ALOAD, 0);
-            mv.visitMethodInsn(INVOKESPECIAL, JAVA_LANG_OBJECT_FILE, CONSTRUCTOR_NAME, ACCEPTS_NOTHING_AND_RETURNS_VOID, false);
-            mv.visitInsn(RETURN);
-            mv.visitMaxs(1, 1);
-            mv.visitEnd();
-        }
+        cw.visit(V1_8, ACC_SUPER_ABSTRACT_SYNTHETIC | modifiers, internalName(implName), null, JAVA_LANG_OBJECT, new String[]{ internalName(ifaceName) });
+
+        final MethodVisitor mv = cw.visitMethod(modifiers, CONSTRUCTOR_NAME, ACCEPTS_NOTHING_AND_RETURNS_VOID, null, null);
+        mv.visitCode();
+        mv.visitVarInsn(ALOAD, 0);
+        mv.visitMethodInsn(INVOKESPECIAL, JAVA_LANG_OBJECT, CONSTRUCTOR_NAME, ACCEPTS_NOTHING_AND_RETURNS_VOID, false);
+        mv.visitInsn(RETURN);
+        mv.visitMaxs(1, 1);
+        mv.visitEnd();
+
         cw.visitEnd();
 
-        return defineSubtype(ifaceClass, implName, cw.toByteArray());
+        return defineSubclass(ifaceClass, implName, cw.toByteArray());
     }
 
     /**
@@ -100,7 +103,7 @@ class Classes {
         }).accept(traitClass);
         final Map<Method, Method> methods = traits
                 .stream()
-                .flatMap(trait -> trait.nonAbstractMembers().entrySet().stream())
+                .flatMap(trait -> trait.declaredNonAbstractMembers().entrySet().stream())
                 .collect(
                         LinkedHashMap::new,
                         (map, entry) -> map.putIfAbsent(entry.getKey(), entry.getValue()),
@@ -111,14 +114,7 @@ class Classes {
         final String implName = traitName + IMPLEMENTED_BY_NEURON_DI;
         final int modifiers = ACC_PUBLIC_PRIVATE_PROTECTED & traitClass.getModifiers();
 
-        final ClassReader cr;
-        try (InputStream in = traitClass
-                .getClassLoader()
-                .getResourceAsStream(internalName(traitName) + ".class")) {
-            cr = new ClassReader(in);
-        } catch (IOException e) {
-            throw new IllegalArgumentException(e);
-        }
+        final ClassReader cr = classReader(traitClass);
         final ClassWriter cw = new ClassWriter(cr, 0);
         cr.accept(new ClassVisitor(ASM5, cw) {
 
@@ -133,7 +129,7 @@ class Classes {
                         ACC_SUPER_ABSTRACT_SYNTHETIC | modifiers,
                         internalName(implName),
                         signature,
-                        superName,
+                        JAVA_LANG_OBJECT,
                         new String[]{ internalName(traitName) });
             }
 
@@ -146,7 +142,7 @@ class Classes {
                 if (methods.keySet()
                         .stream()
                         .filter(declaration -> name.equals(declaration.getName()))
-                        .anyMatch(declaration -> getMethodDescriptor(declaration).equals(desc))) {
+                        .anyMatch(declaration -> desc.equals(getMethodDescriptor(declaration)))) {
                     return null;
                 } else {
                     return cv.visitMethod(access, name, desc, signature, exceptions);
@@ -159,20 +155,17 @@ class Classes {
                     final int implementationParameterCount =
                             implementation.getParameterCount();
                     final MethodVisitor mv = cv.visitMethod(
-                            // Copy from implementation except `static` is
-                            // required.
                             ACC_SYNTHETIC | ~ACC_STATIC & implementation.getModifiers(),
                             declaration.getName(),
                             getMethodDescriptor(declaration),
-                            null,
-                            null);
+                            null, // FIXME
+                            null); // FIXME
                     mv.visitCode();
                     for (int i = 0; i < implementationParameterCount; i++) {
                         mv.visitVarInsn(ALOAD, i);
                     }
-                    mv.visitMethodInsn(
-                            INVOKESTATIC,
-                            internalName(implementation.getDeclaringClass().getName()),
+                    mv.visitMethodInsn(INVOKESTATIC,
+                            getInternalName(implementation.getDeclaringClass()),
                             implementation.getName(),
                             getMethodDescriptor(implementation),
                             false);
@@ -182,35 +175,49 @@ class Classes {
                     mv.visitEnd();
                 });
 
-                {
-                    final MethodVisitor mv = cw.visitMethod(
-                            ACC_SYNTHETIC | modifiers,
-                            CONSTRUCTOR_NAME,
-                            ACCEPTS_NOTHING_AND_RETURNS_VOID,
-                            null,
-                            null);
-                    mv.visitCode();
-                    mv.visitVarInsn(ALOAD, 0);
-                    mv.visitMethodInsn(
-                            INVOKESPECIAL,
-                            JAVA_LANG_OBJECT_FILE,
-                            CONSTRUCTOR_NAME,
-                            ACCEPTS_NOTHING_AND_RETURNS_VOID,
-                            false);
-                    for (final Trait trait : traits) {
-                        mv.visitVarInsn(ALOAD, 0);
-                        mv.visitMethodInsn(INVOKESTATIC, trait.internalClassName(), "$init$", "(L" + trait.internalIfaceName() + ";)V", false);
-                    }
-                    mv.visitInsn(RETURN);
-                    mv.visitMaxs(1, 1);
-                    mv.visitEnd();
-                }
+                insertConstructor();
 
                 cv.visitEnd();
             }
-        }, 0);
 
-        return defineSubtype(traitClass, implName, cw.toByteArray());
+            void insertConstructor() {
+                final MethodVisitor mv = cv.visitMethod(
+                        ACC_SYNTHETIC | modifiers,
+                        CONSTRUCTOR_NAME,
+                        ACCEPTS_NOTHING_AND_RETURNS_VOID,
+                        null,
+                        null);
+                mv.visitCode();
+                mv.visitVarInsn(ALOAD, 0);
+                mv.visitMethodInsn(INVOKESPECIAL,
+                        JAVA_LANG_OBJECT,
+                        CONSTRUCTOR_NAME,
+                        ACCEPTS_NOTHING_AND_RETURNS_VOID,
+                        false);
+                for (final Trait trait : traits) {
+                    mv.visitVarInsn(ALOAD, 0);
+                    mv.visitMethodInsn(INVOKESTATIC,
+                            trait.internalClassName(),
+                            "$init$",
+                            "(L" + trait.internalIfaceName() + ";)V",
+                            false);
+                }
+                mv.visitInsn(RETURN);
+                mv.visitMaxs(1, 1);
+                mv.visitEnd();
+            }
+        }, SKIP_DEBUG);
+
+        return defineSubclass(traitClass, implName, cw.toByteArray());
+    }
+
+    private static <T> ClassReader classReader(final Class<T> clazz) {
+        try (InputStream in = approximateClassLoader(clazz)
+                .getResourceAsStream(getInternalName(clazz) + ".class")) {
+            return new ClassReader(in);
+        } catch (IOException e) {
+            throw new IllegalArgumentException(e);
+        }
     }
 
     private static String internalName(String className) {
@@ -219,7 +226,7 @@ class Classes {
 
     private interface Trait {
 
-        default Map<Method, Method> nonAbstractMembers() {
+        default Map<Method, Method> declaredNonAbstractMembers() {
             return Stream.of(classClass().getDeclaredMethods()).collect(
                     LinkedHashMap::new,
                     (map, method) -> {
@@ -245,17 +252,13 @@ class Classes {
             );
         }
 
-        default String internalIfaceName() {
-            return internalName(ifaceName());
-        }
+        default String internalIfaceName() { return internalName(ifaceName()); }
 
         default String ifaceName() { return ifaceClass().getName(); }
 
         Class<?> ifaceClass();
 
-        default String internalClassName() {
-            return internalName(className());
-        }
+        default String internalClassName() { return internalName(className()); }
 
         default String className() {  return classClass().getName(); }
 
