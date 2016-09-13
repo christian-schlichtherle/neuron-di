@@ -21,15 +21,15 @@ import org.objectweb.asm.MethodVisitor;
 import static global.namespace.neuron.di.internal.ASM.*;
 import static org.objectweb.asm.Type.getInternalName;
 
-final class InterfaceWithDefaultMethodsVisitor extends ClassVisitor {
+final class InterfaceVisitor extends ClassVisitor {
 
     private final Class<?> ifaceClass;
     private final String internalImplName;
     private final int modifiers;
 
-    InterfaceWithDefaultMethodsVisitor(final ClassVisitor cv,
-                                       final Class<?> ifaceClass,
-                                       final String internalImplName) {
+    InterfaceVisitor(final ClassVisitor cv,
+                     final Class<?> ifaceClass,
+                     final String internalImplName) {
         super(ASM5, cv);
         this.ifaceClass = ifaceClass;
         this.internalImplName = internalImplName;

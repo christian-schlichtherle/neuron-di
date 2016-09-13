@@ -65,7 +65,7 @@ final class ASM implements Opcodes {
         final String implName = ifaceClass.getName() + IMPLEMENTED_BY_NEURON_DI;
         final ClassReader cr = classReader(ifaceClass);
         final ClassWriter cw = new ClassWriter(cr, 0);
-        cr.accept(new InterfaceWithDefaultMethodsVisitor(cw, ifaceClass, internalName(implName)), SKIP_DEBUG);
+        cr.accept(new InterfaceVisitor(cw, ifaceClass, internalName(implName)), SKIP_DEBUG);
         return defineSubclass(ifaceClass, implName, cw.toByteArray());
     }
 
