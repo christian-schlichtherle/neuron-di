@@ -15,8 +15,6 @@
  */
 package global.namespace.neuron.di.scala
 
-import global.namespace.neuron.di.java.{Neuron => jNeuron}
-
 import scala.annotation.{StaticAnnotation, compileTimeOnly}
 import scala.language.experimental.macros
 import scala.reflect.macros.whitebox
@@ -81,16 +79,18 @@ private object Neuron {
 
     val inputs = annottees.toList
     val outputs: List[Tree] = inputs match {
-      case ClassDef(mods @ Modifiers(flags, privateWithin, annotations), typeName @ TypeName(name), tparams, impl) :: rest =>
-        val neuron = Apply(Select(New(Select(Select(Select(Select(Select(Select(Ident(termNames.ROOTPKG), TermName("global")), TermName("namespace")), TermName("neuron")), TermName("di")), TermName("java")), TypeName("Neuron"))), termNames.CONSTRUCTOR), Nil)
-        ClassDef(mods.mapAnnotations(neuron :: _), typeName, tparams, impl) :: {
+      case ClassDef(mods @ Modifiers(flags, privateWithin, annotations), tpname @ TypeName(name), tparams, impl) :: rest =>
+        val Annotated(neuron, _) = q"any: @_root_.global.namespace.neuron.di.java.Neuron"
+        ClassDef(mods.mapAnnotations(neuron :: _), tpname, tparams, impl) :: {
           if (mods.hasFlag(TRAIT) && !mods.hasFlag(INTERFACE)) {
-            val implDef = ClassDef(Modifiers(flags &~ (TRAIT | DEFAULTPARAM) | ABSTRACT | SYNTHETIC, privateWithin, neuron :: annotations), TypeName("$shim"), Nil, Template(List(Ident(typeName)), noSelfType, List(DefDef(Modifiers(), termNames.CONSTRUCTOR, Nil, List(Nil), TypeTree(), Block(List(pendingSuperCall), Literal(Constant(())))))))
+            val mods = Modifiers(flags &~ (TRAIT | DEFAULTPARAM) | ABSTRACT | SYNTHETIC, privateWithin, neuron :: annotations)
+            val implDef = q"$mods class $$shim extends $tpname"
             rest match {
               case ModuleDef(mods, name, Template(parents, self, body)) :: rest =>
                 ModuleDef(mods, name, Template(parents, self, implDef :: body)) :: rest
               case rest =>
-                ModuleDef(Modifiers(flags &~ (ABSTRACT | TRAIT | DEFAULTPARAM) | SYNTHETIC, privateWithin, Nil), TermName(name), Template(Nil, noSelfType, List(implDef, DefDef(Modifiers(), termNames.CONSTRUCTOR, List(), List(List()), TypeTree(), Block(List(pendingSuperCall), Literal(Constant(()))))))) :: rest
+                val mods = Modifiers(flags &~ (ABSTRACT | TRAIT | DEFAULTPARAM) | SYNTHETIC, privateWithin, annotations)
+                q"$mods object ${TermName(name)} { $implDef }" :: rest
             }
           } else {
             rest
