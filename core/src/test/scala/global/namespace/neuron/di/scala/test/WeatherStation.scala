@@ -15,8 +15,8 @@
  */
 package global.namespace.neuron.di.scala.test
 
-import global.namespace.neuron.di.scala._
 import global.namespace.neuron.di.sample.Clock
+import global.namespace.neuron.di.scala._
 
 @Neuron
 trait WeatherStation extends Clock {
@@ -26,10 +26,8 @@ trait WeatherStation extends Clock {
   @Neuron
   trait Temperature {
 
-    @Caching
     val value: Double
 
-    @Caching
     val unit: String
   }
 }

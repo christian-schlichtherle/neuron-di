@@ -22,12 +22,12 @@ import scala.reflect.macros.whitebox
 @compileTimeOnly("Please add the Macro Paradise plugin to the Scala compiler to expand this macro annotation.")
 class Neuron extends StaticAnnotation {
 
-  def macroTransform(annottees: Any*): Any = macro Neuron.impl
+  def macroTransform(annottees: Any*): Any = macro Neuron.transformClassDef
 }
 
 private object Neuron {
 
-  def impl(c: whitebox.Context)(annottees: c.Tree*): c.Tree = {
+  def transformClassDef(c: whitebox.Context)(annottees: c.Tree*): c.Tree = {
     import c.universe._
     import Flag._
 
@@ -77,13 +77,40 @@ private object Neuron {
       }
     }
 
+    val newNeuron = q"new _root_.global.namespace.neuron.di.java.Neuron"
+    lazy val newCaching = q"new _root_.global.namespace.neuron.di.scala.Caching"
+    lazy val cachingType = newCaching match {
+      case Apply(Select(New(ident), _), _) =>
+        c.typecheck(ident, mode = c.TYPEmode)
+    }
+
+    def isCachingAnnotation(tree: Tree): Boolean = {
+      tree match {
+        case Apply(Select(New(ident), _), _) =>
+          c.typecheck(ident, mode = c.TYPEmode, silent = true) equalsStructure
+            cachingType
+        case _ => false
+      }
+    }
+
+    def transform(template: Template): Template = {
+      val Template(parents, self, body) = template
+      Template(parents, self, body map {
+        case valDef @ ValDef(mods @ Modifiers(flags, _, annotations), name, tpt, EmptyTree)
+          if !annotations.exists(isCachingAnnotation) =>
+          c.info(valDef.pos, "Adding @global.namespace.neuron.di.scala.Caching:", force = false)
+          ValDef(mods.mapAnnotations(newCaching :: _), name, tpt, EmptyTree)
+        case other =>
+          other
+      })
+    }
+
     val inputs = annottees.toList
     val outputs: List[Tree] = inputs match {
       case ClassDef(mods @ Modifiers(flags, privateWithin, annotations), tpname @ TypeName(name), tparams, impl) :: rest =>
-        val Annotated(neuron, _) = q"any: @_root_.global.namespace.neuron.di.java.Neuron"
-        ClassDef(mods.mapAnnotations(neuron :: _), tpname, tparams, impl) :: {
+        ClassDef(mods.mapAnnotations(newNeuron :: _), tpname, tparams, transform(impl)) :: {
           if (mods.hasFlag(TRAIT) && !mods.hasFlag(INTERFACE)) {
-            val mods = Modifiers(flags &~ (TRAIT | DEFAULTPARAM) | ABSTRACT | SYNTHETIC, privateWithin, neuron :: annotations)
+            val mods = Modifiers(flags &~ (TRAIT | DEFAULTPARAM) | ABSTRACT | SYNTHETIC, privateWithin, newNeuron :: annotations)
             val implDef = q"$mods class $$shim extends $tpname"
             rest match {
               case ModuleDef(mods, name, Template(parents, self, body)) :: rest =>
@@ -99,6 +126,7 @@ private object Neuron {
       case _ =>
         inputs
     }
+
     q"..$outputs"
   }
 }

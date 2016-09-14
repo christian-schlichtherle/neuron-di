@@ -15,12 +15,11 @@
  */
 package global.namespace.neuron.di.scala.test
 
-import global.namespace.neuron.di.scala.{Caching, Neuron}
 import global.namespace.neuron.di.sample.Clock
+import global.namespace.neuron.di.scala.Neuron
 
 @Neuron
 trait ClockModule {
 
-  @Caching
   val clock: Clock
 }
