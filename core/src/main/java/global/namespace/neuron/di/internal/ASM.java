@@ -39,7 +39,7 @@ final class ASM implements Opcodes {
 
     static final String JAVA_LANG_OBJECT = getInternalName(Object.class);
 
-    private static final String IMPLEMENTED_BY_NEURON_DI = "$$ImplementedByNeuronDI";
+    private static final String SHIM = "$$shim";
 
     private static String internalName(String className) {
         return className.replace('.', '/');
@@ -62,10 +62,10 @@ final class ASM implements Opcodes {
         if (!ifaceClass.isInterface()) {
             throw new IllegalArgumentException();
         }
-        final String implName = ifaceClass.getName() + IMPLEMENTED_BY_NEURON_DI;
+        final String implName = ifaceClass.getName() + SHIM;
         final ClassReader cr = classReader(ifaceClass);
         final ClassWriter cw = new ClassWriter(cr, 0);
-        cr.accept(new InterfaceVisitor(cw, ifaceClass, internalName(implName)), SKIP_DEBUG);
+        cr.accept(new ASMInterfaceVisitor(cw, ifaceClass, internalName(implName)), SKIP_DEBUG);
         return defineSubclass(ifaceClass, implName, cw.toByteArray());
     }
 }

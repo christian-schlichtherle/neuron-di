@@ -70,7 +70,7 @@ final class ClassAdapter implements Consumer<Class<?>> {
     private Optional<Class<?>> lookupScalaCompanion(final Class<?> runtimeClass) {
         try {
             return Optional.of(associatedClassLoader(runtimeClass)
-                    .loadClass(runtimeClass.getName() + "$$ImplementedByNeuronDI"));
+                    .loadClass(runtimeClass.getName() + "$$shim"));
         } catch (ClassNotFoundException e) {
             return Optional.empty();
         }

@@ -85,7 +85,7 @@ private object Neuron {
         val neuron = Apply(Select(New(Select(Select(Select(Select(Select(Select(Ident(termNames.ROOTPKG), TermName("global")), TermName("namespace")), TermName("neuron")), TermName("di")), TermName("java")), TypeName("Neuron"))), termNames.CONSTRUCTOR), Nil)
         ClassDef(mods.mapAnnotations(neuron :: _), typeName, tparams, impl) :: {
           if (mods.hasFlag(TRAIT) && !mods.hasFlag(INTERFACE)) {
-            val implDef = ClassDef(Modifiers(flags &~ (TRAIT | DEFAULTPARAM) | ABSTRACT | SYNTHETIC, privateWithin, neuron :: annotations), TypeName("$ImplementedByNeuronDI"), Nil, Template(List(Ident(typeName)), noSelfType, List(DefDef(Modifiers(), termNames.CONSTRUCTOR, Nil, List(Nil), TypeTree(), Block(List(pendingSuperCall), Literal(Constant(())))))))
+            val implDef = ClassDef(Modifiers(flags &~ (TRAIT | DEFAULTPARAM) | ABSTRACT | SYNTHETIC, privateWithin, neuron :: annotations), TypeName("$shim"), Nil, Template(List(Ident(typeName)), noSelfType, List(DefDef(Modifiers(), termNames.CONSTRUCTOR, Nil, List(Nil), TypeTree(), Block(List(pendingSuperCall), Literal(Constant(())))))))
             rest match {
               case ModuleDef(mods, name, Template(parents, self, body)) :: rest =>
                 ModuleDef(mods, name, Template(parents, self, implDef :: body)) :: rest

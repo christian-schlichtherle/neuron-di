@@ -26,9 +26,9 @@ final class CGNamingPolicy extends DefaultNamingPolicy {
 
     @Override
     public String getClassName(String prefix, String source, Object key, Predicate names) {
-        return super.getClassName(prefix, "ImplementedBy", key, names);
+        return super.getClassName(prefix, "", key, names);
     }
 
     @Override
-    protected String getTag() { return "NeuronDI"; }
+    protected String getTag() { return "neuron"; }
 }
