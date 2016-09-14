@@ -300,6 +300,13 @@ limitations under the License.
                              <arg>-target:jvm-${maven.compiler.target}</arg>
                              <arg>-unchecked</arg>
                          </args>
+                         <compilerPlugins>
+                             <compilerPlugin>
+                                 <groupId>org.scalamacros</groupId>
+                                 <artifactId>paradise_${scala.version}</artifactId>
+                                 <version>2.1.0</version>
+                             </compilerPlugin>
+                         </compilerPlugins>
                          <recompileMode>incremental</recompileMode>
                      </configuration>
                  </plugin>

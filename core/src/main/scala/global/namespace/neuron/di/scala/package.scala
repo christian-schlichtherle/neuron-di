@@ -21,5 +21,4 @@ package object scala {
 
   type Caching = global.namespace.neuron.di.java.Caching @getter
   type CachingStrategy = global.namespace.neuron.di.java.CachingStrategy
-  type Neuron = global.namespace.neuron.di.java.Neuron
 }

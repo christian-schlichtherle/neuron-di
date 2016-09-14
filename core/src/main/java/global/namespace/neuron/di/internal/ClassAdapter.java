@@ -15,13 +15,13 @@
  */
 package global.namespace.neuron.di.internal;
 
+import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import static global.namespace.neuron.di.internal.ASM.classImplementingJava;
-import static global.namespace.neuron.di.internal.ASM.classImplementingScala;
+import static global.namespace.neuron.di.internal.Reflection.associatedClassLoader;
 import static global.namespace.neuron.di.internal.Reflection.isInterfaceWithCachingDefaultMethods;
-import static global.namespace.neuron.di.internal.Reflection.isTraitWithNonAbstractMembers;
 
 /**
  * Adapts a consumer which accepts a class object reflecting a super class
@@ -49,8 +49,9 @@ final class ClassAdapter implements Consumer<Class<?>> {
         final Class<?> superclass;
         final Class<?>[] interfaces;
         if (runtimeClass.isInterface()) {
-            if (isTraitWithNonAbstractMembers(runtimeClass)) {
-                superclass = classImplementingScala(runtimeClass);
+            final Optional<Class<?>> lookup = lookupScalaCompanion(runtimeClass);
+            if (lookup.isPresent()) {
+                superclass = lookup.get();
                 interfaces = NO_CLASSES;
             } else if (isInterfaceWithCachingDefaultMethods(runtimeClass)) {
                 superclass = classImplementingJava(runtimeClass);
@@ -64,5 +65,14 @@ final class ClassAdapter implements Consumer<Class<?>> {
             interfaces = NO_CLASSES;
         }
         consumer.accept(superclass, interfaces);
+    }
+
+    private Optional<Class<?>> lookupScalaCompanion(final Class<?> runtimeClass) {
+        try {
+            return Optional.of(associatedClassLoader(runtimeClass)
+                    .loadClass(runtimeClass.getName() + "$$ImplementedByNeuronDI"));
+        } catch (ClassNotFoundException e) {
+            return Optional.empty();
+        }
     }
 }

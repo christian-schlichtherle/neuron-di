@@ -20,7 +20,6 @@ import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -45,23 +44,6 @@ class Reflection {
     }
 
     private Reflection() { }
-
-    /**
-     * Returns a consumer which applies the given consumer to all elements of
-     * the type hierarchy represented by its class parameter.
-     * The traversal starts with calling the given consumer for the given type,
-     * then applies itself recursively to all of the interfaces implemented by
-     * the given type in reverse order (if any) and finally to the superclass of
-     * the given type (if existing).
-     * Note that due to interfaces, the type hierarchy can be a graph.
-     * The returned function will visit any interface at most once, however.
-     */
-    static Consumer<Class<?>> traverse(Consumer<Class<?>> consumer) {
-        return hierarchy -> anyMatch(visitor -> {
-            consumer.accept(visitor);
-            return false;
-        }).apply(hierarchy);
-    }
 
     static boolean isTraitWithNonAbstractMembers(final Class<?> trait) {
         assert trait.isInterface();
@@ -131,7 +113,7 @@ class Reflection {
     static <T> Class<? extends T> defineSubclass(final Class<T> clazz,
                                                  final String name,
                                                  final byte[] b) {
-        final ClassLoader cl = approximateClassLoader(clazz);
+        final ClassLoader cl = associatedClassLoader(clazz);
         try {
             synchronized (getClassLoadingLock.invoke(cl, name)) {
                 return (Class<? extends T>) defineClass.invoke(cl, name, b, 0, b.length);
@@ -143,13 +125,13 @@ class Reflection {
         }
     }
 
-    static <T> ClassLoader approximateClassLoader(Class<T> clazz) {
+    static <T> ClassLoader associatedClassLoader(Class<T> clazz) {
         return Optional
                 .ofNullable(clazz.getClassLoader())
                 .orElse(Optional
                         .ofNullable(Thread.currentThread().getContextClassLoader())
                         .orElse(Optional
                                 .ofNullable(ClassLoader.getSystemClassLoader())
-                                .orElseThrow(() -> new IllegalArgumentException("No class loader available for subtyping " + clazz))));
+                                .orElseThrow(() -> new IllegalArgumentException("No class loader associated with " + clazz))));
     }
 }

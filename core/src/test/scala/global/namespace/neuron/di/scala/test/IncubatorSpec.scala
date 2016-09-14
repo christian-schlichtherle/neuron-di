@@ -143,26 +143,26 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
 
     scenario("Breeding some trait without non-abstract methods:") {
 
-      val neuron = Incubator.breed[Trait1]
+      val neuron = Incubator.stub[Trait1].bind(_.method1).to("method1").breed
       import neuron._
-      method1 shouldBe empty
+      method1 shouldBe "method1"
     }
 
     scenario("Breeding some trait with non-abstract methods:") {
 
-      val neuron = Incubator.breed[Trait2]
+      val neuron = Incubator.stub[Trait2].bind(_.method1).to("method1").breed
       import neuron._
-      method1 shouldBe empty
-      method2("method2") shouldBe "method2"
+      method1 shouldBe "method1"
+      method2 shouldBe "method1 + method2"
     }
 
     scenario("Breeding some trait extending another trait with non-abstract methods:") {
 
-      val neuron = Incubator.breed[Trait3]
+      val neuron = Incubator.stub[Trait3].bind(_.method1).to("method1").breed
       import neuron._
-      method1 shouldBe empty
-      method2("method2") shouldBe "method2"
-      method3("method3") shouldBe "method3"
+      method1 shouldBe "method1"
+      method2 shouldBe "method1 + method2"
+      method3 shouldBe "method1 + method2 + method3"
     }
   }
 }
@@ -192,13 +192,13 @@ object IncubatorSpec {
   @Neuron
   trait Trait2 extends Trait1 {
 
-    final def method2(arg: String) = arg
+    def method2: String = method1 + " + method2"
   }
 
   @Neuron
   trait Trait3 extends Trait2 {
 
-    final def method3(arg: String) = method2(arg)
+    def method3: String = method2 + " + method3"
   }
 
   abstract class Class1 extends Trait1

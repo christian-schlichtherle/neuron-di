@@ -22,7 +22,7 @@ import org.objectweb.asm.Opcodes;
 import java.io.IOException;
 import java.io.InputStream;
 
-import static global.namespace.neuron.di.internal.Reflection.approximateClassLoader;
+import static global.namespace.neuron.di.internal.Reflection.associatedClassLoader;
 import static global.namespace.neuron.di.internal.Reflection.defineSubclass;
 import static org.objectweb.asm.ClassReader.SKIP_DEBUG;
 import static org.objectweb.asm.Type.getInternalName;
@@ -46,7 +46,7 @@ final class ASM implements Opcodes {
     }
 
     static <T> ClassReader classReader(final Class<T> clazz) {
-        try (InputStream in = approximateClassLoader(clazz)
+        try (InputStream in = associatedClassLoader(clazz)
                 .getResourceAsStream(getInternalName(clazz) + ".class")) {
             return new ClassReader(in);
         } catch (IOException e) {
@@ -67,20 +67,5 @@ final class ASM implements Opcodes {
         final ClassWriter cw = new ClassWriter(cr, 0);
         cr.accept(new InterfaceVisitor(cw, ifaceClass, internalName(implName)), SKIP_DEBUG);
         return defineSubclass(ifaceClass, implName, cw.toByteArray());
-    }
-
-    /**
-     * Returns a class which implements the given Scala trait.
-     * The class implements any non-abstract members of the trait.
-     */
-    static <T> Class<? extends T> classImplementingScala(final Class<T> traitClass) {
-        if (!traitClass.isInterface()) {
-            throw new IllegalArgumentException();
-        }
-        final String implName = traitClass.getName() + IMPLEMENTED_BY_NEURON_DI;
-        final ClassReader cr = classReader(traitClass);
-        final ClassWriter cw = new ClassWriter(cr, 0);
-        cr.accept(new TraitWithNonAbstractMembersVisitor(cw, traitClass, internalName(implName)), SKIP_DEBUG);
-        return defineSubclass(traitClass, implName, cw.toByteArray());
     }
 }
