@@ -15,11 +15,12 @@
  */
 package global.namespace.neuron.di.scala
 
+
 import scala.annotation.{StaticAnnotation, compileTimeOnly}
 import scala.language.experimental.macros
 
 @compileTimeOnly("You need to apply the Macro Paradise plugin to the Scala compiler to use this macro annotation. See http://docs.scala-lang.org/overviews/macros/paradise .")
-class Neuron extends StaticAnnotation {
+class Caching extends StaticAnnotation {
 
-  def macroTransform(annottees: Any*): Any = macro NeuronAnnotation.apply
+  def macroTransform(annottees: Any*): Any = macro CachingAnnotation.apply
 }

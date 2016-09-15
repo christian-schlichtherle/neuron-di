@@ -17,9 +17,9 @@ package global.namespace.neuron.di.scala.test
 
 import java.lang.reflect.Method
 
+import global.namespace.neuron.di.sample._
 import global.namespace.neuron.di.scala._
 import global.namespace.neuron.di.scala.test.IncubatorSpec._
-import global.namespace.neuron.di.sample._
 import org.scalatest.Matchers._
 import org.scalatest.{FeatureSpec, GivenWhenThen}
 
@@ -27,7 +27,7 @@ import scala.reflect.ClassTag
 
 class IncubatorSpec extends FeatureSpec with GivenWhenThen {
 
-  feature("In neuron classes, synapse methods get bound eagerly, but dependencies get resolved lazily:") {
+  feature("In neuron classes, synapse methods get bound eagerly, but dependencies get resolved lazily.") {
 
     info("As a user of Neuron DI")
     info("I want to be able to visit synapse methods when breeding the neuron")
@@ -74,7 +74,7 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
     }
   }
 
-  feature("Partial stubbing needs to be explicitly enabled:") {
+  feature("Neurons can get partially stubbed if explicitly requested.") {
 
     info("As a user of Neuron DI")
     info("either I want to explicitly enable partial stubbing")
@@ -110,7 +110,7 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
     }
   }
 
-  feature("For each neuron class or interface (and class loader), there is at most one proxy class:") {
+  feature("There is at most one proxy class for any neuron class or interface and class loader.") {
 
     info("As an application architect")
     info("I want to rest assured that Neuron DI scales nicely")
@@ -139,30 +139,65 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
     }
   }
 
-  feature("@Neuron traits can have non-abstract members:") {
+  feature("Any Scala trait can be a @Neuron trait.") {
 
-    scenario("Breeding some trait without non-abstract methods:") {
+    info("As a user of Neuron DI")
+    info("I want to be able to annotate any Scala trait with the @Neuron annotation")
+    info("so that I can take advantage of the binding DSL")
+    info("and eventually apply caching, too.")
 
-      val neuron = Incubator.stub[Trait1].bind(_.method1).to("method1").breed
+    scenario("Breeding some trait with only abstract members:") {
+
+      Given("some trait with only abstract members")
+      And("no `val` definition or @Caching annotation")
+      When("breeding an instance")
+      Then("dependencies should not be cached.")
+
+      val neuron = Incubator
+        .stub[Trait1]
+        .bind(_.method1).to(new String("method1"))
+        .breed
       import neuron._
       method1 shouldBe "method1"
+      method1 should not be theSameInstanceAs(method1)
     }
 
-    scenario("Breeding some trait with non-abstract methods:") {
+    scenario("Breeding some trait with some non-abstract members:") {
 
-      val neuron = Incubator.stub[Trait2].bind(_.method1).to("method1").breed
+      Given("some trait with some non-abstract members")
+      And("some `val` definition but no @Caching annotation")
+      When("breeding an instance")
+      Then("dependencies should be cached.")
+
+      val neuron = Incubator
+        .stub[Trait2]
+        .bind(_.method1).to(new String("method1"))
+        .breed
       import neuron._
       method1 shouldBe "method1"
+      method1 should be theSameInstanceAs method1
       method2 shouldBe "method1 + method2"
+      method2 should be theSameInstanceAs method2
     }
 
-    scenario("Breeding some trait extending another trait with non-abstract methods:") {
+    scenario("Breeding some trait extending another trait with some non-abstract members:") {
 
-      val neuron = Incubator.stub[Trait3].bind(_.method1).to("method1").breed
+      Given("some trait extending another trait with some non-abstract members")
+      And("some @Caching annotation but no `val` definitions")
+      When("breeding an instance")
+      Then("dependencies should be cached.")
+
+      val neuron = Incubator
+        .stub[Trait3]
+        .bind(_.method1).to(new String("method1"))
+        .breed
       import neuron._
       method1 shouldBe "method1"
+      method1 should be theSameInstanceAs method1
       method2 shouldBe "method1 + method2"
+      method2 should be theSameInstanceAs method2
       method3 shouldBe "method1 + method2 + method3"
+      method3 should be theSameInstanceAs method3
     }
   }
 }
@@ -192,18 +227,15 @@ object IncubatorSpec {
   @Neuron
   trait Trait2 extends Trait1 {
 
-    def method2: String = method1 + " + method2"
+    val method1: String
+
+    lazy val method2: String = method1 + " + method2"
   }
 
   @Neuron
   trait Trait3 extends Trait2 {
 
+    @Caching//(CachingStrategy.DISABLED)
     def method3: String = method2 + " + method3"
   }
-
-  abstract class Class1 extends Trait1
-
-  abstract class Class2 extends Trait2
-
-  abstract class Class3 extends Trait3
 }

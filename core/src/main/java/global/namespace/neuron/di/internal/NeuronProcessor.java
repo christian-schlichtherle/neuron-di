@@ -23,7 +23,6 @@ import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static javax.lang.model.element.ElementKind.CONSTRUCTOR;
 import static javax.lang.model.element.Modifier.*;
@@ -48,10 +47,10 @@ public final class NeuronProcessor extends CommonProcessor {
             warning("A neuron class should be abstract or annotated with @org.junit.runner.RunWith(global.namespace.neuron.di.junit.NeuronJUnitRunner.class).", clazz);
         }
         if (modifiers.contains(FINAL)) {
-            error("A neuron class must not be final.", clazz);
+            error("A neuron class cannot be final.", clazz);
         }
-        if (clazz.getNestingKind().isNested() && !modifiers.contains(STATIC)) {
-            error("A neuron class must be static.", clazz);
+        if (!hasStaticContext(clazz)) {
+            error("A neuron class must have a static context.", clazz);
         }
         if (!hasNonPrivateConstructorWithoutParameters(clazz)) {
             error("A neuron class must have a non-private constructor without parameters.", clazz);
@@ -62,6 +61,11 @@ public final class NeuronProcessor extends CommonProcessor {
         return filter("org.junit.runner.RunWith", "value")
                 .where(elementUtils().getAllAnnotationMirrors(clazz))
                 .anyMatch(value -> value.getValue().toString().equals("global.namespace.neuron.di.junit.NeuronJUnitRunner"));
+    }
+
+    private static boolean hasStaticContext(TypeElement clazz) {
+        return !clazz.getNestingKind().isNested() ||
+                clazz.getModifiers().contains(STATIC);
     }
 
     private static boolean hasNonPrivateConstructorWithoutParameters(TypeElement type) {

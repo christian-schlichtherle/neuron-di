@@ -15,10 +15,7 @@
  */
 package global.namespace.neuron.di
 
-import annotation.meta.getter
-
 package object scala {
 
-  type Caching = global.namespace.neuron.di.java.Caching @getter
   type CachingStrategy = global.namespace.neuron.di.java.CachingStrategy
 }
