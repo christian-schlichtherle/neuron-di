@@ -30,10 +30,19 @@ private trait MacroAnnotation {
   import c.universe._
   import Flag._
 
-  protected lazy val newCachingAnnotation =
-    q"(new _root_.global.namespace.neuron.di.java.Caching @_root_.scala.annotation.meta.getter)"
+  protected def scala2javaCachingStrategy(arg: Tree): Tree = {
+    q"_root_.global.namespace.neuron.di.java.CachingStrategy.${
+      arg match {
+        case q"$prefix.$name" => name
+        case other => TermName(other.toString)
+      }
+    }"
+  }
 
-  protected lazy val newNeuronAnnotation =
+  protected lazy val newCachingAnnotationTerm: Tree =
+    q"new _root_.global.namespace.neuron.di.java.Caching @_root_.scala.annotation.meta.getter"
+
+  protected lazy val newNeuronAnnotationTerm =
     q"new _root_.global.namespace.neuron.di.java.Neuron"
 
   protected implicit class FlagOps(left: FlagSet) {

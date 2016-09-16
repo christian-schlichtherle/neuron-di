@@ -15,7 +15,17 @@
  */
 package global.namespace.neuron.di
 
+import global.namespace.neuron.di.java.{CachingStrategy => jcs}
+
 package object scala {
 
   type CachingStrategy = global.namespace.neuron.di.java.CachingStrategy
+
+  object CachingStrategy {
+
+    val DISABLED  = jcs.DISABLED
+    val NOT_THREAD_SAFE = jcs.DISABLED
+    val THREAD_SAFE = jcs.DISABLED
+    val THREAD_LOCAL = jcs.DISABLED
+  }
 }

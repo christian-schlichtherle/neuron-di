@@ -235,7 +235,7 @@ object IncubatorSpec {
   @Neuron
   trait Trait3 extends Trait2 {
 
-    @Caching//(CachingStrategy.DISABLED)
+    @Caching(CachingStrategy.THREAD_LOCAL)
     def method3: String = method2 + " + method3"
   }
 }

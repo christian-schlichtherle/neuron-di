@@ -52,7 +52,15 @@ private class CachingAnnotation(val c: blackbox.Context) extends MacroAnnotation
             error("A caching method cannot return Unit or Nothing.")(tpt.pos)
           case _ =>
         }
-        DefDef(mods.mapAnnotations(newCachingAnnotation :: _), name, tparams, vparamss, tpt, rhs) :: rest
+        val term = c.prefix.tree match {
+          case Apply(fun, args) =>
+            val Apply(fun2, _) = newCachingAnnotationTerm
+            Apply(fun2, args map {
+              case q"value = ${tree: Tree}" => scala2javaCachingStrategy(tree)
+              case tree => scala2javaCachingStrategy(tree)
+            })
+        }
+        DefDef(mods.mapAnnotations(term :: _), name, tparams, vparamss, tpt, rhs) :: rest
       case _ =>
         abort("The @Caching annotation can only be applied to `def` elements.")
     }

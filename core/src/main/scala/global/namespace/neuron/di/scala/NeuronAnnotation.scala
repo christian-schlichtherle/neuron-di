@@ -48,9 +48,9 @@ private class NeuronAnnotation(val c: blackbox.Context) extends MacroAnnotation 
         if (c.hasErrors) {
           inputs
         } else {
-          ClassDef(mods.mapAnnotations(newNeuronAnnotation :: _), tpname, tparams, applyCachingAnnotation(impl)) :: {
+          ClassDef(mods.mapAnnotations(newNeuronAnnotationTerm :: _), tpname, tparams, applyCachingAnnotation(impl)) :: {
             if ((mods hasFlag TRAIT) && !(mods hasFlag INTERFACE)) {
-              val shimMods = Modifiers(flags &~ (TRAIT | DEFAULTPARAM) | ABSTRACT | SYNTHETIC, privateWithin, newNeuronAnnotation :: annotations)
+              val shimMods = Modifiers(flags &~ (TRAIT | DEFAULTPARAM) | ABSTRACT | SYNTHETIC, privateWithin, newNeuronAnnotationTerm :: annotations)
               val shimDef = q"$shimMods class $$shim extends $tpname"
               rest match {
                 case ModuleDef(companionMods, companionName, Template(parents, self, body)) :: companionRest =>
@@ -99,8 +99,7 @@ private class NeuronAnnotation(val c: blackbox.Context) extends MacroAnnotation 
     Template(parents, self, body map {
       case valDef@ValDef(mods@Modifiers(_, _, annotations), name, tpt, EmptyTree)
         if !annotations.exists(isCachingAnnotation) && !mods.hasFlag(PRIVATE) =>
-        //info("Adding @(global.namespace.neuron.di.java.Caching @scala.annotation.meta.getter):")(valDef.pos)
-        ValDef(mods.mapAnnotations(newCachingAnnotation :: _), name, tpt, EmptyTree)
+        ValDef(mods.mapAnnotations(newCachingAnnotationTerm :: _), name, tpt, EmptyTree)
       case other =>
         other
     })
