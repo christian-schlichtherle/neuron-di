@@ -88,7 +88,7 @@ interface NeuronElement extends ClassElement, HasCachingStrategy {
 
     static Optional<CachingStrategy> declaredCachingStrategy(Method method) {
         return Optional
-                .ofNullable(method.getAnnotation(Caching.class))
+                .ofNullable(method.getDeclaredAnnotation(Caching.class))
                 .map(Caching::value);
     }
 }
