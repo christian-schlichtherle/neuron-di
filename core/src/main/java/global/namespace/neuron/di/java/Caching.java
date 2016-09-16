@@ -17,12 +17,25 @@ package global.namespace.neuron.di.java;
 
 import java.lang.annotation.*;
 
-/** Requests that the return value of the annotated method gets cached. */
+/**
+ * Indicates that a caching strategy should be applied to the return value of
+ * the annotated method.
+ * <p>
+ * In compliance with the Java Language Specification, this annotation is not
+ * inherited, so if you override a method with this annotation and you want to
+ * apply a caching strategy to the overriding method, you have to add this
+ * annotation again.
+ * In other words, if this annotation is not present on a method, no caching
+ * strategy is applied to it.
+ */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 public @interface Caching {
 
-    /** Configures the caching strategy to apply. */
+    /**
+     * Configures the caching strategy to apply to the return value of the
+     * annotated method.
+     */
     CachingStrategy value() default CachingStrategy.THREAD_SAFE;
 }

@@ -17,6 +17,16 @@ package global.namespace.neuron.di.java;
 
 import java.lang.annotation.*;
 
+/**
+ * Indicates that the return values of any abstract, parameterless methods
+ * are subject to lazy dependency resolution by the {@link Incubator}.
+ * Abstract, parameterless methods in classes or interfaces annotated with
+ * {@code @Neuron} are generally called "synapse methods".
+ * <p>
+ * If this annotation is present on a class, it gets inherited by any subclass.
+ * In compliance with the Java Language Specification, this does not apply to
+ * interfaces.
+ */
 @Documented
 @Inherited
 @Retention(RetentionPolicy.RUNTIME)
