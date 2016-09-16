@@ -20,7 +20,7 @@ import scala.annotation.{StaticAnnotation, compileTimeOnly}
 import scala.language.experimental.macros
 
 @compileTimeOnly("You need to apply the Macro Paradise plugin to the Scala compiler to use this macro annotation. See http://docs.scala-lang.org/overviews/macros/paradise .")
-class Caching(val value: CachingStrategy = CachingStrategy.THREAD_SAFE)
+class Caching(value: CachingStrategy = CachingStrategy.THREAD_SAFE)
   extends StaticAnnotation {
 
   def macroTransform(annottees: Any*): Any = macro CachingAnnotation.apply

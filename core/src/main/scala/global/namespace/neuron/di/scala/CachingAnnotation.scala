@@ -56,8 +56,13 @@ private class CachingAnnotation(val c: blackbox.Context) extends MacroAnnotation
           case Apply(fun, args) =>
             val Apply(fun2, _) = newCachingAnnotationTerm
             Apply(fun2, args map {
-              case q"value = ${tree: Tree}" => scala2javaCachingStrategy(tree)
-              case tree => scala2javaCachingStrategy(tree)
+              case q"value = ${rhs: Tree}" =>
+                q"value = ${scala2javaCachingStrategy(rhs)}" match {
+                  case Assign(x, y) => AssignOrNamedArg(x, y)
+                  case other => other
+                }
+              case tree =>
+                scala2javaCachingStrategy(tree)
             })
         }
         DefDef(mods.mapAnnotations(term :: _), name, tparams, vparamss, tpt, rhs) :: rest

@@ -25,7 +25,6 @@ private class NeuronAnnotation(val c: blackbox.Context) extends MacroAnnotation 
   protected def apply0(inputs: List[c.Tree]): c.Tree = {
     val outputs = inputs match {
       case (classDef@ClassDef(mods@Modifiers(flags, privateWithin, annotations), tpname@TypeName(name), tparams, impl)) :: rest =>
-
         if (!(mods hasFlag TRAIT)) {
           if (!(mods hasFlag ABSTRACT)) {
             warning("A neuron class should be abstract.")
@@ -44,13 +43,25 @@ private class NeuronAnnotation(val c: blackbox.Context) extends MacroAnnotation 
             error("A neuron trait must have a static context.")
           }
         }
-
         if (c.hasErrors) {
           inputs
         } else {
-          ClassDef(mods.mapAnnotations(newNeuronAnnotationTerm :: _), tpname, tparams, applyCachingAnnotation(impl)) :: {
+          val term = c.prefix.tree match {
+            case Apply(fun, args) =>
+              val Apply(fun2, _) = newNeuronAnnotationTerm
+              Apply(fun2, args map {
+                case q"cachingStrategy = ${rhs: Tree}" =>
+                  q"cachingStrategy = ${scala2javaCachingStrategy(rhs)}" match {
+                    case Assign(x, y) => AssignOrNamedArg(x, y)
+                    case other => other
+                  }
+                case tree =>
+                  scala2javaCachingStrategy(tree)
+              })
+          }
+          ClassDef(mods.mapAnnotations(term :: _), tpname, tparams, applyCachingAnnotation(impl)) :: {
             if ((mods hasFlag TRAIT) && !(mods hasFlag INTERFACE)) {
-              val shimMods = Modifiers(flags &~ (TRAIT | DEFAULTPARAM) | ABSTRACT | SYNTHETIC, privateWithin, newNeuronAnnotationTerm :: annotations)
+              val shimMods = Modifiers(flags &~ (TRAIT | DEFAULTPARAM) | ABSTRACT | SYNTHETIC, privateWithin, term :: annotations)
               val shimDef = q"$shimMods class $$shim extends $tpname"
               rest match {
                 case ModuleDef(companionMods, companionName, Template(parents, self, body)) :: companionRest =>
