@@ -40,7 +40,7 @@ public class ClockModuleTest {
     public void testClockModuleWithoutMatchers() {
         final ClockModule module = Incubator.breed(ClockModule.class);
         final Clock clock = module.clock();
-        assert clock == module.clock();
+        assert module.clock() == clock;
         assert clock.now() != clock.now();
         assert new Date().compareTo(clock.now()) <= 0;
     }

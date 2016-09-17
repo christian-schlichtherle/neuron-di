@@ -39,7 +39,7 @@ public class FixedClockModuleTest {
     public void testFixedClockModuleWithoutMatchers() {
         final ClockModule module = Incubator.breed(FixedClockModule.class);
         final Clock clock = module.clock();
-        assert clock == module.clock();
+        assert module.clock() == clock;
         assert clock.now() != clock.now();
         assert new Date(0).equals(clock.now());
     }

@@ -21,5 +21,6 @@ import global.namespace.neuron.di.scala.Neuron
 @Neuron
 trait ClockModule {
 
+  /** A synapse value which holds some clock. */
   val clock: Clock
 }

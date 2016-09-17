@@ -22,6 +22,7 @@ import global.namespace.neuron.di.sample.Clock;
 @Neuron
 interface ClockModule {
 
+    /** A synapse method which returns the same clock on each call. */
     @Caching
     Clock clock();
 }

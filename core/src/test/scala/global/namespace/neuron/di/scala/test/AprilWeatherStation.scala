@@ -20,7 +20,7 @@ import global.namespace.neuron.di.scala._
 import scala.concurrent.forkjoin.ThreadLocalRandom
 
 @Neuron
-abstract class AprilWeatherStation extends WeatherStation {
+trait AprilWeatherStation extends WeatherStation {
 
   def temperature: Temperature = Incubator
     .stub[Temperature]

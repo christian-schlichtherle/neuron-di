@@ -22,5 +22,6 @@ import java.util.Date;
 @Neuron
 public interface Clock {
 
+    /** A synapse method which returns a new date on each call. */
     Date now();
 }
