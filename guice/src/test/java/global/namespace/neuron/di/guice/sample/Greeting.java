@@ -19,10 +19,10 @@ import global.namespace.neuron.di.java.Caching;
 import global.namespace.neuron.di.java.Neuron;
 
 @Neuron
-public abstract class Greeting {
+public interface Greeting {
 
     @Caching
-    public String message() { return formatter().format("Christian"); }
+    default String message() { return formatter().format("Christian"); }
 
-    public abstract Formatter formatter();
+    Formatter formatter();
 }

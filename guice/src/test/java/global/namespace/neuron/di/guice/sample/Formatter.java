@@ -17,5 +17,5 @@ package global.namespace.neuron.di.guice.sample;
 
 public interface Formatter {
 
-    String format(String... args);
+    String format(Object... args);
 }
