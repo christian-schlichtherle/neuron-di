@@ -5,10 +5,10 @@ Scala 2.11 in order to provide tailor-made APIs for these target environments.
 
 Neuron DI can be used standalone or embedded in other DI frameworks, e.g. 
 Guice.
-When using it standalone, programmers enjoy a simple, yet versatile domain
+When using it standalone, programmers enjoy a simple, yet complete domain
 specific language (DSL) for writing self-contained binding definitions.
-Thanks to the (Java or Scala) compiler, self-contained binding definitions 
-alleviate the need for testing them separately. 
+Self-contained binding definitions are checked by the (Java or Scala) compiler, 
+which alleviates the need for testing them separately in many cases. 
 
 When using Neuron DI embedded, programmers can add lazy dependency resolution 
 and caching to their DI framework of choice.
@@ -36,8 +36,6 @@ If you want to embed Neuron DI in Guice, you have to add this:
     </dependency>
 
 For documentation, please refer to the [Wiki].
-Note that this is work in progress, so please check again whenever required.
-Any feedback and contributions are welcome, too.
 
 [Apache License, Version 2.0]: https://www.apache.org/licenses/LICENSE-2.0
 [Releases]: https://github.com/christian-schlichtherle/neuron-di/releases
