@@ -184,6 +184,8 @@ public final class Incubator {
          * By default, partial stubbing is disabled, resulting in an
          * {@link IllegalStateException} when breeding a neuron and there is no
          * binding defined for some synapse methods.
+         *
+         * @since Neuron DI 1.3
          */
         Stub<T> partial(boolean value);
 
