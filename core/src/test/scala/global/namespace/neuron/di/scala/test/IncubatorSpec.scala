@@ -139,7 +139,7 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
     }
   }
 
-  feature("Any Scala trait can be a @Neuron trait.") {
+  feature("Any Scala trait with a static context can be a @Neuron trait.") {
 
     info("As a user of Neuron DI")
     info("I want to be able to annotate any Scala trait with the @Neuron annotation")
@@ -200,6 +200,19 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
       method3 should be theSameInstanceAs method3
     }
   }
+
+  feature("@Neuron classes or traits cannot have abstract methods with parameters.") {
+
+    scenario("Beeding some trait with an abstract method with a parameter:") {
+
+      Given("some trait with an abstract method with a parameter")
+      When("breeding an instance")
+      Then("an IllegalArgument should be thrown.")
+
+      intercept[IllegalArgumentException] { Incubator.breed[Illegal] }.getMessage shouldBe
+        "Cannot stub abstract methods with parameters: public abstract void global.namespace.neuron.di.scala.test.IncubatorSpec$Illegal.method(java.lang.String)"
+    }
+  }
 }
 
 object IncubatorSpec {
@@ -237,5 +250,11 @@ object IncubatorSpec {
 
     @Caching(CachingStrategy.THREAD_LOCAL)
     def method3: String = method2 + " + method3"
+  }
+
+  @Neuron
+  trait Illegal {
+
+    def method(param: String): Unit
   }
 }

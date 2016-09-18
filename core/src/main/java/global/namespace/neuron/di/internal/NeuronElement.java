@@ -64,7 +64,11 @@ interface NeuronElement extends ClassElement, HasCachingStrategy {
                 return new RealMethodElement(option.orElse(DISABLED));
             }
         } else {
-            return new RealMethodElement(DISABLED);
+            if (isAbstract(method)) {
+                throw new IllegalArgumentException("Cannot stub abstract methods with parameters: " + method);
+            } else {
+                return new RealMethodElement(DISABLED);
+            }
         }
     }
 
