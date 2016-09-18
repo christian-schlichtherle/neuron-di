@@ -71,7 +71,7 @@ abstract class CachingStrategySpec extends FeatureSpec with GivenWhenThen {
 
       Then(s"the dependency set should contain exactly one dependency.")
 
-      dependencies shouldBe Set(neuron.dependency)
+      dependencies shouldBe Set(neuron.get)
     }
 
     scenario("Applying the THREAD_LOCAL caching strategy:") {

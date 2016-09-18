@@ -48,29 +48,26 @@ public class CachingStrategyForDefaultMethodsWithoutParametersSpec extends Cachi
     }
 
     @Neuron
-    interface NeuronWithDisabledCachingStrategy extends HasDependency<Object> {
-
-        default Object dependency() { return new Object(); }
-    }
+    interface NeuronWithDisabledCachingStrategy extends HasDependency<Object> { }
 
     @Neuron
     interface NeuronWithNotThreadSafeCachingStrategy extends HasDependency<Object> {
 
         @Caching(NOT_THREAD_SAFE)
-        default Object dependency() { return new Object(); }
+        Object get();
     }
 
     @Neuron
     interface NeuronWithThreadSafeCachingStrategy extends HasDependency<Object> {
 
         @Caching
-        default Object dependency() { return new Object(); }
+        Object get();
     }
 
     @Neuron
     interface NeuronWithThreadLocalCachingStrategy extends HasDependency<Object> {
 
         @Caching(THREAD_LOCAL)
-        default Object dependency() { return new Object(); }
+        Object get();
     }
 }

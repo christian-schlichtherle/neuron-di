@@ -27,7 +27,7 @@ private class ConcurrentDependencyCollector {
     Range(0, numThreads).toSet.parallel(numThreads).flatMap { _ =>
       Range(0, numDependenciesPerThread).toSet.map { _: Int =>
         await(barrier)
-        neuron.dependency
+        neuron.get
       }
     }.seq
   }

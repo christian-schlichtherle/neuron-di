@@ -91,7 +91,7 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
       intercept[IllegalStateException] {
         Incubator.stub[HasDependency[_]].breed
       }.getMessage shouldBe
-        "Partial stubbing is disabled and no binding is defined for some synapse methods: [public abstract java.lang.Object global.namespace.neuron.di.sample.HasDependency.dependency()]"
+        "Partial stubbing is disabled and no binding is defined for some synapse methods: [public abstract java.lang.Object java.util.function.Supplier.get()]"
     }
 
     scenario("Partial stubbing is enabled:") {
@@ -106,7 +106,7 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
         .stub[HasDependency[_ <: AnyRef]]
         .partial(true)
         .breed
-        .dependency should not be null
+        .get should not be null
     }
   }
 
@@ -125,15 +125,15 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
 
       val string = Incubator
         .stub[HasDependency[String]]
-        .bind(_.dependency).to("Hello world!")
+        .bind(_.get).to("Hello world!")
         .breed
-      string.dependency shouldBe "Hello world!"
+      string.get shouldBe "Hello world!"
 
       val integer = Incubator
         .stub[HasDependency[Int]]
-        .bind(_.dependency).to(1)
+        .bind(_.get).to(1)
         .breed
-      integer.dependency shouldBe 1
+      integer.get shouldBe 1
 
       string.getClass should be theSameInstanceAs integer.getClass
     }

@@ -17,8 +17,7 @@ package global.namespace.neuron.di.sample;
 
 import global.namespace.neuron.di.java.Neuron;
 
-@Neuron
-public interface HasDependency<T> {
+import java.util.function.Supplier;
 
-    T dependency();
-}
+@Neuron
+public interface HasDependency<T> extends Supplier<T> { }
