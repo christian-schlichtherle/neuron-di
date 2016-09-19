@@ -105,15 +105,13 @@ private trait MacroAnnotation {
   protected def abort(msg: String)(implicit pos: Position) =
     c.abort(pos, msg)
 
-  protected def isCachingAnnotation(tree: Tree): Boolean = {
-    val tpe = tree.tpe.toString
-    tpe == javaCachingAnnotationName || tpe == scalaCachingAnnotationName
-  }
+  protected def isCachingAnnotation(tree: Tree): Boolean =
+    tpeName(tree).exists(name => name == javaCachingAnnotationName || name == scalaCachingAnnotationName)
 
-  protected def isNeuronAnnotation(tree: Tree): Boolean = {
-    val tpe = tree.tpe.toString
-    tpe == javaNeuronAnnotationName || tpe == scalaNeuronAnnotationName
-  }
+  protected def isNeuronAnnotation(tree: Tree): Boolean =
+    tpeName(tree).exists(name => name == javaNeuronAnnotationName || name == scalaNeuronAnnotationName)
+
+  private def tpeName(tree: Tree) = Option(tree.tpe).map(_.toString)
 }
 
 private object MacroAnnotation {
