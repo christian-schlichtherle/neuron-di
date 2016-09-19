@@ -19,7 +19,7 @@ import global.namespace.neuron.di.java.{CachingStrategy => jcs}
 
 package object scala {
 
-  type CachingStrategy = global.namespace.neuron.di.java.CachingStrategy
+  type CachingStrategy = jcs
 
   object CachingStrategy {
 
