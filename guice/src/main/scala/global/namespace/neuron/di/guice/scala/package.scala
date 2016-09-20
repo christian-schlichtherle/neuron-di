@@ -38,8 +38,7 @@ package object scala {
 
     val injector: Injector
 
-    def getInstanceOf[A](implicit ct: ClassTag[A]): A =
-      injector.getInstance(runtimeClassOf(ct))
+    def getInstanceOf[A : ClassTag]: A = injector getInstance runtimeClassOf[A]
   }
 
   implicit class BinderOps(val binder: Binder)
@@ -47,14 +46,14 @@ package object scala {
 
   trait BinderLike extends jBinderLike {
 
-    def bindNeuronClass[A <: AnyRef](implicit ct: ClassTag[A]): ScopedBindingBuilder =
-      bindNeuron(runtimeClassOf(ct))
+    def bindNeuronClass[A <: AnyRef : ClassTag]: ScopedBindingBuilder =
+      bindNeuron(runtimeClassOf[A])
 
     def bindClass[A <: AnyRef : ClassTag]: AnnotatedBindingBuilder[A] =
       binder bind runtimeClassOf[A]
 
-    def getProviderClass[A <: AnyRef](implicit ct: ClassTag[A]): Provider[A] =
-      binder getProvider runtimeClassOf(ct)
+    def getProviderClass[A <: AnyRef : ClassTag]: Provider[A] =
+      binder getProvider runtimeClassOf[A]
   }
 
   implicit class AnnotatedConstantBindingBuilderOps(val builder: AnnotatedConstantBindingBuilder)

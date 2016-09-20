@@ -42,8 +42,7 @@ abstract class NeuronProvider<T> implements Provider<T> {
     }
 
     private Supplier<?> binding(final Method method) {
-        final TypeLiteral<?> returnTypeLiteral = typeLiteral()
-                .getReturnType(method);
+        final TypeLiteral<?> returnTypeLiteral = typeLiteral().getReturnType(method);
         final Key<?> returnKey = Arrays
                 .stream(method.getDeclaredAnnotations())
                 .filter(NeuronProvider::isQualifierOrBindingAnnotation)

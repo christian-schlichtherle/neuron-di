@@ -30,24 +30,17 @@ public interface BinderLike {
         return binder().bindConstant().annotatedWith(named(name));
     }
 
-    default <T> ScopedBindingBuilder bindNeuron(Class<T> type) {
-        return bindNeuron(TypeLiteral.get(type));
-    }
+    default <T> ScopedBindingBuilder bindNeuron(Class<T> type) { return bindNeuron(TypeLiteral.get(type)); }
 
-    default <T> ScopedBindingBuilder bindNeuron(TypeLiteral<T> typeLiteral) {
-        return bindNeuron(Key.get(typeLiteral));
-    }
+    default <T> ScopedBindingBuilder bindNeuron(TypeLiteral<T> typeLiteral) { return bindNeuron(Key.get(typeLiteral)); }
 
     default <T> ScopedBindingBuilder bindNeuron(Key<T> key) {
         return binder()
                 .skipSources(BinderLike.class)
-                .bind(key)
-                .toProvider(neuronProvider(key.getTypeLiteral()));
+                .bind(key).toProvider(neuronProvider(key.getTypeLiteral()));
     }
 
-    default <T> Provider<T> neuronProvider(Class<T> type){
-        return neuronProvider(TypeLiteral.get(type));
-    }
+    default <T> Provider<T> neuronProvider(Class<T> type) { return neuronProvider(TypeLiteral.get(type)); }
 
     @SuppressWarnings("unchecked")
     default <T> Provider<T> neuronProvider(final TypeLiteral<T> typeLiteral) {
