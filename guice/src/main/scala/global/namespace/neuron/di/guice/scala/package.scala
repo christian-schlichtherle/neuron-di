@@ -19,7 +19,7 @@ import _root_.java.lang.annotation.Annotation
 
 import com.google.inject.binder._
 import com.google.inject.name.Names
-import com.google.inject.{Binder, Injector, Provider}
+import com.google.inject._
 import global.namespace.neuron.di.guice.java.{BinderLike => jBinderLike, NeuronModule => jNeuronModule}
 import global.namespace.neuron.di.internal.scala._
 
@@ -29,7 +29,12 @@ package object scala {
 
   abstract class NeuronModule
     extends jNeuronModule
-      with BinderLike
+      with BinderLike {
+
+    // As of Scala 2.11.8, `override implicit def binder: ...` doesn't work.
+    @inline
+    protected[this] implicit def $dontCallThisBinderExplicitly: Binder = binder
+  }
 
   implicit class InjectorOps(val injector: Injector)
     extends InjectorLike
@@ -90,6 +95,18 @@ package object scala {
   trait LinkedBindingBuilderLike[A <: AnyRef] {
 
     def builder: LinkedBindingBuilder[A]
+
+    /** @since Neuron DI 3.2 */
+    def toNeuronClass[B <: A : ClassTag](implicit binder: Binder): ScopedBindingBuilder =
+      toNeuron(TypeLiteral get runtimeClassOf[B])
+
+    /** @since Neuron DI 3.2 */
+    def toNeuron[B <: A](typeLiteral: TypeLiteral[B])(implicit binder: Binder): ScopedBindingBuilder =
+      toNeuron(Key get typeLiteral)
+
+    /** @since Neuron DI 3.2 */
+    def toNeuron[B <: A](key: Key[B])(implicit binder: Binder): ScopedBindingBuilder =
+      builder toProvider (binder neuronProvider key.getTypeLiteral)
 
     def toClass[B <: A : ClassTag]: ScopedBindingBuilder =
       builder to runtimeClassOf[B]

@@ -15,19 +15,17 @@
  */
 package global.namespace.neuron.di.guice.scala.test
 
+import com.google.inject.AbstractModule
 import javax.inject.Singleton
 
-import global.namespace.neuron.di.guice.sample.{Bar, BarImpl, Foo, FooImpl}
-import global.namespace.neuron.di.guice.scala._
+import com.google.inject.name.Names.named
+import global.namespace.neuron.di.guice.sample.{Formatter, Greeting}
 
-class FooBarModule extends NeuronModule {
+class GuiceGreetingModule extends AbstractModule {
 
-  def configure() {
-    bindConstantNamed("one").to(1)
-    bindClass[Foo]
-      .named("impl")
-      .toClass[FooImpl]
-      .inScope[Singleton]
-    bindClass[Bar].toClass[BarImpl]
+  protected def configure() {
+    bind(classOf[Greeting]).to(classOf[GuiceGreeting]).in(classOf[Singleton])
+    bind(classOf[Formatter]).to(classOf[GuiceFormatter])
+    bindConstant.annotatedWith(named("format")).to("Hello %s!")
   }
 }

@@ -13,21 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package global.namespace.neuron.di.guice.scala.test
+package global.namespace.neuron.di.guice.java.test;
 
-import javax.inject.Singleton
+import com.google.inject.Module;
+import global.namespace.neuron.di.guice.sample.GreetingModuleTest;
 
-import global.namespace.neuron.di.guice.sample.{Bar, BarImpl, Foo, FooImpl}
-import global.namespace.neuron.di.guice.scala._
+import static org.hamcrest.MatcherAssert.assertThat;
 
-class FooBarModule extends NeuronModule {
+public class GuiceGreetingModuleTest extends GreetingModuleTest {
 
-  def configure() {
-    bindConstantNamed("one").to(1)
-    bindClass[Foo]
-      .named("impl")
-      .toClass[FooImpl]
-      .inScope[Singleton]
-    bindClass[Bar].toClass[BarImpl]
-  }
+    @Override
+    protected Module module() { return new GuiceGreetingModule(); }
 }

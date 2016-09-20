@@ -15,19 +15,17 @@
  */
 package global.namespace.neuron.di.guice.scala.test
 
-import javax.inject.Singleton
+import global.namespace.neuron.di.guice.sample.Formatter
+import global.namespace.neuron.di.scala.Neuron
 
-import global.namespace.neuron.di.guice.sample.{Bar, BarImpl, Foo, FooImpl}
-import global.namespace.neuron.di.guice.scala._
+import scala.annotation.meta.getter
 
-class FooBarModule extends NeuronModule {
+@Neuron
+trait NeuronFormatter extends Formatter {
 
-  def configure() {
-    bindConstantNamed("one").to(1)
-    bindClass[Foo]
-      .named("impl")
-      .toClass[FooImpl]
-      .inScope[Singleton]
-    bindClass[Bar].toClass[BarImpl]
-  }
+  private type Named = javax.inject.Named @getter
+
+  @Named("format") val _format: String
+
+  def format(args: AnyRef*): String = String.format(_format, args: _*)
 }

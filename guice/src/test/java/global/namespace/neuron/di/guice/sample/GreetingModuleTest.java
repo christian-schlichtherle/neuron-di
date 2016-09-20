@@ -13,28 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package global.namespace.neuron.di.guice.java.test;
+package global.namespace.neuron.di.guice.sample;
 
-import com.google.inject.Module;
-import global.namespace.neuron.di.guice.sample.Greeting;
-import global.namespace.neuron.di.guice.sample.RealFormatter;
 import org.junit.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
-public class GreetingModuleTest extends ModuleTest {
-
-    @Override
-    protected Module module() { return new GreetingModule(); }
+public abstract class GreetingModuleTest extends ModuleTest {
 
     @Test
-    public void testGreetingModule() {
+    public void testGreeting() {
         final Greeting greeting = getInstance(Greeting.class);
         assertThat(getInstance(Greeting.class), is(sameInstance(greeting)));
-        assertThat(greeting.formatter(), is(instanceOf(RealFormatter.class)));
-        assertThat(greeting.formatter(), is(not(sameInstance(greeting.formatter()))));
-        assertThat(greeting.message(), is(sameInstance(greeting.message())));
-        assertThat(greeting.message(), is("Hello Christian!"));
+        assertThat(greeting.message("Christian"), is("Hello Christian!"));
+    }
+
+    @Test
+    public void testFormatter() {
+        final Formatter formatter = getInstance(Formatter.class);
+        assertThat(getInstance(Formatter.class), is(not(sameInstance(formatter))));
+        assertThat(formatter.format("Christian"), is("Hello Christian!"));
     }
 }

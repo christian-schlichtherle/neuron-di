@@ -15,8 +15,23 @@
  */
 package global.namespace.neuron.di.guice.sample;
 
-public interface Formatter {
+import com.google.inject.Injector;
+import com.google.inject.Module;
+import global.namespace.neuron.di.java.Caching;
+import global.namespace.neuron.di.java.Neuron;
+import global.namespace.neuron.di.junit.NeuronJUnitRunner;
+import org.junit.runner.RunWith;
 
-    /** Returns a text which has been formatted using the given arguments. */
-    String format(Object... args);
+import static com.google.inject.Guice.createInjector;
+
+@Neuron
+@RunWith(NeuronJUnitRunner.class)
+public abstract class ModuleTest {
+
+    protected abstract Module module();
+
+    @Caching
+    protected Injector injector() { return createInjector(module()); }
+
+    protected <T> T getInstance(Class<T> runtimeClass) { return injector().getInstance(runtimeClass); }
 }

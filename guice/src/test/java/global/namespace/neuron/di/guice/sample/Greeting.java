@@ -15,14 +15,8 @@
  */
 package global.namespace.neuron.di.guice.sample;
 
-import global.namespace.neuron.di.java.Caching;
-import global.namespace.neuron.di.java.Neuron;
-
-@Neuron
 public interface Greeting {
 
-    @Caching
-    default String message() { return formatter().format("Christian"); }
-
-    Formatter formatter();
+    /** Returns a greeting message for the given entity. */
+    String message(String entity);
 }

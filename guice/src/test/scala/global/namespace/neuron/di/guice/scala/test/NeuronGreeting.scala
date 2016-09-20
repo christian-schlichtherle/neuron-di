@@ -15,19 +15,13 @@
  */
 package global.namespace.neuron.di.guice.scala.test
 
-import javax.inject.Singleton
+import global.namespace.neuron.di.guice.sample.{Formatter, Greeting}
+import global.namespace.neuron.di.scala.Neuron
 
-import global.namespace.neuron.di.guice.sample.{Bar, BarImpl, Foo, FooImpl}
-import global.namespace.neuron.di.guice.scala._
+@Neuron
+trait NeuronGreeting extends Greeting {
 
-class FooBarModule extends NeuronModule {
+  val formatter: Formatter
 
-  def configure() {
-    bindConstantNamed("one").to(1)
-    bindClass[Foo]
-      .named("impl")
-      .toClass[FooImpl]
-      .inScope[Singleton]
-    bindClass[Bar].toClass[BarImpl]
-  }
+  def message(entity: String): String = formatter format entity
 }

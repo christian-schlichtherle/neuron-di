@@ -17,17 +17,14 @@ package global.namespace.neuron.di.guice.scala.test
 
 import javax.inject.Singleton
 
-import global.namespace.neuron.di.guice.sample.{Bar, BarImpl, Foo, FooImpl}
+import global.namespace.neuron.di.guice.sample.{Formatter, Greeting}
 import global.namespace.neuron.di.guice.scala._
 
-class FooBarModule extends NeuronModule {
+class NeuronGreetingModule extends NeuronModule {
 
   def configure() {
-    bindConstantNamed("one").to(1)
-    bindClass[Foo]
-      .named("impl")
-      .toClass[FooImpl]
-      .inScope[Singleton]
-    bindClass[Bar].toClass[BarImpl]
+    bindClass[Greeting].toNeuronClass[NeuronGreeting].inScope[Singleton]
+    bindClass[Formatter].toNeuronClass[NeuronFormatter]
+    bindConstantNamed("format").to("Hello %s!")
   }
 }

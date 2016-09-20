@@ -13,22 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package global.namespace.neuron.di.guice.sample;
+package global.namespace.neuron.di.guice.scala.test
 
-import javax.inject.Inject;
-import javax.inject.Named;
+import javax.inject.Inject
 
-public class RealFormatter implements Formatter {
+import global.namespace.neuron.di.guice.sample.{Formatter, Greeting}
 
-    private final String format;
+class GuiceGreeting @Inject() (formatter: Formatter) extends Greeting {
 
-    @Inject
-    public RealFormatter(final @Named("format") String format) {
-        this.format = format;
-    }
-
-    @Override
-    public String format(Object... args) {
-        return String.format(format, (Object[]) args);
-    }
+  def message(entity: String): String = formatter format entity
 }

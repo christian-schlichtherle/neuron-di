@@ -13,18 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package global.namespace.neuron.di.guice.scala.test
+package global.namespace.neuron.di.guice.java.test;
 
-import javax.inject.Singleton
+import global.namespace.neuron.di.guice.java.NeuronModule;
+import global.namespace.neuron.di.guice.sample.Formatter;
+import global.namespace.neuron.di.guice.sample.Greeting;
 
-import global.namespace.neuron.di.guice.sample.{Formatter, Greeting, RealFormatter}
-import global.namespace.neuron.di.guice.scala._
+import javax.inject.Singleton;
 
-private class GreetingModule extends NeuronModule {
+class NeuronGreetingModule extends NeuronModule {
 
-  def configure() {
-    bindNeuronClass[Greeting].inScope[Singleton]
-    bindClass[Formatter].toClass[RealFormatter]
-    bindConstantNamed("format").to("Hello %s!")
-  }
+    @Override
+    protected void configure() {
+        bind(Greeting.class).to(NeuronGreeting.class).in(Singleton.class);
+        bind(Formatter.class).to(NeuronFormatter.class);
+        bindConstantNamed("format").to("Hello %s!");
+        bindNeurons(NeuronGreeting.class, NeuronFormatter.class);
+    }
 }

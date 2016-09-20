@@ -15,19 +15,17 @@
  */
 package global.namespace.neuron.di.guice.java.test;
 
-import global.namespace.neuron.di.guice.java.NeuronModule;
 import global.namespace.neuron.di.guice.sample.Formatter;
-import global.namespace.neuron.di.guice.sample.Greeting;
-import global.namespace.neuron.di.guice.sample.RealFormatter;
 
-import javax.inject.Singleton;
+import javax.inject.Inject;
+import javax.inject.Named;
 
-class GreetingModule extends NeuronModule {
+class GuiceFormatter implements Formatter {
+
+    @Inject
+    @Named("format")
+    private String format;
 
     @Override
-    protected void configure() {
-        bindNeuron(Greeting.class).in(Singleton.class);
-        bind(Formatter.class).to(RealFormatter.class);
-        bindConstantNamed("format").to("Hello %s!");
-    }
+    public String format(Object... args) { return String.format(format, (Object[]) args); }
 }

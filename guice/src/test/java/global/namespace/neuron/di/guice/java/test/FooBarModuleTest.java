@@ -19,6 +19,7 @@ import com.google.inject.Module;
 import global.namespace.neuron.di.guice.sample.Bar;
 import global.namespace.neuron.di.guice.sample.BarImpl;
 import global.namespace.neuron.di.guice.sample.FooImpl;
+import global.namespace.neuron.di.guice.sample.ModuleTest;
 import org.junit.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;

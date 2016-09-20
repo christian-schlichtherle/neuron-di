@@ -15,26 +15,16 @@
  */
 package global.namespace.neuron.di.guice.java.test;
 
-import com.google.inject.Injector;
-import com.google.inject.Module;
+import global.namespace.neuron.di.guice.sample.Formatter;
+import global.namespace.neuron.di.guice.sample.Greeting;
 import global.namespace.neuron.di.java.Caching;
 import global.namespace.neuron.di.java.Neuron;
-import global.namespace.neuron.di.junit.NeuronJUnitRunner;
-import org.junit.runner.RunWith;
-
-import static com.google.inject.Guice.createInjector;
 
 @Neuron
-@RunWith(NeuronJUnitRunner.class)
-public abstract class ModuleTest {
+interface NeuronGreeting extends Greeting {
 
-    protected abstract Module module();
-
-    @SuppressWarnings("WeakerAccess")
     @Caching
-    protected Injector injector() { return createInjector(module()); }
+    Formatter formatter();
 
-    <T> T getInstance(Class<T> runtimeClass) {
-        return injector().getInstance(runtimeClass);
-    }
+    default String message(String entity) { return formatter().format(entity); }
 }

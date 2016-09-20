@@ -30,6 +30,30 @@ public interface BinderLike {
         return binder().bindConstant().annotatedWith(named(name));
     }
 
+    /** @since Neuron DI 3.2 */
+    default void bindNeurons(final Class<?> neuron, final Class<?>... neurons) {
+        bindNeuron(neuron);
+        for (Class<?> clazz : neurons) {
+            bindNeuron(clazz);
+        }
+    }
+
+    /** @since Neuron DI 3.2 */
+    default void bindNeurons(final TypeLiteral<?> neuron, final TypeLiteral<?>... neurons) {
+        bindNeuron(neuron);
+        for (TypeLiteral<?> clazz : neurons) {
+            bindNeuron(clazz);
+        }
+    }
+
+    /** @since Neuron DI 3.2 */
+    default void bindNeurons(final Key<?> neuron, final Key<?>... neurons) {
+        bindNeuron(neuron);
+        for (Key<?> clazz : neurons) {
+            bindNeuron(clazz);
+        }
+    }
+
     default <T> ScopedBindingBuilder bindNeuron(Class<T> type) { return bindNeuron(TypeLiteral.get(type)); }
 
     default <T> ScopedBindingBuilder bindNeuron(TypeLiteral<T> typeLiteral) { return bindNeuron(Key.get(typeLiteral)); }
