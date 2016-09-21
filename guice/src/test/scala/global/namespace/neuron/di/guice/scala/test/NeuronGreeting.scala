@@ -21,7 +21,7 @@ import global.namespace.neuron.di.scala.Neuron
 @Neuron
 trait NeuronGreeting extends Greeting {
 
-  val formatter: Formatter
+  val _formatter: Formatter
 
-  def message(entity: String): String = formatter format entity
+  def message(entity: String): String = _formatter format entity
 }

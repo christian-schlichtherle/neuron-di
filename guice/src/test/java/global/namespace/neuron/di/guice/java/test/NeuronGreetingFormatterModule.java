@@ -15,16 +15,19 @@
  */
 package global.namespace.neuron.di.guice.java.test;
 
+import global.namespace.neuron.di.guice.java.NeuronModule;
 import global.namespace.neuron.di.guice.sample.Formatter;
 import global.namespace.neuron.di.guice.sample.Greeting;
-import global.namespace.neuron.di.java.Caching;
-import global.namespace.neuron.di.java.Neuron;
 
-@Neuron
-interface NeuronGreeting extends Greeting {
+import javax.inject.Singleton;
 
-    @Caching
-    Formatter getFormatter();
+class NeuronGreetingFormatterModule extends NeuronModule {
 
-    default String message(String entity) { return getFormatter().format(entity); }
+    @Override
+    protected void configure() {
+        bind(Greeting.class).to(NeuronGreetingFormatter.class).in(Singleton.class);
+        bind(Formatter.class).to(NeuronGreetingFormatter.class);
+        bindConstantNamed("format").to("Hello %s!");
+        bindNeuron(NeuronGreetingFormatter.class);
+    }
 }

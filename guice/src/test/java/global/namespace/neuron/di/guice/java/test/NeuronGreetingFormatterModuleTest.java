@@ -15,16 +15,11 @@
  */
 package global.namespace.neuron.di.guice.java.test;
 
-import global.namespace.neuron.di.guice.sample.Formatter;
-import global.namespace.neuron.di.guice.sample.Greeting;
-import global.namespace.neuron.di.java.Caching;
-import global.namespace.neuron.di.java.Neuron;
+import com.google.inject.Module;
+import global.namespace.neuron.di.guice.sample.GreetingModuleTest;
 
-@Neuron
-interface NeuronGreeting extends Greeting {
+public class NeuronGreetingFormatterModuleTest extends GreetingModuleTest {
 
-    @Caching
-    Formatter getFormatter();
-
-    default String message(String entity) { return getFormatter().format(entity); }
+    @Override
+    protected Module module() { return new NeuronGreetingFormatterModule(); }
 }
