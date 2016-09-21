@@ -24,13 +24,23 @@ import static com.google.inject.name.Names.named;
 
 public interface BinderLike {
 
+    /** Returns the underlying binder. */
     Binder binder();
 
+    /**
+     * Binds a constant with the qualifier annotation {@code @@Named(name)}, where {@code name} is the given name.
+     * This is an abbreviation for {@code bindConstant().annotatedWith(Names.named(named))}.
+     */
     default ConstantBindingBuilder bindConstantNamed(String name) {
         return binder().bindConstant().annotatedWith(named(name));
     }
 
-    /** @since Neuron DI 3.2 */
+    /**
+     * Binds one or more neuron classes or interfaces using the given classes.
+     * This is an abbreviation for multiple calls to {@link #bindNeuron(Class)}.
+     *
+     * @since Neuron DI 3.2
+     */
     default void bindNeurons(final Class<?> neuron, final Class<?>... neurons) {
         bindNeuron(neuron);
         for (Class<?> clazz : neurons) {
@@ -38,7 +48,12 @@ public interface BinderLike {
         }
     }
 
-    /** @since Neuron DI 3.2 */
+    /**
+     * Binds one or more neuron classes or interfaces using the given type literals.
+     * This is an abbreviation for multiple calls to {@link #bindNeuron(TypeLiteral)}.
+     *
+     * @since Neuron DI 3.2
+     */
     default void bindNeurons(final TypeLiteral<?> neuron, final TypeLiteral<?>... neurons) {
         bindNeuron(neuron);
         for (TypeLiteral<?> clazz : neurons) {
@@ -46,7 +61,12 @@ public interface BinderLike {
         }
     }
 
-    /** @since Neuron DI 3.2 */
+    /**
+     * Binds one or more neuron classes or interfaces using the given keys.
+     * This is an abbreviation for multiple calls to {@link #bindNeuron(Key)}.
+     *
+     * @since Neuron DI 3.2
+     */
     default void bindNeurons(final Key<?> neuron, final Key<?>... neurons) {
         bindNeuron(neuron);
         for (Key<?> clazz : neurons) {
@@ -54,18 +74,32 @@ public interface BinderLike {
         }
     }
 
+    /**
+     * Binds a neuron class or interface using the given class.
+     * This is an abbreviation for {@code bind(type).toProvider(neuronProvider(type)}.
+     */
     default <T> ScopedBindingBuilder bindNeuron(Class<T> type) { return bindNeuron(TypeLiteral.get(type)); }
 
+    /**
+     * Binds a neuron class or interface using the given type literal.
+     * This is an abbreviation for {@code bind(typeLiteral).toProvider(neuronProvider(typeLiteral)}.
+     */
     default <T> ScopedBindingBuilder bindNeuron(TypeLiteral<T> typeLiteral) { return bindNeuron(Key.get(typeLiteral)); }
 
+    /**
+     * Binds a neuron class or interface using the given key.
+     * This is an abbreviation for {@code bind(key).toProvider(neuronProvider(key.getTypeLiteral())}.
+     */
     default <T> ScopedBindingBuilder bindNeuron(Key<T> key) {
         return binder()
                 .skipSources(BinderLike.class)
                 .bind(key).toProvider(neuronProvider(key.getTypeLiteral()));
     }
 
+    /** Returns a provider for neurons of the given class. */
     default <T> Provider<T> neuronProvider(Class<T> type) { return neuronProvider(TypeLiteral.get(type)); }
 
+    /** Returns a provider for neurons of the given type literal. */
     @SuppressWarnings("unchecked")
     default <T> Provider<T> neuronProvider(final TypeLiteral<T> typeLiteral) {
         final Provider<Injector> injectorProvider = binder()
