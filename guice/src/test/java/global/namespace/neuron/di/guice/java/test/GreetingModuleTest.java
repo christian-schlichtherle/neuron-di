@@ -13,8 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package global.namespace.neuron.di.guice.sample;
+package global.namespace.neuron.di.guice.java.test;
 
+import global.namespace.neuron.di.guice.sample.Formatter;
+import global.namespace.neuron.di.guice.sample.Greeting;
 import org.junit.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -26,13 +28,13 @@ public abstract class GreetingModuleTest extends ModuleTest {
     public void testGreeting() {
         final Greeting greeting = getInstance(Greeting.class);
         assertThat(getInstance(Greeting.class), is(sameInstance(greeting)));
-        assertThat(greeting.message("Christian"), is("Hello Christian!"));
+        assertThat(greeting.message("world"), is("Hello world!"));
     }
 
     @Test
     public void testFormatter() {
         final Formatter formatter = getInstance(Formatter.class);
         assertThat(getInstance(Formatter.class), is(not(sameInstance(formatter))));
-        assertThat(formatter.format("Christian"), is("Hello Christian!"));
+        assertThat(formatter.format("world"), is("Hello world!"));
     }
 }

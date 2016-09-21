@@ -13,16 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package global.namespace.neuron.di.guice.sample;
+package global.namespace.neuron.di.guice.java.test;
 
+import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Module;
 import global.namespace.neuron.di.java.Caching;
 import global.namespace.neuron.di.java.Neuron;
 import global.namespace.neuron.di.junit.NeuronJUnitRunner;
 import org.junit.runner.RunWith;
-
-import static com.google.inject.Guice.createInjector;
 
 @Neuron
 @RunWith(NeuronJUnitRunner.class)
@@ -31,7 +30,7 @@ public abstract class ModuleTest {
     protected abstract Module module();
 
     @Caching
-    protected Injector injector() { return createInjector(module()); }
+    protected Injector injector() { return Guice.createInjector(module()); }
 
     protected <T> T getInstance(Class<T> runtimeClass) { return injector().getInstance(runtimeClass); }
 }

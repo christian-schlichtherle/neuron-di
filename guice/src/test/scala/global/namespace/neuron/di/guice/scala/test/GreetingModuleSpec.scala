@@ -15,17 +15,21 @@
  */
 package global.namespace.neuron.di.guice.scala.test
 
-import javax.inject.Singleton
-
-import com.google.inject.AbstractModule
-import com.google.inject.name.Names
 import global.namespace.neuron.di.guice.sample.{Formatter, Greeting}
+import org.scalatest.Matchers._
+import org.scalatest.WordSpec
 
-class GuiceGreetingModule extends AbstractModule {
+abstract class GreetingModuleSpec extends WordSpec with ModuleSpec {
 
-  protected def configure() {
-    bind(classOf[Greeting]).to(classOf[GuiceGreeting]).in(classOf[Singleton])
-    bind(classOf[Formatter]).to(classOf[GuiceFormatter])
-    bindConstant.annotatedWith(Names.named("format")).to("Hello %s!")
+  "Make a greeting" in {
+    val greeting = getInstanceOf[Greeting]
+    getInstanceOf[Greeting] should be theSameInstanceAs greeting
+    greeting message "world" shouldBe "Hello world!"
+  }
+
+  "Make a formatter" in {
+    val formatter = getInstanceOf[Formatter]
+    getInstanceOf[Formatter] should not be theSameInstanceAs(formatter)
+    formatter format "world" shouldBe "Hello world!"
   }
 }

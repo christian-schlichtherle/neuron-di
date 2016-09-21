@@ -13,12 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package global.namespace.neuron.di.guice.java.test;
+package global.namespace.neuron.di.guice.scala.test
 
-import com.google.inject.Module;
+import com.google.inject.Module
 
-public class NeuronGreetingFormatterModuleTest extends GreetingModuleTest {
+class GuiceGreetingModuleSpec extends GreetingModuleSpec {
 
-    @Override
-    protected Module module() { return new NeuronGreetingFormatterModule(); }
+  override def module: Module = new GuiceGreetingModule
 }

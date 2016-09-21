@@ -16,7 +16,6 @@
 package global.namespace.neuron.di.guice.java.test;
 
 import com.google.inject.Module;
-import global.namespace.neuron.di.guice.sample.GreetingModuleTest;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 

@@ -15,10 +15,16 @@
  */
 package global.namespace.neuron.di.guice.scala.test
 
-import com.google.inject.Module
-import global.namespace.neuron.di.guice.sample.GreetingModuleTest
+import com.google.inject.{Guice, Injector, Module}
+import org.scalatest.WordSpec
 
-class GuiceGreetingModuleTest extends GreetingModuleTest {
+import scala.reflect.{ClassTag, _}
 
-  override def module: Module = new GuiceGreetingModule
+trait ModuleSpec {
+
+  protected def module: Module
+
+  protected lazy val injector: Injector = Guice createInjector module
+
+  protected def getInstanceOf[A: ClassTag]: A = (injector getInstance classTag[A].runtimeClass).asInstanceOf[A]
 }

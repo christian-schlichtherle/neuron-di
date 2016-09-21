@@ -16,9 +16,22 @@
 package global.namespace.neuron.di.guice.scala.test
 
 import com.google.inject.Module
-import global.namespace.neuron.di.guice.sample.GreetingModuleTest
+import global.namespace.neuron.di.guice.sample.{Bar, BarImpl, FooImpl}
+import org.scalatest.Matchers._
+import org.scalatest.WordSpec
 
-class NeuronGreetingModuleTest extends GreetingModuleTest {
+class FooBarModuleSpec extends WordSpec with ModuleSpec {
 
-  override def module: Module = new NeuronGreetingModule
+  override def module: Module = new FooBarModule
+
+  "Make foos and bars" in {
+    val bar1 = getInstanceOf[Bar]
+    val bar2 = getInstanceOf[Bar]
+    bar1 should not be theSameInstanceAs(bar2)
+    bar1 shouldBe a[BarImpl]
+    bar2 shouldBe a[BarImpl]
+    bar1.foo shouldBe a[FooImpl]
+    bar1.foo should be theSameInstanceAs bar2.foo
+    bar1.foo.i shouldBe 1
+  }
 }
