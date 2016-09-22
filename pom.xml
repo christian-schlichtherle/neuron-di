@@ -300,6 +300,7 @@ limitations under the License.
                              <arg>-target:jvm-${maven.compiler.target}</arg>
                              <arg>-unchecked</arg>
                          </args>
+                         <compileOrder>JavaThenScala</compileOrder>
                          <compilerPlugins>
                              <compilerPlugin>
                                  <groupId>org.scalamacros</groupId>
