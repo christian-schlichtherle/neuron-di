@@ -82,7 +82,7 @@
         <project.reporting.outputEncoding>${project.build.sourceEncoding}</project.reporting.outputEncoding>
 
         <!-- scala-maven-plugin -->
-        <scala.lang.version>2.11</scala.lang.version>
+        <scala.compat.version>2.11</scala.compat.version>
         <scala.version>2.11.8</scala.version>
 
         <guice.version>3.0</guice.version>
@@ -154,17 +154,17 @@
             </dependency>
             <dependency>
                 <groupId>org.scala-lang.modules</groupId>
-                <artifactId>scala-xml_${scala.lang.version}</artifactId>
+                <artifactId>scala-xml_${scala.compat.version}</artifactId>
                 <version>1.0.5</version>
             </dependency>
             <dependency>
                 <groupId>org.scalatest</groupId>
-                <artifactId>scalatest_${scala.lang.version}</artifactId>
+                <artifactId>scalatest_${scala.compat.version}</artifactId>
                 <version>3.0.0</version>
             </dependency>
             <dependency>
                 <groupId>org.specs2</groupId>
-                <artifactId>specs2-mock_${scala.lang.version}</artifactId>
+                <artifactId>specs2-mock_${scala.compat.version}</artifactId>
                 <version>3.8.4</version>
             </dependency>
             <dependency>
@@ -390,12 +390,12 @@ limitations under the License.
             <dependencies>
                 <dependency>
                     <groupId>org.scalatest</groupId>
-                    <artifactId>scalatest_${scala.lang.version}</artifactId>
+                    <artifactId>scalatest_${scala.compat.version}</artifactId>
                     <scope>test</scope>
                 </dependency>
                 <dependency>
                     <groupId>org.specs2</groupId>
-                    <artifactId>specs2-mock_${scala.lang.version}</artifactId>
+                    <artifactId>specs2-mock_${scala.compat.version}</artifactId>
                     <scope>test</scope>
                 </dependency>
             </dependencies>
