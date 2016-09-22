@@ -17,7 +17,7 @@ package global.namespace.neuron.di.scala.test
 
 import global.namespace.neuron.di.scala._
 
-import scala.concurrent.forkjoin.ThreadLocalRandom
+import java.util.concurrent.ThreadLocalRandom
 
 @Neuron
 trait AprilWeatherStation extends WeatherStation {
