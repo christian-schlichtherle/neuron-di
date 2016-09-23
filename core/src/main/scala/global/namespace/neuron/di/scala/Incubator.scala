@@ -25,7 +25,13 @@ import scala.reflect._
 
 object Incubator {
 
-  case class stub[A <: AnyRef](implicit classTag: ClassTag[A]) { self =>
+  def breed[A <: AnyRef : ClassTag]: A = jIncubator breed runtimeClassOf[A]
+
+  def breed[A <: AnyRef : ClassTag](binding: Method => () => _): A =
+    jIncubator.breed(runtimeClassOf[A], (method: Method) => binding(method): jSupplier[_])
+
+  case class stub[A <: AnyRef](implicit classTag: ClassTag[A]) {
+    self =>
 
     private var jstub = jIncubator stub runtimeClassOf[A]
 
@@ -50,13 +56,6 @@ object Incubator {
     }
 
     def breed: A = jstub.breed
-  }
-
-  def breed[A <: AnyRef : ClassTag]: A = jIncubator breed runtimeClassOf[A]
-
-  def breed[A <: AnyRef : ClassTag](binding: Method => () => _): A = {
-    jIncubator.breed(runtimeClassOf[A],
-      (method: Method) => binding(method): jSupplier[_])
   }
 
   private implicit class FunctionAdapter[A, B](fun: A => B) extends jFunction[A, B] {
