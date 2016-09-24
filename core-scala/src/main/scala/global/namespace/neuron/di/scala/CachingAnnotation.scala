@@ -15,14 +15,12 @@
  */
 package global.namespace.neuron.di.scala
 
-import scala.reflect.macros.blackbox
-
-private class CachingAnnotation(val c: blackbox.Context) extends MacroAnnotation {
+private trait CachingAnnotation extends MacroAnnotation {
 
   import c.universe._
   import Flag._
 
-  protected def apply0(inputs: List[c.Tree]): c.Tree = {
+  def apply(inputs: List[Tree]): Tree = {
     val outputs = inputs match {
       case DefDef(mods, name, tparams, vparamss, tpt, rhs) :: rest =>
         val owner = c.internal.enclosingOwner

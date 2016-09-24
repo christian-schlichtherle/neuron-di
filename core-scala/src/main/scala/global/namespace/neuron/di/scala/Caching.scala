@@ -15,13 +15,19 @@
  */
 package global.namespace.neuron.di.scala
 
-
 import scala.annotation.{StaticAnnotation, compileTimeOnly}
 import scala.language.experimental.macros
+import scala.reflect.macros.blackbox
 
 @compileTimeOnly("You need to apply the Macro Paradise plugin to the Scala compiler to use this macro annotation. See http://docs.scala-lang.org/overviews/macros/paradise .")
 class Caching(value: CachingStrategy = CachingStrategy.THREAD_SAFE)
   extends StaticAnnotation {
 
-  def macroTransform(annottees: Any*): Any = macro CachingAnnotation.apply
+  def macroTransform(annottees: Any*): Any = macro Caching.transform
+}
+
+private object Caching {
+
+  def transform(x: blackbox.Context)(annottees: x.Tree*): x.Tree =
+    new CachingAnnotation { val c: x.type = x } apply annottees.toList
 }

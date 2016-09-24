@@ -15,14 +15,12 @@
  */
 package global.namespace.neuron.di.scala
 
-import scala.reflect.macros.blackbox
-
-private class NeuronAnnotation(val c: blackbox.Context) extends MacroAnnotation {
+private trait NeuronAnnotation extends MacroAnnotation {
 
   import c.universe._
   import Flag._
 
-  protected def apply0(inputs: List[c.Tree]): c.Tree = {
+  def apply(inputs: List[Tree]): Tree = {
     val outputs = inputs match {
       case (classDef@ClassDef(mods@Modifiers(flags, privateWithin, annotations), tpname@TypeName(name), tparams, impl)) :: rest =>
         if (!(mods hasFlag TRAIT)) {

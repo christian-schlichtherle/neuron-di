@@ -23,12 +23,10 @@ private trait MacroAnnotation {
 
   protected val c: blackbox.Context
 
-  final def apply(annottees: c.Tree*): c.Tree = apply0(annottees.toList)
-
-  protected def apply0(inputs: List[c.Tree]): c.Tree
-
   import c.universe._
   import Flag._
+
+  def apply(inputs: List[Tree]): Tree
 
   protected def scala2javaCachingStrategy(arg: Tree): Tree = {
     q"_root_.global.namespace.neuron.di.java.CachingStrategy.${
