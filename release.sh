@@ -15,10 +15,10 @@
 # limitations under the License.
 #
 
-# This will only work after `mvn release:prepare release:perform`
 SCALA_COMPAT_VERSION=2.12.0-RC1
 SCALA_VERSION=$SCALA_COMPAT_VERSION
-cd target/checkout && \
+mvn release:prepare release:perform && \
+	cd target/checkout && \
 	mvn clean deploy -Prelease \
 		-Dscala.compat.version=$SCALA_COMPAT_VERSION \
 		-Dscala.version=$SCALA_VERSION \
