@@ -25,7 +25,7 @@
         <version>3.3-SNAPSHOT</version>
     </parent>
 
-    <artifactId>neuron-di-scala</artifactId>
+    <artifactId>neuron-di_${scala.compat.version}</artifactId>
 
     <name>Neuron DI 4 Scala</name>
 
