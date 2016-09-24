@@ -18,9 +18,9 @@ with Scala.
 
 For documentation, please consult the [Wiki].
 
-Neuron DI is covered by the [Apache License, Version 2.0].
-
 Release artifacts are hosted on [Maven Central](https://search.maven.org/#search%7Cga%7C1%7Cg%3A%22global.namespace.neuron-di%22). 
+
+Neuron DI is covered by the [Apache License, Version 2.0].
 
 ## Dependencies for the Java API
 
