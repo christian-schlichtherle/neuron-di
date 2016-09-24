@@ -20,24 +20,25 @@ import com.google.inject.binder.{AnnotatedBindingBuilder, AnnotatedConstantBindi
 import com.google.inject.name.Names.named
 import global.namespace.neuron.di.guice.scala._
 import org.mockito.ArgumentCaptor
+import org.mockito.Matchers._
 import org.mockito.Mockito._
 import org.scalatest.Matchers._
 import org.scalatest.WordSpec
-import org.specs2.mock.Mockito
+import org.scalatest.mockito.MockitoSugar.mock
 
-class BinderLikeSpec extends WordSpec with Mockito {
+class BinderLikeSpec extends WordSpec {
 
   "A BinderLike" when {
     "using a mock Binder" should {
       val binder = mock[Binder]
-      binder skipSources any returns binder
+      when(binder skipSources any[Class[_]]) thenReturn binder
 
       "bind a named constant" in {
         val builder1 = mock[AnnotatedConstantBindingBuilder]
         val builder2 = mock[ConstantBindingBuilder]
 
-        binder.bindConstant returns builder1
-        builder1 annotatedWith named("foo") returns builder2
+        when(binder.bindConstant) thenReturn builder1
+        when(builder1 annotatedWith named("foo")) thenReturn builder2
 
         binder bindConstantNamed "foo" should be theSameInstanceAs builder2
       }
@@ -48,14 +49,14 @@ class BinderLikeSpec extends WordSpec with Mockito {
         val injectorProvider = mock[Provider[Injector]]
         val injector = mock[Injector]
 
-        binder bind (Key get classOf[BinderLike]) returns builder1
-        builder1 toProvider any[Provider[BinderLike]] returns builder2
-        binder.getProviderClass[Injector] returns injectorProvider
-        injectorProvider.get returns injector
+        when(binder bind (Key get classOf[BinderLike])) thenReturn builder1
+        when(builder1 toProvider any[Provider[BinderLike]]) thenReturn builder2
+        when(binder.getProviderClass[Injector]) thenReturn injectorProvider
+        when(injectorProvider.get) thenReturn injector
 
         binder.bindNeuronClass[BinderLike] should be theSameInstanceAs builder2
 
-        there was one(binder).getProviderClass[Injector]
+        verify(binder).getProviderClass[Injector]
 
         val neuronProviderCaptor = ArgumentCaptor forClass classOf[Provider[BinderLike]]
         verify(builder1) toProvider neuronProviderCaptor.capture
@@ -63,8 +64,8 @@ class BinderLikeSpec extends WordSpec with Mockito {
         neuronProvider.injector should be theSameInstanceAs injector
         neuronProvider.typeLiteral should be (TypeLiteral get classOf[BinderLike])
 
-        there was one(injectorProvider).get
-        there were noMoreCallsTo(injector)
+        verify(injectorProvider).get
+        verifyNoMoreInteractions(injector)
       }
     }
   }

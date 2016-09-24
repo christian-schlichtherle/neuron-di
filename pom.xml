@@ -163,11 +163,6 @@
                 <version>3.0.0</version>
             </dependency>
             <dependency>
-                <groupId>org.specs2</groupId>
-                <artifactId>specs2-mock_${scala.compat.version}</artifactId>
-                <version>3.8.5</version>
-            </dependency>
-            <dependency>
                 <groupId>org.ow2.asm</groupId>
                 <artifactId>asm</artifactId>
                 <version>5.1</version>
@@ -392,11 +387,6 @@ limitations under the License.
                 <dependency>
                     <groupId>org.scalatest</groupId>
                     <artifactId>scalatest_${scala.compat.version}</artifactId>
-                    <scope>test</scope>
-                </dependency>
-                <dependency>
-                    <groupId>org.specs2</groupId>
-                    <artifactId>specs2-mock_${scala.compat.version}</artifactId>
                     <scope>test</scope>
                 </dependency>
             </dependencies>

@@ -17,13 +17,14 @@ package global.namespace.neuron.di.guice.java
 
 import com.google.inject._
 import com.google.inject.name.Names.named
-import global.namespace.neuron.di.scala.Incubator
 import global.namespace.neuron.di.guice.sample.{NeuronWithQualifiedSynapses, TestBindingAnnotation, TestQualifier}
+import global.namespace.neuron.di.scala.Incubator
+import org.mockito.Mockito._
 import org.scalatest.Matchers._
 import org.scalatest.WordSpec
-import org.specs2.mock.Mockito
+import org.scalatest.mockito.MockitoSugar.mock
 
-class NeuronProviderSpec extends WordSpec with Mockito {
+class NeuronProviderSpec extends WordSpec {
 
   private object noOpMembersInjector
     extends MembersInjector[NeuronWithQualifiedSynapses] {
@@ -45,18 +46,18 @@ class NeuronProviderSpec extends WordSpec with Mockito {
       val boomKey = Key.get(classOf[String], classOf[TestQualifier])
       val bangKey = Key.get(classOf[String], classOf[TestBindingAnnotation])
 
-      injector getProvider fooKey returns mock[Provider[String]]
-      injector getProvider barKey returns mock[Provider[String]]
-      injector getProvider boomKey returns mock[Provider[String]]
-      injector getProvider bangKey returns mock[Provider[String]]
+      when(injector getProvider fooKey) thenReturn mock[Provider[String]]
+      when(injector getProvider barKey)  thenReturn mock[Provider[String]]
+      when(injector getProvider boomKey) thenReturn mock[Provider[String]]
+      when(injector getProvider bangKey) thenReturn mock[Provider[String]]
 
       provider.get shouldBe a[NeuronWithQualifiedSynapses]
 
-      there was one(injector).getProvider(fooKey)
-      there was one(injector).getProvider(barKey)
-      there was one(injector).getProvider(boomKey)
-      there was one(injector).getProvider(bangKey)
-      there were noMoreCallsTo(injector)
+      verify(injector) getProvider fooKey
+      verify(injector) getProvider barKey
+      verify(injector) getProvider boomKey
+      verify(injector) getProvider bangKey
+      verifyNoMoreInteractions(injector)
     }
   }
 }
