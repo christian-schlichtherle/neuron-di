@@ -1,3 +1,5 @@
+# README
+
 Neuron DI is an ultra-light dependency injection framework which emphasizes
 the beauty and power of lazy dependency resolution and caching.
 It takes advantage of functional programming features available in Java SE 8 and 
@@ -20,6 +22,9 @@ For documentation, please consult the [Wiki].
 Neuron DI is covered by the [Apache License, Version 2.0].
 
 Release artifacts are hosted on [Maven Central](https://search.maven.org/#search%7Cga%7C1%7Cg%3A%22global.namespace.neuron-di%22). 
+
+## Dependencies for the Java API
+
 Assuming a system property is defined for `neuron-di.version` (see [releases]), 
 the Maven coordinates for the standalone Neuron DI artifact are as follows:
 
@@ -29,11 +34,30 @@ the Maven coordinates for the standalone Neuron DI artifact are as follows:
         <version>${neuron-di.version}</version>
     </dependency>
 
-If you want to embed Neuron DI in Guice, you have to add this:
+If you want to embed Neuron DI in Guice, you have to use this instead:
 
     <dependency>
         <groupId>global.namespace.neuron-di</groupId>
         <artifactId>neuron-di-guice</artifactId>
+        <version>${neuron-di.version}</version>
+    </dependency>
+
+## Dependencies for the Scala API
+
+Assuming a system property is defined for `neuron-di.version` (see [releases]) and `scala.compat.version`, 
+the Maven coordinates for the standalone Neuron DI artifact are as follows:
+
+    <dependency>
+        <groupId>global.namespace.neuron-di</groupId>
+        <artifactId>neuron-di_${scala.compat.version}</artifactId>
+        <version>${neuron-di.version}</version>
+    </dependency>
+
+If you want to embed Neuron DI in Guice, you have to use this instead:
+
+    <dependency>
+        <groupId>global.namespace.neuron-di</groupId>
+        <artifactId>neuron-di-guice_${scala.compat.version}</artifactId>
         <version>${neuron-di.version}</version>
     </dependency>
 
