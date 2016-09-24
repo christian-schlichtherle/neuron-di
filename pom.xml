@@ -110,12 +110,12 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>neuron-di_${scala.compat.version}</artifactId>
+                <artifactId>neuron-di-guice</artifactId>
                 <version>3.3-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>neuron-di-guice</artifactId>
+                <artifactId>neuron-di-scala_${scala.compat.version}</artifactId>
                 <version>3.3-SNAPSHOT</version>
             </dependency>
 
