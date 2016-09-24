@@ -13,15 +13,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package global.namespace.neuron.di.scala.test
+package global.namespace.neuron.di.scala.sample
 
-import java.util.Date
+import java.util.concurrent.ThreadLocalRandom
 
-import global.namespace.neuron.di.scala.sample.Clock
+import global.namespace.neuron.di.scala._
 
-class FixedClockModule extends ClockModule {
+@Neuron
+trait WeatherStation extends Clock {
 
-  lazy val clock: Clock = new Clock {
-    def now: Date = new Date(0)
+  def temperature: Temperature
+
+  @Neuron
+  trait Temperature {
+
+    val value: Double
+
+    val unit: String
   }
+}
+
+@Neuron
+trait AprilWeatherStation extends WeatherStation {
+
+  def temperature: Temperature = Incubator
+    .stub[Temperature]
+    .bind(_.value).to(temperatureValue)
+    .bind(_.unit).to("˚ Celsius")
+    .breed
+
+  private def temperatureValue: Double =
+    ThreadLocalRandom.current.nextDouble(5D, 25D)
 }

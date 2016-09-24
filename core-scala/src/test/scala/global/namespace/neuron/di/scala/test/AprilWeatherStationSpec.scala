@@ -18,6 +18,7 @@ package global.namespace.neuron.di.scala.test
 import java.util.Date
 
 import global.namespace.neuron.di.scala.Incubator
+import global.namespace.neuron.di.scala.sample.AprilWeatherStation
 import org.scalatest.Matchers._
 import org.scalatest.WordSpec
 

@@ -90,8 +90,8 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
 
       intercept[IllegalStateException] {
         Incubator.stub[HasDependency[_]].breed
-      }.getMessage shouldBe
-        "Partial stubbing is disabled and no binding is defined for some synapse methods: [public abstract java.lang.Object java.util.function.Supplier.get()]"
+      }.getMessage should fullyMatch regex
+        """Partial stubbing is disabled and no binding is defined for some synapse methods: \[public abstract java\.lang\.Object global\.namespace\.neuron\.di\.scala\.sample\..*HasDependency\.get\(\)\]"""
     }
 
     scenario("Partial stubbing is enabled:") {
@@ -103,10 +103,11 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
       Then("the incubator should be recursively applied to resolve the dependency.")
 
       Incubator
-        .stub[HasDependency[_ <: AnyRef]]
+        .stub[HasDependency[_]]
         .partial(true)
         .breed
-        .get should not be null
+        .get
+        .getClass shouldBe classOf[AnyRef]
     }
   }
 

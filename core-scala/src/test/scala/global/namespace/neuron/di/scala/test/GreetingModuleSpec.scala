@@ -15,19 +15,21 @@
  */
 package global.namespace.neuron.di.scala.test
 
-import global.namespace.neuron.di.scala.sample.RealFormatter
+import global.namespace.neuron.di.scala.sample.{GreetingModule, RealFormatter}
 import org.scalatest.Matchers._
 import org.scalatest.WordSpec
 
 class GreetingModuleSpec extends WordSpec {
 
   "Make a greeting" in {
-    val module = new GreetingModule
-    val greeting = module.greeting
-    module.greeting should be theSameInstanceAs greeting
-    greeting.formatter shouldBe a[RealFormatter]
-    greeting.formatter should not be theSameInstanceAs(greeting.formatter)
-    greeting.message should be theSameInstanceAs greeting.message
-    greeting.message shouldBe "Hello Christian!"
+    val greeting = GreetingModule.greeting
+    GreetingModule.greeting should be theSameInstanceAs greeting
+    greeting message "world" shouldBe "Hello world!"
+  }
+
+  "Make a formatter" in {
+    val formatter = GreetingModule.formatter
+    GreetingModule.formatter should be theSameInstanceAs formatter
+    formatter format "world" shouldBe "Hello world!"
   }
 }

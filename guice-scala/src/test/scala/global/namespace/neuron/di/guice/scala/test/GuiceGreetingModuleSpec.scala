@@ -16,6 +16,7 @@
 package global.namespace.neuron.di.guice.scala.test
 
 import com.google.inject.Module
+import global.namespace.neuron.di.guice.scala.sample.GuiceGreetingModule
 
 class GuiceGreetingModuleSpec extends GreetingModuleSpec {
 

@@ -13,23 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package global.namespace.neuron.di.scala.sample;
+package global.namespace.neuron.di.guice.scala
 
-import global.namespace.neuron.di.java.Caching;
-import global.namespace.neuron.di.java.Neuron;
+package object sample {
 
-@Neuron
-public interface WeatherStation extends Clock {
+  trait Greeting {
 
-    Temperature temperature();
+    /** Returns a greeting message for the given entity. */
+    def message(entity: String): String
+  }
 
-    @Neuron
-    interface Temperature {
+  trait Formatter {
 
-        @Caching
-        double value();
-
-        @Caching
-        String unit();
-    }
+    /** Returns a text which has been formatted using the given arguments. */
+    def format(args: AnyRef*): String
+  }
 }

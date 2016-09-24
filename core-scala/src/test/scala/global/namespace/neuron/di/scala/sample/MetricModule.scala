@@ -13,11 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package global.namespace.neuron.di.scala.sample;
+package global.namespace.neuron.di.scala.sample
 
-import java.util.Date;
+import global.namespace.neuron.di.scala.Neuron
 
-public abstract class AnotherNeuronClass extends SomeNeuronClass {
+@Neuron
+trait Metric extends HasCounter {
 
-    abstract Date now();
+  val counter: Counter
+
+  def incrementCounter: Counter = counter.increment
+}
+
+@Neuron
+trait MetricModule {
+
+  val metric: Metric
 }

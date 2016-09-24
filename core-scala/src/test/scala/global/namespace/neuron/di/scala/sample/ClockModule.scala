@@ -13,13 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package global.namespace.neuron.di.scala.test
+package global.namespace.neuron.di.scala.sample
+
+import java.util.Date
 
 import global.namespace.neuron.di.scala.Neuron
-import global.namespace.neuron.di.scala.sample.Metric
 
 @Neuron
-trait MetricModule {
+trait Clock {
 
-  val metric: Metric
+  /** A synapse method which returns a new date on each call. */
+  def now: Date
+}
+
+@Neuron
+trait ClockModule {
+
+  /** A synapse value which holds some clock. */
+  val clock: Clock
+}
+
+object FixedClockModule extends ClockModule {
+
+  lazy val clock: Clock = new Clock {
+    def now: Date = new Date(0)
+  }
 }

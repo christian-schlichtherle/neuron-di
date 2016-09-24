@@ -13,19 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package global.namespace.neuron.di.guice.scala.sample;
+package global.namespace.neuron.di.scala.sample
 
-import global.namespace.neuron.di.java.Neuron;
+import global.namespace.neuron.di.scala.Neuron
 
-import javax.inject.Named;
-import java.util.List;
+trait HasCounter {
+
+  def counter: Counter
+}
 
 @Neuron
-public interface NeuronWithQualifiedGenericSynapses {
+trait CounterFactory extends HasCounter
 
-    @Named("foo")
-    List<String> foo();
+@Neuron
+trait CounterFactoryModule {
 
-    @Named("bar")
-    List<String> bar();
+  val counterFactory: CounterFactory
 }

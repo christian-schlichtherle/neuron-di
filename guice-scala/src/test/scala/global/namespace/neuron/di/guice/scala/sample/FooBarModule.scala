@@ -13,15 +13,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package global.namespace.neuron.di.guice.scala.test
+package global.namespace.neuron.di.guice.scala.sample
 
-import global.namespace.neuron.di.guice.scala.sample.{Formatter, Greeting}
-import global.namespace.neuron.di.scala.Neuron
+import javax.inject.{Inject, Named, Singleton}
 
-@Neuron
-trait NeuronGreeting extends Greeting {
+import global.namespace.neuron.di.guice.scala._
 
-  val _formatter: Formatter
+trait Foo {
 
-  def message(entity: String): String = _formatter format entity
+  def i: Int
+}
+
+class FooImpl @Inject() (@Named("one") val i: Int) extends Foo
+
+trait Bar {
+
+  def foo: Foo
+}
+
+class BarImpl @Inject() (@Named("impl") val foo: Foo) extends Bar
+
+class FooBarModule extends NeuronModule {
+
+  def configure() {
+    bindConstantNamed("one").to(1)
+    bindClass[Foo]
+      .named("impl")
+      .toClass[FooImpl]
+      .inScope[Singleton]
+    bindClass[Bar].toClass[BarImpl]
+  }
 }

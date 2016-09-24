@@ -16,6 +16,7 @@
 package global.namespace.neuron.di.scala.test
 
 import global.namespace.neuron.di.scala.Incubator
+import global.namespace.neuron.di.scala.sample.CounterFactoryModule
 import org.scalatest.Matchers._
 import org.scalatest.WordSpec
 

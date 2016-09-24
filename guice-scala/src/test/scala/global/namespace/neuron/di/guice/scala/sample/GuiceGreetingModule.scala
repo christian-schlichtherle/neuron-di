@@ -13,13 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package global.namespace.neuron.di.guice.scala.test
+package global.namespace.neuron.di.guice.scala.sample
 
-import javax.inject.Singleton
+import javax.inject.{Inject, Named, Singleton}
 
 import com.google.inject.AbstractModule
 import com.google.inject.name.Names
-import global.namespace.neuron.di.guice.scala.sample.{Formatter, Greeting}
+
+class GuiceGreeting @Inject() (formatter: Formatter) extends Greeting {
+
+  def message(entity: String): String = formatter format entity
+}
+
+class GuiceFormatter @Inject() (@Named("format") format: String) extends Formatter {
+
+  def format(args: AnyRef*): String = String.format(format, args: _*)
+}
 
 class GuiceGreetingModule extends AbstractModule {
 
