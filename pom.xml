@@ -234,6 +234,7 @@
                      <version>1.5</version>
                      <executions>
                          <execution>
+                             <id>add-license</id>
                              <goals>
                                  <goal>process</goal>
                              </goals>
@@ -502,6 +503,49 @@ limitations under the License.
             </build>
         </profile>
         <profile>
+            <id>dont-add-license</id>
+            <activation>
+                <file>
+                    <missing>src/main</missing>
+                </file>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-remote-resources-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>add-license</id>
+                                <phase>none</phase>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>dont-attach-sources</id>
+            <activation>
+                <file>
+                    <missing>src/main</missing>
+                </file>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>attach-sources</id>
+                                <phase>none</phase>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
             <id>dont-attach-javadocs</id>
             <activation>
                 <file>
@@ -548,6 +592,9 @@ limitations under the License.
             <id>release</id>
             <build>
                 <plugins>
+                    <plugin>
+                        <artifactId>maven-remote-resources-plugin</artifactId>
+                    </plugin>
                     <plugin>
                         <artifactId>maven-source-plugin</artifactId>
                         <executions>
