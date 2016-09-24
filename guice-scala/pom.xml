@@ -22,7 +22,7 @@
     <parent>
         <groupId>global.namespace.neuron-di</groupId>
         <artifactId>neuron-di-parent</artifactId>
-        <version>3.3-SNAPSHOT</version>
+        <version>3.3</version>
     </parent>
 
     <artifactId>neuron-di-guice-scala_${scala.compat.version}</artifactId>
