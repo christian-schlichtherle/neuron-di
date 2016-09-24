@@ -30,16 +30,10 @@ public class NeuronWithGenericSynapsesModuleTest extends ModuleTest {
     protected Module module() { return new NeuronWithGenericSynapsesModule(); }
 
     @Test
-    public void testStrings() {
-        assertThat(neuron().strings(), is(Arrays.asList("foo", "bar")));
-    }
+    public void testStrings() { assertThat(neuron().strings(), is(Arrays.asList("foo", "bar"))); }
 
     @Test
-    public void testIntegers() {
-        assertThat(neuron().integers(), is(Arrays.asList(1, 2)));
-    }
+    public void testIntegers() { assertThat(neuron().integers(), is(Arrays.asList(1, 2))); }
 
-    private NeuronWithGenericSynapses neuron() {
-        return getInstance(NeuronWithGenericSynapses.class);
-    }
+    private NeuronWithGenericSynapses neuron() { return getInstance(NeuronWithGenericSynapses.class); }
 }

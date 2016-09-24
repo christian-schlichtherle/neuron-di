@@ -26,19 +26,13 @@ import static org.hamcrest.Matchers.is;
 public class NeuronWithQualifiedGenericSynapsesModuleTest extends ModuleTest {
 
     @Override
-    protected Module module() {
-        return new NeuronWithQualifiedGenericSynapsesModule();
-    }
+    protected Module module() { return new NeuronWithQualifiedGenericSynapsesModule(); }
 
     @Test
-    public void testFoo() {
-        assertThat(neuron().foo(), is(singletonList("foo")));
-    }
+    public void testFoo() { assertThat(neuron().foo(), is(singletonList("foo"))); }
 
     @Test
-    public void testBar() {
-        assertThat(neuron().bar(), is(singletonList("bar")));
-    }
+    public void testBar() { assertThat(neuron().bar(), is(singletonList("bar"))); }
 
     private NeuronWithQualifiedGenericSynapses neuron() {
         return getInstance(NeuronWithQualifiedGenericSynapses.class);

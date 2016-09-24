@@ -30,16 +30,10 @@ public class GenericNeuronModuleTest extends ModuleTest {
     protected Module module() { return new GenericNeuronModule(); }
 
     @Test
-    public void testGet() {
-        assertThat(neuron().get(), is("foo"));
-    }
+    public void testGet() { assertThat(neuron().get(), is("foo")); }
 
     @Test
-    public void testAsList() {
-        assertThat(neuron().asList(), is(singletonList("foo")));
-    }
+    public void testAsList() { assertThat(neuron().asList(), is(singletonList("foo"))); }
 
-    private GenericNeuron<String> neuron() {
-        return injector().getInstance(STRING_NEURON_KEY);
-    }
+    private GenericNeuron<String> neuron() { return injector().getInstance(STRING_NEURON_KEY); }
 }

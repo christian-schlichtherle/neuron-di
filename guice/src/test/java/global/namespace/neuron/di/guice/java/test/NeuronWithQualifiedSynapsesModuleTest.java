@@ -39,7 +39,5 @@ public class NeuronWithQualifiedSynapsesModuleTest extends ModuleTest {
     @Test
     public void testBang() { assertThat(neuron().bang(), is("bang")); }
 
-    private NeuronWithQualifiedSynapses neuron() {
-        return getInstance(NeuronWithQualifiedSynapses.class);
-    }
+    private NeuronWithQualifiedSynapses neuron() { return getInstance(NeuronWithQualifiedSynapses.class); }
 }
