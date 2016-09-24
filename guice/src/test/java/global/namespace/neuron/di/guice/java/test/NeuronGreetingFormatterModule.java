@@ -16,8 +16,8 @@
 package global.namespace.neuron.di.guice.java.test;
 
 import global.namespace.neuron.di.guice.java.NeuronModule;
-import global.namespace.neuron.di.guice.sample.Formatter;
-import global.namespace.neuron.di.guice.sample.Greeting;
+import global.namespace.neuron.di.guice.java.sample.Formatter;
+import global.namespace.neuron.di.guice.java.sample.Greeting;
 
 import javax.inject.Singleton;
 

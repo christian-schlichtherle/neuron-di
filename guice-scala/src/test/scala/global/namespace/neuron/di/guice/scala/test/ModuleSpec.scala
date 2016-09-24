@@ -16,9 +16,8 @@
 package global.namespace.neuron.di.guice.scala.test
 
 import com.google.inject.{Guice, Injector, Module}
-import org.scalatest.WordSpec
 
-import scala.reflect.{ClassTag, _}
+import scala.reflect.{ClassTag, classTag}
 
 trait ModuleSpec {
 

@@ -17,8 +17,8 @@ package global.namespace.neuron.di.guice.java.test;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.name.Names;
-import global.namespace.neuron.di.guice.sample.Formatter;
-import global.namespace.neuron.di.guice.sample.Greeting;
+import global.namespace.neuron.di.guice.java.sample.Formatter;
+import global.namespace.neuron.di.guice.java.sample.Greeting;
 
 import javax.inject.Singleton;
 

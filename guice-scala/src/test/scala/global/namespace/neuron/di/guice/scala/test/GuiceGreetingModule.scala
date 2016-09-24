@@ -19,7 +19,7 @@ import javax.inject.Singleton
 
 import com.google.inject.AbstractModule
 import com.google.inject.name.Names
-import global.namespace.neuron.di.guice.sample.{Formatter, Greeting}
+import global.namespace.neuron.di.guice.scala.sample.{Formatter, Greeting}
 
 class GuiceGreetingModule extends AbstractModule {
 

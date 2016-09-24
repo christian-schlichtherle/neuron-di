@@ -15,8 +15,8 @@
  */
 package global.namespace.neuron.di.scala.test
 
-import global.namespace.neuron.di.sample.Clock
 import global.namespace.neuron.di.scala._
+import global.namespace.neuron.di.scala.sample.Clock
 
 @Neuron
 trait WeatherStation extends Clock {

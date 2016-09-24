@@ -17,8 +17,8 @@ package global.namespace.neuron.di.scala.test
 
 import java.lang.reflect.Method
 
-import global.namespace.neuron.di.sample._
 import global.namespace.neuron.di.scala._
+import global.namespace.neuron.di.scala.sample._
 import global.namespace.neuron.di.scala.test.IncubatorSpec._
 import org.scalatest.Matchers._
 import org.scalatest.{FeatureSpec, GivenWhenThen}

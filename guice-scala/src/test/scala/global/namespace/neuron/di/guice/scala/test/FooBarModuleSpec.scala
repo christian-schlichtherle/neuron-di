@@ -16,7 +16,7 @@
 package global.namespace.neuron.di.guice.scala.test
 
 import com.google.inject.Module
-import global.namespace.neuron.di.guice.sample.{Bar, BarImpl, FooImpl}
+import global.namespace.neuron.di.guice.scala.sample.{Bar, BarImpl, FooImpl}
 import org.scalatest.Matchers._
 import org.scalatest.WordSpec
 

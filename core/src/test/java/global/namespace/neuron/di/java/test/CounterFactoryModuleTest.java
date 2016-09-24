@@ -16,7 +16,8 @@
 package global.namespace.neuron.di.java.test;
 
 import global.namespace.neuron.di.java.Incubator;
-import global.namespace.neuron.di.sample.CounterFactory;
+import global.namespace.neuron.di.java.sample.CounterFactory;
+import global.namespace.neuron.di.java.sample.CounterFactoryModule;
 import org.junit.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;

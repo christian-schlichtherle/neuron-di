@@ -15,10 +15,9 @@
  */
 package global.namespace.neuron.di.guice.scala.test
 
-import javax.inject.Inject
-import javax.inject.Named
+import javax.inject.{Inject, Named}
 
-import global.namespace.neuron.di.guice.sample.Formatter
+import global.namespace.neuron.di.guice.scala.sample.Formatter
 
 class GuiceFormatter @Inject() (@Named("format") format: String) extends Formatter {
 

@@ -21,7 +21,7 @@ import java.util.function.{Function => jFunction, Supplier => jSupplier}
 import com.google.inject._
 import com.google.inject.name.Names.named
 import global.namespace.neuron.di.guice.java.NeuronProviderSpec._
-import global.namespace.neuron.di.guice.sample.{NeuronWithQualifiedSynapses, TestBindingAnnotation, TestQualifier}
+import global.namespace.neuron.di.guice.java.sample.{NeuronWithQualifiedSynapses, TestBindingAnnotation, TestQualifier}
 import global.namespace.neuron.di.java.Incubator
 import org.mockito.Mockito._
 import org.scalatest.Matchers._

@@ -16,9 +16,9 @@
 package global.namespace.neuron.di.guice.java.test;
 
 import global.namespace.neuron.di.guice.java.NeuronModule;
-import global.namespace.neuron.di.guice.sample.TestBindingAnnotation;
-import global.namespace.neuron.di.guice.sample.TestQualifier;
-import global.namespace.neuron.di.guice.sample.NeuronWithQualifiedSynapses;
+import global.namespace.neuron.di.guice.java.sample.TestBindingAnnotation;
+import global.namespace.neuron.di.guice.java.sample.TestQualifier;
+import global.namespace.neuron.di.guice.java.sample.NeuronWithQualifiedSynapses;
 
 class NeuronWithQualifiedSynapsesModule extends NeuronModule {
 

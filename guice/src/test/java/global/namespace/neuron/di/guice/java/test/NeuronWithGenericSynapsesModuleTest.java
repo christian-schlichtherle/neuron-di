@@ -16,7 +16,7 @@
 package global.namespace.neuron.di.guice.java.test;
 
 import com.google.inject.Module;
-import global.namespace.neuron.di.guice.sample.NeuronWithGenericSynapses;
+import global.namespace.neuron.di.guice.java.sample.NeuronWithGenericSynapses;
 import org.junit.Test;
 
 import java.util.Arrays;

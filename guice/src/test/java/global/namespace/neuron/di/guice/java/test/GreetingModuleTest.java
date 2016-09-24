@@ -15,8 +15,8 @@
  */
 package global.namespace.neuron.di.guice.java.test;
 
-import global.namespace.neuron.di.guice.sample.Formatter;
-import global.namespace.neuron.di.guice.sample.Greeting;
+import global.namespace.neuron.di.guice.java.sample.Formatter;
+import global.namespace.neuron.di.guice.java.sample.Greeting;
 import org.junit.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;

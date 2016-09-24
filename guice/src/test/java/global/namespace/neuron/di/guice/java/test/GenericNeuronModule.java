@@ -18,7 +18,7 @@ package global.namespace.neuron.di.guice.java.test;
 import com.google.inject.Key;
 import com.google.inject.TypeLiteral;
 import global.namespace.neuron.di.guice.java.NeuronModule;
-import global.namespace.neuron.di.guice.sample.GenericNeuron;
+import global.namespace.neuron.di.guice.java.sample.GenericNeuron;
 
 import java.util.List;
 

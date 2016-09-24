@@ -15,8 +15,8 @@
  */
 package global.namespace.neuron.di.scala.test
 
-import global.namespace.neuron.di.sample.CounterFactory
 import global.namespace.neuron.di.scala.Neuron
+import global.namespace.neuron.di.scala.sample.CounterFactory
 
 @Neuron
 trait CounterFactoryModule {

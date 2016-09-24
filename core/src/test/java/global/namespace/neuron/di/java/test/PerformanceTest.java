@@ -16,9 +16,9 @@
 package global.namespace.neuron.di.java.test;
 
 import global.namespace.neuron.di.java.Incubator;
-import global.namespace.neuron.di.sample.Formatter;
-import global.namespace.neuron.di.sample.Greeting;
-import global.namespace.neuron.di.sample.RealFormatter;
+import global.namespace.neuron.di.java.sample.Formatter;
+import global.namespace.neuron.di.java.sample.Greeting;
+import global.namespace.neuron.di.java.sample.RealFormatter;
 import org.hamcrest.Matcher;
 
 import java.util.Locale;

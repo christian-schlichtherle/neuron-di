@@ -17,7 +17,7 @@ package global.namespace.neuron.di.guice.scala.test
 
 import javax.inject.Inject
 
-import global.namespace.neuron.di.guice.sample.{Formatter, Greeting}
+import global.namespace.neuron.di.guice.scala.sample.{Formatter, Greeting}
 
 class GuiceGreeting @Inject() (formatter: Formatter) extends Greeting {
 

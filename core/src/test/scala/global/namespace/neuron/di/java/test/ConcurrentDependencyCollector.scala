@@ -18,7 +18,7 @@ package global.namespace.neuron.di.java.test
 import java.util.concurrent.{CyclicBarrier, TimeUnit}
 
 import global.namespace.neuron.di.java.test.ParallelSugar._
-import global.namespace.neuron.di.sample.HasDependency
+import global.namespace.neuron.di.java.sample.HasDependency
 
 private class ConcurrentDependencyCollector {
 

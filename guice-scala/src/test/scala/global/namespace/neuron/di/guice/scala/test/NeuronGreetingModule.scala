@@ -17,8 +17,8 @@ package global.namespace.neuron.di.guice.scala.test
 
 import javax.inject.Singleton
 
-import global.namespace.neuron.di.guice.sample.{Formatter, Greeting}
 import global.namespace.neuron.di.guice.scala._
+import global.namespace.neuron.di.guice.scala.sample.{Formatter, Greeting}
 
 class NeuronGreetingModule extends NeuronModule {
 

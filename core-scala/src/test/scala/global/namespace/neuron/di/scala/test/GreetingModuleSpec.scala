@@ -15,7 +15,7 @@
  */
 package global.namespace.neuron.di.scala.test
 
-import global.namespace.neuron.di.sample.RealFormatter
+import global.namespace.neuron.di.scala.sample.RealFormatter
 import org.scalatest.Matchers._
 import org.scalatest.WordSpec
 

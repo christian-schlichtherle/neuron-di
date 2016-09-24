@@ -15,7 +15,7 @@
  */
 package global.namespace.neuron.di.guice.scala.test
 
-import global.namespace.neuron.di.guice.sample.{Formatter, Greeting}
+import global.namespace.neuron.di.guice.scala.sample.{Formatter, Greeting}
 import global.namespace.neuron.di.scala.Neuron
 
 @Neuron

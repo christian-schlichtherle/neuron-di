@@ -16,10 +16,10 @@
 package global.namespace.neuron.di.guice.java.test;
 
 import global.namespace.neuron.di.guice.java.NeuronModule;
-import global.namespace.neuron.di.guice.sample.Bar;
-import global.namespace.neuron.di.guice.sample.BarImpl;
-import global.namespace.neuron.di.guice.sample.Foo;
-import global.namespace.neuron.di.guice.sample.FooImpl;
+import global.namespace.neuron.di.guice.java.sample.Bar;
+import global.namespace.neuron.di.guice.java.sample.BarImpl;
+import global.namespace.neuron.di.guice.java.sample.Foo;
+import global.namespace.neuron.di.guice.java.sample.FooImpl;
 
 import javax.inject.Singleton;
 

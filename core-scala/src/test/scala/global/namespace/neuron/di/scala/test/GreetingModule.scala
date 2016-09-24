@@ -16,7 +16,7 @@
 package global.namespace.neuron.di.scala.test
 
 import global.namespace.neuron.di.scala.Incubator
-import global.namespace.neuron.di.sample.{Greeting, RealFormatter}
+import global.namespace.neuron.di.scala.sample.{Greeting, RealFormatter}
 
 class GreetingModule {
 

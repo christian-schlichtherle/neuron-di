@@ -16,7 +16,8 @@
 package global.namespace.neuron.di.java.test;
 
 import global.namespace.neuron.di.java.Incubator;
-import global.namespace.neuron.di.sample.Clock;
+import global.namespace.neuron.di.java.sample.Clock;
+import global.namespace.neuron.di.java.sample.ClockModule;
 import org.junit.Test;
 
 import java.util.Date;

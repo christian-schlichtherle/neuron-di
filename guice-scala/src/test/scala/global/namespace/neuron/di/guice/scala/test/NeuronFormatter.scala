@@ -15,7 +15,7 @@
  */
 package global.namespace.neuron.di.guice.scala.test
 
-import global.namespace.neuron.di.guice.sample.Formatter
+import global.namespace.neuron.di.guice.scala.sample.Formatter
 import global.namespace.neuron.di.scala.Neuron
 
 import scala.annotation.meta.getter

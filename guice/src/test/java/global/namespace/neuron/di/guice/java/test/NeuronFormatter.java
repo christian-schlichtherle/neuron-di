@@ -15,7 +15,7 @@
  */
 package global.namespace.neuron.di.guice.java.test;
 
-import global.namespace.neuron.di.guice.sample.Formatter;
+import global.namespace.neuron.di.guice.java.sample.Formatter;
 import global.namespace.neuron.di.java.Caching;
 import global.namespace.neuron.di.java.Neuron;
 
