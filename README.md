@@ -15,6 +15,8 @@ and caching to their DI framework of choice.
 Guice users also enjoy extensions to the Guice binding DSL which make it simpler 
 to use, especially when using Guice with Scala.
 
+For documentation, please consult the [Wiki].
+
 Neuron DI is covered by the [Apache License, Version 2.0].
 
 Release artifacts are hosted on [Maven Central](https://search.maven.org/#search%7Cga%7C1%7Cg%3A%22global.namespace.neuron-di%22). 
@@ -34,8 +36,6 @@ If you want to embed Neuron DI in Guice, you have to add this:
         <artifactId>neuron-di-guice</artifactId>
         <version>${neuron-di.version}</version>
     </dependency>
-
-For documentation, please consult the [Wiki].
 
 [Apache License, Version 2.0]: https://www.apache.org/licenses/LICENSE-2.0
 [Releases]: https://github.com/christian-schlichtherle/neuron-di/releases
