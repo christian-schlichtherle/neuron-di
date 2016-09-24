@@ -16,6 +16,7 @@
 package global.namespace.neuron.di.guice.java;
 
 import com.google.inject.*;
+import global.namespace.neuron.di.java.Caching;
 import global.namespace.neuron.di.java.Incubator;
 import global.namespace.neuron.di.java.Neuron;
 
@@ -28,6 +29,7 @@ import java.util.function.Supplier;
 @Neuron
 abstract class NeuronProvider<T> implements Provider<T> {
 
+    @Caching
     abstract Injector injector();
 
     abstract TypeLiteral<T> typeLiteral();
