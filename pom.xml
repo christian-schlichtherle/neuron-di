@@ -21,7 +21,7 @@
 
     <groupId>global.namespace.neuron-di</groupId>
     <artifactId>neuron-di-parent</artifactId>
-    <version>3.4-SNAPSHOT</version>
+    <version>3.3-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Neuron DI Parent</name>
@@ -106,17 +106,17 @@
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>neuron-di</artifactId>
-                <version>3.4-SNAPSHOT</version>
+                <version>3.3-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>neuron-di-guice</artifactId>
-                <version>3.4-SNAPSHOT</version>
+                <version>3.3-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>neuron-di-scala_${scala.compat.version}</artifactId>
-                <version>3.4-SNAPSHOT</version>
+                <version>3.3-SNAPSHOT</version>
             </dependency>
 
             <dependency>
