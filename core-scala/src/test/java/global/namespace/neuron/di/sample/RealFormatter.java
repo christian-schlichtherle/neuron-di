@@ -13,21 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package global.namespace.neuron.di.scala.test
+package global.namespace.neuron.di.sample;
 
-import global.namespace.neuron.di.scala.Incubator
-import global.namespace.neuron.di.java.test.MetricModule
-import org.scalatest.WordSpec
-import org.scalatest.Matchers._
+import global.namespace.neuron.di.java.Caching;
+import global.namespace.neuron.di.java.Neuron;
 
-class MetricModuleSpec extends WordSpec {
+@Neuron
+public interface RealFormatter extends Formatter {
 
-  "Make a metric" in {
-    val module = Incubator.breed[MetricModule]
-    val metric = module.metric
-    module.metric should be theSameInstanceAs metric
-    metric.counter should be theSameInstanceAs metric.counter
-    metric.counter.count shouldBe 0
-    metric.incrementCounter.count shouldBe 1
-  }
+    @Override
+    default String format(Object... args) {
+        return String.format(getFormat(), (Object[]) args);
+    }
+
+    @Caching
+    String getFormat();
 }

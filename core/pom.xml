@@ -46,18 +46,6 @@
             <optional>true</optional>
             <scope>provided</scope>
         </dependency>
-        <dependency>
-            <groupId>org.scala-lang</groupId>
-            <artifactId>scala-library</artifactId>
-            <optional>true</optional>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.scala-lang</groupId>
-            <artifactId>scala-reflect</artifactId>
-            <optional>true</optional>
-            <scope>provided</scope>
-        </dependency>
     </dependencies>
 
     <build>
@@ -72,15 +60,6 @@
                         </configuration>
                     </execution>
                 </executions>
-            </plugin>
-            <plugin>
-                <groupId>net.alchim31.maven</groupId>
-                <artifactId>scala-maven-plugin</artifactId>
-                <configuration>
-                    <javacArgs>
-                        <arg>-proc:none</arg>
-                    </javacArgs>
-                </configuration>
             </plugin>
         </plugins>
     </build>

@@ -18,7 +18,8 @@ package global.namespace.neuron.di.guice.java
 import com.google.inject._
 import com.google.inject.binder.{AnnotatedBindingBuilder, AnnotatedConstantBindingBuilder, ConstantBindingBuilder, ScopedBindingBuilder}
 import com.google.inject.name.Names.named
-import global.namespace.neuron.di.guice.scala._
+import global.namespace.neuron.di.guice.java.BinderLikeSpec._
+import global.namespace.neuron.di.java.Neuron
 import org.mockito.ArgumentCaptor
 import org.mockito.Matchers._
 import org.mockito.Mockito._
@@ -28,45 +29,80 @@ import org.scalatest.mockito.MockitoSugar.mock
 
 class BinderLikeSpec extends WordSpec {
 
-  "A BinderLike" when {
-    "using a mock Binder" should {
-      val binder = mock[Binder]
+  "A BinderLike" should afterWord("bind a") {
+    val binderLike = new BinderLike {
+
+      val binder: Binder = mock[Binder]
+
       when(binder skipSources any[Class[_]]) thenReturn binder
+    }
+    import binderLike.binder
 
-      "bind a named constant" in {
-        val builder1 = mock[AnnotatedConstantBindingBuilder]
-        val builder2 = mock[ConstantBindingBuilder]
+    "named constant" in {
+      val builder1 = mock[AnnotatedConstantBindingBuilder]
+      val builder2 = mock[ConstantBindingBuilder]
 
-        when(binder.bindConstant) thenReturn builder1
-        when(builder1 annotatedWith named("foo")) thenReturn builder2
+      when(binder.bindConstant) thenReturn builder1
+      when(builder1 annotatedWith named("foo")) thenReturn builder2
 
-        binder bindConstantNamed "foo" should be theSameInstanceAs builder2
-      }
+      binderLike bindConstantNamed "foo" should be theSameInstanceAs builder2
+    }
 
-      "bind a neuron" in {
-        val builder1 = mock[AnnotatedBindingBuilder[BinderLike]]
-        val builder2 = mock[ScopedBindingBuilder]
-        val injectorProvider = mock[Provider[Injector]]
-        val injector = mock[Injector]
+    "neuron interface" in {
+      val typeLiteral = TypeLiteral get classOf[TestInterface]
 
-        when(binder bind (Key get classOf[BinderLike])) thenReturn builder1
-        when(builder1 toProvider any[Provider[BinderLike]]) thenReturn builder2
-        when(binder.getProviderClass[Injector]) thenReturn injectorProvider
-        when(injectorProvider.get) thenReturn injector
+      val builder1 = mock[AnnotatedBindingBuilder[TestInterface]]
+      val builder2 = mock[ScopedBindingBuilder]
+      val injectorProvider = mock[Provider[Injector]]
+      val injector = mock[Injector]
 
-        binder.bindNeuronClass[BinderLike] should be theSameInstanceAs builder2
+      when(binder bind (Key get classOf[TestInterface])) thenReturn builder1
+      when(builder1 toProvider any[Provider[TestInterface]]) thenReturn builder2
+      when(binder getProvider classOf[Injector]) thenReturn injectorProvider
+      when(injectorProvider.get) thenReturn injector
 
-        verify(binder).getProviderClass[Injector]
+      binderLike bindNeuron classOf[TestInterface] should be theSameInstanceAs builder2
 
-        val neuronProviderCaptor = ArgumentCaptor forClass classOf[Provider[BinderLike]]
-        verify(builder1) toProvider neuronProviderCaptor.capture
-        val neuronProvider = neuronProviderCaptor.getValue.asInstanceOf[NeuronProvider[BinderLike]]
-        neuronProvider.injector should be theSameInstanceAs injector
-        neuronProvider.typeLiteral should be (TypeLiteral get classOf[BinderLike])
+      val neuronProviderCaptor = ArgumentCaptor forClass classOf[NeuronProvider[TestInterface]]
+      verify(builder1) toProvider neuronProviderCaptor.capture
+      val neuronProvider = neuronProviderCaptor.getValue
+      neuronProvider.injector should be theSameInstanceAs injector
+      neuronProvider.membersInjector should not be null
+      neuronProvider.typeLiteral shouldBe typeLiteral
+    }
 
-        verify(injectorProvider).get
-        verifyNoMoreInteractions(injector)
-      }
+    "neuron class" in {
+      val typeLiteral = TypeLiteral get classOf[TestClass]
+
+      val builder1 = mock[AnnotatedBindingBuilder[TestClass]]
+      val builder2 = mock[ScopedBindingBuilder]
+      val injectorProvider = mock[Provider[Injector]]
+      val injector = mock[Injector]
+      val membersInjector = mock[MembersInjector[TestClass]]
+
+      when(binder bind (Key get classOf[TestClass])) thenReturn builder1
+      when(builder1 toProvider any[Provider[TestClass]]) thenReturn builder2
+      when(binder getProvider classOf[Injector]) thenReturn injectorProvider
+      when(injectorProvider.get) thenReturn injector
+      when(binder getMembersInjector typeLiteral) thenReturn membersInjector
+
+      binderLike bindNeuron classOf[TestClass] should be theSameInstanceAs builder2
+
+      val neuronProviderCaptor = ArgumentCaptor forClass classOf[NeuronProvider[TestClass]]
+      verify(builder1) toProvider neuronProviderCaptor.capture
+      val neuronProvider = neuronProviderCaptor.getValue
+      neuronProvider.injector should be theSameInstanceAs injector
+      neuronProvider.membersInjector should be theSameInstanceAs membersInjector
+      neuronProvider.typeLiteral shouldBe typeLiteral
     }
   }
+}
+
+private object BinderLikeSpec {
+
+  @Neuron
+  trait TestInterface
+
+  @Neuron
+  abstract class TestClass
 }

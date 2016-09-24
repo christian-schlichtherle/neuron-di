@@ -13,19 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package global.namespace.neuron.di.scala.test
+package global.namespace.neuron.di.sample;
 
-import global.namespace.neuron.di.scala.Incubator
-import global.namespace.neuron.di.java.test.CounterFactoryModule
-import org.scalatest.Matchers._
-import org.scalatest.WordSpec
+public interface B {
 
-class CounterFactoryModuleSpec extends WordSpec {
-
-  "Make a counter factory" in {
-    val module = Incubator.breed[CounterFactoryModule]
-    val factory = module.counterFactory
-    module.counterFactory should be theSameInstanceAs factory
-    factory.counter should not be theSameInstanceAs(factory.counter)
-  }
+    default B b() { return this; }
 }

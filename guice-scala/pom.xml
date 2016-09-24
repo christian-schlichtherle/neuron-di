@@ -25,14 +25,18 @@
         <version>3.3-SNAPSHOT</version>
     </parent>
 
-    <artifactId>neuron-di-guice</artifactId>
+    <artifactId>neuron-di-guice-scala</artifactId>
 
-    <name>Neuron DI @ Guice</name>
+    <name>Neuron DI @ Guice 4 Scala</name>
 
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>neuron-di</artifactId>
+            <artifactId>neuron-di-guice</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>neuron-di-scala</artifactId>
         </dependency>
 
         <dependency>
