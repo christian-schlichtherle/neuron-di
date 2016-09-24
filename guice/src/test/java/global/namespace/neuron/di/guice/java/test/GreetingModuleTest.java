@@ -15,8 +15,8 @@
  */
 package global.namespace.neuron.di.guice.java.test;
 
-import global.namespace.neuron.di.guice.sample.Formatter;
-import global.namespace.neuron.di.guice.sample.Greeting;
+import global.namespace.neuron.di.guice.java.sample.Formatter;
+import global.namespace.neuron.di.guice.java.sample.Greeting;
 import org.junit.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -27,14 +27,14 @@ public abstract class GreetingModuleTest extends ModuleTest {
     @Test
     public void testGreeting() {
         final Greeting greeting = getInstance(Greeting.class);
-        assertThat(getInstance(Greeting.class), is(sameInstance(greeting)));
         assertThat(greeting.message("world"), is("Hello world!"));
+        assertThat(getInstance(Greeting.class), is(sameInstance(greeting)));
     }
 
     @Test
     public void testFormatter() {
         final Formatter formatter = getInstance(Formatter.class);
-        assertThat(getInstance(Formatter.class), is(not(sameInstance(formatter))));
         assertThat(formatter.format("world"), is("Hello world!"));
+        assertThat(getInstance(Formatter.class), is(not(sameInstance(formatter))));
     }
 }

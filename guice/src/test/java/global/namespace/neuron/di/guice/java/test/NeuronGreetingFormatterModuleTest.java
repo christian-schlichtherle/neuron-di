@@ -16,6 +16,7 @@
 package global.namespace.neuron.di.guice.java.test;
 
 import com.google.inject.Module;
+import global.namespace.neuron.di.guice.java.sample.NeuronGreetingFormatterModule;
 
 public class NeuronGreetingFormatterModuleTest extends GreetingModuleTest {
 

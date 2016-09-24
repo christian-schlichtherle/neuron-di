@@ -16,7 +16,8 @@
 package global.namespace.neuron.di.java.test;
 
 import global.namespace.neuron.di.java.Incubator;
-import global.namespace.neuron.di.sample.Metric;
+import global.namespace.neuron.di.java.sample.Metric;
+import global.namespace.neuron.di.java.sample.MetricModule;
 import org.junit.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;

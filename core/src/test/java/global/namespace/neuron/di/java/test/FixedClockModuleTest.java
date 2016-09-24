@@ -16,7 +16,9 @@
 package global.namespace.neuron.di.java.test;
 
 import global.namespace.neuron.di.java.Incubator;
-import global.namespace.neuron.di.sample.Clock;
+import global.namespace.neuron.di.java.sample.Clock;
+import global.namespace.neuron.di.java.sample.ClockModule;
+import global.namespace.neuron.di.java.sample.FixedClockModule;
 import org.junit.Test;
 
 import java.util.Date;
@@ -30,7 +32,7 @@ public class FixedClockModuleTest {
     public void testFixedClockModule() {
         final ClockModule module = Incubator.breed(FixedClockModule.class);
         final Clock clock = module.clock();
-        assertThat(module.clock(), is(sameInstance(clock)));
+        assertThat(clock, is(sameInstance(module.clock())));
         assertThat(clock.now(), is(not(sameInstance(clock.now()))));
         assertThat(clock.now(), is(new Date(0)));
     }
@@ -39,8 +41,8 @@ public class FixedClockModuleTest {
     public void testFixedClockModuleWithoutMatchers() {
         final ClockModule module = Incubator.breed(FixedClockModule.class);
         final Clock clock = module.clock();
-        assert module.clock() == clock;
+        assert clock == module.clock();
         assert clock.now() != clock.now();
-        assert new Date(0).equals(clock.now());
+        assert clock.now().equals(new Date(0));
     }
 }

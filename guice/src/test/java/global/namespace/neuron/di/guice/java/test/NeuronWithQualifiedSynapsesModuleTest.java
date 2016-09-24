@@ -16,7 +16,8 @@
 package global.namespace.neuron.di.guice.java.test;
 
 import com.google.inject.Module;
-import global.namespace.neuron.di.guice.sample.NeuronWithQualifiedSynapses;
+import global.namespace.neuron.di.guice.java.sample.NeuronWithQualifiedSynapses;
+import global.namespace.neuron.di.guice.java.sample.NeuronWithQualifiedSynapsesModule;
 import org.junit.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -39,7 +40,5 @@ public class NeuronWithQualifiedSynapsesModuleTest extends ModuleTest {
     @Test
     public void testBang() { assertThat(neuron().bang(), is("bang")); }
 
-    private NeuronWithQualifiedSynapses neuron() {
-        return getInstance(NeuronWithQualifiedSynapses.class);
-    }
+    private NeuronWithQualifiedSynapses neuron() { return getInstance(NeuronWithQualifiedSynapses.class); }
 }

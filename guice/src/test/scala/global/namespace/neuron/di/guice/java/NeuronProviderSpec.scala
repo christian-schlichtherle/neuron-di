@@ -15,10 +15,14 @@
  */
 package global.namespace.neuron.di.guice.java
 
+import java.lang.reflect.Method
+import java.util.function.{Function => jFunction, Supplier => jSupplier}
+
 import com.google.inject._
 import com.google.inject.name.Names.named
-import global.namespace.neuron.di.guice.sample.{NeuronWithQualifiedSynapses, TestBindingAnnotation, TestQualifier}
-import global.namespace.neuron.di.scala.Incubator
+import global.namespace.neuron.di.guice.java.NeuronProviderSpec._
+import global.namespace.neuron.di.guice.java.sample.{NeuronWithQualifiedSynapses, TestBindingAnnotation, TestQualifier}
+import global.namespace.neuron.di.java.Incubator
 import org.mockito.Mockito._
 import org.scalatest.Matchers._
 import org.scalatest.WordSpec
@@ -26,21 +30,21 @@ import org.scalatest.mockito.MockitoSugar.mock
 
 class NeuronProviderSpec extends WordSpec {
 
-  private object noOpMembersInjector
-    extends MembersInjector[NeuronWithQualifiedSynapses] {
-
-    def injectMembers(instance: NeuronWithQualifiedSynapses) { }
-  }
-
   "A neuron provider" should {
     "use a given injector to create providers for keys with qualifying and binding annotations" in {
       val injector = mock[Injector]
-      val provider = Incubator
-        .stub[NeuronProvider[NeuronWithQualifiedSynapses]]
-        .bind(_.injector).to(injector)
-        .bind(_.membersInjector).to(noOpMembersInjector)
-        .bind(_.typeLiteral).to(TypeLiteral get classOf[NeuronWithQualifiedSynapses])
-        .breed
+      val provider = Incubator.breed(
+        classOf[NeuronProvider[NeuronWithQualifiedSynapses]],
+        (method: Method) => {
+          val result = method.getName match {
+            case "injector" => injector
+            case "membersInjector" => noOpMembersInjector
+            case "typeLiteral" => TypeLiteral get classOf[NeuronWithQualifiedSynapses]
+          }
+          () => result
+        }: jSupplier[_]
+      )
+
       val fooKey = Key.get(classOf[String], named("foo"))
       val barKey = Key.get(classOf[String], named("bar"))
       val boomKey = Key.get(classOf[String], classOf[TestQualifier])
@@ -59,5 +63,23 @@ class NeuronProviderSpec extends WordSpec {
       verify(injector) getProvider bangKey
       verifyNoMoreInteractions(injector)
     }
+  }
+}
+
+private object NeuronProviderSpec {
+
+  object noOpMembersInjector extends MembersInjector[NeuronWithQualifiedSynapses] {
+
+    def injectMembers(instance: NeuronWithQualifiedSynapses) { }
+  }
+
+  implicit class FunctionAdapter[A, B](fun: A => B) extends jFunction[A, B] {
+
+    def apply(a: A): B = fun(a)
+  }
+
+  implicit class SupplierAdapter[A](supplier: () => A) extends jSupplier[A] {
+
+    def get(): A = supplier()
   }
 }

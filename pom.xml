@@ -67,7 +67,9 @@
 
     <modules>
         <module>core</module>
+        <module>core-scala</module>
         <module>guice</module>
+        <module>guice-scala</module>
     </modules>
 
     <properties>
@@ -104,6 +106,16 @@
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>neuron-di</artifactId>
+                <version>3.3-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>neuron-di-guice</artifactId>
+                <version>3.3-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>neuron-di-scala_${scala.compat.version}</artifactId>
                 <version>3.3-SNAPSHOT</version>
             </dependency>
 

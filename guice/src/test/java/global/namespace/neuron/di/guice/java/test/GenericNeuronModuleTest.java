@@ -16,10 +16,11 @@
 package global.namespace.neuron.di.guice.java.test;
 
 import com.google.inject.Module;
-import global.namespace.neuron.di.guice.sample.GenericNeuron;
+import global.namespace.neuron.di.guice.java.sample.GenericNeuron;
+import global.namespace.neuron.di.guice.java.sample.GenericNeuronModule;
 import org.junit.Test;
 
-import static global.namespace.neuron.di.guice.java.test.GenericNeuronModule.STRING_NEURON_KEY;
+import static global.namespace.neuron.di.guice.java.sample.GenericNeuronModule.STRING_NEURON_KEY;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -30,16 +31,10 @@ public class GenericNeuronModuleTest extends ModuleTest {
     protected Module module() { return new GenericNeuronModule(); }
 
     @Test
-    public void testGet() {
-        assertThat(neuron().get(), is("foo"));
-    }
+    public void testGet() { assertThat(neuron().get(), is("foo")); }
 
     @Test
-    public void testAsList() {
-        assertThat(neuron().asList(), is(singletonList("foo")));
-    }
+    public void testAsList() { assertThat(neuron().asList(), is(singletonList("foo"))); }
 
-    private GenericNeuron<String> neuron() {
-        return injector().getInstance(STRING_NEURON_KEY);
-    }
+    private GenericNeuron<String> neuron() { return injector().getInstance(STRING_NEURON_KEY); }
 }

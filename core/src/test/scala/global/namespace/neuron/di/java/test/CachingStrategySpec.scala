@@ -16,7 +16,7 @@
 package global.namespace.neuron.di.java.test
 
 import global.namespace.neuron.di.java.Incubator.breed
-import global.namespace.neuron.di.sample.HasDependency
+import global.namespace.neuron.di.java.sample.HasDependency
 import org.scalatest.Matchers._
 import org.scalatest.{FeatureSpec, GivenWhenThen}
 

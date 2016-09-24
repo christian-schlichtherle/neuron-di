@@ -16,7 +16,8 @@
 package global.namespace.neuron.di.java.test;
 
 import global.namespace.neuron.di.java.Incubator;
-import global.namespace.neuron.di.sample.Clock;
+import global.namespace.neuron.di.java.sample.Clock;
+import global.namespace.neuron.di.java.sample.ClockModule;
 import org.junit.Test;
 
 import java.util.Date;
@@ -30,18 +31,17 @@ public class ClockModuleTest {
     public void testClockModule() {
         final ClockModule module = Incubator.breed(ClockModule.class);
         final Clock clock = module.clock();
-        assertThat(module.clock(), is(sameInstance(clock)));
+        assertThat(clock, is(sameInstance(module.clock())));
         assertThat(clock.now(), is(not(sameInstance(clock.now()))));
-        final Date time = new Date();
-        assertThat(clock.now(), is(greaterThanOrEqualTo(time)));
+        assertThat(clock.now(), is(lessThanOrEqualTo(new Date())));
     }
 
     @Test
     public void testClockModuleWithoutMatchers() {
         final ClockModule module = Incubator.breed(ClockModule.class);
         final Clock clock = module.clock();
-        assert module.clock() == clock;
+        assert clock == module.clock();
         assert clock.now() != clock.now();
-        assert new Date().compareTo(clock.now()) <= 0;
+        assert clock.now().compareTo(new Date()) <= 0;
     }
 }

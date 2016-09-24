@@ -16,7 +16,8 @@
 package global.namespace.neuron.di.java.test;
 
 import global.namespace.neuron.di.java.Incubator;
-import global.namespace.neuron.di.sample.WeatherStation;
+import global.namespace.neuron.di.java.sample.AprilWeatherStation;
+import global.namespace.neuron.di.java.sample.WeatherStation;
 import org.junit.Test;
 
 import java.util.Date;

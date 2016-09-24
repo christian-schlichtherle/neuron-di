@@ -18,7 +18,7 @@ package global.namespace.neuron.di.java.test
 import global.namespace.neuron.di.java.CachingStrategy._
 import global.namespace.neuron.di.java._
 import global.namespace.neuron.di.java.test.CachingStrategyForNonAbstractMethodsWithoutParametersSpec._
-import global.namespace.neuron.di.sample.HasDependency
+import global.namespace.neuron.di.java.sample.HasDependency
 
 class CachingStrategyForNonAbstractMethodsWithoutParametersSpec extends CachingStrategySpec {
 

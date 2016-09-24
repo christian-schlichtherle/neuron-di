@@ -20,10 +20,10 @@ import net.sf.cglib.proxy.*;
 final class CGFactory {
 
     private static final MethodInterceptor INVALID_METHOD_INTERCEPTOR =
-            (obj, method, args, proxy) -> { throw new AssertionError(); };
+            (obj, method, args, proxy) -> { throw new IllegalStateException(); };
 
     private static final FixedValue INVALID_FIXED_VALUE =
-            () -> { throw new AssertionError(); };
+            () -> { throw new IllegalStateException(); };
 
     private CGCallbackFilter filter;
     private Factory factory;
@@ -55,12 +55,7 @@ final class CGFactory {
         return results;
     }
 
-    @SuppressWarnings("unchecked")
-    Object newInstance(CGContext ctx) {
-        return factory.newInstance(callbacks(ctx));
-    }
+    Object newInstance(CGContext ctx) { return factory.newInstance(callbacks(ctx)); }
 
-    private Callback[] callbacks(CGContext ctx) {
-        return ctx.callbacks(filter);
-    }
+    private Callback[] callbacks(CGContext ctx) { return ctx.callbacks(filter); }
 }

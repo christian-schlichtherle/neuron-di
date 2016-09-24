@@ -16,8 +16,7 @@
 package global.namespace.neuron.di.java.test;
 
 import global.namespace.neuron.di.java.Incubator;
-import global.namespace.neuron.di.sample.Greeting;
-import global.namespace.neuron.di.sample.RealFormatter;
+import global.namespace.neuron.di.java.sample.*;
 import org.junit.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -26,13 +25,20 @@ import static org.hamcrest.Matchers.*;
 public class GreetingModuleTest {
 
     @Test
-    public void testGreetingModule() {
+    public void testGreeting() {
         final GreetingModule module = Incubator.breed(GreetingModule.class);
         final Greeting greeting = module.greeting();
+        assertThat(greeting, is(instanceOf(RealGreeting.class)));
+        assertThat(greeting.message("world"), is("Hello world!"));
         assertThat(module.greeting(), is(sameInstance(greeting)));
-        assertThat(greeting.formatter(), is(instanceOf(RealFormatter.class)));
-        assertThat(greeting.formatter(), is(not(sameInstance(greeting.formatter()))));
-        assertThat(greeting.message(), is(sameInstance(greeting.message())));
-        assertThat(greeting.message(), is("Hello Christian!"));
+    }
+
+    @Test
+    public void testFormatter() {
+        final GreetingModule module = Incubator.breed(GreetingModule.class);
+        final Formatter formatter = module.formatter();
+        assertThat(formatter, is(instanceOf(RealFormatter.class)));
+        assertThat(formatter.format("world"), is("Hello world!"));
+        assertThat(module.formatter(), is(not(sameInstance(formatter))));
     }
 }
