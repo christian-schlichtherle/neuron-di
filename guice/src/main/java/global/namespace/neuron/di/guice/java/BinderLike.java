@@ -102,11 +102,10 @@ public interface BinderLike {
     /** Returns a provider for neurons of the given type literal. */
     @SuppressWarnings("unchecked")
     default <T> Provider<T> neuronProvider(final TypeLiteral<T> typeLiteral) {
-        final Provider<Injector> injectorProvider = binder()
-                .getProvider(Injector.class);
+        final Provider<Injector> injectorProvider = binder().getProvider(Injector.class);
         final MembersInjector<T> membersInjector;
         if (typeLiteral.getRawType().isInterface()) {
-            membersInjector = instance -> injectorProvider.get().injectMembers(instance);
+            membersInjector = instance -> injectorProvider.get().injectMembers(instance); // a no-op, effectively
         } else {
             membersInjector = binder().getMembersInjector(typeLiteral);
         }
