@@ -13,21 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package global.namespace.neuron.di.guice.java.test;
+package global.namespace.neuron.di.guice.java.sample;
 
-import global.namespace.neuron.di.guice.java.NeuronModule;
-import global.namespace.neuron.di.guice.java.sample.Formatter;
-import global.namespace.neuron.di.guice.java.sample.Greeting;
+import global.namespace.neuron.di.java.Caching;
+import global.namespace.neuron.di.java.Neuron;
 
-import javax.inject.Singleton;
+import javax.inject.Named;
 
-class NeuronGreetingFormatterModule extends NeuronModule {
+@Neuron
+interface NeuronFormatter extends Formatter {
+
+    @Caching
+    @Named("format")
+    String getFormat();
 
     @Override
-    protected void configure() {
-        bind(Greeting.class).to(NeuronGreetingFormatter.class).in(Singleton.class);
-        bind(Formatter.class).to(NeuronGreetingFormatter.class);
-        bindConstantNamed("format").to("Hello %s!");
-        bindNeuron(NeuronGreetingFormatter.class);
-    }
+    default String format(Object... args) { return String.format(getFormat(), (Object[]) args); }
 }

@@ -13,20 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package global.namespace.neuron.di.guice.java.test;
+package global.namespace.neuron.di.guice.java.sample;
 
 import com.google.inject.Key;
 import com.google.inject.TypeLiteral;
 import global.namespace.neuron.di.guice.java.NeuronModule;
-import global.namespace.neuron.di.guice.java.sample.GenericNeuron;
 
 import java.util.List;
 
 import static java.util.Collections.singletonList;
 
-class GenericNeuronModule extends NeuronModule {
+public class GenericNeuronModule extends NeuronModule {
 
-    static final Key<GenericNeuron<String>> STRING_NEURON_KEY =
+    public static final Key<GenericNeuron<String>> STRING_NEURON_KEY =
             Key.get(new TypeLiteral<GenericNeuron<String>>() { });
 
     @Override

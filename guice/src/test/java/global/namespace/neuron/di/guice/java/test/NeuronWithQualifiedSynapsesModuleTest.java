@@ -17,6 +17,7 @@ package global.namespace.neuron.di.guice.java.test;
 
 import com.google.inject.Module;
 import global.namespace.neuron.di.guice.java.sample.NeuronWithQualifiedSynapses;
+import global.namespace.neuron.di.guice.java.sample.NeuronWithQualifiedSynapsesModule;
 import org.junit.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;

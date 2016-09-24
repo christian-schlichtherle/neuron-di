@@ -13,14 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package global.namespace.neuron.di.guice.java.test;
+package global.namespace.neuron.di.guice.java.sample;
 
-import global.namespace.neuron.di.guice.java.sample.Formatter;
-import global.namespace.neuron.di.java.Neuron;
+import javax.inject.Inject;
+import javax.inject.Named;
 
-@Neuron
-interface NeuronGreetingFormatter extends NeuronGreeting, NeuronFormatter {
+class GuiceFormatter implements Formatter {
+
+    @Inject
+    @Named("format")
+    private String format;
 
     @Override
-    default Formatter getFormatter() { return this; }
+    public String format(Object... args) { return String.format(format, (Object[]) args); }
 }

@@ -13,27 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package global.namespace.neuron.di.guice.java.test;
+package global.namespace.neuron.di.guice.java.sample;
 
 import global.namespace.neuron.di.guice.java.NeuronModule;
-import global.namespace.neuron.di.guice.java.sample.Bar;
-import global.namespace.neuron.di.guice.java.sample.BarImpl;
-import global.namespace.neuron.di.guice.java.sample.Foo;
-import global.namespace.neuron.di.guice.java.sample.FooImpl;
 
-import javax.inject.Singleton;
-
-import static com.google.inject.name.Names.named;
-
-class FooBarModule extends NeuronModule {
+public class NeuronWithQualifiedSynapsesModule extends NeuronModule {
 
     @Override
     protected void configure() {
-        bindConstantNamed("one").to(1);
-        bind(Foo.class)
-                .annotatedWith(named("impl"))
-                .to(FooImpl.class)
-                .in(Singleton.class);
-        bind(Bar.class).to(BarImpl.class);
+        bindNeuron(NeuronWithQualifiedSynapses.class);
+        bindConstantNamed("foo").to("foo");
+        bindConstantNamed("bar").to("bar");
+        bindConstant().annotatedWith(TestQualifier.class).to("boom");
+        bindConstant().annotatedWith(TestBindingAnnotation.class).to("bang");
     }
 }

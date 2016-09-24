@@ -18,9 +18,6 @@ package global.namespace.neuron.di.java.sample;
 import global.namespace.neuron.di.java.Caching;
 import global.namespace.neuron.di.java.Incubator;
 import global.namespace.neuron.di.java.Neuron;
-import global.namespace.neuron.di.java.sample.Formatter;
-import global.namespace.neuron.di.java.sample.Greeting;
-import global.namespace.neuron.di.java.sample.RealFormatter;
 
 @Neuron
 public interface GreetingModule {
@@ -28,8 +25,8 @@ public interface GreetingModule {
     @Caching
     default Greeting greeting() {
         return Incubator
-                .stub(Greeting.class)
-                .bind(Greeting::formatter).to(this::formatter)
+                .stub(RealGreeting.class)
+                .bind(RealGreeting::formatter).to(this::formatter)
                 .breed();
     }
 

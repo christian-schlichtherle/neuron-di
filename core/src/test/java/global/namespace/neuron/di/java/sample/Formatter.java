@@ -17,5 +17,6 @@ package global.namespace.neuron.di.java.sample;
 
 public interface Formatter {
 
+    /** Returns a text which has been formatted using the given arguments. */
     String format(Object... args);
 }

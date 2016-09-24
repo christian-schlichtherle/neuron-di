@@ -19,6 +19,7 @@ import global.namespace.neuron.di.java.Incubator;
 import global.namespace.neuron.di.java.sample.Formatter;
 import global.namespace.neuron.di.java.sample.Greeting;
 import global.namespace.neuron.di.java.sample.RealFormatter;
+import global.namespace.neuron.di.java.sample.RealGreeting;
 import org.hamcrest.Matcher;
 
 import java.util.Locale;
@@ -55,9 +56,7 @@ public class PerformanceTest {
         }
     }
 
-    private static void printf(String format, Object... args) {
-        System.out.printf(Locale.ENGLISH, format, args);
-    }
+    private static void printf(String format, Object... args) { System.out.printf(Locale.ENGLISH, format, args); }
 
     private static long timeConstructions(GreetingFactory factory) {
         return time(CONSTRUCTION_TIMES,
@@ -67,8 +66,8 @@ public class PerformanceTest {
 
     private static long timeInvocations(Greeting greeting) {
         return time(INVOCATION_TIMES,
-                greeting::message,
-                is("Hello Christian!"));
+                () -> greeting.message("world"),
+                is("Hello world!"));
     }
 
     private static <T> long time(final int times,
@@ -90,8 +89,8 @@ public class PerformanceTest {
 
         public Greeting greeting() {
             return Incubator
-                    .stub(Greeting.class)
-                    .bind(Greeting::formatter).to(helloFormatter)
+                    .stub(RealGreeting.class)
+                    .bind(RealGreeting::formatter).to(helloFormatter)
                     .breed();
         }
     }
@@ -102,22 +101,7 @@ public class PerformanceTest {
         public Greeting greeting() { return new SimpleGreeting(); }
     }
 
-    private static class SimpleGreeting implements Greeting {
-
-        private volatile String message;
-
-        @Override
-        public String message() {
-            String value;
-            if (null == (value = message)) {
-                synchronized (this) {
-                    if (null == (value = message)) {
-                        message = value = formatter().format("Christian");
-                    }
-                }
-            }
-            return value;
-        }
+    private static class SimpleGreeting implements RealGreeting {
 
         @Override
         public Formatter formatter() { return helloFormatter; }

@@ -27,8 +27,8 @@ class ClockModuleSpec extends WordSpec {
   "Make a clock" in {
     val module = Incubator.breed[ClockModule]
     val clock = module.clock
-    module.clock should be theSameInstanceAs clock
+    clock should be theSameInstanceAs module.clock
     clock.now should not be theSameInstanceAs(clock.now)
-    new Date should be <= clock.now
+    clock.now should be <= new Date
   }
 }

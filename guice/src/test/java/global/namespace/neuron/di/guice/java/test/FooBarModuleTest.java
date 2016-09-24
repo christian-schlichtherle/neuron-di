@@ -18,6 +18,7 @@ package global.namespace.neuron.di.guice.java.test;
 import com.google.inject.Module;
 import global.namespace.neuron.di.guice.java.sample.Bar;
 import global.namespace.neuron.di.guice.java.sample.BarImpl;
+import global.namespace.neuron.di.guice.java.sample.FooBarModule;
 import global.namespace.neuron.di.guice.java.sample.FooImpl;
 import org.junit.Test;
 

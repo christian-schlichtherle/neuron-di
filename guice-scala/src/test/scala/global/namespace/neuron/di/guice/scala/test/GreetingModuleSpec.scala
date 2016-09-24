@@ -23,13 +23,13 @@ abstract class GreetingModuleSpec extends WordSpec with ModuleSpec {
 
   "Make a greeting" in {
     val greeting = getInstanceOf[Greeting]
-    getInstanceOf[Greeting] should be theSameInstanceAs greeting
     greeting message "world" shouldBe "Hello world!"
+    getInstanceOf[Greeting] should be theSameInstanceAs greeting
   }
 
   "Make a formatter" in {
     val formatter = getInstanceOf[Formatter]
-    getInstanceOf[Formatter] should not be theSameInstanceAs(formatter)
     formatter format "world" shouldBe "Hello world!"
+    getInstanceOf[Formatter] should not be theSameInstanceAs(formatter)
   }
 }

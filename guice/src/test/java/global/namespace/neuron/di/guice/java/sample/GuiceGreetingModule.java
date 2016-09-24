@@ -13,23 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package global.namespace.neuron.di.guice.java.test;
+package global.namespace.neuron.di.guice.java.sample;
 
-import com.google.inject.TypeLiteral;
-import global.namespace.neuron.di.guice.java.NeuronModule;
-import global.namespace.neuron.di.guice.java.sample.NeuronWithGenericSynapses;
+import com.google.inject.AbstractModule;
+import com.google.inject.name.Names;
 
-import java.util.Arrays;
-import java.util.List;
+import javax.inject.Singleton;
 
-class NeuronWithGenericSynapsesModule extends NeuronModule {
+public class GuiceGreetingModule extends AbstractModule {
 
     @Override
     protected void configure() {
-        bindNeuron(NeuronWithGenericSynapses.class);
-        bind(new TypeLiteral<List<String>>() { })
-                .toInstance(Arrays.asList("foo", "bar"));
-        bind(new TypeLiteral<List<Integer>>() { })
-                .toInstance(Arrays.asList(1, 2));
+        bind(Greeting.class).to(GuiceGreeting.class).in(Singleton.class);
+        bind(Formatter.class).to(GuiceFormatter.class);
+        bindConstant().annotatedWith(Names.named("format")).to("Hello %s!");
     }
 }

@@ -25,8 +25,8 @@ class FixedClockModuleSpec extends WordSpec {
 
   "Make a fixed clock" in {
     val clock = FixedClockModule.clock
-    FixedClockModule.clock should be theSameInstanceAs clock
+    clock should be theSameInstanceAs FixedClockModule.clock
     clock.now should not be theSameInstanceAs(clock.now)
-    new Date(0) shouldBe clock.now
+    clock.now shouldBe new Date(0)
   }
 }

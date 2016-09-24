@@ -20,5 +20,5 @@ import global.namespace.neuron.di.guice.scala.sample.NeuronGreetingModule
 
 class NeuronGreetingModuleSpec extends GreetingModuleSpec {
 
-  override def module: Module = new NeuronGreetingModule
+  def module: Module = new NeuronGreetingModule
 }

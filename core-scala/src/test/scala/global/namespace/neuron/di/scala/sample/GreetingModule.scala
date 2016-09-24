@@ -52,7 +52,7 @@ object GreetingModule {
     .bind(_._formatter).to(formatter)
     .breed
 
-  lazy val formatter: Formatter = Incubator
+  def formatter: Formatter = Incubator
     .stub[RealFormatter]
     .bind(_._format).to("Hello %s!")
     .breed

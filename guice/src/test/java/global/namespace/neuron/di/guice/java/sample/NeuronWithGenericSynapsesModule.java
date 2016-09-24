@@ -13,28 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package global.namespace.neuron.di.guice.java.test;
+package global.namespace.neuron.di.guice.java.sample;
 
 import com.google.inject.TypeLiteral;
 import global.namespace.neuron.di.guice.java.NeuronModule;
-import global.namespace.neuron.di.guice.java.sample.NeuronWithQualifiedGenericSynapses;
 
+import java.util.Arrays;
 import java.util.List;
 
-import static com.google.inject.name.Names.named;
-import static java.util.Collections.singletonList;
-
-class NeuronWithQualifiedGenericSynapsesModule extends NeuronModule {
+public class NeuronWithGenericSynapsesModule extends NeuronModule {
 
     @Override
     protected void configure() {
-        bindNeuron(NeuronWithQualifiedGenericSynapses.class);
-        TypeLiteral<List<String>> stringListType = new TypeLiteral<List<String>>() { };
-        bind(stringListType)
-                .annotatedWith(named("foo"))
-                .toInstance(singletonList("foo"));
-        bind(stringListType)
-                .annotatedWith(named("bar"))
-                .toInstance(singletonList("bar"));
+        bindNeuron(NeuronWithGenericSynapses.class);
+        bind(new TypeLiteral<List<String>>() { })
+                .toInstance(Arrays.asList("foo", "bar"));
+        bind(new TypeLiteral<List<Integer>>() { })
+                .toInstance(Arrays.asList(1, 2));
     }
 }

@@ -22,7 +22,7 @@ import org.scalatest.WordSpec
 
 class FooBarModuleSpec extends WordSpec with ModuleSpec {
 
-  override def module: Module = new FooBarModule
+  def module: Module = new FooBarModule
 
   "Make foos and bars" in {
     val bar1 = getInstanceOf[Bar]
