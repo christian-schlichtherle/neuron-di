@@ -1,4 +1,4 @@
-# README
+# Neuron DI
 
 Neuron DI is an ultra-light dependency injection framework which emphasizes the beauty and power of lazy dependency 
 resolution and caching.
