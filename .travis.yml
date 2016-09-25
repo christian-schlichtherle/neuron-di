@@ -10,7 +10,9 @@ cache:
   - $HOME/.m2
 install: true
 script:
-  mvn post-integration-test -Prelease
+  - mvn post-integration-test -Prelease
     -Dscala.compat.version=$SCALA_COMPAT_VERSION
     -Dscala.version=$SCALA_VERSION
     -Dguice.version=$GUICE_VERSION
+git:
+  depth: 1
