@@ -27,7 +27,7 @@
 
     <artifactId>neuron-di</artifactId>
 
-    <name>Neuron DI</name>
+    <name>Neuron DI for Java</name>
 
     <dependencies>
         <dependency>

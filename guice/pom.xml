@@ -27,7 +27,7 @@
 
     <artifactId>neuron-di-guice</artifactId>
 
-    <name>Neuron DI @ Guice</name>
+    <name>Neuron DI @ Guice for Java</name>
 
     <dependencies>
         <dependency>
