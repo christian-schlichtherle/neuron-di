@@ -27,7 +27,7 @@
 
     <artifactId>neuron-di-guice-scala_${scala.compat.version}</artifactId>
 
-    <name>Neuron DI @ Guice 4 Scala</name>
+    <name>Neuron DI @ Guice for Scala ${scala.compat.version}</name>
 
     <dependencies>
         <dependency>

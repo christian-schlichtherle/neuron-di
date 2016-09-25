@@ -27,7 +27,7 @@
 
     <artifactId>neuron-di-scala_${scala.compat.version}</artifactId>
 
-    <name>Neuron DI 4 Scala</name>
+    <name>Neuron DI for Scala ${scala.compat.version}</name>
 
     <dependencies>
         <dependency>
