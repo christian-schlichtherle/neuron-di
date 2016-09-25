@@ -15,4 +15,4 @@ script:
     -Dscala.version=$SCALA_VERSION
     -Dguice.version=$GUICE_VERSION
 git:
-  depth: 1
+  depth: 3
