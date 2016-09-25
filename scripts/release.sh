@@ -15,11 +15,14 @@
 # limitations under the License.
 #
 
+set -ev
+
 SCALA_COMPAT_VERSION=2.12.0-RC1
 SCALA_VERSION=$SCALA_COMPAT_VERSION
-mvn release:prepare release:perform && \
-	cd target/checkout && \
-	mvn clean deploy -Prelease \
-		-Dscala.compat.version=$SCALA_COMPAT_VERSION \
-		-Dscala.version=$SCALA_VERSION \
-		-pl :neuron-di-scala_$SCALA_COMPAT_VERSION,:neuron-di-guice-scala_$SCALA_COMPAT_VERSION
+
+mvn release:prepare release:perform
+cd target/checkout
+mvn clean deploy -Prelease \
+    -Dscala.compat.version=$SCALA_COMPAT_VERSION \
+    -Dscala.version=$SCALA_VERSION \
+    -pl :neuron-di-scala_$SCALA_COMPAT_VERSION,:neuron-di-guice-scala_$SCALA_COMPAT_VERSION
