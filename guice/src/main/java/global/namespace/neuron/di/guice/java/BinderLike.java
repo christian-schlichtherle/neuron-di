@@ -78,23 +78,27 @@ public interface BinderLike {
      * Binds a neuron class or interface using the given class.
      * This is an abbreviation for {@code bind(type).toProvider(neuronProvider(type)}.
      */
-    default <T> ScopedBindingBuilder bindNeuron(Class<T> type) { return bindNeuron(TypeLiteral.get(type)); }
+    default <T> ScopedBindingBuilder bindNeuron(Class<T> type) {
+        return binder()
+                .skipSources(BinderLike.class)
+                .bind(type).toProvider(neuronProvider(type));
+    }
 
     /**
      * Binds a neuron class or interface using the given type literal.
      * This is an abbreviation for {@code bind(typeLiteral).toProvider(neuronProvider(typeLiteral)}.
      */
-    default <T> ScopedBindingBuilder bindNeuron(TypeLiteral<T> typeLiteral) { return bindNeuron(Key.get(typeLiteral)); }
+    default <T> ScopedBindingBuilder bindNeuron(TypeLiteral<T> typeLiteral) {
+        return binder()
+                .skipSources(BinderLike.class)
+                .bind(typeLiteral).toProvider(neuronProvider(typeLiteral));
+    }
 
     /**
      * Binds a neuron class or interface using the given key.
      * This is an abbreviation for {@code bind(key).toProvider(neuronProvider(key.getTypeLiteral())}.
      */
-    default <T> ScopedBindingBuilder bindNeuron(Key<T> key) {
-        return binder()
-                .skipSources(BinderLike.class)
-                .bind(key).toProvider(neuronProvider(key.getTypeLiteral()));
-    }
+    default <T> ScopedBindingBuilder bindNeuron(Key<T> key) { return bindNeuron(key.getTypeLiteral()); }
 
     /** Returns a provider for neurons of the given class. */
     default <T> Provider<T> neuronProvider(Class<T> type) { return neuronProvider(TypeLiteral.get(type)); }

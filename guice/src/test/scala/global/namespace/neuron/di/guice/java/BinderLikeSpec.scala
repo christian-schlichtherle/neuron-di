@@ -27,16 +27,19 @@ import org.scalatest.Matchers._
 import org.scalatest.WordSpec
 import org.scalatest.mockito.MockitoSugar.mock
 
+import scala.reflect._
+
 class BinderLikeSpec extends WordSpec {
 
+  val binderLike = new BinderLike {
+
+    val binder: Binder = mock[Binder]
+
+    when(binder skipSources any[Class[_]]) thenReturn binder
+  }
+  import binderLike.binder
+
   "A BinderLike" should afterWord("bind a") {
-    val binderLike = new BinderLike {
-
-      val binder: Binder = mock[Binder]
-
-      when(binder skipSources any[Class[_]]) thenReturn binder
-    }
-    import binderLike.binder
 
     "named constant" in {
       val builder1 = mock[AnnotatedConstantBindingBuilder]
@@ -48,61 +51,71 @@ class BinderLikeSpec extends WordSpec {
       binderLike bindConstantNamed "foo" should be theSameInstanceAs builder2
     }
 
-    "neuron interface" in {
-      val typeLiteral = TypeLiteral get classOf[TestInterface]
-
-      val builder1 = mock[AnnotatedBindingBuilder[TestInterface]]
-      val builder2 = mock[ScopedBindingBuilder]
-      val injectorProvider = mock[Provider[Injector]]
-      val injector = mock[Injector]
-
-      when(binder bind (Key get classOf[TestInterface])) thenReturn builder1
-      when(builder1 toProvider any[Provider[TestInterface]]) thenReturn builder2
-      when(binder getProvider classOf[Injector]) thenReturn injectorProvider
-      when(injectorProvider.get) thenReturn injector
-
-      binderLike bindNeuron classOf[TestInterface] should be theSameInstanceAs builder2
-
-      val neuronProviderCaptor = ArgumentCaptor forClass classOf[NeuronProvider[TestInterface]]
-      verify(builder1) toProvider neuronProviderCaptor.capture
-      val neuronProvider = neuronProviderCaptor.getValue
-      neuronProvider.injector should be theSameInstanceAs injector
-      neuronProvider.membersInjector should not be null
-      neuronProvider.typeLiteral shouldBe typeLiteral
+    "neuron interface using a class" in {
+      testBindNeuronUsingClass[NeuronInterface]
     }
 
-    "neuron class" in {
-      val typeLiteral = TypeLiteral get classOf[TestClass]
+    "neuron interface using a type literal" in {
+      testBindNeuronUsingTypeLiteral[NeuronInterface]
+    }
 
-      val builder1 = mock[AnnotatedBindingBuilder[TestClass]]
-      val builder2 = mock[ScopedBindingBuilder]
-      val injectorProvider = mock[Provider[Injector]]
-      val injector = mock[Injector]
-      val membersInjector = mock[MembersInjector[TestClass]]
+    "neuron class using a class" in {
+      testBindNeuronUsingClass[NeuronClass]
+    }
 
-      when(binder bind (Key get classOf[TestClass])) thenReturn builder1
-      when(builder1 toProvider any[Provider[TestClass]]) thenReturn builder2
-      when(binder getProvider classOf[Injector]) thenReturn injectorProvider
-      when(injectorProvider.get) thenReturn injector
+    "neuron class using a type literal" in {
+      testBindNeuronUsingTypeLiteral[NeuronClass]
+    }
+  }
+
+  private def testBindNeuronUsingClass[A](implicit classTag: ClassTag[A]) {
+    implicit val clazz = classTag.runtimeClass.asInstanceOf[Class[A]]
+    testBindNeuron[A] { binderLike bindNeuron clazz }
+  }
+
+  private def testBindNeuronUsingTypeLiteral[A](implicit classTag: ClassTag[A]) {
+    implicit val clazz = classTag.runtimeClass.asInstanceOf[Class[A]]
+    testBindNeuron[A] { binderLike bindNeuron (TypeLiteral get clazz) }
+  }
+
+  private def testBindNeuron[A](bindingCall: => ScopedBindingBuilder)(implicit clazz: Class[A]) {
+    val typeLiteral = TypeLiteral get clazz
+
+    val builder1 = mock[AnnotatedBindingBuilder[A]]
+    val builder2 = mock[ScopedBindingBuilder]
+    val injectorProvider = mock[Provider[Injector]]
+    val injector = mock[Injector]
+    val membersInjector = mock[MembersInjector[A]]
+
+    when(binder bind clazz) thenReturn builder1
+    when(binder bind typeLiteral) thenReturn builder1
+    when(builder1 toProvider any[Provider[A]]) thenReturn builder2
+    when(binder getProvider classOf[Injector]) thenReturn injectorProvider
+    when(injectorProvider.get) thenReturn injector
+    if (!clazz.isInterface) {
       when(binder getMembersInjector typeLiteral) thenReturn membersInjector
-
-      binderLike bindNeuron classOf[TestClass] should be theSameInstanceAs builder2
-
-      val neuronProviderCaptor = ArgumentCaptor forClass classOf[NeuronProvider[TestClass]]
-      verify(builder1) toProvider neuronProviderCaptor.capture
-      val neuronProvider = neuronProviderCaptor.getValue
-      neuronProvider.injector should be theSameInstanceAs injector
-      neuronProvider.membersInjector should be theSameInstanceAs membersInjector
-      neuronProvider.typeLiteral shouldBe typeLiteral
     }
+
+    bindingCall should be theSameInstanceAs builder2
+
+    val neuronProviderCaptor = ArgumentCaptor forClass classOf[NeuronProvider[A]]
+    verify(builder1) toProvider neuronProviderCaptor.capture
+    val neuronProvider = neuronProviderCaptor.getValue
+    neuronProvider.injector should be theSameInstanceAs injector
+    if (clazz.isInterface) {
+      neuronProvider.membersInjector should not be null
+    } else {
+      neuronProvider.membersInjector should be theSameInstanceAs membersInjector
+    }
+    neuronProvider.typeLiteral shouldBe typeLiteral
   }
 }
 
 private object BinderLikeSpec {
 
   @Neuron
-  trait TestInterface
+  trait NeuronInterface
 
   @Neuron
-  abstract class TestClass
+  abstract class NeuronClass
 }
