@@ -262,6 +262,10 @@
                      <artifactId>license-maven-plugin</artifactId>
                      <version>3.0</version>
                      <configuration>
+                         <excludes>
+                             <exclude>.*</exclude>
+                             <exclude>LICENSE</exclude>
+                         </excludes>
                          <inlineHeader>
 Copyright © ${project.inceptionYear} ${project.organization.name}
 
