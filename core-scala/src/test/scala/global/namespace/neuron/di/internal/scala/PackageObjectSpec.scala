@@ -15,15 +15,22 @@
  */
 package global.namespace.neuron.di.internal.scala
 
+import java.util.function.Supplier
+
 import org.scalatest.WordSpec
+import org.scalatest.Matchers._
 
 class PackageObjectSpec extends WordSpec {
 
   "The runtimeClassOf function" should {
-    "throw an illegal argument exception" in {
+    "return the runtime class of a string supplier" in {
+      runtimeClassOf[Supplier[String]] shouldBe classOf[Supplier[_]]
+    }
+
+    "throw an illegal argument exception if no type parameter was provided" in {
       intercept[IllegalArgumentException] {
         runtimeClassOf
-      }
+      }.getMessage shouldBe "requirement failed: Missing type parameter."
     }
   }
 }
