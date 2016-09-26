@@ -38,11 +38,5 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>neuron-di-scala_${scala.compat.version}</artifactId>
         </dependency>
-
-        <dependency>
-            <groupId>com.google.inject</groupId>
-            <artifactId>guice</artifactId>
-            <scope>provided</scope>
-        </dependency>
     </dependencies>
 </project>
