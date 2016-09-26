@@ -85,7 +85,7 @@
 
         <!-- scala-maven-plugin -->
         <scala.compat.version>2.11</scala.compat.version>
-        <scala.version>2.11.8</scala.version>
+        <scala.version>2.11.3</scala.version>
 
         <guice.version>3.0</guice.version>
     </properties>
