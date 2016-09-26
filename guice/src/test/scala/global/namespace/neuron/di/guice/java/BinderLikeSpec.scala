@@ -59,6 +59,10 @@ class BinderLikeSpec extends WordSpec {
       testBindNeuronUsingTypeLiteral[NeuronInterface]
     }
 
+    "neuron interface using a key" in {
+      testBindNeuronUsingKey[NeuronInterface]
+    }
+
     "neuron class using a class" in {
       testBindNeuronUsingClass[NeuronClass]
     }
@@ -66,20 +70,40 @@ class BinderLikeSpec extends WordSpec {
     "neuron class using a type literal" in {
       testBindNeuronUsingTypeLiteral[NeuronClass]
     }
+
+    "neuron clazz using a key" in {
+      testBindNeuronUsingKey[NeuronClass]
+    }
+
+    "neuron classes and interfaces using classes" in {
+      testBindNeuronsUsingClasses(classOf[NeuronInterface], classOf[NeuronClass])
+    }
+
+    "neuron classes and interfaces using type literals" in {
+      testBindNeuronsUsingTypeLiterals(classOf[NeuronInterface], classOf[NeuronClass])
+    }
+
+    "neuron classes and interfaces using keys" in {
+      testBindNeuronsUsingKeys(classOf[NeuronInterface], classOf[NeuronClass])
+    }
   }
 
   private def testBindNeuronUsingClass[A](implicit classTag: ClassTag[A]) {
-    implicit val clazz = classTag.runtimeClass.asInstanceOf[Class[A]]
-    testBindNeuron[A] { binderLike bindNeuron clazz }
+    testBindNeuron[A] { binderLike bindNeuron implicitly[Class[A]] }
   }
 
   private def testBindNeuronUsingTypeLiteral[A](implicit classTag: ClassTag[A]) {
-    implicit val clazz = classTag.runtimeClass.asInstanceOf[Class[A]]
-    testBindNeuron[A] { binderLike bindNeuron (TypeLiteral get clazz) }
+    testBindNeuron[A] { binderLike bindNeuron implicitly[TypeLiteral[A]] }
   }
 
-  private def testBindNeuron[A](bindingCall: => ScopedBindingBuilder)(implicit clazz: Class[A]) {
-    val typeLiteral = TypeLiteral get clazz
+  private def testBindNeuronUsingKey[A](implicit classTag: ClassTag[A]) {
+    testBindNeuron[A] { binderLike bindNeuron implicitly[Key[A]] }
+  }
+
+  private def testBindNeuron[A : ClassTag](bindingCall: => ScopedBindingBuilder) {
+    val clazz = implicitly[Class[A]]
+    val typeLiteral = implicitly[TypeLiteral[A]]
+    val key = implicitly[Key[A]]
 
     val builder1 = mock[AnnotatedBindingBuilder[A]]
     val builder2 = mock[ScopedBindingBuilder]
@@ -89,6 +113,7 @@ class BinderLikeSpec extends WordSpec {
 
     when(binder bind clazz) thenReturn builder1
     when(binder bind typeLiteral) thenReturn builder1
+    when(binder bind key) thenReturn builder1
     when(builder1 toProvider any[Provider[A]]) thenReturn builder2
     when(binder getProvider classOf[Injector]) thenReturn injectorProvider
     when(injectorProvider.get) thenReturn injector
@@ -109,9 +134,80 @@ class BinderLikeSpec extends WordSpec {
     }
     neuronProvider.typeLiteral shouldBe typeLiteral
   }
+
+  private def testBindNeuronsUsingClasses(classes: Class[_ <: AnyRef]*) {
+    testBindNeurons(classes: _*) { binderLike.bindNeurons(classes.head, classes.tail: _*) }
+  }
+
+  private def testBindNeuronsUsingTypeLiterals(classes: Class[_ <: AnyRef]*) {
+    testBindNeurons(classes: _*) {
+      binderLike.bindNeurons(TypeLiteral get classes.head, classes.tail.map(TypeLiteral get _): _*)
+    }
+  }
+
+  private def testBindNeuronsUsingKeys(classes: Class[_ <: AnyRef]*) {
+    testBindNeurons(classes: _*) {
+      binderLike.bindNeurons(Key get classes.head, classes.tail.map(Key get _): _*)
+    }
+  }
+
+  private def testBindNeurons(classes: Class[_ <: AnyRef]*)(bindingCall: => Unit) {
+    val injectorProvider = mock[Provider[Injector]]
+    val injector = mock[Injector]
+
+    when(binder getProvider classOf[Injector]) thenReturn injectorProvider
+    when(injectorProvider.get) thenReturn injector
+
+    def stubbing[A <: AnyRef](clazz : Class[A]): (Class[A], AnnotatedBindingBuilder[A], MembersInjector[A]) = {
+      val typeLiteral = TypeLiteral get clazz
+      val key = Key get clazz
+
+      val builder = mock[AnnotatedBindingBuilder[A]]
+      val membersInjector = mock[MembersInjector[A]]
+
+      when(binder bind clazz) thenReturn builder
+      when(binder bind typeLiteral) thenReturn builder
+      when(binder bind key) thenReturn builder
+      if (!clazz.isInterface) {
+        when(binder getMembersInjector typeLiteral) thenReturn membersInjector
+      }
+      (clazz, builder, membersInjector)
+    }
+
+    val stubbings = classes map (stubbing(_))
+
+    bindingCall
+
+    def bar[B <: AnyRef](x: (Class[B], AnnotatedBindingBuilder[B], MembersInjector[B])) {
+      verification(x._1, x._2, x._3)
+    }
+
+    def verification[B <: AnyRef](clazz: Class[B], builder: AnnotatedBindingBuilder[B], membersInjector: MembersInjector[B]) {
+      val typeLiteral = TypeLiteral get clazz
+      val neuronProviderCaptor = ArgumentCaptor forClass classOf[NeuronProvider[B]]
+      verify(builder) toProvider neuronProviderCaptor.capture
+      val neuronProvider = neuronProviderCaptor.getValue
+      neuronProvider.injector should be theSameInstanceAs injector
+      if (clazz.isInterface) {
+        neuronProvider.membersInjector should not be null
+      } else {
+        neuronProvider.membersInjector should be theSameInstanceAs membersInjector
+      }
+      neuronProvider.typeLiteral shouldBe typeLiteral
+    }
+
+    stubbings foreach (x => bar(x))
+  }
 }
 
 private object BinderLikeSpec {
+
+  implicit def keyOf[A](implicit classTag: ClassTag[A]): Key[A] = Key get implicitly[Class[A]]
+
+  implicit def typeLiteralOf[A](implicit classTag: ClassTag[A]): TypeLiteral[A] = TypeLiteral get implicitly[Class[A]]
+
+  implicit def runtimeClassOf[A](implicit classTag: ClassTag[A]): Class[A] =
+    classTag.runtimeClass.asInstanceOf[Class[A]]
 
   @Neuron
   trait NeuronInterface
