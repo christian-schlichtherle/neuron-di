@@ -38,7 +38,7 @@ public final class Incubator {
      * dependencies lazily by recursively calling this method.
      */
     public static <T> T breed(Class<T> runtimeClass) {
-        return RealIncubator.breed(runtimeClass, synapse -> {
+        return breed(runtimeClass, synapse -> {
             final Class<?> returnType = synapse.getReturnType();
             return () -> breed(returnType);
         });
@@ -120,7 +120,7 @@ public final class Incubator {
                     if (null != neuron) {
                         throw new IllegalStateException("`breed()` has already been called");
                     }
-                    neuron = RealIncubator.breed(runtimeClass, this::binding);
+                    neuron = Incubator.breed(runtimeClass, this::binding);
                 }
                 initReplacementProxies();
                 if (!partial && !synapses.isEmpty()) {
