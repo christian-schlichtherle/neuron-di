@@ -93,33 +93,33 @@ class BinderLikeSpec extends WordSpec {
   }
 
   private def testBindNeuronUsingTypeLiteral[A](implicit classTag: ClassTag[A]) {
-    testBindNeuron[A] { binderLike bindNeuron implicitly[TypeLiteral[A]] }
+    testBindNeuron[A] { binderLike bindNeuron (TypeLiteral get implicitly[Class[A]]) }
   }
 
   private def testBindNeuronUsingKey[A](implicit classTag: ClassTag[A]) {
-    testBindNeuron[A] { binderLike bindNeuron implicitly[Key[A]] }
+    testBindNeuron[A] { binderLike bindNeuron (Key get implicitly[Class[A]]) }
   }
 
   private def testBindNeuron[A : ClassTag](bindingCall: => ScopedBindingBuilder) {
+    val injectorProvider = mock[Provider[Injector]]
+    val injector = mock[Injector]
+
+    when(binder getProvider classOf[Injector]) thenReturn injectorProvider
+    when(injectorProvider.get) thenReturn injector
+
     val clazz = implicitly[Class[A]]
-    val typeLiteral = implicitly[TypeLiteral[A]]
-    val key = implicitly[Key[A]]
+    val typeLiteral = TypeLiteral get clazz
+    val key = Key get clazz
 
     val builder1 = mock[AnnotatedBindingBuilder[A]]
     val builder2 = mock[ScopedBindingBuilder]
-    val injectorProvider = mock[Provider[Injector]]
-    val injector = mock[Injector]
     val membersInjector = mock[MembersInjector[A]]
 
     when(binder bind clazz) thenReturn builder1
     when(binder bind typeLiteral) thenReturn builder1
     when(binder bind key) thenReturn builder1
     when(builder1 toProvider any[Provider[A]]) thenReturn builder2
-    when(binder getProvider classOf[Injector]) thenReturn injectorProvider
-    when(injectorProvider.get) thenReturn injector
-    if (!clazz.isInterface) {
-      when(binder getMembersInjector typeLiteral) thenReturn membersInjector
-    }
+    when(binder getMembersInjector typeLiteral) thenReturn membersInjector
 
     bindingCall should be theSameInstanceAs builder2
 
@@ -128,6 +128,7 @@ class BinderLikeSpec extends WordSpec {
     val neuronProvider = neuronProviderCaptor.getValue
     neuronProvider.injector should be theSameInstanceAs injector
     if (clazz.isInterface) {
+      neuronProvider.membersInjector should not be theSameInstanceAs(membersInjector)
       neuronProvider.membersInjector should not be null
     } else {
       neuronProvider.membersInjector should be theSameInstanceAs membersInjector
@@ -135,30 +136,30 @@ class BinderLikeSpec extends WordSpec {
     neuronProvider.typeLiteral shouldBe typeLiteral
   }
 
-  private def testBindNeuronsUsingClasses(classes: Class[_ <: AnyRef]*) {
+  private def testBindNeuronsUsingClasses(classes: Class[_]*) {
     testBindNeurons(classes: _*) { binderLike.bindNeurons(classes.head, classes.tail: _*) }
   }
 
-  private def testBindNeuronsUsingTypeLiterals(classes: Class[_ <: AnyRef]*) {
+  private def testBindNeuronsUsingTypeLiterals(classes: Class[_]*) {
     testBindNeurons(classes: _*) {
       binderLike.bindNeurons(TypeLiteral get classes.head, classes.tail.map(TypeLiteral get _): _*)
     }
   }
 
-  private def testBindNeuronsUsingKeys(classes: Class[_ <: AnyRef]*) {
+  private def testBindNeuronsUsingKeys(classes: Class[_]*) {
     testBindNeurons(classes: _*) {
       binderLike.bindNeurons(Key get classes.head, classes.tail.map(Key get _): _*)
     }
   }
 
-  private def testBindNeurons(classes: Class[_ <: AnyRef]*)(bindingCall: => Unit) {
+  private def testBindNeurons(classes: Class[_]*)(bindingCall: => Unit) {
     val injectorProvider = mock[Provider[Injector]]
     val injector = mock[Injector]
 
     when(binder getProvider classOf[Injector]) thenReturn injectorProvider
     when(injectorProvider.get) thenReturn injector
 
-    def stubbing[A <: AnyRef](clazz : Class[A]): (Class[A], AnnotatedBindingBuilder[A], MembersInjector[A]) = {
+    def stubbing[A](clazz : Class[A]) = {
       val typeLiteral = TypeLiteral get clazz
       val key = Key get clazz
 
@@ -168,27 +169,18 @@ class BinderLikeSpec extends WordSpec {
       when(binder bind clazz) thenReturn builder
       when(binder bind typeLiteral) thenReturn builder
       when(binder bind key) thenReturn builder
-      if (!clazz.isInterface) {
-        when(binder getMembersInjector typeLiteral) thenReturn membersInjector
-      }
+      when(binder getMembersInjector typeLiteral) thenReturn membersInjector
       (clazz, builder, membersInjector)
     }
 
-    val stubbings = classes map (stubbing(_))
-
-    bindingCall
-
-    def bar[B <: AnyRef](x: (Class[B], AnnotatedBindingBuilder[B], MembersInjector[B])) {
-      verification(x._1, x._2, x._3)
-    }
-
-    def verification[B <: AnyRef](clazz: Class[B], builder: AnnotatedBindingBuilder[B], membersInjector: MembersInjector[B]) {
+    def verification[A](clazz: Class[A], builder: AnnotatedBindingBuilder[A], membersInjector: MembersInjector[A]) {
       val typeLiteral = TypeLiteral get clazz
-      val neuronProviderCaptor = ArgumentCaptor forClass classOf[NeuronProvider[B]]
+      val neuronProviderCaptor = ArgumentCaptor forClass classOf[NeuronProvider[A]]
       verify(builder) toProvider neuronProviderCaptor.capture
       val neuronProvider = neuronProviderCaptor.getValue
       neuronProvider.injector should be theSameInstanceAs injector
       if (clazz.isInterface) {
+        neuronProvider.membersInjector should not be theSameInstanceAs(membersInjector)
         neuronProvider.membersInjector should not be null
       } else {
         neuronProvider.membersInjector should be theSameInstanceAs membersInjector
@@ -196,15 +188,15 @@ class BinderLikeSpec extends WordSpec {
       neuronProvider.typeLiteral shouldBe typeLiteral
     }
 
-    stubbings foreach (x => bar(x))
+    val stubbings = classes map (stubbing(_))
+
+    bindingCall
+
+    stubbings foreach { case (clazz, builder, membersInjector) => verification(clazz, builder, membersInjector) }
   }
 }
 
 private object BinderLikeSpec {
-
-  implicit def keyOf[A](implicit classTag: ClassTag[A]): Key[A] = Key get implicitly[Class[A]]
-
-  implicit def typeLiteralOf[A](implicit classTag: ClassTag[A]): TypeLiteral[A] = TypeLiteral get implicitly[Class[A]]
 
   implicit def runtimeClassOf[A](implicit classTag: ClassTag[A]): Class[A] =
     classTag.runtimeClass.asInstanceOf[Class[A]]
