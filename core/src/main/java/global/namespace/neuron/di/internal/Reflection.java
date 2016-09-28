@@ -45,21 +45,6 @@ class Reflection {
 
     private Reflection() { }
 
-    static boolean isTraitWithNonAbstractMembers(final Class<?> trait) {
-        assert trait.isInterface();
-        return anyMatch(type -> {
-            final ClassLoader cl = type.getClassLoader();
-            if (null != cl) {
-                try {
-                    cl.loadClass(type.getName() + "$class");
-                    return true;
-                } catch (ClassNotFoundException ignored) {
-                }
-            }
-            return false;
-        }).apply(trait);
-    }
-
     static boolean isInterfaceWithCachingDefaultMethods(final Class<?> iface) {
         assert iface.isInterface();
         return anyMatch(type -> {
