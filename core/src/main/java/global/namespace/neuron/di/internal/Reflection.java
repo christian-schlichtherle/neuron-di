@@ -58,12 +58,11 @@ class Reflection {
     }
 
     /**
-     * Returns a function which tries to match the given predicate against any
-     * element of the type hierarchy represented by its class parameter.
-     * The search starts with testing the given predicate for the given type,
-     * then applies itself recursively to all of the interfaces implemented by
-     * the given type in reverse order (if any) and finally to the superclass of
-     * the given type (if existing).
+     * Returns a function which tries to match the given predicate against any element of the type hierarchy represented
+     * by its class parameter.
+     * The search starts with testing the given predicate for the given type, then applies itself recursively to all of
+     * the interfaces implemented by the given type (if any) and finally to the superclass of the given type (if
+     * existing).
      * Note that due to interfaces, the type hierarchy can be a graph.
      * The returned function will visit any interface at most once, however.
      */
@@ -78,8 +77,7 @@ class Reflection {
                     return true;
                 }
                 final Class<?>[] ifaces = visitor.getInterfaces();
-                for (int i = ifaces.length; 0 <= --i; ) {
-                    final Class<?> iface = ifaces[i];
+                for (final Class<?> iface : ifaces) {
                     if (!interfaces.contains(iface)) {
                         if (apply(iface)) {
                             return true;
