@@ -20,6 +20,7 @@ import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -45,6 +46,22 @@ class Reflection {
 
     private Reflection() { }
 
+    /**
+     * Returns a consumer which applies the given consumer to all elements of the type hierarchy represented by its
+     * class parameter.
+     * The traversal starts with calling the given consumer for the given type, then applies itself recursively to all
+     * of the interfaces implemented by the given type (if any) and finally to the superclass of the given type (if
+     * existing).
+     * Note that due to interfaces, the type hierarchy can be a graph.
+     * The returned function will visit any interface at most once, however.
+     */
+    static Consumer<Class<?>> traverse(Consumer<Class<?>> consumer) {
+        return hierarchy -> anyMatch(visitor -> {
+            consumer.accept(visitor);
+            return false;
+        }).apply(hierarchy);
+    }
+
     static boolean isInterfaceWithCachingDefaultMethods(final Class<?> iface) {
         assert iface.isInterface();
         return anyMatch(type -> {
@@ -58,12 +75,11 @@ class Reflection {
     }
 
     /**
-     * Returns a function which tries to match the given predicate against any
-     * element of the type hierarchy represented by its class parameter.
-     * The search starts with testing the given predicate for the given type,
-     * then applies itself recursively to all of the interfaces implemented by
-     * the given type in reverse order (if any) and finally to the superclass of
-     * the given type (if existing).
+     * Returns a function which tries to match the given predicate against any element of the type hierarchy represented
+     * by its class parameter.
+     * The search starts with testing the given predicate for the given type, then applies itself recursively to all of
+     * the interfaces implemented by the given type (if any) and finally to the superclass of the given type (if
+     * existing).
      * Note that due to interfaces, the type hierarchy can be a graph.
      * The returned function will visit any interface at most once, however.
      */
@@ -78,8 +94,7 @@ class Reflection {
                     return true;
                 }
                 final Class<?>[] ifaces = visitor.getInterfaces();
-                for (int i = ifaces.length; 0 <= --i; ) {
-                    final Class<?> iface = ifaces[i];
+                for (final Class<?> iface : ifaces) {
                     if (!interfaces.contains(iface)) {
                         if (apply(iface)) {
                             return true;

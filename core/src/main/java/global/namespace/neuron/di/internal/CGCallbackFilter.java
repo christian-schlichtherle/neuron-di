@@ -17,21 +17,23 @@ package global.namespace.neuron.di.internal;
 
 import net.sf.cglib.proxy.Callback;
 import net.sf.cglib.proxy.CallbackFilter;
-import net.sf.cglib.proxy.Enhancer;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.function.Supplier;
 
 final class CGCallbackFilter implements CallbackFilter, Iterable<Method> {
 
-    private final ArrayList<Method> methods;
+    private final List<Method> methods;
 
     CGCallbackFilter(final Class<?> superclass, final Class<?> interfaces[]) {
-        methods = new ArrayList<>();
-        Enhancer.getMethods(superclass, interfaces, methods);
-        methods.trimToSize();
+        final OverridableMethodsCollector c = new OverridableMethodsCollector().add(superclass);
+        for (Class<?> iface : interfaces) {
+            c.add(iface);
+        }
+        methods = new ArrayList<>(c.methods.values());
     }
 
     public Iterator<Method> iterator() { return methods.iterator(); }
