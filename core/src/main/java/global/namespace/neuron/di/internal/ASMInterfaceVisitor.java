@@ -23,6 +23,12 @@ import static org.objectweb.asm.Type.getInternalName;
 
 final class ASMInterfaceVisitor extends ClassVisitor {
 
+    private static final int ACC_PUBLIC_PRIVATE_PROTECTED = ACC_PRIVATE | ACC_PROTECTED | ACC_PUBLIC;
+    private static final int ACC_SUPER_ABSTRACT_SYNTHETIC = ACC_SUPER | ACC_ABSTRACT | ACC_SYNTHETIC;
+    private static final String JAVA_LANG_OBJECT = getInternalName(Object.class);
+    private static final String CONSTRUCTOR_NAME = "<init>";
+    private static final String ACCEPTS_NOTHING_AND_RETURNS_VOID = "()V";
+
     private final Class<?> ifaceClass;
     private final String internalImplName;
     private final int modifiers;

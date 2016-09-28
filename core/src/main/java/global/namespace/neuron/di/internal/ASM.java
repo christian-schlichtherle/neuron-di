@@ -29,30 +29,7 @@ import static org.objectweb.asm.Type.getInternalName;
 
 final class ASM implements Opcodes {
 
-    static final int ACC_PUBLIC_PRIVATE_PROTECTED = ACC_PRIVATE | ACC_PROTECTED | ACC_PUBLIC;
-
-    static final int ACC_SUPER_ABSTRACT_SYNTHETIC = ACC_SUPER | ACC_ABSTRACT | ACC_SYNTHETIC;
-
-    static final String CONSTRUCTOR_NAME = "<init>";
-
-    static final String ACCEPTS_NOTHING_AND_RETURNS_VOID = "()V";
-
-    static final String JAVA_LANG_OBJECT = getInternalName(Object.class);
-
     private static final String SHIM = "$$shim";
-
-    private static String internalName(String className) {
-        return className.replace('.', '/');
-    }
-
-    private static <T> ClassReader classReader(final Class<T> clazz) {
-        try (InputStream in = associatedClassLoader(clazz)
-                .getResourceAsStream(getInternalName(clazz) + ".class")) {
-            return new ClassReader(in);
-        } catch (IOException e) {
-            throw new IllegalArgumentException(e);
-        }
-    }
 
     /**
      * Returns a class which implements the given Java interface.
@@ -68,4 +45,15 @@ final class ASM implements Opcodes {
         cr.accept(new ASMInterfaceVisitor(cw, ifaceClass, internalName(implName)), SKIP_DEBUG);
         return defineSubclass(ifaceClass, implName, cw.toByteArray());
     }
+
+    private static <T> ClassReader classReader(final Class<T> clazz) {
+        try (InputStream in = associatedClassLoader(clazz)
+                .getResourceAsStream(getInternalName(clazz) + ".class")) {
+            return new ClassReader(in);
+        } catch (IOException e) {
+            throw new IllegalArgumentException(e);
+        }
+    }
+
+    private static String internalName(String className) { return className.replace('.', '/'); }
 }
