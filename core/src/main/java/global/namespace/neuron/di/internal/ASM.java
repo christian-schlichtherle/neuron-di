@@ -45,7 +45,7 @@ final class ASM implements Opcodes {
         return className.replace('.', '/');
     }
 
-    static <T> ClassReader classReader(final Class<T> clazz) {
+    private static <T> ClassReader classReader(final Class<T> clazz) {
         try (InputStream in = associatedClassLoader(clazz)
                 .getResourceAsStream(getInternalName(clazz) + ".class")) {
             return new ClassReader(in);
