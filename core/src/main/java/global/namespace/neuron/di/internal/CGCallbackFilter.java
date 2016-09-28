@@ -30,8 +30,8 @@ final class CGCallbackFilter implements CallbackFilter, Iterable<Method> {
 
     CGCallbackFilter(final Class<?> superclass, final Class<?> interfaces[]) {
         final OverridableMethodsCollector c = new OverridableMethodsCollector().add(superclass);
-        for (Class<?> iface : interfaces) {
-            c.add(iface);
+        for (Class<?> i : interfaces) {
+            c.add(i);
         }
         methods = new ArrayList<>(c.methods.values());
     }
