@@ -21,39 +21,39 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
 
 import java.lang.reflect.Method;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.Collectors;
+import java.util.List;
 
 import static global.namespace.neuron.di.internal.Reflection.boxed;
 import static org.objectweb.asm.Opcodes.*;
+import static org.objectweb.asm.Type.getDescriptor;
 import static org.objectweb.asm.Type.getInternalName;
 
 class ASMNeuronVisitor extends ClassVisitor {
 
     private static final int ACC_ABSTRACT_INTERFACE = ACC_ABSTRACT | ACC_INTERFACE;
     private static final int ACC_SUPER_SYNTHETIC = ACC_SUPER | ACC_SYNTHETIC;
-    private static final int ACC_PRIVATE_SYNTHETIC = ACC_PRIVATE | ACC_SYNTHETIC;
+    private static final int ACC_PRIVATE_FINAL_SYNTHETIC = ACC_PRIVATE | ACC_FINAL | ACC_SYNTHETIC;
     private static final int ACC_PUBLIC_SYNTHETIC = ACC_PUBLIC | ACC_SYNTHETIC;
     private static final String CONSTRUCTOR_NAME = "<init>";
     private static final String ACCEPTS_NOTHING_AND_RETURNS_VOID = "()V";
 
     private static final String objectName = getInternalName(Object.class);
+    private static final String proxyName = getInternalName(Proxy.class);
+    private static final String proxyDesc = getDescriptor(Proxy.class);
 
     private final Class<?> superClass;
     private final String superName, implName;
-    private final Map<String, Method> suppliers;
+    private final List<Method> suppliers;
 
     ASMNeuronVisitor(final ClassVisitor visitor,
                      final Class<?> superClass,
                      final String implName,
-                     final Set<Method> suppliers) {
+                     final List<Method> suppliers) {
         super(ASM5, visitor);
         this.superClass = superClass;
         this.superName = getInternalName(superClass);
         this.implName = implName;
-        this.suppliers = suppliers.stream().collect(Collectors.toMap(Method::getName, Function.identity()));
+        this.suppliers = suppliers;
     }
 
     @Override
@@ -113,26 +113,41 @@ class ASMNeuronVisitor extends ClassVisitor {
                 CONSTRUCTOR_NAME,
                 ACCEPTS_NOTHING_AND_RETURNS_VOID,
                 false);
+        int i = 0;
+        for (final Method method : suppliers) {
+            mv.visitVarInsn(ALOAD, 0);
+            mv.visitVarInsn(ALOAD, 1);
+            if (i < 6) {
+                mv.visitInsn(ICONST_0 + i);
+            } else {
+                mv.visitIntInsn(BIPUSH, i);
+            }
+            mv.visitInsn(AALOAD);
+            mv.visitFieldInsn(PUTFIELD, implName, method.getName() + "$proxy", proxyDesc);
+            i++;
+        }
         mv.visitInsn(RETURN);
-        mv.visitMaxs(1, 1);
+        mv.visitMaxs(3, 2);
         mv.visitEnd();
     }
 
     private void insertMethods() {
-        for (final Method method : suppliers.values()) {
+        for (final Method method : suppliers) {
             new Object() {
 
-                final String methodName = method.getName();
+                final int access = method.getModifiers() & ~ACC_ABSTRACT | ACC_SYNTHETIC;
+                final String name = method.getName();
+                final String desc = Type.getMethodDescriptor(method);
+
                 final Class<?> returnType = method.getReturnType();
                 final String returnTypeName = getInternalName(returnType);
-                final String returnTypeDesc = Type.getDescriptor(returnType);
+                final String returnTypeDesc = getDescriptor(returnType);
+
                 final Class<?> boxedReturnType = boxed(returnType);
                 final String boxedReturnTypeName = getInternalName(boxedReturnType);
-                final String boxedReturnTypeDesc = Type.getDescriptor(boxedReturnType);
-                final int access = method.getModifiers() & ~ACC_ABSTRACT | ACC_SYNTHETIC;
-                final String desc = Type.getMethodDescriptor(method);
-                final int returnOpCode;
+                final String boxedReturnTypeDesc = getDescriptor(boxedReturnType);
 
+                final int returnOpCode;
                 {
                     if (returnType.isPrimitive()) {
                         if (returnType == Float.TYPE) {
@@ -156,24 +171,20 @@ class ASMNeuronVisitor extends ClassVisitor {
                 }
 
                 void run() {
-                    generateSupplierField();
-                    generateSupplierCallMethod();
+                    generateProxyField();
+                    generateProxyCallMethod();
                     generateSuperCallMethod();
                 }
 
-                void generateSupplierField() {
-                    cv  .visitField(ACC_PRIVATE_SYNTHETIC,
-                            methodName + "$supplier",
-                            "Ljava/util/function/Supplier;",
-                            null,
-                            null)
-                        .visitEnd();
+                void generateProxyField() {
+                    cv      .visitField(ACC_PRIVATE_FINAL_SYNTHETIC, name + "$proxy", proxyDesc, null, null)
+                            .visitEnd();
                 }
 
-                void generateSupplierCallMethod() {
-                    final MethodVisitor mv = beginMethod(methodName);
-                    mv.visitFieldInsn(GETFIELD, implName, methodName + "$supplier", "Ljava/util/function/Supplier;");
-                    mv.visitMethodInsn(INVOKEINTERFACE, "java/util/function/Supplier", "get", "()Ljava/lang/Object;", true);
+                void generateProxyCallMethod() {
+                    final MethodVisitor mv = beginMethod(name);
+                    mv.visitFieldInsn(GETFIELD, implName, name + "$proxy", proxyDesc);
+                    mv.visitMethodInsn(INVOKEINTERFACE, proxyName, "get", "()Ljava/lang/Object;", true);
                     if (!boxedReturnType.isAssignableFrom(Object.class)) {
                         mv.visitTypeInsn(CHECKCAST, boxedReturnType.isArray() ? boxedReturnTypeDesc : boxedReturnTypeName);
                     }
@@ -181,17 +192,13 @@ class ASMNeuronVisitor extends ClassVisitor {
                 }
 
                 void generateSuperCallMethod() {
-                    final MethodVisitor mv = beginMethod(methodName + "$super");
-                    mv.visitMethodInsn(INVOKESPECIAL, superName, methodName, desc, false);
+                    final MethodVisitor mv = beginMethod(name + "$super");
+                    mv.visitMethodInsn(INVOKESPECIAL, superName, name, desc, false);
                     endMethod(mv);
                 }
 
                 MethodVisitor beginMethod(final String name) {
-                    final MethodVisitor mv = cv.visitMethod(access,
-                            name,
-                            desc,
-                            null,
-                            null);
+                    final MethodVisitor mv = cv.visitMethod(access, name, desc, null, null);
                     mv.visitCode();
                     mv.visitVarInsn(ALOAD, 0);
                     return mv;

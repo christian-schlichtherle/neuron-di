@@ -22,6 +22,7 @@ import org.objectweb.asm.Opcodes;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
@@ -54,7 +55,7 @@ final class ASM implements Opcodes {
     /**
      * Returns a class which implements the given Neuron class or interface.
      */
-    static <T> Class<? extends T> neuronClass(final Class<T> superClass, final Set<Method> suppliers) {
+    static <T> Class<? extends T> neuronClass(final Class<T> superClass, final List<Method> suppliers) {
         final String implName = superClass.getName() + NEURON;
         final ClassReader cr = classReader(superClass);
         final ClassWriter cw = new ClassWriter(cr, 0);
