@@ -21,6 +21,10 @@ import org.objectweb.asm.Opcodes;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Method;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Supplier;
 
 import static global.namespace.neuron.di.internal.Reflection.associatedClassLoader;
 import static global.namespace.neuron.di.internal.Reflection.defineSubclass;
@@ -30,6 +34,7 @@ import static org.objectweb.asm.Type.getInternalName;
 final class ASM implements Opcodes {
 
     private static final String SHIM = "$$shim";
+    private static final String NEURON = "$$neuron";
 
     /**
      * Returns a class which implements the given Java interface.
@@ -44,6 +49,17 @@ final class ASM implements Opcodes {
         final ClassWriter cw = new ClassWriter(cr, 0);
         cr.accept(new ASMInterfaceVisitor(cw, ifaceClass, internalName(implName)), SKIP_DEBUG);
         return defineSubclass(ifaceClass, implName, cw.toByteArray());
+    }
+
+    /**
+     * Returns a class which implements the given Neuron class or interface.
+     */
+    static <T> Class<? extends T> neuronClass(final Class<T> superClass, final Set<Method> suppliers) {
+        final String implName = superClass.getName() + NEURON;
+        final ClassReader cr = classReader(superClass);
+        final ClassWriter cw = new ClassWriter(cr, 0);
+        cr.accept(new ASMNeuronVisitor(cw, superClass, internalName(implName), suppliers), SKIP_DEBUG);
+        return defineSubclass(superClass, implName, cw.toByteArray());
     }
 
     private static <T> ClassReader classReader(final Class<T> clazz) {

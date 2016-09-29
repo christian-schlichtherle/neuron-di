@@ -138,4 +138,31 @@ class Reflection {
                                 .ofNullable(ClassLoader.getSystemClassLoader())
                                 .orElseThrow(() -> new IllegalArgumentException("No class loader associated with " + clazz))));
     }
+
+    static Class<?> boxed(Class<?> clazz) {
+        if (clazz.isPrimitive()) {
+            if (clazz == Boolean.TYPE) {
+                return Boolean.class;
+            } else if (clazz == Byte.TYPE) {
+                return Byte.class;
+            } else if (clazz == Character.TYPE) {
+                return Character.class;
+            } else if (clazz == Double.TYPE) {
+                return Double.class;
+            } else if (clazz == Float.TYPE) {
+                return Float.class;
+            } else if (clazz == Integer.TYPE) {
+                return Integer.class;
+            } else if (clazz == Long.TYPE) {
+                return Long.class;
+            } else if (clazz == Short.TYPE) {
+                return Short.class;
+            } else {
+                assert clazz == Void.TYPE;
+                return Void.class;
+            }
+        } else {
+            return clazz;
+        }
+    }
 }
