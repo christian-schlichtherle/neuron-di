@@ -19,9 +19,7 @@ import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
-import static global.namespace.neuron.di.internal.ASM.classImplementingJava;
 import static global.namespace.neuron.di.internal.Reflection.associatedClassLoader;
-import static global.namespace.neuron.di.internal.Reflection.isInterfaceWithCachingDefaultMethods;
 
 /**
  * Adapts a consumer which accepts a class object reflecting a super class

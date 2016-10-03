@@ -21,10 +21,6 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Predicate;
-
-import static global.namespace.neuron.di.internal.NeuronElement.isCachingEligible;
 
 class Reflection {
 
@@ -55,60 +51,24 @@ class Reflection {
      * Note that due to interfaces, the type hierarchy can be a graph.
      * The returned function will visit any interface at most once, however.
      */
-    static Consumer<Class<?>> traverse(Consumer<Class<?>> consumer) {
-        return hierarchy -> anyMatch(visitor -> {
-            consumer.accept(visitor);
-            return false;
-        }).apply(hierarchy);
-    }
-
-    static boolean isInterfaceWithCachingDefaultMethods(final Class<?> iface) {
-        assert iface.isInterface();
-        return anyMatch(type -> {
-            for (final Method method : type.getDeclaredMethods()) {
-                if (method.isDefault() && isCachingEligible(method)) {
-                    return true;
-                }
-            }
-            return false;
-        }).apply(iface);
-    }
-
-    /**
-     * Returns a function which tries to match the given predicate against any element of the type hierarchy represented
-     * by its class parameter.
-     * The search starts with testing the given predicate for the given type, then applies itself recursively to all of
-     * the interfaces implemented by the given type (if any) and finally to the superclass of the given type (if
-     * existing).
-     * Note that due to interfaces, the type hierarchy can be a graph.
-     * The returned function will visit any interface at most once, however.
-     */
-    private static Function<Class<?>, Boolean> anyMatch(final Predicate<Class<?>> predicate) {
-        return new Function<Class<?>, Boolean>() {
+    static Consumer<Class<?>> traverse(final Consumer<Class<?>> consumer) {
+        return new Consumer<Class<?>>() {
 
             final Set<Class<?>> interfaces = new HashSet<>();
 
             @Override
-            public Boolean apply(final Class<?> visitor) {
-                if (predicate.test(visitor)) {
-                    return true;
-                }
-                final Class<?>[] ifaces = visitor.getInterfaces();
-                for (final Class<?> iface : ifaces) {
+            public void accept(final Class<?> visitor) {
+                consumer.accept(visitor);
+                for (final Class<?> iface : visitor.getInterfaces()) {
                     if (!interfaces.contains(iface)) {
-                        if (apply(iface)) {
-                            return true;
-                        }
+                        accept(iface);
                         interfaces.add(iface);
                     }
                 }
                 final Class<?> zuper = visitor.getSuperclass();
                 if (null != zuper) {
-                    if (apply(zuper)) {
-                        return true;
-                    }
+                    accept(zuper);
                 }
-                return false;
             }
         };
     }

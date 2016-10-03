@@ -35,7 +35,6 @@ class ASMNeuronClassVisitor extends ClassVisitor {
     private static final String ACCEPTS_NOTHING_AND_RETURNS_VOID = "()V";
     private static final String PROXY = "$proxy";
 
-    private static final String objectName = getInternalName(Object.class);
     private static final String objectDesc = getDescriptor(Object.class);
     private static final String methodProxyName = getInternalName(MethodProxy.class);
     private static final String methodProxyDesc = getDescriptor(MethodProxy.class);
@@ -110,11 +109,11 @@ class ASMNeuronClassVisitor extends ClassVisitor {
                 CONSTRUCTOR_NAME,
                 ACCEPTS_NOTHING_AND_RETURNS_VOID,
                 false);
-        int i = 0;
         boolean nonAbstract = false;
         for (final Method method : proxiedMethods) {
             if (!Modifier.isAbstract(method.getModifiers())) {
                 nonAbstract = true;
+                final String methodName = method.getName();
                 mv.visitVarInsn(ALOAD, 0);
                 mv.visitVarInsn(ALOAD, 0);
                 mv.visitInvokeDynamicInsn("get",
@@ -127,13 +126,12 @@ class ASMNeuronClassVisitor extends ClassVisitor {
                         Type.getType("()" + objectDesc),
                         new Handle(H_INVOKESPECIAL,
                                 neuronProxyName,
-                                "super$" + method.getName(),
+                                "super$" + methodName,
                                 Type.getMethodDescriptor(method),
                                 false),
                         Type.getType("()" + objectDesc));
-                mv.visitFieldInsn(PUTFIELD, neuronProxyName, method.getName() + PROXY, methodProxyDesc);
+                mv.visitFieldInsn(PUTFIELD, neuronProxyName, methodName + PROXY, methodProxyDesc);
             }
-            i++;
         }
         mv.visitInsn(RETURN);
         if (nonAbstract) {

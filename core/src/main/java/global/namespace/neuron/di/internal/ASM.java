@@ -31,23 +31,7 @@ import static org.objectweb.asm.Type.getInternalName;
 
 final class ASM implements Opcodes {
 
-    private static final String SHIM = "$$shim";
     private static final String NEURON = "$$neuron";
-
-    /**
-     * Returns a class which implements the given Java interface.
-     * The class implements any default methods of the interface.
-     */
-    static <T> Class<? extends T> classImplementingJava(final Class<T> ifaceClass) {
-        if (!ifaceClass.isInterface()) {
-            throw new IllegalArgumentException();
-        }
-        final String implName = ifaceClass.getName() + SHIM;
-        final ClassReader cr = classReader(ifaceClass);
-        final ClassWriter cw = new ClassWriter(cr, 0);
-        cr.accept(new ASMInterfaceVisitor(cw, ifaceClass, internalName(implName)), SKIP_DEBUG);
-        return defineSubclass(ifaceClass, implName, cw.toByteArray());
-    }
 
     /** Returns a class which proxies the given Neuron class or interface. */
     static <T> Class<? extends T> neuronProxyClass(final Class<T> superclass, final Class<?>[] interfaces, final List<Method> proxiedMethods) {
