@@ -76,10 +76,6 @@ class ASMNeuronClassVisitor extends ClassVisitor {
     }
 
     @Override
-    public void visitInnerClass(String name, String outerName, String innerName, int access) {
-    }
-
-    @Override
     public FieldVisitor visitField(int access, String name, String desc, String signature, Object value) {
         return null;
     }
@@ -113,7 +109,8 @@ class ASMNeuronClassVisitor extends ClassVisitor {
         for (final Method method : proxiedMethods) {
             if (!Modifier.isAbstract(method.getModifiers())) {
                 nonAbstract = true;
-                final String methodName = method.getName();
+                final String name = method.getName();
+                final String desc = Type.getMethodDescriptor(method);
                 mv.visitVarInsn(ALOAD, 0);
                 mv.visitVarInsn(ALOAD, 0);
                 mv.visitInvokeDynamicInsn("get",
@@ -126,11 +123,11 @@ class ASMNeuronClassVisitor extends ClassVisitor {
                         Type.getType("()" + objectDesc),
                         new Handle(H_INVOKESPECIAL,
                                 neuronProxyName,
-                                "super$" + methodName,
-                                Type.getMethodDescriptor(method),
+                                "super$" + name,
+                                desc,
                                 false),
                         Type.getType("()" + objectDesc));
-                mv.visitFieldInsn(PUTFIELD, neuronProxyName, methodName + PROXY, methodProxyDesc);
+                mv.visitFieldInsn(PUTFIELD, neuronProxyName, name + PROXY, methodProxyDesc);
             }
         }
         mv.visitInsn(RETURN);
@@ -197,7 +194,8 @@ class ASMNeuronClassVisitor extends ClassVisitor {
                     mv.visitFieldInsn(GETFIELD, neuronProxyName, name + PROXY, methodProxyDesc);
                     mv.visitMethodInsn(INVOKEINTERFACE, methodProxyName, "get", "()Ljava/lang/Object;", true);
                     if (!boxedReturnType.isAssignableFrom(Object.class)) {
-                        mv.visitTypeInsn(CHECKCAST, boxedReturnType.isArray() ? boxedReturnTypeDesc : boxedReturnTypeName);
+                        mv.visitTypeInsn(CHECKCAST,
+                                boxedReturnType.isArray() ? boxedReturnTypeDesc : boxedReturnTypeName);
                     }
                     endMethod(mv);
                 }
@@ -205,10 +203,16 @@ class ASMNeuronClassVisitor extends ClassVisitor {
                 void generateSuperCallMethod() {
                     if (!Modifier.isAbstract(method.getModifiers())) {
                         final MethodVisitor mv = beginMethod("super$" + name);
-                        mv.visitMethodInsn(INVOKESPECIAL, getInternalName(method.getDeclaringClass()), name, desc, false);
+                        mv.visitMethodInsn(INVOKESPECIAL,
+                                0 == interfaces.length ? superName : ownerName(),
+                                name,
+                                desc,
+                                0 != interfaces.length);
                         endMethod(mv);
                     }
                 }
+
+                String ownerName() { return getInternalName(method.getDeclaringClass()); }
 
                 MethodVisitor beginMethod(final String name) {
                     final MethodVisitor mv = cv.visitMethod(access, name, desc, null, null);
@@ -220,7 +224,11 @@ class ASMNeuronClassVisitor extends ClassVisitor {
                 void endMethod(final MethodVisitor mv) {
                     if (returnType != boxedReturnType ) {
                         assert !returnType.isArray();
-                        mv.visitMethodInsn(INVOKEVIRTUAL, boxedReturnTypeName, returnTypeName + "Value", "()" + returnTypeDesc, false);
+                        mv.visitMethodInsn(INVOKEVIRTUAL,
+                                boxedReturnTypeName,
+                                returnTypeName + "Value",
+                                "()" + returnTypeDesc,
+                                false);
                         mv.visitInsn(returnOpCode);
                         mv.visitMaxs(2, 1);
                     } else {
