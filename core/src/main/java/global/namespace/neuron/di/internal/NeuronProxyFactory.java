@@ -21,27 +21,49 @@ import java.lang.invoke.MethodType;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 final class NeuronProxyFactory<T> implements Function<NeuronProxyContext, Object> {
 
     private static final MethodHandles.Lookup lookup = MethodHandles.lookup();
     private static final MethodType objectMethodType = MethodType.methodType(Object.class);
 
-    private Map<Method, Field> methodProxyFields;
+    private List<MethodInfo> methodInfos;
     private Class<?> neuronProxyClass;
     private final MethodHandle neuronProxyConstructor;
 
     NeuronProxyFactory(final NeuronProxyContext<T> ctx) {
-        this.methodProxyFields = ctx.apply((superclass, interfaces) -> {
+        this.methodInfos = ctx.apply((superclass, interfaces) -> {
             final List<Method> proxiedMethods = MethodProxyFilter.from(superclass, interfaces).proxiedMethods(ctx);
             this.neuronProxyClass = ASM.neuronProxyClass(superclass, interfaces, proxiedMethods);
             return proxiedMethods;
-        }).stream().collect(LinkedHashMap::new, (map, method) -> map.put(method, field(method)), Map::putAll);
+        }).stream().map(method ->
+            new MethodInfo() {
+
+                final Field field = field(method);
+                final MethodHandle getter, setter;
+
+                {
+                    try {
+                        getter = lookup.unreflectGetter(field)
+                                .asType(MethodType.methodType(MethodProxy.class, Object.class));
+                        setter = lookup.unreflectSetter(field)
+                                .asType(MethodType.methodType(Void.TYPE, Object.class, MethodProxy.class));
+                    } catch (IllegalAccessException e) {
+                        throw new AssertionError(e);
+                    }
+                }
+
+                public Method method() { return method; }
+
+                public MethodHandle getter() { return getter; }
+
+                public MethodHandle setter() { return setter; }
+            }
+        ).collect(Collectors.toList());
         final Constructor<?> neuronProxyConstructor;
         try {
             neuronProxyConstructor = neuronProxyClass.getDeclaredConstructor();
@@ -74,35 +96,31 @@ final class NeuronProxyFactory<T> implements Function<NeuronProxyContext, Object
         final Object neuronProxy = neuronProxy();
         new Visitor() {
 
+            MethodInfo info;
+
             void init() {
-                for (Method method : methodProxyFields.keySet()) {
-                    ctx.element(method).accept(this);
+                for (MethodInfo info : methodInfos) {
+                    this.info = info;
+                    ctx.element(info.method()).accept(this);
                 }
             }
 
             public void visitSynapse(final SynapseElement element) {
                 final Supplier<?> resolve = ctx.supplier(element.method());
-                final Field field = methodProxyFields.get(element.method());
-                setMethodProxy(field, element.decorate(resolve::get));
-            }
-
-            public void visitMethod(final MethodElement element) {
-                final Field field = methodProxyFields.get(element.method());
-                setMethodProxy(field, element.decorate(getMethodProxy(field)));
-            }
-
-            MethodProxy<?, ?> getMethodProxy(final Field field) {
                 try {
-                    return (MethodProxy<?, ?>) field.get(neuronProxy);
-                } catch (IllegalAccessException e) {
+                    info    .setter()
+                            .invokeExact(neuronProxy, element.decorate(resolve::get));
+                } catch (Throwable e) {
                     throw new AssertionError(e);
                 }
             }
 
-            void setMethodProxy(final Field field, final MethodProxy<?, ?> proxy) {
+            public void visitMethod(final MethodElement element) {
                 try {
-                    field.set(neuronProxy, proxy);
-                } catch (IllegalAccessException e) {
+                    info    .setter()
+                            .invokeExact(neuronProxy,
+                                    element.decorate((MethodProxy<?, ?>) info.getter().invokeExact(neuronProxy)));
+                } catch (Throwable e) {
                     throw new AssertionError(e);
                 }
             }
@@ -117,5 +135,12 @@ final class NeuronProxyFactory<T> implements Function<NeuronProxyContext, Object
         } catch (Throwable e) {
             throw new AssertionError(e);
         }
+    }
+
+    private interface MethodInfo {
+
+        Method method();
+        MethodHandle getter();
+        MethodHandle setter();
     }
 }
