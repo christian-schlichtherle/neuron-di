@@ -31,14 +31,8 @@
 
     <dependencies>
         <dependency>
-            <groupId>cglib</groupId>
-            <artifactId>cglib</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.apache.ant</groupId>
-                    <artifactId>ant</artifactId>
-                </exclusion>
-            </exclusions>
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm</artifactId>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
@@ -84,19 +78,9 @@
                                                 <exclude>META-INF/maven/**</exclude>
                                             </excludes>
                                         </filter>
-                                        <filter>
-                                            <artifact>*:cglib</artifact>
-                                            <excludes>
-                                                <exclude>META-INF/maven/**</exclude>
-                                            </excludes>
-                                        </filter>
                                     </filters>
                                     <minimizeJar>true</minimizeJar>
                                     <relocations>
-                                        <relocation>
-                                            <pattern>net.sf.cglib</pattern>
-                                            <shadedPattern>global.namespace.neuron.di.internal.cglib</shadedPattern>
-                                        </relocation>
                                         <relocation>
                                             <pattern>org.objectweb.asm</pattern>
                                             <shadedPattern>global.namespace.neuron.di.internal.asm</shadedPattern>

@@ -129,7 +129,7 @@ class Reflection {
         }
     }
 
-    static <T> ClassLoader associatedClassLoader(Class<T> clazz) {
+    static ClassLoader associatedClassLoader(Class<?> clazz) {
         return Optional
                 .ofNullable(clazz.getClassLoader())
                 .orElse(Optional

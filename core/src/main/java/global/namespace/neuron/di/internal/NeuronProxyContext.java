@@ -15,35 +15,29 @@
  */
 package global.namespace.neuron.di.internal;
 
-import net.sf.cglib.proxy.Callback;
-
 import java.lang.reflect.Method;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-final class CGContext {
+final class NeuronProxyContext {
 
     private final NeuronElement element;
     private final Function<Method, Supplier<?>> binding;
 
-    private Callback[] callbacks;
-
-    CGContext(final NeuronElement element,
-              final Function<Method, Supplier<?>> binding) {
+    NeuronProxyContext(final NeuronElement element,
+                       final Function<Method, Supplier<?>> binding) {
         this.element = element;
         this.binding = binding;
     }
-
-    Class<?> runtimeClass() { return element.runtimeClass(); }
 
     MethodElement element(Method method) { return element.element(method); }
 
     Supplier<?> supplier(Method method) { return binding.apply(method); }
 
-    Callback[] callbacks(final CGCallbackFilter filter) {
-        final Callback[] callbacks = this.callbacks;
-        return null != callbacks
-                ? callbacks
-                : (this.callbacks = filter.callbacks(this));
+    <T> T apply(final BiFunction<Class<?>, Class<?>[], T> function) {
+        return new ClassAdapter<>(function).apply(neuronClass());
     }
+
+    private Class<?> neuronClass() { return element.runtimeClass(); }
 }

@@ -15,17 +15,9 @@
  */
 package global.namespace.neuron.di.internal;
 
-import java.lang.reflect.Method;
-
 interface Visitor {
 
-    default void visitNeuron(NeuronElement element) {
-        new ClassAdapter((superclass, interfaces) -> {
-            for (Method method : new CGCallbackFilter(superclass, interfaces)) {
-                element.element(method).accept(this);
-            }
-        }).accept(element.runtimeClass());
-    }
+    default void visitNeuron(NeuronElement element) { }
 
     default void visitClass(ClassElement element) { }
 

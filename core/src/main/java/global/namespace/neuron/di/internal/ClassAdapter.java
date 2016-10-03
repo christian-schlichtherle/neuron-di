@@ -16,8 +16,8 @@
 package global.namespace.neuron.di.internal;
 
 import java.util.Optional;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 
 import static global.namespace.neuron.di.internal.ASM.classImplementingJava;
 import static global.namespace.neuron.di.internal.Reflection.associatedClassLoader;
@@ -28,33 +28,28 @@ import static global.namespace.neuron.di.internal.Reflection.isInterfaceWithCach
  * and an array of class objects reflecting interfaces to a consumer which
  * accepts a class object reflecting a class or interface.
  */
-final class ClassAdapter implements Consumer<Class<?>> {
+final class ClassAdapter<T> implements Function<Class<?>, T> {
 
     private static Class<?>[] NO_CLASSES = new Class<?>[0];
 
-    private final BiConsumer<Class<?>, Class<?>[]> consumer;
+    private final BiFunction<Class<?>, Class<?>[], T> function;
 
     /**
-     * @param consumer a consumer which accepts a class object reflecting a
+     * @param function a consumer which accepts a class object reflecting a
      *                 super class and an array of class objects reflecting
      *                 interfaces.
      */
-    ClassAdapter(final BiConsumer<Class<?>, Class<?>[]> consumer) {
-        this.consumer = consumer;
-    }
+    ClassAdapter(final BiFunction<Class<?>, Class<?>[], T> function) { this.function = function; }
 
     /** Calls the adapted consumer and returns its value. */
     @Override
-    public void accept (Class<?> runtimeClass) {
+    public T apply(final Class<?> runtimeClass) {
         final Class<?> superclass;
         final Class<?>[] interfaces;
         if (runtimeClass.isInterface()) {
             final Optional<Class<?>> lookup = lookupScalaCompanion(runtimeClass);
             if (lookup.isPresent()) {
                 superclass = lookup.get();
-                interfaces = NO_CLASSES;
-            } else if (isInterfaceWithCachingDefaultMethods(runtimeClass)) {
-                superclass = classImplementingJava(runtimeClass);
                 interfaces = NO_CLASSES;
             } else {
                 superclass = Object.class;
@@ -64,7 +59,7 @@ final class ClassAdapter implements Consumer<Class<?>> {
             superclass = runtimeClass;
             interfaces = NO_CLASSES;
         }
-        consumer.accept(superclass, interfaces);
+        return function.apply(superclass, interfaces);
     }
 
     private Optional<Class<?>> lookupScalaCompanion(final Class<?> runtimeClass) {

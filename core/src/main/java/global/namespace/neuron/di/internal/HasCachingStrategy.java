@@ -16,22 +16,16 @@
 package global.namespace.neuron.di.internal;
 
 import global.namespace.neuron.di.java.CachingStrategy;
-import net.sf.cglib.proxy.Callback;
-import net.sf.cglib.proxy.FixedValue;
 
 interface HasCachingStrategy {
 
-    default Callback synapseCallback(FixedValue callback) {
-        return cgCachingStrategy().synapseCallback(callback);
+    default <T, X extends Throwable> MethodProxy<T, X> decorate(MethodProxy<T, X> methodProxy) {
+        return realCachingStrategy().decorate(methodProxy);
     }
 
-    default Callback methodCallback() {
-        return cgCachingStrategy().methodCallback();
-    }
+    default RealCachingStrategy realCachingStrategy() { return RealCachingStrategy.valueOf(cachingStrategy()); }
 
-    default CGCachingStrategy cgCachingStrategy() {
-        return CGCachingStrategy.valueOf(cachingStrategy());
-    }
+    default boolean isCachingEnabled() { return cachingStrategy().isEnabled(); }
 
     CachingStrategy cachingStrategy();
 }

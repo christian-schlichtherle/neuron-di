@@ -25,7 +25,7 @@ enum RealCachingStrategy {
     DISABLED {
 
         @Override
-        <T, X extends Throwable> Proxy<T, X> decorate(Proxy<T, X> proxy) { return proxy; }
+        <T, X extends Throwable> MethodProxy<T, X> decorate(MethodProxy<T, X> methodProxy) { return methodProxy; }
     },
 
     /** @see #valueOf(CachingStrategy) */
@@ -33,15 +33,15 @@ enum RealCachingStrategy {
     NOT_THREAD_SAFE {
 
         @Override
-        <T, X extends Throwable> Proxy<T, X> decorate(Proxy<T, X> proxy) {
-            return new Proxy<T, X>() {
+        <T, X extends Throwable> MethodProxy<T, X> decorate(final MethodProxy<T, X> methodProxy) {
+            return new MethodProxy<T, X>() {
 
                 T returnValue;
 
                 @Override
                 public T get() throws X {
                     final T value = returnValue;
-                    return null != value ? value : (returnValue = proxy.get());
+                    return null != value ? value : (returnValue = methodProxy.get());
                 }
             };
         }
@@ -52,8 +52,8 @@ enum RealCachingStrategy {
     THREAD_SAFE {
 
         @Override
-        <T, X extends Throwable> Proxy<T, X> decorate(Proxy<T, X> proxy) {
-            return new Proxy<T, X>() {
+        <T, X extends Throwable> MethodProxy<T, X> decorate(final MethodProxy<T, X> methodProxy) {
+            return new MethodProxy<T, X>() {
 
                 volatile T returnValue;
 
@@ -63,7 +63,7 @@ enum RealCachingStrategy {
                     if (null == (value = returnValue)) {
                         synchronized (this) {
                             if (null == (value = returnValue)) {
-                                returnValue = value = proxy.get();
+                                returnValue = value = methodProxy.get();
                             }
                         }
                     }
@@ -78,8 +78,8 @@ enum RealCachingStrategy {
     THREAD_LOCAL {
 
         @Override
-        <T, X extends Throwable> Proxy<T, X> decorate(final Proxy<T, X> proxy) {
-            return new Proxy<T, X>() {
+        <T, X extends Throwable> MethodProxy<T, X> decorate(final MethodProxy<T, X> methodProxy) {
+            return new MethodProxy<T, X>() {
 
                 final ThreadLocal<T> results = new ThreadLocal<>();
 
@@ -87,7 +87,7 @@ enum RealCachingStrategy {
                 public T get() throws X {
                     T result = results.get();
                     if (null == result) {
-                        results.set(result = proxy.get());
+                        results.set(result = methodProxy.get());
                     }
                     return result;
                 }
@@ -95,9 +95,7 @@ enum RealCachingStrategy {
         }
     };
 
-    static RealCachingStrategy valueOf(CachingStrategy strategy) {
-        return valueOf(strategy.name());
-    }
+    static RealCachingStrategy valueOf(CachingStrategy strategy) { return valueOf(strategy.name()); }
 
-    abstract <T, X extends Throwable> Proxy<T, X> decorate(Proxy<T, X> proxy);
+    abstract <T, X extends Throwable> MethodProxy<T, X> decorate(MethodProxy<T, X> methodProxy);
 }

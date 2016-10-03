@@ -17,7 +17,6 @@ package global.namespace.neuron.di.java.sample;
 
 import global.namespace.neuron.di.java.Incubator;
 import global.namespace.neuron.di.java.Neuron;
-import global.namespace.neuron.di.java.sample.WeatherStation;
 
 import java.util.concurrent.ThreadLocalRandom;
 
