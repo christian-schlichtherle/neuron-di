@@ -15,6 +15,10 @@
  */
 package global.namespace.neuron.di.internal;
 
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
+import java.lang.invoke.WrongMethodTypeException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -27,9 +31,12 @@ import java.util.function.Supplier;
 
 final class NeuronProxyFactory implements Function<NeuronProxyContext, Object> {
 
+    private static final MethodHandles.Lookup lookup = MethodHandles.lookup();
+    private static final MethodType objectMethodType = MethodType.methodType(Object.class);
+
     private Map<Method, Field> methodProxyFields;
     private Class<?> neuronProxyClass;
-    private final Constructor<?> neuronProxyConstructor;
+    private final MethodHandle neuronProxyConstructor;
 
     NeuronProxyFactory(final NeuronProxyContext ctx) {
         this.methodProxyFields = ctx.apply((superclass, interfaces) -> {
@@ -37,12 +44,20 @@ final class NeuronProxyFactory implements Function<NeuronProxyContext, Object> {
             this.neuronProxyClass = ASM.neuronProxyClass(superclass, interfaces, proxiedMethods);
             return proxiedMethods;
         }).stream().collect(LinkedHashMap::new, (map, method) -> map.put(method, field(method)), Map::putAll);
+        final Constructor<?> neuronProxyConstructor;
         try {
-            this.neuronProxyConstructor = neuronProxyClass.getDeclaredConstructor();
+            neuronProxyConstructor = neuronProxyClass.getDeclaredConstructor();
         } catch (NoSuchMethodException e) {
             throw new AssertionError(e);
         }
-        this.neuronProxyConstructor.setAccessible(true);
+        neuronProxyConstructor.setAccessible(true);
+        try {
+            this.neuronProxyConstructor = lookup
+                    .unreflectConstructor(neuronProxyConstructor)
+                    .asType(objectMethodType);
+        } catch (IllegalAccessException e) {
+            throw new AssertionError(e);
+        }
     }
 
     private Field field(final Method method) {
@@ -97,13 +112,12 @@ final class NeuronProxyFactory implements Function<NeuronProxyContext, Object> {
         return neuronProxy;
     }
 
-    private Object neuronProxy() {
+    @SuppressWarnings("unchecked")
+    private <T> T neuronProxy() {
         try {
-            return neuronProxyConstructor.newInstance();
-        } catch (InstantiationException | InvocationTargetException e) {
+            return (T) neuronProxyConstructor.invokeExact();
+        } catch (Throwable e) {
             throw new AssertionError(e);
-        } catch (IllegalAccessException e) {
-            throw new IllegalStateException(e);
         }
     }
 }
