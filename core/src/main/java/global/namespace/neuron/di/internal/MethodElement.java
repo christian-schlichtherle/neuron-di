@@ -17,10 +17,10 @@ package global.namespace.neuron.di.internal;
 
 import java.lang.reflect.Method;
 
-interface MethodElement extends Element, HasCachingStrategy {
+interface MethodElement<T> extends Element<T>, HasCachingStrategy {
 
     Method method();
 
     @Override
-    default void accept(Visitor visitor) { visitor.visitMethod(this); }
+    default void accept(Visitor<T> visitor) { visitor.visitMethod(this); }
 }

@@ -24,12 +24,12 @@ import java.util.Optional;
 
 import static global.namespace.neuron.di.java.CachingStrategy.DISABLED;
 
-interface NeuronElement extends ClassElement, HasCachingStrategy {
+interface NeuronElement<T> extends ClassElement<T>, HasCachingStrategy {
 
     @Override
-    default void accept(Visitor visitor) { visitor.visitNeuron(this); }
+    default void accept(Visitor<T> visitor) { visitor.visitNeuron(this); }
 
-    default MethodElement element(final Method method) {
+    default MethodElement<T> element(final Method method) {
 
         class MethodBase {
 
@@ -40,14 +40,14 @@ interface NeuronElement extends ClassElement, HasCachingStrategy {
             public Method method() { return method; }
         }
 
-        class RealSynapseElement extends MethodBase implements SynapseElement {
+        class RealSynapseElement extends MethodBase implements SynapseElement<T> {
 
             private RealSynapseElement(final CachingStrategy cachingStrategy) {
                 super.cachingStrategy = cachingStrategy;
             }
         }
 
-        class RealMethodElement extends MethodBase implements MethodElement {
+        class RealMethodElement extends MethodBase implements MethodElement<T> {
 
             private RealMethodElement(final CachingStrategy cachingStrategy) {
                 super.cachingStrategy = cachingStrategy;
@@ -72,23 +72,9 @@ interface NeuronElement extends ClassElement, HasCachingStrategy {
         }
     }
 
-    static boolean isParameterless(Method method) {
-        return 0 == method.getParameterCount();
-    }
+    static boolean isParameterless(Method method) { return 0 == method.getParameterCount(); }
 
-    static boolean isAbstract(Method method) {
-        return Modifier.isAbstract(method.getModifiers());
-    }
-
-    static boolean isCachingEligible(Method method) {
-        return isCachingEnabled(method) && isParameterless(method);
-    }
-
-    static boolean isCachingEnabled(Method method) {
-        return declaredCachingStrategy(method)
-                .filter(CachingStrategy::isEnabled)
-                .isPresent();
-    }
+    static boolean isAbstract(Method method) { return Modifier.isAbstract(method.getModifiers()); }
 
     static Optional<CachingStrategy> declaredCachingStrategy(Method method) {
         return Optional

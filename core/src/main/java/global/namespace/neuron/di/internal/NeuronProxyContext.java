@@ -22,16 +22,16 @@ import java.util.function.Supplier;
 
 final class NeuronProxyContext<T> {
 
-    private final NeuronElement element;
+    private final NeuronElement<T> element;
     private final Function<Method, Supplier<?>> binding;
 
-    NeuronProxyContext(final NeuronElement element,
+    NeuronProxyContext(final NeuronElement<T> element,
                        final Function<Method, Supplier<?>> binding) {
         this.element = element;
         this.binding = binding;
     }
 
-    MethodElement element(Method method) { return element.element(method); }
+    MethodElement<T> element(Method method) { return element.element(method); }
 
     Supplier<?> supplier(Method method) { return binding.apply(method); }
 
@@ -39,6 +39,7 @@ final class NeuronProxyContext<T> {
         return new ClassAdapter<>(function).apply(neuronClass());
     }
 
-    @SuppressWarnings("unchecked")
-    private Class<T> neuronClass() { return (Class<T>) element.runtimeClass(); }
+    T cast(Object obj) { return neuronClass().cast(obj); }
+
+    private Class<T> neuronClass() { return element.runtimeClass(); }
 }

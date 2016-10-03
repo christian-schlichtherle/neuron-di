@@ -49,22 +49,22 @@ public final class RealIncubator {
     public static <T> T breed(final Class<T> runtimeClass,
                               final Function<Method, Supplier<?>> binding) {
 
-        class ClassVisitor implements Visitor {
+        class ClassVisitor implements Visitor<T> {
 
             private T instance;
 
             @SuppressWarnings("unchecked")
             @Override
-            public void visitNeuron(final NeuronElement element) {
+            public void visitNeuron(final NeuronElement<T> element) {
                 assert runtimeClass == element.runtimeClass();
                 final NeuronProxyContext<T> ctx = new NeuronProxyContext<>(element, binding);
-                instance = runtimeClass.cast(factories
-                        .computeIfAbsent(runtimeClass, key -> new NeuronProxyFactory<>(ctx))
-                        .apply(ctx));
+                instance = ((NeuronProxyFactory<T>) factories
+                        .computeIfAbsent(runtimeClass, key -> new NeuronProxyFactory<>(ctx)))
+                        .apply(ctx);
             }
 
             @Override
-            public void visitClass(final ClassElement element) {
+            public void visitClass(final ClassElement<T> element) {
                 assert runtimeClass == element.runtimeClass();
                 instance = createInstance(runtimeClass);
             }

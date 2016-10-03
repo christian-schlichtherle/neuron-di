@@ -34,8 +34,8 @@ final class MethodProxyFilter {
 
     private MethodProxyFilter(final Collection<Method> methods) { this.methods = new ArrayList<>(methods); }
 
-    List<Method> proxiedMethods(final NeuronProxyContext ctx) {
-        return new Visitor() {
+    <T> List<Method> proxiedMethods(final NeuronProxyContext<T> ctx) {
+        return new Visitor<T>() {
 
             final ArrayList<Method> filtered = new ArrayList<>(methods.size());
 

@@ -26,44 +26,23 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-final class NeuronProxyFactory<T> implements Function<NeuronProxyContext, Object> {
+final class NeuronProxyFactory<T> implements Function<NeuronProxyContext<T>, T> {
 
     private static final MethodHandles.Lookup lookup = MethodHandles.lookup();
-    private static final MethodType objectMethodType = MethodType.methodType(Object.class);
+    private static final MethodType methodProxyObjectSignature = MethodType.methodType(MethodProxy.class, Object.class);
+    private static final MethodType voidObjectMethodProxySignature = MethodType.methodType(Void.TYPE, Object.class, MethodProxy.class);
+    private static final MethodType objectSignature = MethodType.methodType(Object.class);
 
-    private List<MethodInfo> methodInfos;
+    private List<MethodHandler> methodHandlers;
     private Class<?> neuronProxyClass;
     private final MethodHandle neuronProxyConstructor;
 
     NeuronProxyFactory(final NeuronProxyContext<T> ctx) {
-        this.methodInfos = ctx.apply((superclass, interfaces) -> {
+        this.methodHandlers = ctx.apply((superclass, interfaces) -> {
             final List<Method> proxiedMethods = MethodProxyFilter.from(superclass, interfaces).proxiedMethods(ctx);
             this.neuronProxyClass = ASM.neuronProxyClass(superclass, interfaces, proxiedMethods);
             return proxiedMethods;
-        }).stream().map(method ->
-            new MethodInfo() {
-
-                final Field field = field(method);
-                final MethodHandle getter, setter;
-
-                {
-                    try {
-                        getter = lookup.unreflectGetter(field)
-                                .asType(MethodType.methodType(MethodProxy.class, Object.class));
-                        setter = lookup.unreflectSetter(field)
-                                .asType(MethodType.methodType(Void.TYPE, Object.class, MethodProxy.class));
-                    } catch (IllegalAccessException e) {
-                        throw new AssertionError(e);
-                    }
-                }
-
-                public Method method() { return method; }
-
-                public MethodHandle getter() { return getter; }
-
-                public MethodHandle setter() { return setter; }
-            }
-        ).collect(Collectors.toList());
+        }).stream().map(MethodHandler::new).collect(Collectors.toList());
         final Constructor<?> neuronProxyConstructor;
         try {
             neuronProxyConstructor = neuronProxyClass.getDeclaredConstructor();
@@ -74,73 +53,88 @@ final class NeuronProxyFactory<T> implements Function<NeuronProxyContext, Object
         try {
             this.neuronProxyConstructor = lookup
                     .unreflectConstructor(neuronProxyConstructor)
-                    .asType(objectMethodType);
+                    .asType(objectSignature);
         } catch (IllegalAccessException e) {
             throw new AssertionError(e);
         }
     }
 
-    private Field field(final Method method) {
-        final String fieldName = method.getName() + "$proxy";
-        final Field field;
-        try {
-            field = neuronProxyClass.getDeclaredField(fieldName);
-        } catch (NoSuchFieldException e) {
-            throw new AssertionError(e);
-        }
-        field.setAccessible(true);
-        return field;
-    }
+    public T apply(final NeuronProxyContext<T> ctx) {
+        final T neuronProxy = ctx.cast(neuronProxy());
+        new Visitor<T>() {
 
-    public Object apply(final NeuronProxyContext ctx) {
-        final Object neuronProxy = neuronProxy();
-        new Visitor() {
-
-            MethodInfo info;
+            MethodHandler.BoundMethodHandler boundMethodHandler;
 
             void init() {
-                for (MethodInfo info : methodInfos) {
-                    this.info = info;
-                    ctx.element(info.method()).accept(this);
+                for (final MethodHandler handler : methodHandlers) {
+                    this.boundMethodHandler = handler.bind(neuronProxy);
+                    ctx.element(handler.method()).accept(this);
                 }
             }
 
             public void visitSynapse(final SynapseElement element) {
                 final Supplier<?> resolve = ctx.supplier(element.method());
-                try {
-                    info    .setter()
-                            .invokeExact(neuronProxy, element.decorate(resolve::get));
-                } catch (Throwable e) {
-                    throw new AssertionError(e);
-                }
+                boundMethodHandler.setMethodProxy(element.decorate(resolve::get));
             }
 
             public void visitMethod(final MethodElement element) {
-                try {
-                    info    .setter()
-                            .invokeExact(neuronProxy,
-                                    element.decorate((MethodProxy<?, ?>) info.getter().invokeExact(neuronProxy)));
-                } catch (Throwable e) {
-                    throw new AssertionError(e);
-                }
+                boundMethodHandler.setMethodProxy(element.decorate(boundMethodHandler.getMethodProxy()));
             }
         }.init();
         return neuronProxy;
     }
 
-    @SuppressWarnings("unchecked")
-    private T neuronProxy() {
+    private Object neuronProxy() {
         try {
-            return (T) neuronProxyConstructor.invokeExact();
+            return neuronProxyConstructor.invokeExact();
         } catch (Throwable e) {
             throw new AssertionError(e);
         }
     }
 
-    private interface MethodInfo {
+    private final class MethodHandler {
 
-        Method method();
-        MethodHandle getter();
-        MethodHandle setter();
+        final Method method;
+        final MethodHandle getter, setter;
+
+        MethodHandler(final Method method) {
+            this.method = method;
+            final String fieldName = method.getName() + "$proxy";
+            try {
+                final Field field = neuronProxyClass.getDeclaredField(fieldName);
+                field.setAccessible(true);
+                getter = lookup.unreflectGetter(field).asType(methodProxyObjectSignature);
+                setter = lookup.unreflectSetter(field).asType(voidObjectMethodProxySignature);
+            } catch (ReflectiveOperationException e) {
+                throw new AssertionError(e);
+            }
+        }
+
+        Method method() { return method; }
+
+        BoundMethodHandler bind(T neuronProxy) { return new BoundMethodHandler(neuronProxy); }
+
+        final class BoundMethodHandler {
+
+            private final T neuronProxy;
+
+            private BoundMethodHandler(final T neuronProxy) { this.neuronProxy = neuronProxy; }
+
+            MethodProxy<?, ?> getMethodProxy() {
+                try {
+                    return (MethodProxy<?, ?>) getter.invokeExact(neuronProxy);
+                } catch (Throwable e) {
+                    throw new AssertionError(e);
+                }
+            }
+
+            void setMethodProxy(final MethodProxy<?, ?> methodProxy) {
+                try {
+                    setter.invokeExact(neuronProxy, methodProxy);
+                } catch (Throwable e) {
+                    throw new AssertionError(e);
+                }
+            }
+        }
     }
 }

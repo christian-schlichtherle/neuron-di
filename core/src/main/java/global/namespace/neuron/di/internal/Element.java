@@ -17,4 +17,4 @@ package global.namespace.neuron.di.internal;
 
 import java.util.function.Consumer;
 
-interface Element extends Consumer<Visitor> { }
+interface Element<T> extends Consumer<Visitor<T>> { }

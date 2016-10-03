@@ -15,8 +15,8 @@
  */
 package global.namespace.neuron.di.internal;
 
-interface SynapseElement extends MethodElement {
+interface SynapseElement<T> extends MethodElement<T> {
 
     @Override
-    default void accept(Visitor visitor) { visitor.visitSynapse(this); }
+    default void accept(Visitor<T> visitor) { visitor.visitSynapse(this); }
 }

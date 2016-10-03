@@ -15,11 +15,11 @@
  */
 package global.namespace.neuron.di.internal;
 
-interface Visitor {
+interface Visitor<T> {
 
-    default void visitNeuron(NeuronElement element) { }
+    default void visitNeuron(NeuronElement<T> element) { }
 
-    default void visitClass(ClassElement element) { }
+    default void visitClass(ClassElement<T> element) { }
 
     default void visitSynapse(SynapseElement element) { }
 
