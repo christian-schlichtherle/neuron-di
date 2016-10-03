@@ -15,23 +15,28 @@
  */
 package global.namespace.neuron.di.internal;
 
-import java.lang.reflect.*;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
 final class NeuronProxyFactory implements Function<NeuronProxyContext, Object> {
 
-    private List<Method> proxiedMethods;
+    private Map<Method, Field> methodProxyFields;
     private Class<?> neuronProxyClass;
     private final Constructor<?> neuronProxyConstructor;
 
     NeuronProxyFactory(final NeuronProxyContext ctx) {
-        ctx.apply((superclass, interfaces) -> {
-            this.proxiedMethods = MethodProxyFilter.from(superclass, interfaces).proxiedMethods(ctx);
+        this.methodProxyFields = ctx.apply((superclass, interfaces) -> {
+            final List<Method> proxiedMethods = MethodProxyFilter.from(superclass, interfaces).proxiedMethods(ctx);
             this.neuronProxyClass = ASM.neuronProxyClass(superclass, interfaces, proxiedMethods);
-            return null;
-        });
+            return proxiedMethods;
+        }).stream().collect(LinkedHashMap::new, (map, method) -> map.put(method, field(method)), Map::putAll);
         try {
             this.neuronProxyConstructor = neuronProxyClass.getDeclaredConstructor();
         } catch (NoSuchMethodException e) {
@@ -40,24 +45,36 @@ final class NeuronProxyFactory implements Function<NeuronProxyContext, Object> {
         this.neuronProxyConstructor.setAccessible(true);
     }
 
+    private Field field(final Method method) {
+        final String fieldName = method.getName() + "$proxy";
+        final Field field;
+        try {
+            field = neuronProxyClass.getDeclaredField(fieldName);
+        } catch (NoSuchFieldException e) {
+            throw new AssertionError(e);
+        }
+        field.setAccessible(true);
+        return field;
+    }
+
     public Object apply(final NeuronProxyContext ctx) {
         final Object neuronProxy = neuronProxy();
         new Visitor() {
 
             void init() {
-                for (Method method : proxiedMethods) {
+                for (Method method : methodProxyFields.keySet()) {
                     ctx.element(method).accept(this);
                 }
             }
 
             public void visitSynapse(final SynapseElement element) {
                 final Supplier<?> resolve = ctx.supplier(element.method());
-                final Field field = field(element.method());
+                final Field field = methodProxyFields.get(element.method());
                 setMethodProxy(field, element.decorate(resolve::get));
             }
 
             public void visitMethod(final MethodElement element) {
-                final Field field = field(element.method());
+                final Field field = methodProxyFields.get(element.method());
                 setMethodProxy(field, element.decorate(getMethodProxy(field)));
             }
 
@@ -75,18 +92,6 @@ final class NeuronProxyFactory implements Function<NeuronProxyContext, Object> {
                 } catch (IllegalAccessException e) {
                     throw new AssertionError(e);
                 }
-            }
-
-            Field field(final Method method) {
-                final String fieldName = method.getName() + "$proxy";
-                final Field field;
-                try {
-                    field = neuronProxyClass.getDeclaredField(fieldName);
-                } catch (NoSuchFieldException e) {
-                    throw new AssertionError(e);
-                }
-                field.setAccessible(true);
-                return field;
             }
         }.init();
         return neuronProxy;
