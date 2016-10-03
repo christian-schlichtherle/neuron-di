@@ -18,10 +18,8 @@ package global.namespace.neuron.di.internal;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
-import java.lang.invoke.WrongMethodTypeException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -29,7 +27,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-final class NeuronProxyFactory implements Function<NeuronProxyContext, Object> {
+final class NeuronProxyFactory<T> implements Function<NeuronProxyContext, Object> {
 
     private static final MethodHandles.Lookup lookup = MethodHandles.lookup();
     private static final MethodType objectMethodType = MethodType.methodType(Object.class);
@@ -38,7 +36,7 @@ final class NeuronProxyFactory implements Function<NeuronProxyContext, Object> {
     private Class<?> neuronProxyClass;
     private final MethodHandle neuronProxyConstructor;
 
-    NeuronProxyFactory(final NeuronProxyContext ctx) {
+    NeuronProxyFactory(final NeuronProxyContext<T> ctx) {
         this.methodProxyFields = ctx.apply((superclass, interfaces) -> {
             final List<Method> proxiedMethods = MethodProxyFilter.from(superclass, interfaces).proxiedMethods(ctx);
             this.neuronProxyClass = ASM.neuronProxyClass(superclass, interfaces, proxiedMethods);
@@ -113,7 +111,7 @@ final class NeuronProxyFactory implements Function<NeuronProxyContext, Object> {
     }
 
     @SuppressWarnings("unchecked")
-    private <T> T neuronProxy() {
+    private T neuronProxy() {
         try {
             return (T) neuronProxyConstructor.invokeExact();
         } catch (Throwable e) {

@@ -20,7 +20,7 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-final class NeuronProxyContext {
+final class NeuronProxyContext<T> {
 
     private final NeuronElement element;
     private final Function<Method, Supplier<?>> binding;
@@ -35,9 +35,10 @@ final class NeuronProxyContext {
 
     Supplier<?> supplier(Method method) { return binding.apply(method); }
 
-    <T> T apply(final BiFunction<Class<?>, Class<?>[], T> function) {
+    <U> U apply(final BiFunction<Class<?>, Class<?>[], U> function) {
         return new ClassAdapter<>(function).apply(neuronClass());
     }
 
-    private Class<?> neuronClass() { return element.runtimeClass(); }
+    @SuppressWarnings("unchecked")
+    private Class<T> neuronClass() { return (Class<T>) element.runtimeClass(); }
 }

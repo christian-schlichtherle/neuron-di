@@ -25,7 +25,7 @@ import java.util.function.Supplier;
 /** A real incubator {@linkplain #breed(Class, Function) breeds} neurons. */
 public final class RealIncubator {
 
-    private static final Map<Class<?>, NeuronProxyFactory> factories =
+    private static final Map<Class<?>, NeuronProxyFactory<?>> factories =
             Collections.synchronizedMap(new WeakHashMap<>());
 
     private RealIncubator() { }
@@ -57,9 +57,9 @@ public final class RealIncubator {
             @Override
             public void visitNeuron(final NeuronElement element) {
                 assert runtimeClass == element.runtimeClass();
-                final NeuronProxyContext ctx = new NeuronProxyContext(element, binding);
+                final NeuronProxyContext<T> ctx = new NeuronProxyContext<>(element, binding);
                 instance = runtimeClass.cast(factories
-                        .computeIfAbsent(runtimeClass, key -> new NeuronProxyFactory(ctx))
+                        .computeIfAbsent(runtimeClass, key -> new NeuronProxyFactory<>(ctx))
                         .apply(ctx));
             }
 
