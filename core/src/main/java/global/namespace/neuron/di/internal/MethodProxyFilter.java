@@ -19,41 +19,42 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Function;
 
-final class MethodProxyFilter {
+final class MethodProxyFilter<T> implements Function<NeuronProxyContext<T>, List<Method>> {
 
     private final List<Method> methods;
 
-    static MethodProxyFilter from(final Class<?> superclass, final Class<?>[] interfaces) {
+    static <U> MethodProxyFilter<U> of(final Class<?> superclass, final Class<?>[] interfaces) {
         final OverridableMethodsCollector c = new OverridableMethodsCollector().add(superclass);
         for (Class<?> i : interfaces) {
             c.add(i);
         }
-        return new MethodProxyFilter(c.methods.values());
+        return new MethodProxyFilter<>(c.methods.values());
     }
 
     private MethodProxyFilter(final Collection<Method> methods) { this.methods = new ArrayList<>(methods); }
 
-    <T> List<Method> proxiedMethods(final NeuronProxyContext<T> ctx) {
+    public List<Method> apply(final NeuronProxyContext<T> ctx) {
         return new Visitor<T>() {
 
             final ArrayList<Method> filtered = new ArrayList<>(methods.size());
 
-            public void visitSynapse(final SynapseElement element) { filtered.add(element.method()); }
+            public void visitSynapse(final SynapseElement<T> element) { filtered.add(element.method()); }
 
-            public void visitMethod(final MethodElement element) {
+            public void visitMethod(final MethodElement<T> element) {
                 if (element.isCachingEnabled()) {
                     filtered.add(element.method());
                 }
             }
 
-            List<Method> proxiedMethods() {
+            List<Method> apply() {
                 for (Method method : methods) {
                     ctx.element(method).accept(this);
                 }
                 filtered.trimToSize();
                 return filtered;
             }
-        }.proxiedMethods();
+        }.apply();
     }
 }

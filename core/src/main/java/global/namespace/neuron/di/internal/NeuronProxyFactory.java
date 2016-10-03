@@ -39,49 +39,45 @@ final class NeuronProxyFactory<T> implements Function<NeuronProxyContext<T>, T> 
 
     NeuronProxyFactory(final NeuronProxyContext<T> ctx) {
         this.methodHandlers = ctx.apply((superclass, interfaces) -> {
-            final List<Method> proxiedMethods = MethodProxyFilter.from(superclass, interfaces).proxiedMethods(ctx);
+            final List<Method> proxiedMethods = MethodProxyFilter.<T>of(superclass, interfaces).apply(ctx);
             this.neuronProxyClass = ASM.neuronProxyClass(superclass, interfaces, proxiedMethods);
             return proxiedMethods;
         }).stream().map(MethodHandler::new).collect(Collectors.toList());
-        final Constructor<?> neuronProxyConstructor;
         try {
-            neuronProxyConstructor = neuronProxyClass.getDeclaredConstructor();
-        } catch (NoSuchMethodException e) {
-            throw new AssertionError(e);
-        }
-        neuronProxyConstructor.setAccessible(true);
-        try {
+            final Constructor<?> neuronProxyConstructor = neuronProxyClass.getDeclaredConstructor();
+            neuronProxyConstructor.setAccessible(true);
             this.neuronProxyConstructor = lookup
                     .unreflectConstructor(neuronProxyConstructor)
                     .asType(objectSignature);
-        } catch (IllegalAccessException e) {
+        } catch (ReflectiveOperationException e) {
             throw new AssertionError(e);
         }
     }
 
     public T apply(final NeuronProxyContext<T> ctx) {
-        final T neuronProxy = ctx.cast(neuronProxy());
-        new Visitor<T>() {
+        return new Visitor<T>() {
+
+            final T neuronProxy = ctx.cast(neuronProxy());
 
             MethodHandler.BoundMethodHandler boundMethodHandler;
 
-            void init() {
+            T apply() {
                 for (final MethodHandler handler : methodHandlers) {
                     this.boundMethodHandler = handler.bind(neuronProxy);
                     ctx.element(handler.method()).accept(this);
                 }
+                return neuronProxy;
             }
 
-            public void visitSynapse(final SynapseElement element) {
+            public void visitSynapse(final SynapseElement<T> element) {
                 final Supplier<?> resolve = ctx.supplier(element.method());
                 boundMethodHandler.setMethodProxy(element.decorate(resolve::get));
             }
 
-            public void visitMethod(final MethodElement element) {
+            public void visitMethod(MethodElement<T> element) {
                 boundMethodHandler.setMethodProxy(element.decorate(boundMethodHandler.getMethodProxy()));
             }
-        }.init();
-        return neuronProxy;
+        }.apply();
     }
 
     private Object neuronProxy() {

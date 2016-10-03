@@ -26,22 +26,22 @@ import static global.namespace.neuron.di.internal.Reflection.associatedClassLoad
  * and an array of class objects reflecting interfaces to a consumer which
  * accepts a class object reflecting a class or interface.
  */
-final class ClassAdapter<T> implements Function<Class<?>, T> {
+final class ClassAdapter<T, U> implements Function<Class<T>, U> {
 
     private static Class<?>[] NO_CLASSES = new Class<?>[0];
 
-    private final BiFunction<Class<?>, Class<?>[], T> function;
+    private final BiFunction<Class<?>, Class<?>[], U> function;
 
     /**
      * @param function a consumer which accepts a class object reflecting a
      *                 super class and an array of class objects reflecting
      *                 interfaces.
      */
-    ClassAdapter(final BiFunction<Class<?>, Class<?>[], T> function) { this.function = function; }
+    ClassAdapter(final BiFunction<Class<?>, Class<?>[], U> function) { this.function = function; }
 
     /** Calls the adapted consumer and returns its value. */
     @Override
-    public T apply(final Class<?> runtimeClass) {
+    public U apply(final Class<T> runtimeClass) {
         final Class<?> superclass;
         final Class<?>[] interfaces;
         if (runtimeClass.isInterface()) {

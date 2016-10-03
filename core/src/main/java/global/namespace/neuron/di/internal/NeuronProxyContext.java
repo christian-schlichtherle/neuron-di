@@ -35,8 +35,8 @@ final class NeuronProxyContext<T> {
 
     Supplier<?> supplier(Method method) { return binding.apply(method); }
 
-    <U> U apply(final BiFunction<Class<?>, Class<?>[], U> function) {
-        return new ClassAdapter<>(function).apply(neuronClass());
+    <U> U apply(BiFunction<Class<?>, Class<?>[], U> function) {
+        return new ClassAdapter<T, U>(function).apply(neuronClass());
     }
 
     T cast(Object obj) { return neuronClass().cast(obj); }

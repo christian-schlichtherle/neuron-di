@@ -21,7 +21,7 @@ interface Visitor<T> {
 
     default void visitClass(ClassElement<T> element) { }
 
-    default void visitSynapse(SynapseElement element) { }
+    default void visitSynapse(SynapseElement<T> element) { }
 
-    default void visitMethod(MethodElement element) { }
+    default void visitMethod(MethodElement<T> element) { }
 }
