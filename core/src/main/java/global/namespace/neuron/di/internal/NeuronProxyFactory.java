@@ -93,7 +93,7 @@ final class NeuronProxyFactory<T> implements Function<NeuronProxyContext<T>, T> 
 
         MethodHandler(final Method method) {
             this.method = method;
-            final String fieldName = method.getName() + "$proxy";
+            final String fieldName = method.getName() + "$supplier";
             try {
                 final Field field = neuronProxyClass.getDeclaredField(fieldName);
                 field.setAccessible(true);
