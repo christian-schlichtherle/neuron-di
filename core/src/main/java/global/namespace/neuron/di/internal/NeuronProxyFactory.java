@@ -39,16 +39,14 @@ final class NeuronProxyFactory<T> implements Function<NeuronProxyContext<T>, T> 
 
     NeuronProxyFactory(final NeuronProxyContext<T> ctx) {
         this.methodHandlers = ctx.apply((superclass, interfaces) -> {
-            final List<Method> proxiedMethods = MethodProxyFilter.<T>of(superclass, interfaces).apply(ctx);
+            final List<Method> proxiedMethods = ctx.proxiedMethods(superclass, interfaces);
             this.neuronProxyClass = ASM.neuronProxyClass(superclass, interfaces, proxiedMethods);
             return proxiedMethods;
         }).stream().map(MethodHandler::new).collect(Collectors.toList());
         try {
             final Constructor<?> neuronProxyConstructor = neuronProxyClass.getDeclaredConstructor();
             neuronProxyConstructor.setAccessible(true);
-            this.neuronProxyConstructor = lookup
-                    .unreflectConstructor(neuronProxyConstructor)
-                    .asType(objectSignature);
+            this.neuronProxyConstructor = lookup.unreflectConstructor(neuronProxyConstructor).asType(objectSignature);
         } catch (ReflectiveOperationException e) {
             throw new AssertionError(e);
         }
@@ -99,8 +97,8 @@ final class NeuronProxyFactory<T> implements Function<NeuronProxyContext<T>, T> 
             try {
                 final Field field = neuronProxyClass.getDeclaredField(fieldName);
                 field.setAccessible(true);
-                getter = lookup.unreflectGetter(field).asType(methodProxyObjectSignature);
-                setter = lookup.unreflectSetter(field).asType(voidObjectMethodProxySignature);
+                this.getter = lookup.unreflectGetter(field).asType(methodProxyObjectSignature);
+                this.setter = lookup.unreflectSetter(field).asType(voidObjectMethodProxySignature);
             } catch (ReflectiveOperationException e) {
                 throw new AssertionError(e);
             }

@@ -22,20 +22,26 @@ import java.util.Map;
 import static global.namespace.neuron.di.internal.Reflection.traverse;
 import static java.lang.reflect.Modifier.*;
 
-class OverridableMethodsCollector {
+final class OverridableMethodsCollector {
 
     private static final int PRIVATE_STATIC_FINAL = PRIVATE | STATIC | FINAL;
     private static final int PROTECTED_PUBLIC = PROTECTED | PUBLIC;
 
+    private final Package originPackage;
+
     final Map<String, Method> methods = new LinkedHashMap<>();
 
+    OverridableMethodsCollector(final Class<?> origin) {
+        this.originPackage = origin.getPackage();
+        add(origin);
+    }
+
     OverridableMethodsCollector add(final Class<?> clazz) {
-        final Package pkg = clazz.getPackage();
         traverse(c -> {
             for (final Method method : c.getDeclaredMethods()) {
                 final int modifiers = method.getModifiers();
                 if (0 == (modifiers & PRIVATE_STATIC_FINAL) &&
-                        (0 != (modifiers & PROTECTED_PUBLIC) || c.getPackage() == pkg)) {
+                        (0 != (modifiers & PROTECTED_PUBLIC) || c.getPackage() == originPackage)) {
                     methods.putIfAbsent(method.getName(), method);
                 }
             }

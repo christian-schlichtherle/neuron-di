@@ -16,6 +16,8 @@
 package global.namespace.neuron.di.internal;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -42,4 +44,37 @@ final class NeuronProxyContext<T> {
     T cast(Object obj) { return neuronClass().cast(obj); }
 
     private Class<T> neuronClass() { return element.runtimeClass(); }
+
+    List<Method> proxiedMethods(final Class<?> superclass, final Class<?>[] interfaces) {
+        return new Visitor<T>() {
+
+            final List<Method> methods;
+
+            {
+                final OverridableMethodsCollector c = new OverridableMethodsCollector(superclass);
+                for (Class<?> i : interfaces) {
+                    c.add(i);
+                }
+                methods = new ArrayList<>(c.methods.values());
+            }
+
+            final ArrayList<Method> filtered = new ArrayList<>(methods.size());
+
+            public void visitSynapse(final SynapseElement<T> element) { filtered.add(element.method()); }
+
+            public void visitMethod(final MethodElement<T> element) {
+                if (element.isCachingEnabled()) {
+                    filtered.add(element.method());
+                }
+            }
+
+            List<Method> apply() {
+                for (Method method : methods) {
+                    element(method).accept(this);
+                }
+                filtered.trimToSize();
+                return filtered;
+            }
+        }.apply();
+    }
 }
