@@ -33,12 +33,12 @@ class ASMNeuronClassVisitor extends ClassVisitor {
     private static final int ACC_FINAL_SUPER_SYNTHETIC = ACC_FINAL | ACC_SUPER | ACC_SYNTHETIC;
     private static final String CONSTRUCTOR_NAME = "<init>";
     private static final String ACCEPTS_NOTHING_AND_RETURNS_VOID = "()V";
+    private static final String PROVIDER = "$provider";
     private static final String SUPER = "super$";
-    private static final String SUPPLIER = "$supplier";
 
     private static final String objectDesc = getDescriptor(Object.class);
-    private static final String dependencySupplierName = getInternalName(DependencySupplier.class);
-    private static final String dependencySupplierDesc = getDescriptor(DependencySupplier.class);
+    private static final String dependencyProviderName = getInternalName(DependencyProvider.class);
+    private static final String dependencyProviderDesc = getDescriptor(DependencyProvider.class);
 
     private final String[] interfaces;
     private final String superName, neuronProxyName, neuronProxyDesc;
@@ -115,7 +115,7 @@ class ASMNeuronClassVisitor extends ClassVisitor {
                 mv.visitVarInsn(ALOAD, 0);
                 mv.visitVarInsn(ALOAD, 0);
                 mv.visitInvokeDynamicInsn("get",
-                        "(" + neuronProxyDesc + ")" + dependencySupplierDesc,
+                        "(" + neuronProxyDesc + ")" + dependencyProviderDesc,
                         new Handle(H_INVOKESTATIC,
                                 "java/lang/invoke/LambdaMetafactory",
                                 "metafactory",
@@ -128,7 +128,7 @@ class ASMNeuronClassVisitor extends ClassVisitor {
                                 desc,
                                 false),
                         Type.getType("()" + objectDesc));
-                mv.visitFieldInsn(PUTFIELD, neuronProxyName, name + SUPPLIER, dependencySupplierDesc);
+                mv.visitFieldInsn(PUTFIELD, neuronProxyName, name + PROVIDER, dependencyProviderDesc);
             }
         }
         mv.visitInsn(RETURN);
@@ -186,14 +186,14 @@ class ASMNeuronClassVisitor extends ClassVisitor {
                 }
 
                 void generateProxyField() {
-                    cv      .visitField(ACC_PRIVATE_SYNTHETIC, name + SUPPLIER, dependencySupplierDesc, null, null)
+                    cv      .visitField(ACC_PRIVATE_SYNTHETIC, name + PROVIDER, dependencyProviderDesc, null, null)
                             .visitEnd();
                 }
 
                 void generateProxyCallMethod() {
                     final MethodVisitor mv = beginMethod(name);
-                    mv.visitFieldInsn(GETFIELD, neuronProxyName, name + SUPPLIER, dependencySupplierDesc);
-                    mv.visitMethodInsn(INVOKEINTERFACE, dependencySupplierName, "get", "()Ljava/lang/Object;", true);
+                    mv.visitFieldInsn(GETFIELD, neuronProxyName, name + PROVIDER, dependencyProviderDesc);
+                    mv.visitMethodInsn(INVOKEINTERFACE, dependencyProviderName, "get", "()Ljava/lang/Object;", true);
                     if (!boxedReturnType.isAssignableFrom(Object.class)) {
                         mv.visitTypeInsn(CHECKCAST,
                                 boxedReturnType.isArray() ? boxedReturnTypeDesc : boxedReturnTypeName);

@@ -19,8 +19,8 @@ import global.namespace.neuron.di.java.CachingStrategy;
 
 interface HasCachingStrategy {
 
-    default <T> DependencySupplier<T> decorate(DependencySupplier<T> supplier) {
-        return realCachingStrategy().decorate(supplier);
+    default <T> DependencyProvider<T> decorate(DependencyProvider<T> provider) {
+        return realCachingStrategy().decorate(provider);
     }
 
     default RealCachingStrategy realCachingStrategy() { return RealCachingStrategy.valueOf(cachingStrategy()); }

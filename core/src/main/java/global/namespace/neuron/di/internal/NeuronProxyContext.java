@@ -18,7 +18,6 @@ package global.namespace.neuron.di.internal;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -35,7 +34,7 @@ final class NeuronProxyContext<T> {
 
     MethodElement<T> element(Method method) { return element.element(method); }
 
-    DependencySupplier<?> supplier(final Method method) {
+    DependencyProvider<?> provider(final Method method) {
         final Supplier<?> supplier = binding.apply(method);
         return supplier::get;
     }
