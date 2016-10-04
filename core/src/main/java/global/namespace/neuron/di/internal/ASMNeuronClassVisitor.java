@@ -36,8 +36,8 @@ class ASMNeuronClassVisitor extends ClassVisitor {
     private static final String PROXY = "$proxy";
 
     private static final String objectDesc = getDescriptor(Object.class);
-    private static final String methodProxyName = getInternalName(MethodProxy.class);
-    private static final String methodProxyDesc = getDescriptor(MethodProxy.class);
+    private static final String dependencySupplierName = getInternalName(DependencySupplier.class);
+    private static final String dependencySupplierDesc = getDescriptor(DependencySupplier.class);
 
     private final String[] interfaces;
     private final String superName, neuronProxyName, neuronProxyDesc;
@@ -114,7 +114,7 @@ class ASMNeuronClassVisitor extends ClassVisitor {
                 mv.visitVarInsn(ALOAD, 0);
                 mv.visitVarInsn(ALOAD, 0);
                 mv.visitInvokeDynamicInsn("get",
-                        "(" + neuronProxyDesc + ")" + methodProxyDesc,
+                        "(" + neuronProxyDesc + ")" + dependencySupplierDesc,
                         new Handle(H_INVOKESTATIC,
                                 "java/lang/invoke/LambdaMetafactory",
                                 "metafactory",
@@ -127,7 +127,7 @@ class ASMNeuronClassVisitor extends ClassVisitor {
                                 desc,
                                 false),
                         Type.getType("()" + objectDesc));
-                mv.visitFieldInsn(PUTFIELD, neuronProxyName, name + PROXY, methodProxyDesc);
+                mv.visitFieldInsn(PUTFIELD, neuronProxyName, name + PROXY, dependencySupplierDesc);
             }
         }
         mv.visitInsn(RETURN);
@@ -185,14 +185,14 @@ class ASMNeuronClassVisitor extends ClassVisitor {
                 }
 
                 void generateProxyField() {
-                    cv      .visitField(ACC_PRIVATE_SYNTHETIC, name + PROXY, methodProxyDesc, null, null)
+                    cv      .visitField(ACC_PRIVATE_SYNTHETIC, name + PROXY, dependencySupplierDesc, null, null)
                             .visitEnd();
                 }
 
                 void generateProxyCallMethod() {
                     final MethodVisitor mv = beginMethod(name);
-                    mv.visitFieldInsn(GETFIELD, neuronProxyName, name + PROXY, methodProxyDesc);
-                    mv.visitMethodInsn(INVOKEINTERFACE, methodProxyName, "get", "()Ljava/lang/Object;", true);
+                    mv.visitFieldInsn(GETFIELD, neuronProxyName, name + PROXY, dependencySupplierDesc);
+                    mv.visitMethodInsn(INVOKEINTERFACE, dependencySupplierName, "get", "()Ljava/lang/Object;", true);
                     if (!boxedReturnType.isAssignableFrom(Object.class)) {
                         mv.visitTypeInsn(CHECKCAST,
                                 boxedReturnType.isArray() ? boxedReturnTypeDesc : boxedReturnTypeName);

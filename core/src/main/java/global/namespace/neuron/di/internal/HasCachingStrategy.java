@@ -19,8 +19,8 @@ import global.namespace.neuron.di.java.CachingStrategy;
 
 interface HasCachingStrategy {
 
-    default <T, X extends Throwable> MethodProxy<T, X> decorate(MethodProxy<T, X> methodProxy) {
-        return realCachingStrategy().decorate(methodProxy);
+    default <T> DependencySupplier<T> decorate(DependencySupplier<T> supplier) {
+        return realCachingStrategy().decorate(supplier);
     }
 
     default RealCachingStrategy realCachingStrategy() { return RealCachingStrategy.valueOf(cachingStrategy()); }

@@ -17,8 +17,9 @@ package global.namespace.neuron.di.internal;
 
 /** Proxies calls to some parameterless method in a neuron proxy class. */
 @SuppressWarnings("WeakerAccess")
-public interface MethodProxy<T, X extends Throwable> {
+@FunctionalInterface
+public interface DependencySupplier<T> {
 
     /** Calls the proxied method and returns its return value. */
-    T get() throws X;
+    T get() throws Throwable;
 }
