@@ -25,17 +25,14 @@ import java.util.Map.Entry;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-/**
- * An incubator {@linkplain #breed(Class) breeds} or
- * {@linkplain #stub(Class) stubs} neurons.
- */
+/** An incubator {@linkplain #breed(Class) breeds} or {@linkplain #stub(Class) stubs} neurons. */
 public final class Incubator {
 
     private Incubator() { }
 
     /**
-     * Returns a new instance of the given runtime class which will resolve its
-     * dependencies lazily by recursively calling this method.
+     * Returns a new instance of the given runtime class which will resolve its dependencies lazily by recursively
+     * calling this method.
      */
     public static <T> T breed(Class<T> runtimeClass) {
         return breed(runtimeClass, synapse -> {
@@ -45,22 +42,18 @@ public final class Incubator {
     }
 
     /**
-     * Constructs an instance of the given runtime class which will resolve its
-     * dependencies lazily.
-     * This method is usually called from plugins for DI frameworks in order to
-     * integrate Neuron DI into the DI framework.
+     * Returns a new instance of the given runtime class which will resolve its dependencies lazily.
+     * This method is usually called from plugins for DI frameworks in order to integrate Neuron DI into the DI
+     * framework.
      *
-     * @param binding a function which looks up a binding for a given synapse
-     *                method (the injection point) and returns some supplier to
-     *                resolve the dependency.
-     *                The {@code binding} function is called before the call
-     *                to {@code breed} returns in order to look up the binding
-     *                eagerly.
-     *                The returned supplier is called later when the synapse
-     *                method is accessed in order to resolve the dependency
-     *                lazily.
-     *                Depending on the caching strategy for the synapse method,
-     *                the supplied dependency may get cached for future use.
+     * @param binding a function which looks up a binding for a given synapse method (the injection point) and returns
+     *                some supplier to resolve the dependency.
+     *                The {@code binding} function is called before the call to {@code breed} returns in order to look
+     *                up the binding eagerly.
+     *                The returned supplier is called later when the synapse method is accessed in order to resolve the
+     *                dependency lazily.
+     *                Depending on the caching strategy for the synapse method, the supplied dependency may get cached
+     *                for future use.
      */
     public static <T> T breed(Class<T> runtimeClass,
                               Function<Method, Supplier<?>> binding) {
@@ -69,23 +62,19 @@ public final class Incubator {
 
     /**
      * Starts constructing an instance of the given runtime class.
-     * This is a generic substitute for the {@code new} statement for use with
-     * neuron classes and interfaces.
-     * Note that the {@code new} statement can neither be used with neuron
-     * classes nor interfaces because they are abstract.
+     * This is a generic substitute for the {@code new} statement for use with neuron classes and interfaces.
+     * Note that the {@code new} statement can neither be used with neuron classes nor interfaces because they are
+     * abstract.
      * <p>
-     * If the given runtime class is a neuron class or interface, then when
-     * {@linkplain Stub#breed() breeding} the neuron, the binding definitions
-     * will be examined eagerly in order to create suppliers for resolving the
+     * If the given runtime class is a neuron class or interface, then when {@linkplain Stub#breed() breeding} the
+     * neuron, the binding definitions will be examined eagerly in order to create suppliers for resolving the
      * dependencies lazily.
-     * The suppliers will use the bound {@linkplain Bind#to(Object) values},
-     * {@linkplain Bind#to(Supplier) suppliers} or
+     * The suppliers will use the bound {@linkplain Bind#to(Object) values}, {@linkplain Bind#to(Supplier) suppliers} or
      * {@linkplain Bind#to(Function) functions}.
      * <p>
-     * If the given runtime class is not a neuron class or interface, then
-     * adding bindings will have no effect and when breeding, the incubator will
-     * just create a new instance of the given class using the public
-     * constructor without parameters.
+     * If the given runtime class is not a neuron class or interface, then adding bindings will have no effect and when
+     * breeding, the incubator will just create a new instance of the given class using the public constructor without
+     * parameters.
      */
     public static <T> Stub<T> stub(final Class<T> runtimeClass) {
         return new Stub<T>() {
@@ -181,9 +170,8 @@ public final class Incubator {
 
         /**
          * Enables or disables partial stubbing.
-         * By default, partial stubbing is disabled, resulting in an
-         * {@link IllegalStateException} when breeding a neuron and there is no
-         * binding defined for some synapse methods.
+         * By default, partial stubbing is disabled, resulting in an {@link IllegalStateException} when breeding a
+         * neuron and there is no binding defined for some synapse methods.
          *
          * @since Neuron DI 1.3
          */
@@ -194,8 +182,7 @@ public final class Incubator {
 
         /**
          * Breeds the stubbed neuron.
-         * If the runtime class is not a neuron class or interface, this method
-         * simply calls the default constructor.
+         * If the runtime class is not a neuron class or interface, this method simply calls the default constructor.
          */
         T breed();
     }
@@ -207,9 +194,7 @@ public final class Incubator {
         default Stub<T> to(U value) { return to(neuron -> value); }
 
         /** Binds the synapse method to the given supplier. */
-        default Stub<T> to(Supplier<? extends U> supplier) {
-            return to(neuron -> supplier.get());
-        }
+        default Stub<T> to(Supplier<? extends U> supplier) { return to(neuron -> supplier.get()); }
 
         /** Binds the synapse method to the given function. */
         Stub<T> to(Function<? super T, ? extends U> function);
