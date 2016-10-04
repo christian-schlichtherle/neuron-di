@@ -37,11 +37,10 @@ final class NeuronProxyFactory<T> implements Function<NeuronProxyContext<T>, T> 
     private final MethodHandle neuronProxyConstructor;
 
     NeuronProxyFactory(final NeuronProxyContext<T> ctx) {
-        this.methodHandlers = ctx.apply(neuronType -> {
-            final List<Method> providerMethods = ctx.providerMethods(neuronType);
+        this.methodHandlers = ctx.map((neuronType, providerMethods) -> {
             this.neuronProxyClass = ASM.neuronProxyClass(neuronType, providerMethods);
-            return providerMethods;
-        }).stream().map(MethodHandler::new).collect(Collectors.toList());
+            return providerMethods.stream().map(MethodHandler::new).collect(Collectors.toList());
+        });
         try {
             final Constructor<?> neuronProxyConstructor = neuronProxyClass.getDeclaredConstructor();
             neuronProxyConstructor.setAccessible(true);
