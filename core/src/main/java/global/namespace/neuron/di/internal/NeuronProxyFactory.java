@@ -15,7 +15,7 @@
  */
 package global.namespace.neuron.di.internal;
 
-import global.namespace.neuron.di.java.DependencySupplier;
+import global.namespace.neuron.di.java.DependencyProvider;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
@@ -30,8 +30,8 @@ import java.util.stream.Collectors;
 final class NeuronProxyFactory<T> implements Function<NeuronProxyContext<T>, T> {
 
     private static final MethodHandles.Lookup lookup = MethodHandles.lookup();
-    private static final MethodType dependencySupplierObjectSignature = MethodType.methodType(DependencySupplier.class, Object.class);
-    private static final MethodType voidObjectDependencySupplierSignature = MethodType.methodType(Void.TYPE, Object.class, DependencySupplier.class);
+    private static final MethodType dependencyProviderObjectSignature = MethodType.methodType(DependencyProvider.class, Object.class);
+    private static final MethodType voidObjectDependencyProviderSignature = MethodType.methodType(Void.TYPE, Object.class, DependencyProvider.class);
     private static final MethodType objectSignature = MethodType.methodType(Object.class);
 
     private List<MethodHandler> methodHandlers;
@@ -69,11 +69,11 @@ final class NeuronProxyFactory<T> implements Function<NeuronProxyContext<T>, T> 
             }
 
             public void visitSynapse(SynapseElement<T> element) {
-                boundMethodHandler.setMethodProxy(element.decorate(ctx.supplier(element.method())));
+                boundMethodHandler.setProvider(element.decorate(ctx.provider(element.method())));
             }
 
             public void visitMethod(MethodElement<T> element) {
-                boundMethodHandler.setMethodProxy(element.decorate(boundMethodHandler.getMethodProxy()));
+                boundMethodHandler.setProvider(element.decorate(boundMethodHandler.getProvider()));
             }
         }.apply();
     }
@@ -93,12 +93,12 @@ final class NeuronProxyFactory<T> implements Function<NeuronProxyContext<T>, T> 
 
         MethodHandler(final Method method) {
             this.method = method;
-            final String fieldName = method.getName() + "$supplier";
+            final String fieldName = method.getName() + "$provider";
             try {
                 final Field field = neuronProxyClass.getDeclaredField(fieldName);
                 field.setAccessible(true);
-                this.getter = lookup.unreflectGetter(field).asType(dependencySupplierObjectSignature);
-                this.setter = lookup.unreflectSetter(field).asType(voidObjectDependencySupplierSignature);
+                this.getter = lookup.unreflectGetter(field).asType(dependencyProviderObjectSignature);
+                this.setter = lookup.unreflectSetter(field).asType(voidObjectDependencyProviderSignature);
             } catch (ReflectiveOperationException e) {
                 throw new AssertionError(e);
             }
@@ -114,17 +114,17 @@ final class NeuronProxyFactory<T> implements Function<NeuronProxyContext<T>, T> 
 
             private BoundMethodHandler(final T neuronProxy) { this.neuronProxy = neuronProxy; }
 
-            DependencySupplier<?> getMethodProxy() {
+            DependencyProvider<?> getProvider() {
                 try {
-                    return (DependencySupplier<?>) getter.invokeExact(neuronProxy);
+                    return (DependencyProvider<?>) getter.invokeExact(neuronProxy);
                 } catch (Throwable e) {
                     throw new AssertionError(e);
                 }
             }
 
-            void setMethodProxy(final DependencySupplier<?> supplier) {
+            void setProvider(final DependencyProvider<?> provider) {
                 try {
-                    setter.invokeExact(neuronProxy, supplier);
+                    setter.invokeExact(neuronProxy, provider);
                 } catch (Throwable e) {
                     throw new AssertionError(e);
                 }

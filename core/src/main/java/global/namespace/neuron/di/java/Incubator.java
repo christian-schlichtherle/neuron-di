@@ -55,7 +55,7 @@ public final class Incubator {
      *                for future use.
      */
     public static <T> T breed(Class<T> runtimeClass,
-                              Function<Method, DependencySupplier<?>> binding) {
+                              Function<Method, DependencyProvider<?>> binding) {
         return RealIncubator.breed(runtimeClass, binding);
     }
 
@@ -69,7 +69,7 @@ public final class Incubator {
      * neuron, the binding definitions will be examined eagerly in order to create suppliers for resolving the
      * dependencies lazily.
      * The suppliers will use the bound {@linkplain Bind#to(Object) values},
-     * {@linkplain Bind#to(DependencySupplier) suppliers} or {@linkplain Bind#to(DependencyFunction) functions}.
+     * {@linkplain Bind#to(DependencyProvider) suppliers} or {@linkplain Bind#to(DependencyFunction) functions}.
      * <p>
      * If the given runtime class is not a neuron class or interface, then adding bindings will have no effect and when
      * breeding, the incubator will just create a new instance of the given class using the public constructor without
@@ -122,9 +122,9 @@ public final class Incubator {
                 return neuron;
             }
 
-            DependencySupplier<?> binding(final Method method) {
+            DependencyProvider<?> binding(final Method method) {
                 synapses.add(method);
-                return new DependencySupplier<Object>() {
+                return new DependencyProvider<Object>() {
 
                     DependencyFunction<? super T, ?> replacement;
 
@@ -193,7 +193,7 @@ public final class Incubator {
         default Stub<T> to(U value) { return to(neuron -> value); }
 
         /** Binds the synapse method to the given supplier. */
-        default Stub<T> to(DependencySupplier<? extends U> supplier) { return to(neuron -> supplier.get()); }
+        default Stub<T> to(DependencyProvider<? extends U> supplier) { return to(neuron -> supplier.get()); }
 
         /** Binds the synapse method to the given function. */
         Stub<T> to(DependencyFunction<? super T, ? extends U> function);

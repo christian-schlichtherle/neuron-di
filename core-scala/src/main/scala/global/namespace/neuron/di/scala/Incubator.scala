@@ -18,7 +18,7 @@ package global.namespace.neuron.di.scala
 import java.lang.reflect.Method
 import java.util.function.{Function => jFunction, Supplier => jSupplier}
 
-import global.namespace.neuron.di.java.{DependencyFunction, DependencySupplier, Incubator => jIncubator}
+import global.namespace.neuron.di.java.{DependencyFunction, DependencyProvider, Incubator => jIncubator}
 import global.namespace.neuron.di.internal.scala.runtimeClassOf
 
 import scala.reflect._
@@ -28,7 +28,7 @@ object Incubator {
   def breed[A <: AnyRef : ClassTag]: A = jIncubator breed runtimeClassOf[A]
 
   def breed[A <: AnyRef : ClassTag](binding: Method => () => _): A =
-    jIncubator.breed(runtimeClassOf[A], (method: Method) => binding(method): DependencySupplier[_])
+    jIncubator.breed(runtimeClassOf[A], (method: Method) => binding(method): DependencyProvider[_])
 
   case class stub[A <: AnyRef](implicit classTag: ClassTag[A]) {
     self =>
@@ -68,7 +68,7 @@ object Incubator {
     def apply(a: A): B = fun(a)
   }
 
-  private implicit class DependencySupplierAdapter[A](supplier: () => A) extends DependencySupplier[A] {
+  private implicit class DependencyProviderAdapter[A](supplier: () => A) extends DependencyProvider[A] {
 
     def get(): A = supplier()
   }

@@ -15,7 +15,7 @@
  */
 package global.namespace.neuron.di.internal;
 
-import global.namespace.neuron.di.java.DependencySupplier;
+import global.namespace.neuron.di.java.DependencyProvider;
 
 import java.lang.reflect.Method;
 import java.util.Collections;
@@ -31,7 +31,7 @@ public final class RealIncubator {
     private RealIncubator() { }
 
     public static <T> T breed(final Class<T> runtimeClass,
-                              final Function<Method, DependencySupplier<?>> binding) {
+                              final Function<Method, DependencyProvider<?>> binding) {
 
         class ClassVisitor implements Visitor<T> {
 

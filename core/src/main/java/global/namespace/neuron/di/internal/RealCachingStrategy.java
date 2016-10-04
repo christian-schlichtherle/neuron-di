@@ -16,7 +16,7 @@
 package global.namespace.neuron.di.internal;
 
 import global.namespace.neuron.di.java.CachingStrategy;
-import global.namespace.neuron.di.java.DependencySupplier;
+import global.namespace.neuron.di.java.DependencyProvider;
 
 /** Mirrors {@link CachingStrategy}. */
 enum RealCachingStrategy {
@@ -26,7 +26,7 @@ enum RealCachingStrategy {
     DISABLED {
 
         @Override
-        <T> DependencySupplier<T> decorate(DependencySupplier<T> supplier) { return supplier; }
+        <T> DependencyProvider<T> decorate(DependencyProvider<T> provider) { return provider; }
     },
 
     /** @see #valueOf(CachingStrategy) */
@@ -34,15 +34,15 @@ enum RealCachingStrategy {
     NOT_THREAD_SAFE {
 
         @Override
-        <T> DependencySupplier<T> decorate(final DependencySupplier<T> supplier) {
-            return new DependencySupplier<T>() {
+        <T> DependencyProvider<T> decorate(final DependencyProvider<T> provider) {
+            return new DependencyProvider<T>() {
 
                 T returnValue;
 
                 @Override
                 public T get() throws Throwable {
                     final T value = returnValue;
-                    return null != value ? value : (returnValue = supplier.get());
+                    return null != value ? value : (returnValue = provider.get());
                 }
             };
         }
@@ -53,8 +53,8 @@ enum RealCachingStrategy {
     THREAD_SAFE {
 
         @Override
-        <T> DependencySupplier<T> decorate(final DependencySupplier<T> supplier) {
-            return new DependencySupplier<T>() {
+        <T> DependencyProvider<T> decorate(final DependencyProvider<T> provider) {
+            return new DependencyProvider<T>() {
 
                 volatile T returnValue;
 
@@ -64,7 +64,7 @@ enum RealCachingStrategy {
                     if (null == (value = returnValue)) {
                         synchronized (this) {
                             if (null == (value = returnValue)) {
-                                returnValue = value = supplier.get();
+                                returnValue = value = provider.get();
                             }
                         }
                     }
@@ -79,8 +79,8 @@ enum RealCachingStrategy {
     THREAD_LOCAL {
 
         @Override
-        <T> DependencySupplier<T> decorate(final DependencySupplier<T> supplier) {
-            return new DependencySupplier<T>() {
+        <T> DependencyProvider<T> decorate(final DependencyProvider<T> provider) {
+            return new DependencyProvider<T>() {
 
                 final ThreadLocal<T> results = new ThreadLocal<>();
 
@@ -88,7 +88,7 @@ enum RealCachingStrategy {
                 public T get() throws Throwable {
                     T result = results.get();
                     if (null == result) {
-                        results.set(result = supplier.get());
+                        results.set(result = provider.get());
                     }
                     return result;
                 }
@@ -98,5 +98,5 @@ enum RealCachingStrategy {
 
     static RealCachingStrategy valueOf(CachingStrategy strategy) { return valueOf(strategy.name()); }
 
-    abstract <T> DependencySupplier<T> decorate(DependencySupplier<T> supplier);
+    abstract <T> DependencyProvider<T> decorate(DependencyProvider<T> provider);
 }

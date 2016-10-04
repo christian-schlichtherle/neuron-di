@@ -15,10 +15,8 @@
  */
 package global.namespace.neuron.di.java;
 
-/** Proxies calls to some parameterless method in a neuron proxy class. */
 @FunctionalInterface
-public interface DependencySupplier<T> {
+public interface DependencyProvider<T> {
 
-    /** Calls the proxied method and returns its return value. */
     T get() throws Throwable;
 }

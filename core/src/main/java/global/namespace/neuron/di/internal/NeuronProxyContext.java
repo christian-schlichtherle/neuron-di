@@ -15,7 +15,7 @@
  */
 package global.namespace.neuron.di.internal;
 
-import global.namespace.neuron.di.java.DependencySupplier;
+import global.namespace.neuron.di.java.DependencyProvider;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -25,17 +25,17 @@ import java.util.function.Function;
 final class NeuronProxyContext<T> {
 
     private final NeuronElement<T> element;
-    private final Function<Method, DependencySupplier<?>> binding;
+    private final Function<Method, DependencyProvider<?>> binding;
 
     NeuronProxyContext(final NeuronElement<T> element,
-                       final Function<Method, DependencySupplier<?>> binding) {
+                       final Function<Method, DependencyProvider<?>> binding) {
         this.element = element;
         this.binding = binding;
     }
 
     MethodElement<T> element(Method method) { return element.element(method); }
 
-    DependencySupplier<?> supplier(Method method) { return binding.apply(method); }
+    DependencyProvider<?> provider(Method method) { return binding.apply(method); }
 
     <U> U apply(Function<Class<? extends T>, U> function) { return new ClassAdapter<>(function).apply(neuronType()); }
 
