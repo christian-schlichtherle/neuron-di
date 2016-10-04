@@ -79,7 +79,7 @@ public final class Incubator {
         return new Stub<T>() {
 
             boolean partial;
-            List<Entry<Function<T, ?>, DependencyFunction<? super T, ?>>> bindings =
+            List<Entry<DependencyFunction<T, ?>, DependencyFunction<? super T, ?>>> bindings =
                     new LinkedList<>();
 
             List<Method> synapses = new LinkedList<>();
@@ -95,7 +95,7 @@ public final class Incubator {
             }
 
             @Override
-            public <U> Bind<T, U> bind(final Function<T, U> methodReference) {
+            public <U> Bind<T, U> bind(final DependencyFunction<T, U> methodReference) {
                 return replacement -> {
                     bindings.add(new SimpleImmutableEntry<>(methodReference, replacement));
                     return this;
@@ -147,19 +147,25 @@ public final class Incubator {
 
             void initReplacementProxies() {
                 try {
-                    for (final Entry<Function<T, ?>, DependencyFunction<? super T, ?>> binding : bindings) {
-                        final Function<T, ?> methodReference = binding.getKey();
+                    for (final Entry<DependencyFunction<T, ?>, DependencyFunction<? super T, ?>> binding : bindings) {
+                        final DependencyFunction<T, ?> methodReference = binding.getKey();
                         currentReplacement = binding.getValue();
                         currentPosition++;
                         try {
                             methodReference.apply(neuron);
-                            throw new IllegalStateException("Illegal stubbing: The function parameter of the `bind` call at position " + currentPosition + " does not call a synapse method.");
+                            throw illegalStateException(null);
                         } catch (BindingSuccessException ignored) {
+                        } catch (Throwable e) {
+                            throw illegalStateException(e);
                         }
                     }
                 } finally {
                     currentReplacement = null;
                 }
+            }
+
+            IllegalStateException illegalStateException(Throwable cause) {
+                return new IllegalStateException("Illegal stubbing: The function parameter of the `bind` call at position " + currentPosition + " does not call a synapse method.", cause);
             }
         };
     }
@@ -177,7 +183,7 @@ public final class Incubator {
         Stub<T> partial(boolean value);
 
         /** Binds the synapse method identified by the given method reference. */
-        <U> Bind<T, U> bind(Function<T, U> methodReference);
+        <U> Bind<T, U> bind(DependencyFunction<T, U> methodReference);
 
         /**
          * Breeds the stubbed neuron.
