@@ -45,8 +45,9 @@ final class NeuronProxyContext<T> {
 
     private Class<T> neuronType() { return element.runtimeClass(); }
 
-    List<Method> proxiedMethods(final Class<? extends T> type) {
-        final OverridableMethodsCollector collector = new OverridableMethodsCollector(type.getPackage()).add(type);
+    List<Method> proxiedMethods(final Class<? extends T> neuronType) {
+        final OverridableMethodsCollector collector = new OverridableMethodsCollector(neuronType.getPackage())
+                .add(neuronType);
         return new Visitor<T>() {
 
             final List<Method> methods = collector.result();
