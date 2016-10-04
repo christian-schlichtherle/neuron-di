@@ -18,7 +18,9 @@ package global.namespace.neuron.di.internal;
 import org.objectweb.asm.Type;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import static global.namespace.neuron.di.internal.Reflection.traverse;
@@ -29,25 +31,26 @@ final class OverridableMethodsCollector {
     private static final int PRIVATE_STATIC_FINAL = PRIVATE | STATIC | FINAL;
     private static final int PROTECTED_PUBLIC = PROTECTED | PUBLIC;
 
-    private final Package originPackage;
+    private final Package pkg;
+    private final Map<String, Method> methods = new LinkedHashMap<>();
 
-    final Map<String, Method> methods = new LinkedHashMap<>();
+    OverridableMethodsCollector(final Package pkg) { this.pkg = pkg; }
 
-    OverridableMethodsCollector(final Class<?> origin) {
-        this.originPackage = origin.getPackage();
-        add(origin);
-    }
+    List<Method> result() { return new ArrayList<>(methods.values()); }
 
-    OverridableMethodsCollector add(final Class<?> clazz) {
-        traverse(c -> {
-            for (final Method method : c.getDeclaredMethods()) {
+    OverridableMethodsCollector add(final Class<?> type) {
+        traverse(t -> {
+            for (final Method method : t.getDeclaredMethods()) {
                 final int modifiers = method.getModifiers();
                 if (0 == (modifiers & PRIVATE_STATIC_FINAL) &&
-                        (0 != (modifiers & PROTECTED_PUBLIC) || c.getPackage() == originPackage)) {
-                    methods.putIfAbsent(method.getName() + Type.getMethodDescriptor(method), method);
+                        (0 != (modifiers & PROTECTED_PUBLIC) || t.getPackage() == pkg)) {
+                    final String name = method.getName();
+                    final String desc = Type.getMethodDescriptor(method);
+                    assert '(' == desc.charAt(0);
+                    methods.putIfAbsent(name + desc, method);
                 }
             }
-        }).accept(clazz);
+        }).accept(type);
         return this;
     }
 }

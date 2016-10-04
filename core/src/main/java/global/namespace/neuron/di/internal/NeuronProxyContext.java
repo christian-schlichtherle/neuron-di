@@ -46,17 +46,15 @@ final class NeuronProxyContext<T> {
     private Class<T> neuronClass() { return element.runtimeClass(); }
 
     List<Method> proxiedMethods(final Class<?> superclass, final Class<?>[] interfaces) {
+        final OverridableMethodsCollector collector =
+                new OverridableMethodsCollector((0 == interfaces.length ? superclass : interfaces[0]).getPackage())
+                        .add(superclass);
+        for (Class<?> i : interfaces) {
+            collector.add(i);
+        }
         return new Visitor<T>() {
 
-            final List<Method> methods;
-
-            {
-                final OverridableMethodsCollector collector = new OverridableMethodsCollector(superclass);
-                for (Class<?> i : interfaces) {
-                    collector.add(i);
-                }
-                methods = new ArrayList<>(collector.methods.values());
-            }
+            final List<Method> methods = collector.result();
 
             final ArrayList<Method> filtered = new ArrayList<>(methods.size());
 
