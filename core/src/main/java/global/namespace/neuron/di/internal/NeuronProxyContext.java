@@ -51,11 +51,11 @@ final class NeuronProxyContext<T> {
             final List<Method> methods;
 
             {
-                final OverridableMethodsCollector c = new OverridableMethodsCollector(superclass);
+                final OverridableMethodsCollector collector = new OverridableMethodsCollector(superclass);
                 for (Class<?> i : interfaces) {
-                    c.add(i);
+                    collector.add(i);
                 }
-                methods = new ArrayList<>(c.methods.values());
+                methods = new ArrayList<>(collector.methods.values());
             }
 
             final ArrayList<Method> filtered = new ArrayList<>(methods.size());

@@ -15,6 +15,8 @@
  */
 package global.namespace.neuron.di.internal;
 
+import org.objectweb.asm.Type;
+
 import java.lang.reflect.Method;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -42,7 +44,7 @@ final class OverridableMethodsCollector {
                 final int modifiers = method.getModifiers();
                 if (0 == (modifiers & PRIVATE_STATIC_FINAL) &&
                         (0 != (modifiers & PROTECTED_PUBLIC) || c.getPackage() == originPackage)) {
-                    methods.putIfAbsent(method.getName(), method);
+                    methods.putIfAbsent(method.getName() + Type.getMethodDescriptor(method), method);
                 }
             }
         }).accept(clazz);
