@@ -22,7 +22,7 @@ import com.google.inject._
 import com.google.inject.name.Names.named
 import global.namespace.neuron.di.guice.java.NeuronProviderSpec._
 import global.namespace.neuron.di.guice.java.sample.{NeuronWithQualifiedSynapses, TestBindingAnnotation, TestQualifier}
-import global.namespace.neuron.di.java.{DependencyFunction, DependencyProvider, Incubator}
+import global.namespace.neuron.di.java.{DependencyResolver, DependencyProvider, Incubator}
 import org.mockito.Mockito._
 import org.scalatest.Matchers._
 import org.scalatest.WordSpec
@@ -78,7 +78,7 @@ private object NeuronProviderSpec {
     def apply(a: A): B = fun(a)
   }
 
-  implicit class DependencyFunctionAdapter[A, B](fun: A => B) extends DependencyFunction[A, B] {
+  implicit class DependencyResolverAdapter[A, B](fun: A => B) extends DependencyResolver[A, B] {
 
     def apply(a: A): B = fun(a)
   }

@@ -16,7 +16,7 @@
 package global.namespace.neuron.di.java;
 
 @FunctionalInterface
-public interface DependencyFunction<T, R> {
+public interface DependencyResolver<T, R> {
 
     R apply(T t) throws Throwable;
 }

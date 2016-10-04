@@ -18,7 +18,7 @@ package global.namespace.neuron.di.scala
 import java.lang.reflect.Method
 import java.util.function.{Function => jFunction, Supplier => jSupplier}
 
-import global.namespace.neuron.di.java.{DependencyFunction, DependencyProvider, Incubator => jIncubator}
+import global.namespace.neuron.di.java.{DependencyResolver, DependencyProvider, Incubator => jIncubator}
 import global.namespace.neuron.di.internal.scala.runtimeClassOf
 
 import scala.reflect._
@@ -63,7 +63,7 @@ object Incubator {
     def apply(a: A): B = fun(a)
   }
 
-  private implicit class DependencyFunctionAdapter[A, B](fun: A => B) extends DependencyFunction[A, B] {
+  private implicit class DependencyResolverAdapter[A, B](fun: A => B) extends DependencyResolver[A, B] {
 
     def apply(a: A): B = fun(a)
   }
