@@ -37,21 +37,16 @@ final class NeuronProxyContext<T> {
 
     Supplier<?> supplier(Method method) { return binding.apply(method); }
 
-    <U> U apply(BiFunction<Class<?>, Class<?>[], U> function) {
-        return new ClassAdapter<T, U>(function).apply(neuronClass());
+    <U> U apply(Function<Class<? extends T>, U> function) {
+        return new ClassAdapter<>(function).apply(neuronType());
     }
 
-    T cast(Object obj) { return neuronClass().cast(obj); }
+    T cast(Object obj) { return neuronType().cast(obj); }
 
-    private Class<T> neuronClass() { return element.runtimeClass(); }
+    private Class<T> neuronType() { return element.runtimeClass(); }
 
-    List<Method> proxiedMethods(final Class<?> superclass, final Class<?>[] interfaces) {
-        final OverridableMethodsCollector collector =
-                new OverridableMethodsCollector((0 == interfaces.length ? superclass : interfaces[0]).getPackage())
-                        .add(superclass);
-        for (Class<?> i : interfaces) {
-            collector.add(i);
-        }
+    List<Method> proxiedMethods(final Class<? extends T> type) {
+        final OverridableMethodsCollector collector = new OverridableMethodsCollector(type.getPackage()).add(type);
         return new Visitor<T>() {
 
             final List<Method> methods = collector.result();

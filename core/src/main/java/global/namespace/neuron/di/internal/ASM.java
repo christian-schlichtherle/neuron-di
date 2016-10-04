@@ -32,16 +32,24 @@ import static org.objectweb.asm.Type.getInternalName;
 final class ASM implements Opcodes {
 
     private static final String NEURON = "$$neuron";
+    private static final Class<?>[] NO_CLASSES = new Class<?>[0];
 
     /** Returns a class which proxies the given Neuron class or interface. */
-    static <T> Class<? extends T> neuronProxyClass(final Class<T> superclass, final Class<?>[] interfaces, final List<Method> proxiedMethods) {
-        @SuppressWarnings("unchecked")
-        final Class<T> clazz = 0 == interfaces.length ? superclass : (Class<T>) interfaces[0];
-        final String implName = clazz.getName() + NEURON;
-        final ClassReader cr = classReader(clazz);
+    static <T> Class<? extends T> neuronProxyClass(final Class<? extends T> neuronType, final List<Method> proxiedMethods) {
+        final Class<?> superclass;
+        final Class<?>[] interfaces;
+        if (neuronType.isInterface()) {
+            superclass = Object.class;
+            interfaces = new Class<?>[] { neuronType };
+        } else {
+            superclass = neuronType;
+            interfaces = NO_CLASSES;
+        }
+        final String implName = neuronType.getName() + NEURON;
+        final ClassReader cr = classReader(neuronType);
         final ClassWriter cw = new ClassWriter(cr, 0);
         cr.accept(new ASMNeuronClassVisitor(cw, superclass, interfaces, proxiedMethods, internalName(implName)), SKIP_DEBUG);
-        return defineSubclass(clazz, implName, cw.toByteArray());
+        return defineSubclass(neuronType, implName, cw.toByteArray());
     }
 
     private static <T> ClassReader classReader(final Class<T> clazz) {

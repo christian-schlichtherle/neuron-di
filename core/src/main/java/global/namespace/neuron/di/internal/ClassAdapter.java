@@ -21,48 +21,35 @@ import java.util.function.Function;
 
 import static global.namespace.neuron.di.internal.Reflection.associatedClassLoader;
 
-/**
- * Adapts a consumer which accepts a class object reflecting a super class
- * and an array of class objects reflecting interfaces to a consumer which
- * accepts a class object reflecting a class or interface.
- */
+/** Adapts a function which accepts a class object reflecting a super class or interface. */
 final class ClassAdapter<T, U> implements Function<Class<T>, U> {
 
-    private static Class<?>[] NO_CLASSES = new Class<?>[0];
+    private final Function<Class<? extends T>, U> function;
 
-    private final BiFunction<Class<?>, Class<?>[], U> function;
+    /** @param function a function which accepts a class object reflecting a super class or interface. */
+    ClassAdapter(final Function<Class<? extends T>, U> function) { this.function = function; }
 
-    /**
-     * @param function a consumer which accepts a class object reflecting a
-     *                 super class and an array of class objects reflecting
-     *                 interfaces.
-     */
-    ClassAdapter(final BiFunction<Class<?>, Class<?>[], U> function) { this.function = function; }
-
-    /** Calls the adapted consumer and returns its value. */
+    /** Calls the adapted function and returns its value. */
     @Override
     public U apply(final Class<T> runtimeClass) {
-        final Class<?> superclass;
-        final Class<?>[] interfaces;
+        final Class<? extends T> superclass;
         if (runtimeClass.isInterface()) {
-            final Optional<Class<?>> lookup = lookupScalaCompanion(runtimeClass);
+            final Optional<Class<? extends T>> lookup = lookupScalaCompanion(runtimeClass);
             if (lookup.isPresent()) {
                 superclass = lookup.get();
-                interfaces = NO_CLASSES;
             } else {
-                superclass = Object.class;
-                interfaces = new Class<?>[] { runtimeClass };
+                superclass = runtimeClass;
             }
         } else {
             superclass = runtimeClass;
-            interfaces = NO_CLASSES;
         }
-        return function.apply(superclass, interfaces);
+        return function.apply(superclass);
     }
 
-    private Optional<Class<?>> lookupScalaCompanion(final Class<?> runtimeClass) {
+    @SuppressWarnings("unchecked")
+    private Optional<Class<? extends T>> lookupScalaCompanion(final Class<T> runtimeClass) {
         try {
-            return Optional.of(associatedClassLoader(runtimeClass)
+            return Optional.of((Class<? extends T>) associatedClassLoader(runtimeClass)
                     .loadClass(runtimeClass.getName() + "$$shim"));
         } catch (ClassNotFoundException e) {
             return Optional.empty();
