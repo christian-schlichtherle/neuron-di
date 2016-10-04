@@ -22,7 +22,6 @@ import java.util.WeakHashMap;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-/** A real incubator {@linkplain #breed(Class, Function) breeds} neurons. */
 public final class RealIncubator {
 
     private static final Map<Class<?>, CGFactory> factories =
@@ -30,22 +29,6 @@ public final class RealIncubator {
 
     private RealIncubator() { }
 
-    /**
-     * Returns a new instance of the given runtime class which will resolve its
-     * dependencies lazily.
-     *
-     * @param binding a function which looks up a binding for a given synapse
-     *                method (the injection point) and returns some supplier to
-     *                resolve the dependency.
-     *                The {@code binding} function is called before the call
-     *                to {@code breed} returns in order to look up the binding
-     *                eagerly.
-     *                The returned supplier is called later when the synapse
-     *                method is accessed in order to resolve the dependency
-     *                lazily.
-     *                Depending on the caching strategy for the synapse method,
-     *                the supplied dependency may get cached for future use.
-     */
     public static <T> T breed(final Class<T> runtimeClass,
                               final Function<Method, Supplier<?>> binding) {
 
