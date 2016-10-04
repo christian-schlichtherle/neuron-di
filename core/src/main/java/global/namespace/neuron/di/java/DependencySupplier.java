@@ -13,20 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package global.namespace.neuron.di.internal;
+package global.namespace.neuron.di.java;
 
-import global.namespace.neuron.di.java.CachingStrategy;
-import global.namespace.neuron.di.java.DependencySupplier;
+/** Proxies calls to some parameterless method in a neuron proxy class. */
+@FunctionalInterface
+public interface DependencySupplier<T> {
 
-interface HasCachingStrategy {
-
-    default <T> DependencySupplier<T> decorate(DependencySupplier<T> supplier) {
-        return realCachingStrategy().decorate(supplier);
-    }
-
-    default RealCachingStrategy realCachingStrategy() { return RealCachingStrategy.valueOf(cachingStrategy()); }
-
-    default boolean isCachingEnabled() { return cachingStrategy().isEnabled(); }
-
-    CachingStrategy cachingStrategy();
+    /** Calls the proxied method and returns its return value. */
+    T get() throws Throwable;
 }

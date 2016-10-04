@@ -15,12 +15,13 @@
  */
 package global.namespace.neuron.di.internal;
 
+import global.namespace.neuron.di.java.DependencySupplier;
+
 import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 public final class RealIncubator {
 
@@ -30,7 +31,7 @@ public final class RealIncubator {
     private RealIncubator() { }
 
     public static <T> T breed(final Class<T> runtimeClass,
-                              final Function<Method, Supplier<?>> binding) {
+                              final Function<Method, DependencySupplier<?>> binding) {
 
         class ClassVisitor implements Visitor<T> {
 

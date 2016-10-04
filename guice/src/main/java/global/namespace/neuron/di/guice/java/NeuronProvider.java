@@ -17,6 +17,7 @@ package global.namespace.neuron.di.guice.java;
 
 import com.google.inject.*;
 import global.namespace.neuron.di.java.Caching;
+import global.namespace.neuron.di.java.DependencySupplier;
 import global.namespace.neuron.di.java.Incubator;
 import global.namespace.neuron.di.java.Neuron;
 
@@ -43,7 +44,7 @@ abstract class NeuronProvider<T> implements Provider<T> {
         return instance;
     }
 
-    private Supplier<?> binding(final Method method) {
+    private DependencySupplier<?> binding(final Method method) {
         final TypeLiteral<?> returnTypeLiteral = typeLiteral().getReturnType(method);
         final Key<?> returnKey = Arrays
                 .stream(method.getDeclaredAnnotations())

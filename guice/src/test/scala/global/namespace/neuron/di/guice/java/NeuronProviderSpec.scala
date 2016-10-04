@@ -22,7 +22,7 @@ import com.google.inject._
 import com.google.inject.name.Names.named
 import global.namespace.neuron.di.guice.java.NeuronProviderSpec._
 import global.namespace.neuron.di.guice.java.sample.{NeuronWithQualifiedSynapses, TestBindingAnnotation, TestQualifier}
-import global.namespace.neuron.di.java.Incubator
+import global.namespace.neuron.di.java.{DependencyFunction, DependencySupplier, Incubator}
 import org.mockito.Mockito._
 import org.scalatest.Matchers._
 import org.scalatest.WordSpec
@@ -42,7 +42,7 @@ class NeuronProviderSpec extends WordSpec {
             case "typeLiteral" => TypeLiteral get classOf[NeuronWithQualifiedSynapses]
           }
           () => result
-        }: jSupplier[_]
+        }: DependencySupplier[_]
       )
 
       val fooKey = Key.get(classOf[String], named("foo"))
@@ -78,7 +78,12 @@ private object NeuronProviderSpec {
     def apply(a: A): B = fun(a)
   }
 
-  implicit class SupplierAdapter[A](supplier: () => A) extends jSupplier[A] {
+  implicit class DependencyFunctionAdapter[A, B](fun: A => B) extends DependencyFunction[A, B] {
+
+    def apply(a: A): B = fun(a)
+  }
+
+  implicit class DependencySupplierAdapter[A](supplier: () => A) extends DependencySupplier[A] {
 
     def get(): A = supplier()
   }

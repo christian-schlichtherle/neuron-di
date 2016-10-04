@@ -23,7 +23,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 /** An incubator {@linkplain #breed(Class) breeds} or {@linkplain #stub(Class) stubs} neurons. */
 public final class Incubator {
@@ -56,7 +55,7 @@ public final class Incubator {
      *                for future use.
      */
     public static <T> T breed(Class<T> runtimeClass,
-                              Function<Method, Supplier<?>> binding) {
+                              Function<Method, DependencySupplier<?>> binding) {
         return RealIncubator.breed(runtimeClass, binding);
     }
 
@@ -69,8 +68,8 @@ public final class Incubator {
      * If the given runtime class is a neuron class or interface, then when {@linkplain Stub#breed() breeding} the
      * neuron, the binding definitions will be examined eagerly in order to create suppliers for resolving the
      * dependencies lazily.
-     * The suppliers will use the bound {@linkplain Bind#to(Object) values}, {@linkplain Bind#to(Supplier) suppliers} or
-     * {@linkplain Bind#to(Function) functions}.
+     * The suppliers will use the bound {@linkplain Bind#to(Object) values},
+     * {@linkplain Bind#to(DependencySupplier) suppliers} or {@linkplain Bind#to(DependencyFunction) functions}.
      * <p>
      * If the given runtime class is not a neuron class or interface, then adding bindings will have no effect and when
      * breeding, the incubator will just create a new instance of the given class using the public constructor without
@@ -80,13 +79,13 @@ public final class Incubator {
         return new Stub<T>() {
 
             boolean partial;
-            List<Entry<Function<T, ?>, Function<? super T, ?>>> bindings =
+            List<Entry<Function<T, ?>, DependencyFunction<? super T, ?>>> bindings =
                     new LinkedList<>();
 
             List<Method> synapses = new LinkedList<>();
             T neuron;
 
-            Function<? super T, ?> currentReplacement;
+            DependencyFunction<? super T, ?> currentReplacement;
             int currentPosition;
 
             @Override
@@ -123,14 +122,14 @@ public final class Incubator {
                 return neuron;
             }
 
-            Supplier<?> binding(final Method method) {
+            DependencySupplier<?> binding(final Method method) {
                 synapses.add(method);
-                return new Supplier<Object>() {
+                return new DependencySupplier<Object>() {
 
-                    Function<? super T, ?> replacement;
+                    DependencyFunction<? super T, ?> replacement;
 
                     @Override
-                    public Object get() {
+                    public Object get() throws Throwable {
                         if (null == replacement) {
                             if (null != currentReplacement) {
                                 replacement = currentReplacement;
@@ -148,7 +147,7 @@ public final class Incubator {
 
             void initReplacementProxies() {
                 try {
-                    for (final Entry<Function<T, ?>, Function<? super T, ?>> binding : bindings) {
+                    for (final Entry<Function<T, ?>, DependencyFunction<? super T, ?>> binding : bindings) {
                         final Function<T, ?> methodReference = binding.getKey();
                         currentReplacement = binding.getValue();
                         currentPosition++;
@@ -194,9 +193,9 @@ public final class Incubator {
         default Stub<T> to(U value) { return to(neuron -> value); }
 
         /** Binds the synapse method to the given supplier. */
-        default Stub<T> to(Supplier<? extends U> supplier) { return to(neuron -> supplier.get()); }
+        default Stub<T> to(DependencySupplier<? extends U> supplier) { return to(neuron -> supplier.get()); }
 
         /** Binds the synapse method to the given function. */
-        Stub<T> to(Function<? super T, ? extends U> function);
+        Stub<T> to(DependencyFunction<? super T, ? extends U> function);
     }
 }

@@ -15,7 +15,7 @@
  */
 package global.namespace.neuron.di.internal;
 
-import global.namespace.neuron.di.java.MethodProxy;
+import global.namespace.neuron.di.java.DependencySupplier;
 import org.objectweb.asm.*;
 
 import java.lang.reflect.Method;
@@ -37,8 +37,8 @@ class ASMNeuronClassVisitor extends ClassVisitor {
     private static final String PROXY = "$proxy";
 
     private static final String objectDesc = getDescriptor(Object.class);
-    private static final String methodProxyName = getInternalName(MethodProxy.class);
-    private static final String methodProxyDesc = getDescriptor(MethodProxy.class);
+    private static final String methodProxyName = getInternalName(DependencySupplier.class);
+    private static final String methodProxyDesc = getDescriptor(DependencySupplier.class);
 
     private final String[] interfaces;
     private final String superName, neuronProxyName, neuronProxyDesc;
