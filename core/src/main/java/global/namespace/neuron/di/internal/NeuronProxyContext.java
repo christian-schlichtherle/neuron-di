@@ -20,6 +20,7 @@ import global.namespace.neuron.di.java.DependencyProvider;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 final class NeuronProxyContext<T> {
@@ -37,13 +38,16 @@ final class NeuronProxyContext<T> {
 
     DependencyProvider<?> provider(Method method) { return binding.apply(method); }
 
-    <U> U apply(Function<Class<? extends T>, U> function) { return new ClassAdapter<>(function).apply(neuronType()); }
-
     T cast(Object obj) { return neuronType().cast(obj); }
+
+    <U> U map(BiFunction<Class<? extends T>, List<Method>, U> function) {
+        return new ClassAdapter<T, U>(neuronType -> function.apply(neuronType, providerMethods(neuronType)))
+                .apply(neuronType());
+    }
 
     private Class<T> neuronType() { return element.runtimeClass(); }
 
-    List<Method> providerMethods(final Class<? extends T> neuronType) {
+    private List<Method> providerMethods(final Class<? extends T> neuronType) {
         final OverridableMethodsCollector collector = new OverridableMethodsCollector(neuronType.getPackage())
                 .add(neuronType);
         return new Visitor<T>() {
