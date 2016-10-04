@@ -37,9 +37,7 @@ final class NeuronProxyContext<T> {
 
     DependencySupplier<?> supplier(Method method) { return binding.apply(method); }
 
-    <U> U apply(Function<Class<? extends T>, U> function) {
-        return new ClassAdapter<>(function).apply(neuronType());
-    }
+    <U> U apply(Function<Class<? extends T>, U> function) { return new ClassAdapter<>(function).apply(neuronType()); }
 
     T cast(Object obj) { return neuronType().cast(obj); }
 

@@ -68,9 +68,8 @@ final class NeuronProxyFactory<T> implements Function<NeuronProxyContext<T>, T> 
                 return neuronProxy;
             }
 
-            public void visitSynapse(final SynapseElement<T> element) {
-                final DependencySupplier<?> resolve = ctx.supplier(element.method());
-                boundMethodHandler.setMethodProxy(element.decorate(resolve));
+            public void visitSynapse(SynapseElement<T> element) {
+                boundMethodHandler.setMethodProxy(element.decorate(ctx.supplier(element.method())));
             }
 
             public void visitMethod(MethodElement<T> element) {
