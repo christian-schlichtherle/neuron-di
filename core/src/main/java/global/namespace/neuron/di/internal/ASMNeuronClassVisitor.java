@@ -42,12 +42,12 @@ class ASMNeuronClassVisitor extends ClassVisitor {
 
     private final String[] interfaces;
     private final String superName, neuronProxyName, neuronProxyDesc;
-    private final List<Method> proxiedMethods;
+    private final List<Method> providerMethods;
 
     ASMNeuronClassVisitor(final ClassVisitor visitor,
                           final Class<?> superclass,
                           final Class<?>[] interfaces,
-                          final List<Method> proxiedMethods,
+                          final List<Method> providerMethods,
                           final String neuronProxyName) {
         super(ASM5, visitor);
         this.superName = getInternalName(superclass);
@@ -56,7 +56,7 @@ class ASMNeuronClassVisitor extends ClassVisitor {
         while (0 <= --i) {
             this.interfaces[i] = getInternalName(interfaces[i]);
         }
-        this.proxiedMethods = proxiedMethods;
+        this.providerMethods = providerMethods;
         this.neuronProxyName = neuronProxyName;
         this.neuronProxyDesc = "L" + neuronProxyName + ";";
     }
@@ -107,7 +107,7 @@ class ASMNeuronClassVisitor extends ClassVisitor {
                 ACCEPTS_NOTHING_AND_RETURNS_VOID,
                 false);
         boolean nonAbstract = false;
-        for (final Method method : proxiedMethods) {
+        for (final Method method : providerMethods) {
             if (!Modifier.isAbstract(method.getModifiers())) {
                 nonAbstract = true;
                 final String name = method.getName();
@@ -141,7 +141,7 @@ class ASMNeuronClassVisitor extends ClassVisitor {
     }
 
     private void insertMethods() {
-        for (final Method method : proxiedMethods) {
+        for (final Method method : providerMethods) {
             new Object() {
 
                 final int access = method.getModifiers() & ~ACC_ABSTRACT | ACC_SYNTHETIC;
