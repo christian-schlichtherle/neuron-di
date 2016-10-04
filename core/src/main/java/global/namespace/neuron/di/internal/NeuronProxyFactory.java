@@ -30,8 +30,8 @@ import java.util.stream.Collectors;
 final class NeuronProxyFactory<T> implements Function<NeuronProxyContext<T>, T> {
 
     private static final MethodHandles.Lookup lookup = MethodHandles.lookup();
-    private static final MethodType methodProxyObjectSignature = MethodType.methodType(DependencySupplier.class, Object.class);
-    private static final MethodType voidObjectMethodProxySignature = MethodType.methodType(Void.TYPE, Object.class, DependencySupplier.class);
+    private static final MethodType dependencySupplierObjectSignature = MethodType.methodType(DependencySupplier.class, Object.class);
+    private static final MethodType voidObjectDependencySupplierSignature = MethodType.methodType(Void.TYPE, Object.class, DependencySupplier.class);
     private static final MethodType objectSignature = MethodType.methodType(Object.class);
 
     private List<MethodHandler> methodHandlers;
@@ -94,12 +94,12 @@ final class NeuronProxyFactory<T> implements Function<NeuronProxyContext<T>, T> 
 
         MethodHandler(final Method method) {
             this.method = method;
-            final String fieldName = method.getName() + "$proxy";
+            final String fieldName = method.getName() + "$supplier";
             try {
                 final Field field = neuronProxyClass.getDeclaredField(fieldName);
                 field.setAccessible(true);
-                this.getter = lookup.unreflectGetter(field).asType(methodProxyObjectSignature);
-                this.setter = lookup.unreflectSetter(field).asType(voidObjectMethodProxySignature);
+                this.getter = lookup.unreflectGetter(field).asType(dependencySupplierObjectSignature);
+                this.setter = lookup.unreflectSetter(field).asType(voidObjectDependencySupplierSignature);
             } catch (ReflectiveOperationException e) {
                 throw new AssertionError(e);
             }
