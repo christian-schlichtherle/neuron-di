@@ -15,6 +15,7 @@
  */
 package global.namespace.neuron.di.internal;
 
+import global.namespace.neuron.di.java.MethodProxy;
 import org.objectweb.asm.*;
 
 import java.lang.reflect.Method;

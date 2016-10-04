@@ -15,6 +15,8 @@
  */
 package global.namespace.neuron.di.internal;
 
+import global.namespace.neuron.di.java.MethodProxy;
+
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;

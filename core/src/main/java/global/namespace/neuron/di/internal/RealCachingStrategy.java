@@ -16,6 +16,7 @@
 package global.namespace.neuron.di.internal;
 
 import global.namespace.neuron.di.java.CachingStrategy;
+import global.namespace.neuron.di.java.MethodProxy;
 
 /** Mirrors {@link CachingStrategy}. */
 enum RealCachingStrategy {

@@ -13,10 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package global.namespace.neuron.di.internal;
+package global.namespace.neuron.di.java;
 
 /** Proxies calls to some parameterless method in a neuron proxy class. */
-@SuppressWarnings("WeakerAccess")
 public interface MethodProxy<T, X extends Throwable> {
 
     /** Calls the proxied method and returns its return value. */
