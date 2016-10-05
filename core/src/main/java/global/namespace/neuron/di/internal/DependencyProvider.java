@@ -17,7 +17,7 @@ package global.namespace.neuron.di.internal;
 
 @SuppressWarnings("WeakerAccess")
 @FunctionalInterface
-public interface DependencyProvider<T> {
+public interface DependencyProvider<D> {
 
-    T get() throws Throwable;
+    D get() throws Throwable;
 }
