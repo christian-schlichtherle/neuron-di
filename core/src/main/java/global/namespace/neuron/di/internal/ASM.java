@@ -31,7 +31,6 @@ import static org.objectweb.asm.Type.getInternalName;
 
 final class ASM implements Opcodes {
 
-    private static final String NEURON = "$$neuron";
     private static final Class<?>[] NO_CLASSES = new Class<?>[0];
 
     /** Returns a class which proxies the given Neuron class or interface. */
@@ -45,7 +44,7 @@ final class ASM implements Opcodes {
             superclass = neuronType;
             interfaces = NO_CLASSES;
         }
-        final String implName = neuronType.getName() + NEURON;
+        final String implName = neuronType.getName() + "$$neuron";
         final ClassReader cr = classReader(neuronType);
         final ClassWriter cw = new ClassWriter(cr, 0);
         cr.accept(new NeuronTypeVisitor(cw, superclass, interfaces, providerMethods, internalName(implName)), SKIP_DEBUG);
