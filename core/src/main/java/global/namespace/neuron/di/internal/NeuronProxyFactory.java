@@ -57,7 +57,7 @@ final class NeuronProxyFactory<T> implements Function<NeuronProxyContext<T>, T> 
 
             final T neuronProxy = ctx.cast(neuronProxy());
 
-            MethodHandler.BoundMethodHandler boundMethodHandler;
+            BoundMethodHandler boundMethodHandler;
 
             T apply() {
                 for (final MethodHandler handler : methodHandlers) {
@@ -92,9 +92,9 @@ final class NeuronProxyFactory<T> implements Function<NeuronProxyContext<T>, T> 
 
         MethodHandler(final Method method) {
             this.method = method;
-            final String fieldName = method.getName() + "$provider";
+            final String dependencyProviderName = method.getName() + "$provider";
             try {
-                final Field field = neuronProxyClass.getDeclaredField(fieldName);
+                final Field field = neuronProxyClass.getDeclaredField(dependencyProviderName);
                 field.setAccessible(true);
                 this.getter = lookup.unreflectGetter(field).asType(dependencyProviderObjectSignature);
                 this.setter = lookup.unreflectSetter(field).asType(voidObjectDependencyProviderSignature);
@@ -105,29 +105,31 @@ final class NeuronProxyFactory<T> implements Function<NeuronProxyContext<T>, T> 
 
         Method method() { return method; }
 
-        BoundMethodHandler bind(T neuronProxy) { return new BoundMethodHandler(neuronProxy); }
+        BoundMethodHandler bind(final T neuronProxy) {
+            return new BoundMethodHandler() {
 
-        final class BoundMethodHandler {
-
-            private final T neuronProxy;
-
-            private BoundMethodHandler(final T neuronProxy) { this.neuronProxy = neuronProxy; }
-
-            DependencyProvider<?> getProvider() {
-                try {
-                    return (DependencyProvider<?>) getter.invokeExact(neuronProxy);
-                } catch (Throwable e) {
-                    throw new AssertionError(e);
+                public DependencyProvider<?> getProvider() {
+                    try {
+                        return (DependencyProvider<?>) getter.invokeExact(neuronProxy);
+                    } catch (Throwable e) {
+                        throw new AssertionError(e);
+                    }
                 }
-            }
 
-            void setProvider(final DependencyProvider<?> provider) {
-                try {
-                    setter.invokeExact(neuronProxy, provider);
-                } catch (Throwable e) {
-                    throw new AssertionError(e);
+                public void setProvider(final DependencyProvider<?> provider) {
+                    try {
+                        setter.invokeExact(neuronProxy, provider);
+                    } catch (Throwable e) {
+                        throw new AssertionError(e);
+                    }
                 }
-            }
+            };
         }
+    }
+
+    private interface BoundMethodHandler {
+
+        DependencyProvider<?> getProvider();
+        void setProvider(DependencyProvider<?> provider);
     }
 }

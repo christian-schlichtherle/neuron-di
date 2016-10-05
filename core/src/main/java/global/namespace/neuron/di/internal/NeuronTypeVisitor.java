@@ -24,10 +24,9 @@ import java.util.List;
 
 import static global.namespace.neuron.di.internal.Reflection.boxed;
 import static org.objectweb.asm.Opcodes.*;
-import static org.objectweb.asm.Type.getDescriptor;
-import static org.objectweb.asm.Type.getInternalName;
+import static org.objectweb.asm.Type.*;
 
-class ASMNeuronClassVisitor extends ClassVisitor {
+class NeuronTypeVisitor extends ClassVisitor {
 
     private static final int ACC_ABSTRACT_INTERFACE = ACC_ABSTRACT | ACC_INTERFACE;
     private static final int ACC_PRIVATE_SYNTHETIC = ACC_PRIVATE | ACC_SYNTHETIC;
@@ -40,17 +39,23 @@ class ASMNeuronClassVisitor extends ClassVisitor {
     private static final String objectDesc = getDescriptor(Object.class);
     private static final String dependencyProviderName = getInternalName(DependencyProvider.class);
     private static final String dependencyProviderDesc = getDescriptor(DependencyProvider.class);
+    private static final Handle metaFactoryHandle = new Handle(H_INVOKESTATIC,
+            "java/lang/invoke/LambdaMetafactory",
+            "metafactory",
+            "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;",
+            false);
+    private static final Type acceptsNothingAndReturnsObject = getType("()" + objectDesc);
 
     private final String[] interfaces;
     private final String superName, neuronProxyName, neuronProxyDesc;
     private final List<Method> providerMethods;
 
-    ASMNeuronClassVisitor(final ClassVisitor visitor,
-                          final Class<?> superclass,
-                          final Class<?>[] interfaces,
-                          final List<Method> providerMethods,
-                          final String neuronProxyName) {
-        super(ASM5, visitor);
+    NeuronTypeVisitor(final ClassVisitor cv,
+                      final Class<?> superclass,
+                      final Class<?>[] interfaces,
+                      final List<Method> providerMethods,
+                      final String neuronProxyName) {
+        super(ASM5, cv);
         this.superName = getInternalName(superclass);
         int i = interfaces.length;
         this.interfaces = new String[i];
@@ -112,23 +117,19 @@ class ASMNeuronClassVisitor extends ClassVisitor {
             if (!Modifier.isAbstract(method.getModifiers())) {
                 nonAbstract = true;
                 final String name = method.getName();
-                final String desc = Type.getMethodDescriptor(method);
+                final String desc = getMethodDescriptor(method);
                 mv.visitVarInsn(ALOAD, 0);
                 mv.visitVarInsn(ALOAD, 0);
                 mv.visitInvokeDynamicInsn("get",
                         "(" + neuronProxyDesc + ")" + dependencyProviderDesc,
-                        new Handle(H_INVOKESTATIC,
-                                "java/lang/invoke/LambdaMetafactory",
-                                "metafactory",
-                                "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;",
-                                false),
-                        Type.getType("()" + objectDesc),
+                        metaFactoryHandle,
+                        acceptsNothingAndReturnsObject,
                         new Handle(H_INVOKESPECIAL,
                                 neuronProxyName,
                                 SUPER + name,
                                 desc,
                                 false),
-                        Type.getType("()" + objectDesc));
+                        acceptsNothingAndReturnsObject);
                 mv.visitFieldInsn(PUTFIELD, neuronProxyName, name + PROVIDER, dependencyProviderDesc);
             }
         }
@@ -147,7 +148,7 @@ class ASMNeuronClassVisitor extends ClassVisitor {
 
                 final int access = method.getModifiers() & ~ACC_ABSTRACT | ACC_SYNTHETIC;
                 final String name = method.getName();
-                final String desc = Type.getMethodDescriptor(method);
+                final String desc = getMethodDescriptor(method);
 
                 final Class<?> returnType = method.getReturnType();
                 final String returnTypeName = getInternalName(returnType);
