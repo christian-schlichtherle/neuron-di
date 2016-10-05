@@ -15,10 +15,10 @@
  */
 package global.namespace.neuron.di.internal;
 
-interface ClassElement<T> extends Element<T> {
+interface ClassElement<C> extends Element<C> {
 
-    Class<T> runtimeClass();
+    Class<C> runtimeClass();
 
     @Override
-    default void accept(Visitor<T> visitor) { visitor.visitClass(this); }
+    default void accept(Visitor<C> visitor) { visitor.visitClass(this); }
 }

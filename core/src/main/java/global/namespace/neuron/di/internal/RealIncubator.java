@@ -30,27 +30,27 @@ public final class RealIncubator {
 
     private RealIncubator() { }
 
-    public static <T> T breed(final Class<T> runtimeClass,
+    public static <C> C breed(final Class<C> runtimeClass,
                               final Function<Method, DependencyProvider<?>> binding) {
 
-        class ClassVisitor implements Visitor<T> {
+        class ClassVisitor implements Visitor<C> {
 
-            private T instance;
+            private C instance;
 
             @SuppressWarnings("unchecked")
             @Override
-            public void visitNeuron(final NeuronElement<T> element) {
+            public void visitNeuron(final NeuronElement<C> element) {
                 assert runtimeClass == element.runtimeClass();
-                final NeuronProxyContext<T> ctx = new NeuronProxyContext<>(element, binding);
-                instance = ((NeuronProxyFactory<T>) factories
+                final NeuronProxyContext<C> ctx = new NeuronProxyContext<>(element, binding);
+                instance = ((NeuronProxyFactory<C>) factories
                         .computeIfAbsent(runtimeClass, key -> new NeuronProxyFactory<>(ctx)))
                         .apply(ctx);
             }
 
             @Override
-            public void visitClass(final ClassElement<T> element) {
+            public void visitClass(final ClassElement<C> element) {
                 assert runtimeClass == element.runtimeClass();
-                instance = createInstance(runtimeClass);
+                instance = newInstance(runtimeClass);
             }
         }
 
@@ -59,7 +59,7 @@ public final class RealIncubator {
         return visitor.instance;
     }
 
-    private static <T> T createInstance(final Class<T> runtimeClass) {
+    private static <C> C newInstance(final Class<C> runtimeClass) {
         try {
             return runtimeClass.newInstance();
         } catch (InstantiationException e) {

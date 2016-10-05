@@ -24,12 +24,12 @@ import java.util.Optional;
 
 import static global.namespace.neuron.di.java.CachingStrategy.DISABLED;
 
-interface NeuronElement<T> extends ClassElement<T>, HasCachingStrategy {
+interface NeuronElement<N> extends ClassElement<N>, HasCachingStrategy {
 
     @Override
-    default void accept(Visitor<T> visitor) { visitor.visitNeuron(this); }
+    default void accept(Visitor<N> visitor) { visitor.visitNeuron(this); }
 
-    default MethodElement<T> element(final Method method) {
+    default MethodElement<N> element(final Method method) {
 
         class MethodBase {
 
@@ -40,14 +40,14 @@ interface NeuronElement<T> extends ClassElement<T>, HasCachingStrategy {
             public Method method() { return method; }
         }
 
-        class RealSynapseElement extends MethodBase implements SynapseElement<T> {
+        class RealSynapseElement extends MethodBase implements SynapseElement<N> {
 
             private RealSynapseElement(final CachingStrategy cachingStrategy) {
                 super.cachingStrategy = cachingStrategy;
             }
         }
 
-        class RealMethodElement extends MethodBase implements MethodElement<T> {
+        class RealMethodElement extends MethodBase implements MethodElement<N> {
 
             private RealMethodElement(final CachingStrategy cachingStrategy) {
                 super.cachingStrategy = cachingStrategy;

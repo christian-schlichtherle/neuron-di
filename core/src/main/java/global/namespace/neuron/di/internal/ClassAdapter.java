@@ -16,40 +16,39 @@
 package global.namespace.neuron.di.internal;
 
 import java.util.Optional;
-import java.util.function.BiFunction;
 import java.util.function.Function;
 
 import static global.namespace.neuron.di.internal.Reflection.associatedClassLoader;
 
 /** Adapts a function which accepts a class object reflecting a super class or interface. */
-final class ClassAdapter<T, U> implements Function<Class<T>, U> {
+final class ClassAdapter<N, V> implements Function<Class<N>, V> {
 
-    private final Function<Class<? extends T>, U> function;
+    private final Function<Class<? extends N>, V> function;
 
     /** @param function a function which accepts a class object reflecting a super class or interface. */
-    ClassAdapter(final Function<Class<? extends T>, U> function) { this.function = function; }
+    ClassAdapter(final Function<Class<? extends N>, V> function) { this.function = function; }
 
     /** Calls the adapted function and returns its value. */
     @Override
-    public U apply(final Class<T> runtimeClass) {
-        final Class<? extends T> superclass;
+    public V apply(final Class<N> runtimeClass) {
+        final Class<? extends N> subclass;
         if (runtimeClass.isInterface()) {
-            final Optional<Class<? extends T>> lookup = lookupScalaCompanion(runtimeClass);
+            final Optional<Class<? extends N>> lookup = lookupScalaCompanion(runtimeClass);
             if (lookup.isPresent()) {
-                superclass = lookup.get();
+                subclass = lookup.get();
             } else {
-                superclass = runtimeClass;
+                subclass = runtimeClass;
             }
         } else {
-            superclass = runtimeClass;
+            subclass = runtimeClass;
         }
-        return function.apply(superclass);
+        return function.apply(subclass);
     }
 
     @SuppressWarnings("unchecked")
-    private Optional<Class<? extends T>> lookupScalaCompanion(final Class<T> runtimeClass) {
+    private Optional<Class<? extends N>> lookupScalaCompanion(final Class<N> runtimeClass) {
         try {
-            return Optional.of((Class<? extends T>) associatedClassLoader(runtimeClass)
+            return Optional.of((Class<? extends N>) associatedClassLoader(runtimeClass)
                     .loadClass(runtimeClass.getName() + "$$shim"));
         } catch (ClassNotFoundException e) {
             return Optional.empty();

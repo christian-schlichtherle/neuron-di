@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-final class NeuronProxyFactory<T> implements Function<NeuronProxyContext<T>, T> {
+final class NeuronProxyFactory<N> implements Function<NeuronProxyContext<N>, N> {
 
     private static final MethodHandles.Lookup lookup = MethodHandles.lookup();
     private static final MethodType dependencyProviderObjectSignature = MethodType.methodType(DependencyProvider.class, Object.class);
@@ -35,10 +35,10 @@ final class NeuronProxyFactory<T> implements Function<NeuronProxyContext<T>, T> 
     private static final MethodType objectSignature = MethodType.methodType(Object.class);
 
     private List<MethodHandler> methodHandlers;
-    private Class<? extends T> neuronProxyClass;
+    private Class<? extends N> neuronProxyClass;
     private final MethodHandle neuronProxyConstructor;
 
-    NeuronProxyFactory(final NeuronProxyContext<T> ctx) {
+    NeuronProxyFactory(final NeuronProxyContext<N> ctx) {
         this.methodHandlers = ctx.map((neuronType, providerMethods) -> {
             this.neuronProxyClass = ASM.neuronProxyClass(neuronType, providerMethods);
             return providerMethods.stream().map(MethodHandler::new).collect(Collectors.toList());
@@ -52,14 +52,14 @@ final class NeuronProxyFactory<T> implements Function<NeuronProxyContext<T>, T> 
         }
     }
 
-    public T apply(final NeuronProxyContext<T> ctx) {
-        return new Visitor<T>() {
+    public N apply(final NeuronProxyContext<N> ctx) {
+        return new Visitor<N>() {
 
-            final T neuronProxy = ctx.cast(neuronProxy());
+            final N neuronProxy = ctx.cast(neuronProxy());
 
             BoundMethodHandler boundMethodHandler;
 
-            T apply() {
+            N apply() {
                 for (final MethodHandler handler : methodHandlers) {
                     this.boundMethodHandler = handler.bind(neuronProxy);
                     ctx.element(handler.method()).accept(this);
@@ -67,11 +67,11 @@ final class NeuronProxyFactory<T> implements Function<NeuronProxyContext<T>, T> 
                 return neuronProxy;
             }
 
-            public void visitSynapse(SynapseElement<T> element) {
+            public void visitSynapse(SynapseElement<N> element) {
                 boundMethodHandler.setProvider(element.decorate(ctx.provider(element.method())));
             }
 
-            public void visitMethod(MethodElement<T> element) {
+            public void visitMethod(MethodElement<N> element) {
                 boundMethodHandler.setProvider(element.decorate(boundMethodHandler.getProvider()));
             }
         }.apply();
@@ -105,7 +105,7 @@ final class NeuronProxyFactory<T> implements Function<NeuronProxyContext<T>, T> 
 
         Method method() { return method; }
 
-        BoundMethodHandler bind(final T neuronProxy) {
+        BoundMethodHandler bind(final N neuronProxy) {
             return new BoundMethodHandler() {
 
                 public DependencyProvider<?> getProvider() {

@@ -23,42 +23,42 @@ import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
-final class NeuronProxyContext<T> {
+final class NeuronProxyContext<N> {
 
-    private final NeuronElement<T> element;
+    private final NeuronElement<N> element;
     private final Function<Method, DependencyProvider<?>> binding;
 
-    NeuronProxyContext(final NeuronElement<T> element,
+    NeuronProxyContext(final NeuronElement<N> element,
                        final Function<Method, DependencyProvider<?>> binding) {
         this.element = element;
         this.binding = binding;
     }
 
-    MethodElement<T> element(Method method) { return element.element(method); }
+    MethodElement<N> element(Method method) { return element.element(method); }
 
     DependencyProvider<?> provider(Method method) { return binding.apply(method); }
 
-    T cast(Object obj) { return neuronType().cast(obj); }
+    N cast(Object obj) { return neuronType().cast(obj); }
 
-    <U> U map(BiFunction<Class<? extends T>, List<Method>, U> function) {
-        return new ClassAdapter<T, U>(neuronType -> function.apply(neuronType, providerMethods(neuronType)))
+    <V> V map(BiFunction<Class<? extends N>, List<Method>, V> function) {
+        return new ClassAdapter<N, V>(neuronType -> function.apply(neuronType, providerMethods(neuronType)))
                 .apply(neuronType());
     }
 
-    private Class<T> neuronType() { return element.runtimeClass(); }
+    private Class<N> neuronType() { return element.runtimeClass(); }
 
-    private List<Method> providerMethods(final Class<? extends T> neuronType) {
+    private List<Method> providerMethods(final Class<? extends N> neuronType) {
         final OverridableMethodsCollector collector = new OverridableMethodsCollector(neuronType.getPackage())
                 .add(neuronType);
-        return new Visitor<T>() {
+        return new Visitor<N>() {
 
             final List<Method> methods = collector.result();
 
             final ArrayList<Method> filtered = new ArrayList<>(methods.size());
 
-            public void visitSynapse(final SynapseElement<T> element) { filtered.add(element.method()); }
+            public void visitSynapse(final SynapseElement<N> element) { filtered.add(element.method()); }
 
-            public void visitMethod(final MethodElement<T> element) {
+            public void visitMethod(final MethodElement<N> element) {
                 if (element.isCachingEnabled()) {
                     filtered.add(element.method());
                 }

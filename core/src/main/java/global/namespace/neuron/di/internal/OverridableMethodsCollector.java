@@ -15,8 +15,6 @@
  */
 package global.namespace.neuron.di.internal;
 
-import org.objectweb.asm.Type;
-
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -32,7 +30,7 @@ final class OverridableMethodsCollector {
     private static final int PROTECTED_PUBLIC = PROTECTED | PUBLIC;
 
     private final Package pkg;
-    private final Map<String, Method> methods = new LinkedHashMap<>();
+    private final Map<Signature, Method> methods = new LinkedHashMap<>();
 
     OverridableMethodsCollector(final Package pkg) { this.pkg = pkg; }
 
@@ -44,10 +42,7 @@ final class OverridableMethodsCollector {
                 final int modifiers = method.getModifiers();
                 if (0 == (modifiers & PRIVATE_STATIC_FINAL) &&
                         (0 != (modifiers & PROTECTED_PUBLIC) || t.getPackage() == pkg)) {
-                    final String name = method.getName();
-                    final String desc = Type.getMethodDescriptor(method);
-                    assert '(' == desc.charAt(0);
-                    methods.putIfAbsent(name + desc, method);
+                    methods.putIfAbsent(Signature.of(method), method);
                 }
             }
         }).accept(type);

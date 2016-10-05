@@ -22,11 +22,11 @@ final class Inspection {
 
     private Inspection() { }
 
-    static <T> ClassElement<T> of(final Class<T> runtimeClass) {
+    static <C> ClassElement<C> of(final Class<C> runtimeClass) {
 
-        class RealClassElement implements ClassElement<T> {
+        class RealClassElement implements ClassElement<C> {
 
-            public Class<T> runtimeClass() { return runtimeClass; }
+            public Class<C> runtimeClass() { return runtimeClass; }
         }
 
         final Neuron neuron = runtimeClass.getAnnotation(Neuron.class);
@@ -34,7 +34,7 @@ final class Inspection {
 
             class RealNeuronElement
                     extends RealClassElement
-                    implements NeuronElement<T> {
+                    implements NeuronElement<C> {
 
                 @Override
                 public CachingStrategy cachingStrategy() { return neuron.cachingStrategy(); }
