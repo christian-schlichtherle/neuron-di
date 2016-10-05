@@ -17,6 +17,7 @@ package global.namespace.neuron.di.guice.java;
 
 import com.google.inject.*;
 import global.namespace.neuron.di.java.Caching;
+import global.namespace.neuron.di.java.DependencyProvider;
 import global.namespace.neuron.di.java.Incubator;
 import global.namespace.neuron.di.java.Neuron;
 
@@ -24,7 +25,6 @@ import javax.inject.Qualifier;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.Arrays;
-import java.util.function.Supplier;
 
 @Neuron
 abstract class NeuronProvider<T> implements Provider<T> {
@@ -43,7 +43,7 @@ abstract class NeuronProvider<T> implements Provider<T> {
         return instance;
     }
 
-    private Supplier<?> binding(final Method method) {
+    private DependencyProvider<?> binding(final Method method) {
         final TypeLiteral<?> returnTypeLiteral = typeLiteral().getReturnType(method);
         final Key<?> returnKey = Arrays
                 .stream(method.getDeclaredAnnotations())

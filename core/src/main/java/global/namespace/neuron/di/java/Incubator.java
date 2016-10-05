@@ -23,7 +23,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 /** An incubator {@linkplain #breed(Class) breeds} or {@linkplain #stub(Class) stubs} neurons. */
 public final class Incubator {
@@ -56,7 +55,7 @@ public final class Incubator {
      *                for future use.
      */
     public static <T> T breed(Class<T> runtimeClass,
-                              Function<Method, Supplier<?>> binding) {
+                              Function<Method, DependencyProvider<?>> binding) {
         return RealIncubator.breed(runtimeClass, binding);
     }
 
@@ -67,10 +66,10 @@ public final class Incubator {
      * abstract.
      * <p>
      * If the given runtime class is a neuron class or interface, then when {@linkplain Stub#breed() breeding} the
-     * neuron, the binding definitions will be examined eagerly in order to create suppliers for resolving the
+     * neuron, the binding definitions will be examined eagerly in order to create providers for resolving the
      * dependencies lazily.
-     * The suppliers will use the bound {@linkplain Bind#to(Object) values}, {@linkplain Bind#to(Supplier) suppliers} or
-     * {@linkplain Bind#to(Function) functions}.
+     * The dependencies will be resolved using {@linkplain Bind#to(Object) values},
+     * {@linkplain Bind#to(DependencyProvider) providers} or {@linkplain Bind#to(DependencyResolver) resolvers}.
      * <p>
      * If the given runtime class is not a neuron class or interface, then adding bindings will have no effect and when
      * breeding, the incubator will just create a new instance of the given class using the public constructor without
@@ -80,13 +79,13 @@ public final class Incubator {
         return new Stub<T>() {
 
             boolean partial;
-            List<Entry<Function<T, ?>, Function<? super T, ?>>> bindings =
+            List<Entry<DependencyResolver<T, ?>, DependencyResolver<? super T, ?>>> bindings =
                     new LinkedList<>();
 
             List<Method> synapses = new LinkedList<>();
             T neuron;
 
-            Function<? super T, ?> currentReplacement;
+            DependencyResolver<? super T, ?> currentResolver;
             int currentPosition;
 
             @Override
@@ -96,7 +95,7 @@ public final class Incubator {
             }
 
             @Override
-            public <U> Bind<T, U> bind(final Function<T, U> methodReference) {
+            public <U> Bind<T, U> bind(final DependencyResolver<T, U> methodReference) {
                 return replacement -> {
                     bindings.add(new SimpleImmutableEntry<>(methodReference, replacement));
                     return this;
@@ -117,50 +116,56 @@ public final class Incubator {
                             "Partial stubbing is disabled and no binding is defined for some synapse methods: " + synapses);
                 }
                 // Support GC:
-                assert null == currentReplacement;
+                assert null == currentResolver;
                 bindings = null;
                 synapses = null;
                 return neuron;
             }
 
-            Supplier<?> binding(final Method method) {
+            DependencyProvider<?> binding(final Method method) {
                 synapses.add(method);
-                return new Supplier<Object>() {
+                return new DependencyProvider<Object>() {
 
-                    Function<? super T, ?> replacement;
+                    DependencyResolver<? super T, ?> resolver;
 
                     @Override
-                    public Object get() {
-                        if (null == replacement) {
-                            if (null != currentReplacement) {
-                                replacement = currentReplacement;
+                    public Object get() throws Throwable {
+                        if (null == resolver) {
+                            if (null != currentResolver) {
+                                resolver = currentResolver;
                                 final boolean removed = synapses.remove(method);
                                 assert removed;
                                 throw new BindingSuccessException();
                             } else {
-                                replacement = neuron -> Incubator.breed(method.getReturnType());
+                                resolver = neuron -> Incubator.breed(method.getReturnType());
                             }
                         }
-                        return replacement.apply(neuron);
+                        return resolver.apply(neuron);
                     }
                 };
             }
 
             void initReplacementProxies() {
                 try {
-                    for (final Entry<Function<T, ?>, Function<? super T, ?>> binding : bindings) {
-                        final Function<T, ?> methodReference = binding.getKey();
-                        currentReplacement = binding.getValue();
+                    for (final Entry<DependencyResolver<T, ?>, DependencyResolver<? super T, ?>> binding : bindings) {
+                        final DependencyResolver<T, ?> methodReference = binding.getKey();
+                        currentResolver = binding.getValue();
                         currentPosition++;
                         try {
                             methodReference.apply(neuron);
-                            throw new IllegalStateException("Illegal stubbing: The function parameter of the `bind` call at position " + currentPosition + " does not call a synapse method.");
+                            throw illegalStateException(null);
                         } catch (BindingSuccessException ignored) {
+                        } catch (Throwable e) {
+                            throw illegalStateException(e);
                         }
                     }
                 } finally {
-                    currentReplacement = null;
+                    currentResolver = null;
                 }
+            }
+
+            IllegalStateException illegalStateException(Throwable cause) {
+                return new IllegalStateException("Illegal stubbing: The function parameter of the `bind` call at position " + currentPosition + " does not call a synapse method.", cause);
             }
         };
     }
@@ -178,7 +183,7 @@ public final class Incubator {
         Stub<T> partial(boolean value);
 
         /** Binds the synapse method identified by the given method reference. */
-        <U> Bind<T, U> bind(Function<T, U> methodReference);
+        <U> Bind<T, U> bind(DependencyResolver<T, U> methodReference);
 
         /**
          * Breeds the stubbed neuron.
@@ -194,9 +199,9 @@ public final class Incubator {
         default Stub<T> to(U value) { return to(neuron -> value); }
 
         /** Binds the synapse method to the given supplier. */
-        default Stub<T> to(Supplier<? extends U> supplier) { return to(neuron -> supplier.get()); }
+        default Stub<T> to(DependencyProvider<? extends U> provider) { return to(neuron -> provider.get()); }
 
         /** Binds the synapse method to the given function. */
-        Stub<T> to(Function<? super T, ? extends U> function);
+        Stub<T> to(DependencyResolver<? super T, ? extends U> resolver);
     }
 }

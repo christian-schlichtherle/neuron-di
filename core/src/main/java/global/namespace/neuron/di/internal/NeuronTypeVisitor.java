@@ -15,6 +15,7 @@
  */
 package global.namespace.neuron.di.internal;
 
+import global.namespace.neuron.di.java.DependencyProvider;
 import org.objectweb.asm.*;
 
 import java.lang.reflect.Method;

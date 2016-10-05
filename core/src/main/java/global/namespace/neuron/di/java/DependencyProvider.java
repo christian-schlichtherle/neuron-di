@@ -13,11 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package global.namespace.neuron.di.internal;
+package global.namespace.neuron.di.java;
 
-@SuppressWarnings("WeakerAccess")
+/**
+ * Provides some dependency of a neuron.
+ *
+ * @param <D> the type of the dependency.
+ */
 @FunctionalInterface
 public interface DependencyProvider<D> {
 
+    /** Returns the dependency of the neuron. */
     D get() throws Throwable;
 }

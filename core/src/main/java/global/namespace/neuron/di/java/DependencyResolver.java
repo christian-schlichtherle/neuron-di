@@ -13,20 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package global.namespace.neuron.di.internal;
+package global.namespace.neuron.di.java;
 
-import global.namespace.neuron.di.java.CachingStrategy;
-import global.namespace.neuron.di.java.DependencyProvider;
+/**
+ * Resolves some dependency of a given neuron.
+ *
+ * @param <N> the type of the neuron.
+ * @param <D> the type of the dependency.
+ */
+@FunctionalInterface
+public interface DependencyResolver<N, D> {
 
-interface HasCachingStrategy {
-
-    default <D> DependencyProvider<D> decorate(DependencyProvider<D> provider) {
-        return realCachingStrategy().decorate(provider);
-    }
-
-    default RealCachingStrategy realCachingStrategy() { return RealCachingStrategy.valueOf(cachingStrategy()); }
-
-    default boolean isCachingEnabled() { return cachingStrategy().isEnabled(); }
-
-    CachingStrategy cachingStrategy();
+    /**
+     * Returns the dependency of the given neuron.
+     *
+     * @param neuron the neuron.
+     */
+    D apply(N neuron) throws Throwable;
 }
