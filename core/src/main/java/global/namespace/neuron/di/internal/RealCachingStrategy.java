@@ -26,7 +26,7 @@ enum RealCachingStrategy {
     DISABLED {
 
         @Override
-        <T> DependencyProvider<T> decorate(DependencyProvider<T> provider) { return provider; }
+        <D> DependencyProvider<D> decorate(DependencyProvider<D> provider) { return provider; }
     },
 
     /** @see #valueOf(CachingStrategy) */
@@ -34,14 +34,14 @@ enum RealCachingStrategy {
     NOT_THREAD_SAFE {
 
         @Override
-        <T> DependencyProvider<T> decorate(final DependencyProvider<T> provider) {
-            return new DependencyProvider<T>() {
+        <D> DependencyProvider<D> decorate(final DependencyProvider<D> provider) {
+            return new DependencyProvider<D>() {
 
-                T returnValue;
+                D returnValue;
 
                 @Override
-                public T get() throws Throwable {
-                    final T value = returnValue;
+                public D get() throws Throwable {
+                    final D value = returnValue;
                     return null != value ? value : (returnValue = provider.get());
                 }
             };
@@ -53,14 +53,14 @@ enum RealCachingStrategy {
     THREAD_SAFE {
 
         @Override
-        <T> DependencyProvider<T> decorate(final DependencyProvider<T> provider) {
-            return new DependencyProvider<T>() {
+        <D> DependencyProvider<D> decorate(final DependencyProvider<D> provider) {
+            return new DependencyProvider<D>() {
 
-                volatile T returnValue;
+                volatile D returnValue;
 
                 @Override
-                public T get() throws Throwable {
-                    T value;
+                public D get() throws Throwable {
+                    D value;
                     if (null == (value = returnValue)) {
                         synchronized (this) {
                             if (null == (value = returnValue)) {
@@ -79,14 +79,14 @@ enum RealCachingStrategy {
     THREAD_LOCAL {
 
         @Override
-        <T> DependencyProvider<T> decorate(final DependencyProvider<T> provider) {
-            return new DependencyProvider<T>() {
+        <D> DependencyProvider<D> decorate(final DependencyProvider<D> provider) {
+            return new DependencyProvider<D>() {
 
-                final ThreadLocal<T> results = new ThreadLocal<>();
+                final ThreadLocal<D> results = new ThreadLocal<>();
 
                 @Override
-                public T get() throws Throwable {
-                    T result = results.get();
+                public D get() throws Throwable {
+                    D result = results.get();
                     if (null == result) {
                         results.set(result = provider.get());
                     }
@@ -98,5 +98,5 @@ enum RealCachingStrategy {
 
     static RealCachingStrategy valueOf(CachingStrategy strategy) { return valueOf(strategy.name()); }
 
-    abstract <T> DependencyProvider<T> decorate(DependencyProvider<T> provider);
+    abstract <D> DependencyProvider<D> decorate(DependencyProvider<D> provider);
 }

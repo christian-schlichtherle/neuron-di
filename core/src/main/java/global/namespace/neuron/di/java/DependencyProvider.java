@@ -21,8 +21,8 @@ package global.namespace.neuron.di.java;
  * @param <T> the type of the dependency.
  */
 @FunctionalInterface
-public interface DependencyProvider<T> {
+public interface DependencyProvider<D> {
 
     /** Returns the dependency of the neuron. */
-    T get() throws Throwable;
+    D get() throws Throwable;
 }
