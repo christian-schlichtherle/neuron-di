@@ -19,15 +19,15 @@ import java.lang.reflect.Method;
 
 import static org.objectweb.asm.Type.getMethodDescriptor;
 
-final class MethodSignature {
+final class Signature {
 
     private final String name, descriptor;
 
-    MethodSignature(Method method) {
-        this(method.getName(), getMethodDescriptor(method));
+    static Signature of(Method method) {
+        return new Signature(method.getName(), getMethodDescriptor(method));
     }
 
-    MethodSignature(final String name, final String descriptor) {
+    private Signature(final String name, final String descriptor) {
         this.name = name;
         this.descriptor = descriptor;
     }
@@ -35,8 +35,8 @@ final class MethodSignature {
     @Override
     public boolean equals(final Object obj) {
         if (this == obj) return true;
-        if (!(obj instanceof MethodSignature)) return false;
-        final MethodSignature that = (MethodSignature) obj;
+        if (!(obj instanceof Signature)) return false;
+        final Signature that = (Signature) obj;
         return this.name.equals(that.name) &&
                 this.descriptor.equals(that.descriptor);
     }

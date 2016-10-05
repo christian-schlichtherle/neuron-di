@@ -74,13 +74,13 @@ class Reflection {
     }
 
     @SuppressWarnings("unchecked")
-    static <T> Class<? extends T> defineSubclass(final Class<T> clazz,
+    static <C> Class<? extends C> defineSubclass(final Class<C> clazz,
                                                  final String name,
                                                  final byte[] b) {
         final ClassLoader cl = associatedClassLoader(clazz);
         try {
             synchronized (getClassLoadingLock.invoke(cl, name)) {
-                return (Class<? extends T>) defineClass.invoke(cl, name, b, 0, b.length);
+                return (Class<? extends C>) defineClass.invoke(cl, name, b, 0, b.length);
             }
         } catch (InvocationTargetException e) {
             throw new IllegalArgumentException(e.getCause());
