@@ -18,7 +18,7 @@ package global.namespace.neuron.di.java;
 /**
  * Provides some dependency of a neuron.
  *
- * @param <T> the type of the dependency.
+ * @param <D> the type of the dependency.
  */
 @FunctionalInterface
 public interface DependencyProvider<D> {
