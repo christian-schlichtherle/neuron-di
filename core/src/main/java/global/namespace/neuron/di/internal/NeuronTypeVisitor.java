@@ -32,11 +32,13 @@ class NeuronTypeVisitor extends ClassVisitor {
     private static final int ACC_PRIVATE_SYNTHETIC = ACC_PRIVATE | ACC_SYNTHETIC;
     private static final int ACC_FINAL_SUPER_SYNTHETIC = ACC_FINAL | ACC_SUPER | ACC_SYNTHETIC;
     private static final String CONSTRUCTOR_NAME = "<init>";
-    private static final String ACCEPTS_NOTHING_AND_RETURNS_VOID = "()V";
-    private static final String PROVIDER = "$provider";
+    private static final String ACCEPTS_NOTHING_AND_RETURNS_VOID_DESC = "()V";
+    private static final String OBJECT_DESC = "Ljava/lang/Object;";
+    private static final String ACCEPTS_NOTHING_AND_RETURNS_OBJECT_DESC = "()" + OBJECT_DESC;
+    static final String PROVIDER = "$provider";
     private static final String SUPER = "super$";
 
-    private static final String objectDesc = getDescriptor(Object.class);
+    private static final Type acceptsNothingAndReturnsObjectType = getType(ACCEPTS_NOTHING_AND_RETURNS_OBJECT_DESC);
     private static final String dependencyProviderName = getInternalName(DependencyProvider.class);
     private static final String dependencyProviderDesc = getDescriptor(DependencyProvider.class);
     private static final Handle metaFactoryHandle = new Handle(H_INVOKESTATIC,
@@ -44,7 +46,6 @@ class NeuronTypeVisitor extends ClassVisitor {
             "metafactory",
             "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;",
             false);
-    private static final Type acceptsNothingAndReturnsObject = getType("()" + objectDesc);
 
     private final String[] interfaces;
     private final String superName, neuronProxyName, neuronProxyDesc;
@@ -102,7 +103,7 @@ class NeuronTypeVisitor extends ClassVisitor {
     private void insertConstructor() {
         final MethodVisitor mv = cv.visitMethod(ACC_PRIVATE_SYNTHETIC,
                 CONSTRUCTOR_NAME,
-                ACCEPTS_NOTHING_AND_RETURNS_VOID,
+                ACCEPTS_NOTHING_AND_RETURNS_VOID_DESC,
                 null,
                 null);
         mv.visitCode();
@@ -110,7 +111,7 @@ class NeuronTypeVisitor extends ClassVisitor {
         mv.visitMethodInsn(INVOKESPECIAL,
                 superName,
                 CONSTRUCTOR_NAME,
-                ACCEPTS_NOTHING_AND_RETURNS_VOID,
+                ACCEPTS_NOTHING_AND_RETURNS_VOID_DESC,
                 false);
         boolean nonAbstract = false;
         for (final Method method : providerMethods) {
@@ -123,13 +124,13 @@ class NeuronTypeVisitor extends ClassVisitor {
                 mv.visitInvokeDynamicInsn("get",
                         "(" + neuronProxyDesc + ")" + dependencyProviderDesc,
                         metaFactoryHandle,
-                        acceptsNothingAndReturnsObject,
+                        acceptsNothingAndReturnsObjectType,
                         new Handle(H_INVOKESPECIAL,
                                 neuronProxyName,
                                 SUPER + name,
                                 desc,
                                 false),
-                        acceptsNothingAndReturnsObject);
+                        acceptsNothingAndReturnsObjectType);
                 mv.visitFieldInsn(PUTFIELD, neuronProxyName, name + PROVIDER, dependencyProviderDesc);
             }
         }
@@ -195,7 +196,7 @@ class NeuronTypeVisitor extends ClassVisitor {
                 void generateProxyCallMethod() {
                     final MethodVisitor mv = beginMethod(name);
                     mv.visitFieldInsn(GETFIELD, neuronProxyName, name + PROVIDER, dependencyProviderDesc);
-                    mv.visitMethodInsn(INVOKEINTERFACE, dependencyProviderName, "get", "()Ljava/lang/Object;", true);
+                    mv.visitMethodInsn(INVOKEINTERFACE, dependencyProviderName, "get", ACCEPTS_NOTHING_AND_RETURNS_OBJECT_DESC, true);
                     if (!boxedReturnType.isAssignableFrom(Object.class)) {
                         mv.visitTypeInsn(CHECKCAST,
                                 boxedReturnType.isArray() ? boxedReturnTypeDesc : boxedReturnTypeName);
