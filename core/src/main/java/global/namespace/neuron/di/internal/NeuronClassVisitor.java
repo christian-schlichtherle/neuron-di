@@ -26,7 +26,7 @@ import static global.namespace.neuron.di.internal.Reflection.boxed;
 import static org.objectweb.asm.Opcodes.*;
 import static org.objectweb.asm.Type.*;
 
-class NeuronTypeVisitor extends ClassVisitor {
+class NeuronClassVisitor extends ClassVisitor {
 
     private static final int ACC_ABSTRACT_INTERFACE = ACC_ABSTRACT | ACC_INTERFACE;
     private static final int ACC_PRIVATE_SYNTHETIC = ACC_PRIVATE | ACC_SYNTHETIC;
@@ -35,6 +35,7 @@ class NeuronTypeVisitor extends ClassVisitor {
     private static final String ACCEPTS_NOTHING_AND_RETURNS_VOID_DESC = "()V";
     private static final String OBJECT_DESC = "Ljava/lang/Object;";
     private static final String ACCEPTS_NOTHING_AND_RETURNS_OBJECT_DESC = "()" + OBJECT_DESC;
+
     static final String PROVIDER = "$provider";
     private static final String SUPER = "super$";
 
@@ -47,15 +48,15 @@ class NeuronTypeVisitor extends ClassVisitor {
             "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;",
             false);
 
-    private final String[] interfaces;
     private final String superName, neuronProxyName, neuronProxyDesc;
+    private final String[] interfaces;
     private final List<Method> providerMethods;
 
-    NeuronTypeVisitor(final ClassVisitor cv,
-                      final Class<?> superclass,
-                      final Class<?>[] interfaces,
-                      final List<Method> providerMethods,
-                      final String neuronProxyName) {
+    NeuronClassVisitor(final ClassVisitor cv,
+                       final Class<?> superclass,
+                       final Class<?>[] interfaces,
+                       final List<Method> providerMethods,
+                       final String neuronProxyName) {
         super(ASM5, cv);
         this.superName = getInternalName(superclass);
         int i = interfaces.length;
@@ -159,30 +160,9 @@ class NeuronTypeVisitor extends ClassVisitor {
                 final String boxedReturnTypeName = getInternalName(boxedReturnType);
                 final String boxedReturnTypeDesc = getDescriptor(boxedReturnType);
 
-                final int returnOpCode;
-                {
-                    if (returnType.isPrimitive()) {
-                        if (returnType == Float.TYPE) {
-                            returnOpCode = FRETURN;
-                        } else if (returnType == Double.TYPE) {
-                            returnOpCode = DRETURN;
-                        } else if (returnType == Long.TYPE) {
-                            returnOpCode = LRETURN;
-                        } else if (returnType == Void.TYPE) {
-                            throw new IllegalStateException("Method has void return type: " + method);
-                        } else {
-                            returnOpCode = IRETURN;
-                        }
-                    } else {
-                        if (returnType == Void.class) {
-                            throw new IllegalStateException("Method has Void return type: " + method);
-                        } else {
-                            returnOpCode = ARETURN;
-                        }
-                    }
-                }
+                final int returnOpCode = returnOpCode(method);
 
-                void run() {
+                void apply() {
                     generateProxyField();
                     generateProxyCallMethod();
                     generateSuperCallMethod();
@@ -241,7 +221,30 @@ class NeuronTypeVisitor extends ClassVisitor {
                     }
                     mv.visitEnd();
                 }
-            }.run();
+            }.apply();
+        }
+    }
+
+    private static int returnOpCode(final Method method) {
+        final Class<?> returnType = method.getReturnType();
+        if (returnType.isPrimitive()) {
+            if (returnType == Float.TYPE) {
+                return FRETURN;
+            } else if (returnType == Double.TYPE) {
+                return DRETURN;
+            } else if (returnType == Long.TYPE) {
+                return LRETURN;
+            } else if (returnType == Void.TYPE) {
+                throw new IllegalStateException("Method has void return type: " + method);
+            } else {
+                return IRETURN;
+            }
+        } else {
+            if (returnType == Void.class) {
+                throw new IllegalStateException("Method has Void return type: " + method);
+            } else {
+                return ARETURN;
+            }
         }
     }
 }

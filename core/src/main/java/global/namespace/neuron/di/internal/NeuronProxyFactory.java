@@ -34,22 +34,24 @@ final class NeuronProxyFactory<N> implements Function<NeuronProxyContext<N>, N> 
     private static final MethodType voidObjectDependencyProviderSignature = MethodType.methodType(Void.TYPE, Object.class, DependencyProvider.class);
     private static final MethodType objectSignature = MethodType.methodType(Object.class);
 
-    private List<MethodHandler> methodHandlers;
-    private Class<? extends N> neuronProxyClass;
-    private final MethodHandle neuronProxyConstructor;
+    private final Class<? extends N> neuronProxyClass;
+    private final MethodHandle constructorHandle;
+    private final List<MethodHandler> methodHandlers;
 
-    NeuronProxyFactory(final NeuronProxyContext<N> ctx) {
-        this.methodHandlers = ctx.map((neuronType, providerMethods) -> {
-            this.neuronProxyClass = ASM.neuronProxyClass(neuronType, providerMethods);
-            return providerMethods.stream().map(MethodHandler::new).collect(Collectors.toList());
-        });
+    static <N> NeuronProxyFactory<N> from(NeuronProxyContext<N> ctx) {
+        return ctx.map(NeuronProxyFactory::new);
+    }
+
+    private NeuronProxyFactory(final Class<? extends N> neuronType, final List<Method> providerMethods) {
+        this.neuronProxyClass = ASM.neuronProxyClass(neuronType, providerMethods);
         try {
-            final Constructor<?> neuronProxyConstructor = neuronProxyClass.getDeclaredConstructor();
-            neuronProxyConstructor.setAccessible(true);
-            this.neuronProxyConstructor = lookup.unreflectConstructor(neuronProxyConstructor).asType(objectSignature);
+            final Constructor<?> c = neuronProxyClass.getDeclaredConstructor();
+            c.setAccessible(true);
+            this.constructorHandle = lookup.unreflectConstructor(c).asType(objectSignature);
         } catch (ReflectiveOperationException e) {
             throw new AssertionError(e);
         }
+        this.methodHandlers = providerMethods.stream().map(MethodHandler::new).collect(Collectors.toList());
     }
 
     public N apply(final NeuronProxyContext<N> ctx) {
@@ -79,7 +81,7 @@ final class NeuronProxyFactory<N> implements Function<NeuronProxyContext<N>, N> 
 
     private Object neuronProxy() {
         try {
-            return neuronProxyConstructor.invokeExact();
+            return constructorHandle.invokeExact();
         } catch (Throwable e) {
             throw new AssertionError(e);
         }
@@ -92,7 +94,7 @@ final class NeuronProxyFactory<N> implements Function<NeuronProxyContext<N>, N> 
 
         MethodHandler(final Method method) {
             this.method = method;
-            final String dependencyProviderName = method.getName() + NeuronTypeVisitor.PROVIDER;
+            final String dependencyProviderName = method.getName() + NeuronClassVisitor.PROVIDER;
             try {
                 final Field field = neuronProxyClass.getDeclaredField(dependencyProviderName);
                 field.setAccessible(true);

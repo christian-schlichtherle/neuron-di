@@ -47,7 +47,7 @@ final class ASM implements Opcodes {
         final String implName = neuronType.getName() + "$$neuron";
         final ClassReader cr = classReader(neuronType);
         final ClassWriter cw = new ClassWriter(cr, 0);
-        cr.accept(new NeuronTypeVisitor(cw, superclass, interfaces, providerMethods, internalName(implName)), SKIP_DEBUG);
+        cr.accept(new NeuronClassVisitor(cw, superclass, interfaces, providerMethods, internalName(implName)), SKIP_DEBUG);
         return defineSubclass(neuronType, implName, cw.toByteArray());
     }
 
