@@ -34,26 +34,25 @@ final class ASM implements Opcodes {
     private static final Class<?>[] NO_CLASSES = new Class<?>[0];
 
     /** Returns a class which proxies the given Neuron class or interface. */
-    static <N> Class<? extends N> neuronProxyClass(final Class<? extends N> neuronType, final List<Method> providerMethods) {
+    static <N> Class<? extends N> neuronProxyClass(final Class<? extends N> neuronClass, final List<Method> providerMethods) {
         final Class<?> superclass;
         final Class<?>[] interfaces;
-        if (neuronType.isInterface()) {
+        if (neuronClass.isInterface()) {
             superclass = Object.class;
-            interfaces = new Class<?>[] { neuronType };
+            interfaces = new Class<?>[] { neuronClass };
         } else {
-            superclass = neuronType;
+            superclass = neuronClass;
             interfaces = NO_CLASSES;
         }
-        final String implName = neuronType.getName() + "$$neuron";
-        final ClassReader cr = classReader(neuronType);
+        final String implName = neuronClass.getName() + "$$neuron";
+        final ClassReader cr = classReader(neuronClass);
         final ClassWriter cw = new ClassWriter(cr, 0);
         cr.accept(new NeuronClassVisitor(cw, superclass, interfaces, providerMethods, internalName(implName)), SKIP_DEBUG);
-        return defineSubclass(neuronType, implName, cw.toByteArray());
+        return defineSubclass(neuronClass, implName, cw.toByteArray());
     }
 
     private static ClassReader classReader(final Class<?> clazz) {
-        try (InputStream in = associatedClassLoader(clazz)
-                .getResourceAsStream(getInternalName(clazz) + ".class")) {
+        try (InputStream in = associatedClassLoader(clazz).getResourceAsStream(getInternalName(clazz) + ".class")) {
             return new ClassReader(in);
         } catch (IOException e) {
             throw new IllegalArgumentException(e);

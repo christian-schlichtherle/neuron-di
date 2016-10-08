@@ -22,8 +22,12 @@ private trait NeuronAnnotation extends MacroAnnotation {
 
   def apply(inputs: List[Tree]): Tree = {
     val outputs = inputs match {
-      case (classDef@ClassDef(mods@Modifiers(flags, privateWithin, annotations), tpname@TypeName(name), tparams, impl)) :: rest =>
-        if (!(mods hasFlag TRAIT)) {
+      case ClassDef(mods@Modifiers(flags, privateWithin, annotations), tpname@TypeName(name), tparams, impl) :: rest =>
+        if (mods hasFlag TRAIT) {
+          if (!hasStaticContext) {
+            error("A neuron trait must have a static context.")
+          }
+        } else {
           if (!(mods hasFlag ABSTRACT)) {
             warning("A neuron class should be abstract.")
           }
@@ -36,37 +40,33 @@ private trait NeuronAnnotation extends MacroAnnotation {
           if (!hasStaticContext) {
             error("A neuron class must have a static context.")
           }
-        } else {
-          if (!hasStaticContext) {
-            error("A neuron trait must have a static context.")
-          }
         }
         if (c.hasErrors) {
           inputs
         } else {
-          val term = c.prefix.tree match {
-            case Apply(fun, args) =>
-              val Apply(fun2, _) = newNeuronAnnotationTerm
-              Apply(fun2, args map {
-                case q"cachingStrategy = ${rhs: Tree}" =>
-                  q"cachingStrategy = ${scala2javaCachingStrategy(rhs)}" match {
-                    case Assign(x, y) => AssignOrNamedArg(x, y)
-                    case other => other
-                  }
-                case tree =>
-                  scala2javaCachingStrategy(tree)
-              })
+          val neuron = {
+            val Apply(_, args) = c.prefix.tree
+            val Apply(fun, _) = newNeuronAnnotationTerm
+            Apply(fun, args map {
+              case q"cachingStrategy = ${rhs: Tree}" =>
+                q"cachingStrategy = ${scala2javaCachingStrategy(rhs)}" match {
+                  case Assign(x, y) => AssignOrNamedArg(x, y)
+                  case other => other
+                }
+              case tree =>
+                tree
+            })
           }
-          ClassDef(mods.mapAnnotations(term :: _), tpname, tparams, applyCachingAnnotation(impl)) :: {
+          ClassDef(mods.mapAnnotations(neuron :: _), tpname, tparams, applyCachingAnnotation(impl)) :: {
             if ((mods hasFlag TRAIT) && !(mods hasFlag INTERFACE)) {
-              val shimMods = Modifiers(flags &~ (TRAIT | DEFAULTPARAM) | ABSTRACT | SYNTHETIC, privateWithin, term :: annotations)
+              val shimMods = Modifiers(flags &~ (TRAIT | DEFAULTPARAM) | ABSTRACT | SYNTHETIC, privateWithin, neuron :: annotations)
               val shimDef = q"$shimMods class $$shim extends $tpname"
               rest match {
-                case ModuleDef(companionMods, companionName, Template(parents, self, body)) :: companionRest =>
-                  ModuleDef(companionMods, companionName, Template(parents, self, shimDef :: body)) :: companionRest
+                case ModuleDef(moduleMods, moduleName, Template(parents, self, body)) :: moduleRest =>
+                  ModuleDef(moduleMods, moduleName, Template(parents, self, shimDef :: body)) :: moduleRest
                 case _ =>
-                  val companionMods = Modifiers(flags &~ (ABSTRACT | TRAIT | DEFAULTPARAM) | SYNTHETIC, privateWithin, annotations)
-                  q"$companionMods object ${TermName(name)} { $shimDef }" :: rest
+                  val moduleMods = Modifiers(flags &~ (ABSTRACT | TRAIT | DEFAULTPARAM) | SYNTHETIC, privateWithin, annotations)
+                  q"$moduleMods object ${TermName(name)} { $shimDef }" :: rest
               }
             } else {
               rest

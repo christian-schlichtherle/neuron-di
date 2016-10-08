@@ -42,9 +42,9 @@ public final class RealIncubator {
             public void visitNeuron(final NeuronElement<C> element) {
                 assert runtimeClass == element.runtimeClass();
                 final NeuronProxyContext<C> ctx = new NeuronProxyContext<>(element, binding);
-                instance = ((NeuronProxyFactory<C>) factories
-                        .computeIfAbsent(runtimeClass, key -> NeuronProxyFactory.from(ctx)))
-                        .apply(ctx);
+                final NeuronProxyFactory<C> factory =
+                        (NeuronProxyFactory<C>) factories.computeIfAbsent(runtimeClass, key -> ctx.factory());
+                instance = factory.apply(ctx);
             }
 
             @Override

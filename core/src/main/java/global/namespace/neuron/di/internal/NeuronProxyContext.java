@@ -20,7 +20,6 @@ import global.namespace.neuron.di.java.DependencyProvider;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.BiFunction;
 import java.util.function.Function;
 
 final class NeuronProxyContext<N> {
@@ -38,31 +37,24 @@ final class NeuronProxyContext<N> {
 
     DependencyProvider<?> provider(Method method) { return binding.apply(method); }
 
-    N cast(Object obj) { return neuronType().cast(obj); }
+    N cast(Object obj) { return neuronClass().cast(obj); }
 
-    <V> V map(BiFunction<Class<? extends N>, List<Method>, V> function) {
-        return new ClassAdapter<N, V>(neuronType -> function.apply(neuronType, providerMethods(neuronType)))
-                .apply(neuronType());
+    NeuronProxyFactory<N> factory() {
+        return new ClassAdapter<N, NeuronProxyFactory<N>>(
+                neuronClass -> new NeuronProxyFactory<>(neuronClass, providerMethods(neuronClass)))
+                .apply(neuronClass());
     }
 
-    private Class<N> neuronType() { return element.runtimeClass(); }
+    private Class<N> neuronClass() { return element.runtimeClass(); }
 
-    private List<Method> providerMethods(final Class<? extends N> neuronType) {
-        final OverridableMethodsCollector collector = new OverridableMethodsCollector(neuronType.getPackage())
-                .add(neuronType);
+    private List<Method> providerMethods(final Class<? extends N> neuronClass) {
+        final OverridableMethodsCollector collector = new OverridableMethodsCollector(neuronClass.getPackage())
+                .add(neuronClass);
         return new Visitor<N>() {
 
             final List<Method> methods = collector.result();
 
             final ArrayList<Method> filtered = new ArrayList<>(methods.size());
-
-            public void visitSynapse(final SynapseElement<N> element) { filtered.add(element.method()); }
-
-            public void visitMethod(final MethodElement<N> element) {
-                if (element.isCachingEnabled()) {
-                    filtered.add(element.method());
-                }
-            }
 
             List<Method> apply() {
                 for (Method method : methods) {
@@ -70,6 +62,14 @@ final class NeuronProxyContext<N> {
                 }
                 filtered.trimToSize();
                 return filtered;
+            }
+
+            public void visitSynapse(final SynapseElement<N> element) { filtered.add(element.method()); }
+
+            public void visitMethod(final MethodElement<N> element) {
+                if (element.isCachingEnabled()) {
+                    filtered.add(element.method());
+                }
             }
         }.apply();
     }

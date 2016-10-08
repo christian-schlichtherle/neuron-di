@@ -38,12 +38,8 @@ final class NeuronProxyFactory<N> implements Function<NeuronProxyContext<N>, N> 
     private final MethodHandle constructorHandle;
     private final List<MethodHandler> methodHandlers;
 
-    static <N> NeuronProxyFactory<N> from(NeuronProxyContext<N> ctx) {
-        return ctx.map(NeuronProxyFactory::new);
-    }
-
-    private NeuronProxyFactory(final Class<? extends N> neuronType, final List<Method> providerMethods) {
-        this.neuronProxyClass = ASM.neuronProxyClass(neuronType, providerMethods);
+    NeuronProxyFactory(final Class<? extends N> neuronClass, final List<Method> providerMethods) {
+        this.neuronProxyClass = ASM.neuronProxyClass(neuronClass, providerMethods);
         try {
             final Constructor<?> c = neuronProxyClass.getDeclaredConstructor();
             c.setAccessible(true);

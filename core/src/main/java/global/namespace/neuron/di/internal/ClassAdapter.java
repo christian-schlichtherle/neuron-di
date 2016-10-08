@@ -30,26 +30,18 @@ final class ClassAdapter<N, V> implements Function<Class<N>, V> {
 
     /** Calls the adapted function and returns its value. */
     @Override
-    public V apply(final Class<N> runtimeClass) {
-        final Class<? extends N> subclass;
-        if (runtimeClass.isInterface()) {
-            final Optional<Class<? extends N>> lookup = lookupScalaCompanion(runtimeClass);
-            if (lookup.isPresent()) {
-                subclass = lookup.get();
-            } else {
-                subclass = runtimeClass;
-            }
-        } else {
-            subclass = runtimeClass;
-        }
-        return function.apply(subclass);
+    public V apply(final Class<N> neuronClass) {
+        return function.apply(neuronClass.isInterface()
+                ? lookupShim(neuronClass).orElse(neuronClass)
+                : neuronClass);
     }
 
     @SuppressWarnings("unchecked")
-    private Optional<Class<? extends N>> lookupScalaCompanion(final Class<N> runtimeClass) {
+    private Optional<Class<? extends N>> lookupShim(final Class<N> neuronClass) {
+        assert neuronClass.isInterface();
         try {
-            return Optional.of((Class<? extends N>) associatedClassLoader(runtimeClass)
-                    .loadClass(runtimeClass.getName() + "$$shim"));
+            return Optional.of((Class<? extends N>) associatedClassLoader(neuronClass)
+                    .loadClass(neuronClass.getName() + "$$shim"));
         } catch (ClassNotFoundException e) {
             return Optional.empty();
         }
