@@ -18,21 +18,18 @@ package global.namespace.neuron.di.internal;
 import java.util.Optional;
 import java.util.function.Function;
 
-/** Adapts a function which accepts a class object reflecting a super class or interface. */
-final class ClassAdapter<N, V> implements Function<Class<N>, V> {
+final class ShimAdapter<N, V> implements Function<Class<N>, V> {
 
     private final Function<Class<? extends N>, V> function;
 
-    /** @param function a function which accepts a class object reflecting a super class or interface. */
-    ClassAdapter(final Function<Class<? extends N>, V> function) { this.function = function; }
+    ShimAdapter(final Function<Class<? extends N>, V> function) { this.function = function; }
 
-    /** Calls the adapted function and returns its value. */
     @SuppressWarnings("unchecked")
     @Override
     public V apply(Class<N> neuronClass) {
         return function.apply(Optional
                 .ofNullable(neuronClass.getDeclaredAnnotation(Shim.class))
-                .<Class<? extends N>>map(shim -> (Class<? extends N>) shim.value())
+                .<Class<? extends N>>map(annotation -> (Class<? extends N>) annotation.value())
                 .orElse(neuronClass));
     }
 }
