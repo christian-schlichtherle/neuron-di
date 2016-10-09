@@ -50,7 +50,7 @@ private trait CachingAnnotation extends MacroAnnotation {
             error("A caching method cannot return Unit or Nothing.")(tpt.pos)
           case _ =>
         }
-        val neuron = {
+        val caching = {
           val Apply(_, args) = c.prefix.tree
           val Apply(fun, _) = newCachingAnnotationTerm
           Apply(fun, args map {
@@ -63,7 +63,7 @@ private trait CachingAnnotation extends MacroAnnotation {
               scala2javaCachingStrategy(tree)
           })
         }
-        DefDef(mods.mapAnnotations(neuron :: _), name, tparams, vparamss, tpt, rhs) :: rest
+        DefDef(mods.mapAnnotations(caching :: _), name, tparams, vparamss, tpt, rhs) :: rest
       case _ =>
         abort("The @Caching annotation can only be applied to `def` elements.")
     }
