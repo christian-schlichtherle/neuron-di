@@ -26,4 +26,5 @@ cd target/checkout
 mvn clean deploy -Prelease \
     -Dscala.compat.version=$SCALA_COMPAT_VERSION \
     -Dscala.version=$SCALA_VERSION \
-    -pl :neuron-di-scala_$SCALA_COMPAT_VERSION,:neuron-di-guice-scala_$SCALA_COMPAT_VERSION
+    -pl :neuron-di-scala_$SCALA_COMPAT_VERSION \
+    -amd
