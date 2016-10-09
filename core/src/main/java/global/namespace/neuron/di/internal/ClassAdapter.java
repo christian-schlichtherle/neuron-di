@@ -18,8 +18,6 @@ package global.namespace.neuron.di.internal;
 import java.util.Optional;
 import java.util.function.Function;
 
-import static global.namespace.neuron.di.internal.Reflection.associatedClassLoader;
-
 /** Adapts a function which accepts a class object reflecting a super class or interface. */
 final class ClassAdapter<N, V> implements Function<Class<N>, V> {
 
@@ -29,21 +27,12 @@ final class ClassAdapter<N, V> implements Function<Class<N>, V> {
     ClassAdapter(final Function<Class<? extends N>, V> function) { this.function = function; }
 
     /** Calls the adapted function and returns its value. */
-    @Override
-    public V apply(final Class<N> neuronClass) {
-        return function.apply(neuronClass.isInterface()
-                ? lookupShim(neuronClass).orElse(neuronClass)
-                : neuronClass);
-    }
-
     @SuppressWarnings("unchecked")
-    private Optional<Class<? extends N>> lookupShim(final Class<N> neuronClass) {
-        assert neuronClass.isInterface();
-        try {
-            return Optional.of((Class<? extends N>) associatedClassLoader(neuronClass)
-                    .loadClass(neuronClass.getName() + "$$shim"));
-        } catch (ClassNotFoundException e) {
-            return Optional.empty();
-        }
+    @Override
+    public V apply(Class<N> neuronClass) {
+        return function.apply(Optional
+                .ofNullable(neuronClass.getDeclaredAnnotation(Shim.class))
+                .<Class<? extends N>>map(shim -> (Class<? extends N>) shim.value())
+                .orElse(neuronClass));
     }
 }

@@ -44,6 +44,14 @@ private trait NeuronAnnotation extends MacroAnnotation {
         if (c.hasErrors) {
           inputs
         } else {
+          val needsShim = (mods hasFlag TRAIT) && !(mods hasFlag INTERFACE)
+          val shim = {
+            if (needsShim) {
+              q"new _root_.global.namespace.neuron.di.internal.Shim(classOf[${TermName(name)}.$$shim])" :: Nil
+            } else {
+              Nil
+            }
+          }
           val neuron = {
             val Apply(_, args) = c.prefix.tree
             val Apply(fun, _) = newNeuronAnnotationTerm
@@ -57,8 +65,8 @@ private trait NeuronAnnotation extends MacroAnnotation {
                 tree
             })
           }
-          ClassDef(mods.mapAnnotations(neuron :: _), tpname, tparams, applyCachingAnnotation(impl)) :: {
-            if ((mods hasFlag TRAIT) && !(mods hasFlag INTERFACE)) {
+          ClassDef(mods.mapAnnotations(neuron :: _ ::: shim), tpname, tparams, applyCachingAnnotation(impl)) :: {
+            if (needsShim) {
               val shimMods = Modifiers(flags &~ (TRAIT | DEFAULTPARAM) | ABSTRACT | SYNTHETIC, privateWithin, neuron :: annotations)
               val shimDef = q"$shimMods class $$shim extends $tpname"
               rest match {
