@@ -27,8 +27,7 @@ final class ShimAdapter<N, V> implements Function<Class<N>, V> {
     @SuppressWarnings("unchecked")
     @Override
     public V apply(Class<N> neuronClass) {
-        return function.apply(Optional
-                .ofNullable(neuronClass.getDeclaredAnnotation(Shim.class))
+        return function.apply(Optional.ofNullable(neuronClass.getDeclaredAnnotation(Shim.class))
                 .<Class<? extends N>>map(annotation -> (Class<? extends N>) annotation.value())
                 .orElse(neuronClass));
     }
