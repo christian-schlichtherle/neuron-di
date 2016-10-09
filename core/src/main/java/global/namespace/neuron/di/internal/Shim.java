@@ -17,6 +17,7 @@ package global.namespace.neuron.di.internal;
 
 import java.lang.annotation.*;
 
+@SuppressWarnings("WeakerAccess")
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface Shim {
