@@ -40,8 +40,8 @@ final class NeuronProxyContext<N> {
     N cast(Object obj) { return neuronClass().cast(obj); }
 
     NeuronProxyFactory<N> factory() {
-        return new ClassAdapter<N, NeuronProxyFactory<N>>(
-                neuronClass -> new NeuronProxyFactory<>(neuronClass, providerMethods(neuronClass)))
+        return new ShimAdapter<N, NeuronProxyFactory<N>>(
+                adaptedClass -> new NeuronProxyFactory<>(adaptedClass, providerMethods(adaptedClass)))
                 .apply(neuronClass());
     }
 
