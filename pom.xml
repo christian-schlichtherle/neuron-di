@@ -21,7 +21,7 @@
 
     <groupId>global.namespace.neuron-di</groupId>
     <artifactId>neuron-di-parent</artifactId>
-    <version>4.1-SNAPSHOT</version>
+    <version>4.1</version>
     <packaging>pom</packaging>
 
     <name>Neuron DI Parent</name>
@@ -62,7 +62,7 @@
         <connection>scm:git:git://github.com/christian-schlichtherle/neuron-di.git</connection>
         <developerConnection>scm:git:ssh://git@github.com/christian-schlichtherle/neuron-di.git</developerConnection>
         <url>https://github.com/christian-schlichtherle/neuron-di</url>
-      <tag>HEAD</tag>
+      <tag>neuron-di-4.1</tag>
     </scm>
 
     <modules>
@@ -106,17 +106,17 @@
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>neuron-di</artifactId>
-                <version>4.1-SNAPSHOT</version>
+                <version>4.1</version>
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>neuron-di-guice</artifactId>
-                <version>4.1-SNAPSHOT</version>
+                <version>4.1</version>
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>neuron-di-scala_${scala.compat.version}</artifactId>
-                <version>4.1-SNAPSHOT</version>
+                <version>4.1</version>
             </dependency>
 
             <dependency>
