@@ -17,7 +17,6 @@ package global.namespace.neuron.di.java.sample;
 
 import global.namespace.neuron.di.java.Caching;
 import global.namespace.neuron.di.java.Neuron;
-import global.namespace.neuron.di.java.sample.Clock;
 
 @Neuron
 public interface ClockModule {
