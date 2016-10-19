@@ -19,7 +19,7 @@ set -ev
 
 mvn release:prepare release:perform
 
-SCALA_COMPAT_VERSION=2.12.0-RC1
+SCALA_COMPAT_VERSION=2.12.0-RC2
 SCALA_VERSION=$SCALA_COMPAT_VERSION
 
 cd target/checkout
