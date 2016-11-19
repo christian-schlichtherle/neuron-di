@@ -248,7 +248,10 @@
                      <configuration>
                          <excludes>
                              <exclude>.*</exclude>
+                             <exclude>Dockerfile</exclude>
                              <exclude>LICENSE</exclude>
+                             <exclude>Vagrantfile</exclude>
+                             <exclude>*.log</exclude>
                          </excludes>
                          <inlineHeader>
 Copyright © ${project.inceptionYear} ${project.organization.name}

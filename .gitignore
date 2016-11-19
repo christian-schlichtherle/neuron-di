@@ -1,5 +1,7 @@
 /.idea/
 *.iml
+.vagrant/
 
 dependency-reduced-pom.xml
 target/
+ubuntu-*.log
