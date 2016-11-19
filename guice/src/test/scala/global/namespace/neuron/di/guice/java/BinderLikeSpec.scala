@@ -21,7 +21,7 @@ import com.google.inject.name.Names.named
 import global.namespace.neuron.di.guice.java.BinderLikeSpec._
 import global.namespace.neuron.di.java.Neuron
 import org.mockito.ArgumentCaptor
-import org.mockito.Matchers._
+import org.mockito.ArgumentMatchers._
 import org.mockito.Mockito._
 import org.scalatest.Matchers._
 import org.scalatest.WordSpec
