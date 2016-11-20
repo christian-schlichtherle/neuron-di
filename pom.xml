@@ -89,7 +89,7 @@
 
         <!-- scala-maven-plugin -->
         <scala.compat.version>2.11</scala.compat.version>
-        <scala.version>2.11.3</scala.version>
+        <scala.version>2.11.0</scala.version>
 
         <guice.version>3.0</guice.version>
 
@@ -300,7 +300,6 @@ limitations under the License.
                              <arg>-deprecation</arg>
                              <arg>-explaintypes</arg>
                              <arg>-feature</arg>
-                             <arg>-target:jvm-${maven.compiler.target}</arg>
                              <arg>-unchecked</arg>
                          </args>
                          <compileOrder>JavaThenScala</compileOrder>

@@ -23,6 +23,7 @@ import java.lang.reflect.Modifier;
 import java.util.List;
 
 import static global.namespace.neuron.di.internal.Reflection.boxed;
+import static java.lang.Math.max;
 import static org.objectweb.asm.Opcodes.*;
 import static org.objectweb.asm.Type.*;
 
@@ -76,7 +77,7 @@ class NeuronClassVisitor extends ClassVisitor {
                       final String signature,
                       String superName,
                       String[] interfaces) {
-        cv.visit(version,
+        cv.visit(max(version, V1_8),
                 access & ~ACC_ABSTRACT_INTERFACE | ACC_FINAL_SUPER_SYNTHETIC,
                 this.neuronProxyName,
                 null,
