@@ -20,6 +20,7 @@ import global.namespace.neuron.di.java.DependencyProvider;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 
 final class NeuronProxyContext<N> {
@@ -40,9 +41,17 @@ final class NeuronProxyContext<N> {
     N cast(Object obj) { return neuronClass().cast(obj); }
 
     NeuronProxyFactory<N> factory() {
-        return new ShimAdapter<N, NeuronProxyFactory<N>>(
-                adaptedClass -> new NeuronProxyFactory<>(adaptedClass, providerMethods(adaptedClass)))
-                .apply(neuronClass());
+        final Class<? extends N> adaptedClass = adaptedClass();
+        return new NeuronProxyFactory<>(adaptedClass, providerMethods(adaptedClass));
+    }
+
+    @SuppressWarnings("unchecked")
+    private Class<? extends N> adaptedClass() {
+        final Class<N> neuronClass = neuronClass();
+        return Optional
+                .ofNullable(neuronClass.getDeclaredAnnotation(Shim.class))
+                .<Class<? extends N>>map(annotation -> (Class<? extends N>) annotation.value())
+                .orElse(neuronClass);
     }
 
     private Class<N> neuronClass() { return element.runtimeClass(); }
