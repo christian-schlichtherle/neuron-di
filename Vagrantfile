@@ -9,6 +9,10 @@ Vagrant.configure("2") do |config|
     v.memory = 1024
     v.cpus = 2
   end
+  config.vm.provider "vmware_fusion" do |v|
+    v.memory = 1024
+    v.cpus = 2
+  end
   config.vm.provision :shell, path: "bootstrap.sh"
   config.vm.synced_folder "/Users/christian/.m2", "/home/vagrant/.m2"
 end
