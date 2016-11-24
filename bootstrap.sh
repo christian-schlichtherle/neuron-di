@@ -18,6 +18,6 @@
 set -e
 
 apt-get update -y
-apt-get install -y git default-jdk maven
+apt-get install -y git openjdk-8-jdk maven
 
 echo "cd /vagrant" >> /home/vagrant/.profile
