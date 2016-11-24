@@ -20,4 +20,4 @@ set -e
 apt-get update -y
 apt-get install -y git default-jdk maven
 
-echo "cd /vagrant" >> /home/ubuntu/.profile
+echo "cd /vagrant" >> /home/vagrant/.profile
