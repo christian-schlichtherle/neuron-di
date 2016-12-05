@@ -17,6 +17,7 @@ package global.namespace.neuron.di.scala.test
 
 import java.lang.reflect.Method
 
+import global.namespace.neuron.di.java.NeuronDIException
 import global.namespace.neuron.di.scala._
 import global.namespace.neuron.di.scala.sample._
 import global.namespace.neuron.di.scala.test.IncubatorSpec._
@@ -67,10 +68,10 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
 
       Given("a class implementing an interface annotated with @Neuron")
       When("breeding an instance")
-      Then("the incubator should throw an `InstantiationError` because the @Neuron annotation is not inherited when applied to interfaces")
+      Then("the incubator should throw a `NeuronDIException` because the @Neuron annotation is not inherited when applied to interfaces")
       And("so the class is NOT a neuron.")
 
-      intercept[InstantiationError] { synapsesOf[AnotherClass] }
+      intercept[NeuronDIException] { synapsesOf[AnotherClass] }
     }
   }
 
@@ -204,14 +205,31 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
 
   feature("@Neuron classes or traits cannot have abstract methods with parameters.") {
 
-    scenario("Beeding some trait with an abstract method with a parameter:") {
+    scenario("Breeding some trait with an abstract method with a parameter:") {
 
       Given("some trait with an abstract method with a parameter")
       When("breeding an instance")
       Then("an IllegalArgument should be thrown.")
 
-      intercept[IllegalArgumentException] { Incubator.breed[Illegal] }.getMessage shouldBe
-        "Cannot stub abstract methods with parameters: public abstract void global.namespace.neuron.di.scala.test.IncubatorSpec$Illegal.method(java.lang.String)"
+      intercept[IllegalArgumentException] { Incubator.breed[Illegal1] }.getMessage shouldBe
+        "Cannot stub abstract methods with parameters: public abstract void global.namespace.neuron.di.scala.test.IncubatorSpec$Illegal1.method(java.lang.String)"
+    }
+  }
+
+  feature("@Neuron classes or traits cannot have constructors which depend on synapses.") {
+
+    scenario("Breeding some trait with an eagerly initialized field whose value depends on a synapse:") {
+
+      Given("some trait with an eagerly initialized field whose value depends on a synapse")
+      When("breeding an instance")
+      Then("some RuntimeException should be thrown")
+
+      intercept[NeuronDIException] {
+        Incubator
+          .stub[Illegal2]
+          .bind(_.method1).to("method1")
+          .breed
+      }.getCause shouldBe a[NullPointerException]
     }
   }
 }
@@ -254,8 +272,16 @@ object IncubatorSpec {
   }
 
   @Neuron
-  trait Illegal {
+  trait Illegal1 {
 
     def method(param: String): Unit
+  }
+
+  @Neuron
+  trait Illegal2 extends Trait1 {
+
+    val method1: String
+
+    val method2: String = method1 + " + method2"
   }
 }
