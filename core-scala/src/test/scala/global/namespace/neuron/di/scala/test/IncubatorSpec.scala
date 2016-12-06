@@ -202,6 +202,24 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
     }
   }
 
+  feature("@Neuron classes or traits cannot have synapse methods without a return type.") {
+
+    scenario("Breeding some trait with a synapse method without a return type.") {
+
+      Given("some trait with a synapse method without a return type")
+      When("breeding an instance")
+      Then("an `IllegalStateException` should be thrown because some type is required to return a dependency")
+
+      intercept[IllegalStateException] {
+        Incubator
+          .stub[Illegal1]
+          .bind(_.method()).to(())
+          .breed
+      }.getMessage shouldBe
+        "Method has void return type: public abstract void global.namespace.neuron.di.scala.test.IncubatorSpec$Illegal1.method()"
+    }
+  }
+
   feature("@Neuron classes or traits cannot have abstract methods with parameters.") {
 
     scenario("Breeding some trait with an abstract method with a parameter:") {
@@ -210,8 +228,8 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
       When("breeding an instance")
       Then("an IllegalArgument should be thrown.")
 
-      intercept[IllegalArgumentException] { Incubator.breed[Illegal1] }.getMessage shouldBe
-        "Cannot stub abstract methods with parameters: public abstract void global.namespace.neuron.di.scala.test.IncubatorSpec$Illegal1.method(java.lang.String)"
+      intercept[IllegalArgumentException] { Incubator.breed[Illegal2] }.getMessage shouldBe
+        "Cannot stub abstract methods with parameters: public abstract java.lang.String global.namespace.neuron.di.scala.test.IncubatorSpec$Illegal2.method(java.lang.String)"
     }
   }
 
@@ -225,7 +243,7 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
 
       intercept[IllegalStateException] {
         Incubator
-          .stub[Illegal2]
+          .stub[Illegal3]
           .bind(_.method1).to("method1")
           .breed
       }.getCause shouldBe a[NullPointerException]
@@ -273,11 +291,17 @@ object IncubatorSpec {
   @Neuron
   trait Illegal1 {
 
-    def method(param: String): Unit
+    def method(): Unit
   }
 
   @Neuron
-  trait Illegal2 extends Trait1 {
+  trait Illegal2 {
+
+    def method(param: String): String
+  }
+
+  @Neuron
+  trait Illegal3 extends Trait1 {
 
     val method1: String
 
