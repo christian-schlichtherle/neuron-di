@@ -16,7 +16,6 @@
 package global.namespace.neuron.di.internal;
 
 import global.namespace.neuron.di.java.DependencyProvider;
-import global.namespace.neuron.di.java.NeuronDIException;
 
 import java.lang.reflect.Method;
 import java.util.Collections;
@@ -64,9 +63,9 @@ public final class RealIncubator {
         try {
             return runtimeClass.newInstance();
         } catch (InstantiationException e) {
-            throw new NeuronDIException(e.toString() + ": Did you forget the @Neuron annotation?", e);
+            throw new IllegalStateException(e.toString() + ": Did you forget the @Neuron annotation?", e);
         } catch (IllegalAccessException e) {
-            throw new NeuronDIException(e);
+            throw new IllegalStateException(e);
         }
     }
 }

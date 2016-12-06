@@ -16,7 +16,6 @@
 package global.namespace.neuron.di.internal;
 
 import global.namespace.neuron.di.java.DependencyProvider;
-import global.namespace.neuron.di.java.NeuronDIException;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
@@ -46,7 +45,7 @@ final class NeuronProxyFactory<N> implements Function<NeuronProxyContext<N>, N> 
             c.setAccessible(true);
             this.constructorHandle = lookup.unreflectConstructor(c).asType(objectSignature);
         } catch (ReflectiveOperationException e) {
-            throw new NeuronDIException(e);
+            throw new IllegalStateException(e);
         }
         this.methodHandlers = providerMethods.stream().map(MethodHandler::new).collect(Collectors.toList());
     }
@@ -80,9 +79,9 @@ final class NeuronProxyFactory<N> implements Function<NeuronProxyContext<N>, N> 
         try {
             return constructorHandle.invokeExact();
         } catch (NullPointerException e) {
-            throw new NeuronDIException(e.toString() + ": Does the constructor depend on a synapse method?", e);
+            throw new IllegalStateException(e.toString() + ": Make sure the constructor does not depend on a synapse method.", e);
         } catch (Throwable e) {
-            throw new NeuronDIException(e);
+            throw new IllegalStateException(e);
         }
     }
 

@@ -55,7 +55,7 @@ final class ASM implements Opcodes {
         try (InputStream in = associatedClassLoader(clazz).getResourceAsStream(getInternalName(clazz) + ".class")) {
             return new ClassReader(in);
         } catch (IOException e) {
-            throw new IllegalArgumentException(e);
+            throw new AssertionError(e);
         }
     }
 

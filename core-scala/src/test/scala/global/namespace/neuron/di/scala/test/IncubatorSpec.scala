@@ -17,7 +17,6 @@ package global.namespace.neuron.di.scala.test
 
 import java.lang.reflect.Method
 
-import global.namespace.neuron.di.java.NeuronDIException
 import global.namespace.neuron.di.scala._
 import global.namespace.neuron.di.scala.sample._
 import global.namespace.neuron.di.scala.test.IncubatorSpec._
@@ -68,10 +67,10 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
 
       Given("a class implementing an interface annotated with @Neuron")
       When("breeding an instance")
-      Then("the incubator should throw a `NeuronDIException` because the @Neuron annotation is not inherited when applied to interfaces")
+      Then("an `IllegalStateException` should be thrown because the @Neuron annotation is not inherited when applied to interfaces")
       And("so the class is NOT a neuron.")
 
-      intercept[NeuronDIException] { synapsesOf[AnotherClass] }
+      intercept[IllegalStateException] { synapsesOf[AnotherClass] }
     }
   }
 
@@ -222,9 +221,9 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
 
       Given("some trait with an eagerly initialized field whose value depends on a synapse")
       When("breeding an instance")
-      Then("some RuntimeException should be thrown")
+      Then("an `IllegalStateException` should be thrown because the lazy dependency resolution is initialized only AFTER the constructor call")
 
-      intercept[NeuronDIException] {
+      intercept[IllegalStateException] {
         Incubator
           .stub[Illegal2]
           .bind(_.method1).to("method1")
