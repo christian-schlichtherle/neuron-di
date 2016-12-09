@@ -16,10 +16,10 @@
 package global.namespace.neuron.di.scala
 
 import java.lang.reflect.Method
-import java.util.function.{Function => jFunction, Supplier => jSupplier}
+import java.util.function.{Function => jFunction}
 
-import global.namespace.neuron.di.java.{DependencyResolver, DependencyProvider, Incubator => jIncubator}
 import global.namespace.neuron.di.internal.scala.runtimeClassOf
+import global.namespace.neuron.di.java.{DependencyProvider, DependencyResolver, Incubator => jIncubator}
 
 import scala.reflect._
 
@@ -40,17 +40,32 @@ object Incubator {
       self
     }
 
-    case class bind[B](methodReference: A => B) {
+    def bind[B](method: A => B, to: => B): self.type = {
+      jstub bind method to to _
+      self
+    }
 
-      private val jbind = jstub bind methodReference
+    case class bind[B](method: A => B) {
+
+      private val jbind = jstub bind method
 
       def to(value: => B): self.type = {
         jstub = jbind to value _
         self
       }
 
+      def apply(to: => B): self.type = {
+        jstub = jbind to to _
+        self
+      }
+
       def to[C <: B](function: A => C): self.type = {
         jstub = jbind to function
+        self
+      }
+
+      def apply[C <: B](to: A => C): self.type = {
+        jstub = jbind to to
         self
       }
     }

@@ -202,6 +202,27 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
     }
   }
 
+  feature("@Neuron classes or traits can be stubbed using a rich DSL.") {
+
+    scenario("Breeding some trait using a rich DSL:") {
+
+      val neuron = Incubator
+        .stub[Trait4]
+        .bind(_.method1, "method1")
+        .bind(_.method2)("method2")
+        .bind(_.method3)(_ => "method3")
+        .bind(_.method4).to(4)
+        .bind(_.method5).to(_ => 5)
+        .breed
+      import neuron._
+      method1 shouldBe "method1"
+      method2 shouldBe "method2"
+      method3 shouldBe "method3"
+      method4 shouldBe 4
+      method5 shouldBe 5
+    }
+  }
+
   feature("@Neuron classes or traits cannot have synapse methods without a return type.") {
 
     scenario("Breeding some trait with a synapse method without a return type.") {
@@ -286,6 +307,15 @@ object IncubatorSpec {
 
     @Caching(CachingStrategy.THREAD_LOCAL)
     def method3: String = method2 + " + method3"
+  }
+
+  @Neuron
+  trait Trait4 extends Trait1 {
+
+    def method2: String
+    def method3: String
+    def method4: Int
+    def method5: Int
   }
 
   @Neuron
