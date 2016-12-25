@@ -28,6 +28,7 @@ class Neuron(cachingStrategy: CachingStrategy = CachingStrategy.DISABLED)
 
 private object Neuron {
 
-  def transform(x: blackbox.Context)(annottees: x.Tree*): x.Tree =
-    new NeuronAnnotation { val c: x.type = x } apply annottees.toList
+  def transform(x: blackbox.Context)(annottees: x.Tree*): x.Tree = {
+    new { val c: x.type = x } with NeuronAnnotation apply annottees.toList
+  }
 }

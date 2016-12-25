@@ -28,6 +28,7 @@ class Caching(value: CachingStrategy = CachingStrategy.THREAD_SAFE)
 
 private object Caching {
 
-  def transform(x: blackbox.Context)(annottees: x.Tree*): x.Tree =
-    new CachingAnnotation { val c: x.type = x } apply annottees.toList
+  def transform(x: blackbox.Context)(annottees: x.Tree*): x.Tree = {
+    new { val c: x.type = x } with CachingAnnotation apply annottees.toList
+  }
 }
