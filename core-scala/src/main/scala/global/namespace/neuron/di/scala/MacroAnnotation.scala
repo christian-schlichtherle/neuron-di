@@ -91,17 +91,13 @@ private trait MacroAnnotation {
 
   protected implicit def position: Position = c.enclosingPosition
 
-  protected def info(msg: String, force: Boolean = false)(implicit pos: Position) =
-    c.info(pos, msg, force)
+  protected def info(msg: String, force: Boolean = false)(implicit pos: Position): Unit = c.info(pos, msg, force)
 
-  protected def warning(msg: String)(implicit pos: Position) =
-    c.warning(pos, msg)
+  protected def warning(msg: String)(implicit pos: Position): Unit = c.warning(pos, msg)
 
-  protected def error(msg: String)(implicit pos: Position) =
-    c.error(pos, msg)
+  protected def error(msg: String)(implicit pos: Position): Unit = c.error(pos, msg)
 
-  protected def abort(msg: String)(implicit pos: Position) =
-    c.abort(pos, msg)
+  protected def abort(msg: String)(implicit pos: Position): Nothing = c.abort(pos, msg)
 
   protected def isCachingAnnotation(tree: Tree): Boolean =
     tpeName(tree).exists(name => name == javaCachingAnnotationName || name == scalaCachingAnnotationName)
