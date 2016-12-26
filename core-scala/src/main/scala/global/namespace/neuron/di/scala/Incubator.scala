@@ -21,9 +21,13 @@ import java.util.function.{Function => jFunction}
 import global.namespace.neuron.di.internal.scala.runtimeClassOf
 import global.namespace.neuron.di.java.{DependencyProvider, DependencyResolver, Incubator => jIncubator}
 
+import scala.language.experimental.macros
 import scala.reflect._
 
 object Incubator {
+
+  /** @since Neuron DI 4.2 */
+  def neuron[A <: AnyRef]: A = macro Neuron.wire[A]
 
   def breed[A <: AnyRef : ClassTag]: A = jIncubator breed runtimeClassOf[A]
 

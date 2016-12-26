@@ -223,6 +223,18 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
     }
   }
 
+  feature("@Neuron classes or traits can be breeded using the `neuron` compiler macro.") {
+
+    scenario("Starting simple:") {
+
+      val method1 = "method1"
+      val method5 = "method5"
+      val neuron = Incubator.neuron[Trait5]
+      neuron.method1 shouldBe method1
+      neuron.method5 shouldBe method5
+    }
+  }
+
   feature("@Neuron classes or traits cannot have synapse methods without a return type.") {
 
     scenario("Breeding some trait with a synapse method without a return type.") {
@@ -316,6 +328,11 @@ object IncubatorSpec {
     def method3: String
     def method4: Int
     def method5: Int
+  }
+
+  @Neuron
+  trait Trait5 extends Trait1 {
+    def method5: String
   }
 
   @Neuron
