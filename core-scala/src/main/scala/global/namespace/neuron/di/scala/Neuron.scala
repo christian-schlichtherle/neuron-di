@@ -34,18 +34,25 @@ private object Neuron {
 
   def wire[A : c.WeakTypeTag](c: blackbox.Context): c.Tree = {
     import c.universe._
-    val targetType = weakTypeOf[A]
-    def isParameterless(method: MethodSymbol) = method.paramLists.flatten.isEmpty
-    val synapseMethods = targetType
-      .members
-      .collect { case m if m.isAbstract && m.isMethod => m.asMethod }
-      .filter(isParameterless)
-    var result = q"""_root_.global.namespace.neuron.di.scala.Incubator.stub[$targetType]"""
-    synapseMethods foreach { synapseMethod =>
-      val synapseName = synapseMethod.name
-      val synapseType = synapseMethod.returnType
-      result = q"""$result.bind(_.$synapseName).to($synapseName : $synapseType)"""
+
+    def ifAbstractMethod: PartialFunction[Symbol, MethodSymbol] = {
+      case member if member.isAbstract && member.isMethod => member.asMethod
     }
-    q"""$result.breed"""
+
+    def isParameterless(method: MethodSymbol) = method.paramLists.flatten.isEmpty
+
+    def synapseMethods = weakTypeOf[A].members.collect(ifAbstractMethod).filter(isParameterless)
+
+    def stubTerm = q"""_root_.global.namespace.neuron.di.scala.Incubator.stub[${weakTypeOf[A]}]"""
+
+    def bindingTerm = {
+      (stubTerm /: synapseMethods) { (term, synapseMethod) =>
+        val synapseName = synapseMethod.name
+        val synapseType = synapseMethod.returnType
+        q"""$term.bind(_.$synapseName).to($synapseName: $synapseType)"""
+      }
+    }
+
+    q"""$bindingTerm.breed"""
   }
 }

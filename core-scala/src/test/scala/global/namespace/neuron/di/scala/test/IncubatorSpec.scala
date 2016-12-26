@@ -208,7 +208,7 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
 
       val method1 = "method1"
       val method5 = "method5"
-      val neuron = Incubator.neuron[Trait5]
+      val neuron = Incubator.neuron[Trait4]
       neuron.method1 shouldBe method1
       neuron.method5 shouldBe method5
     }
@@ -301,7 +301,8 @@ object IncubatorSpec {
   }
 
   @Neuron
-  trait Trait5 extends Trait1 {
+  trait Trait4 extends Trait1 {
+
     def method5: String
   }
 
