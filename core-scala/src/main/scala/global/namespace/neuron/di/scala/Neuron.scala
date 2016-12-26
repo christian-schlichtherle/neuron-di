@@ -15,6 +15,8 @@
  */
 package global.namespace.neuron.di.scala
 
+import global.namespace.neuron.di.java.{Neuron => jNeuron}
+
 import scala.annotation.{StaticAnnotation, compileTimeOnly}
 import scala.language.experimental.macros
 import scala.reflect.macros.blackbox
@@ -35,17 +37,37 @@ private object Neuron {
   def wire[A : c.WeakTypeTag](c: blackbox.Context): c.Tree = {
     import c.universe._
 
-    def ifAbstractMethod: PartialFunction[Symbol, MethodSymbol] = {
-      case member if member.isAbstract && member.isMethod => member.asMethod
+    val targetType = weakTypeOf[A]
+
+    def isNeuronType = {
+      val targetTypeSymbol = targetType.typeSymbol
+
+      def isNeuronAnnotation(annotation: Annotation) = annotation.tree.tpe == typeOf[jNeuron]
+
+      def hasNeuronAnnotation(symbol: Symbol) = symbol.annotations exists isNeuronAnnotation
+
+      def isTargetTypeOrSuperClassWithNeuronAnnotation(symbol: Symbol) = {
+        (symbol == targetTypeSymbol || !symbol.asClass.isTrait) && hasNeuronAnnotation(symbol)
+      }
+
+      targetType.baseClasses exists isTargetTypeOrSuperClassWithNeuronAnnotation
     }
 
-    def isParameterless(method: MethodSymbol) = method.paramLists.flatten.isEmpty
-
-    def synapseMethods = weakTypeOf[A].members.collect(ifAbstractMethod).filter(isParameterless)
-
-    def stubTerm = q"""_root_.global.namespace.neuron.di.scala.Incubator.stub[${weakTypeOf[A]}]"""
-
     def bindingTerm = {
+
+      def stubTerm = q"""_root_.global.namespace.neuron.di.scala.Incubator.stub[$targetType]"""
+
+      def synapseMethods = {
+
+        def ifAbstractMethod: PartialFunction[Symbol, MethodSymbol] = {
+          case member if member.isAbstract && member.isMethod => member.asMethod
+        }
+
+        def isParameterless(method: MethodSymbol) = method.paramLists.flatten.isEmpty
+
+        targetType.members.collect(ifAbstractMethod).filter(isParameterless)
+      }
+
       (stubTerm /: synapseMethods) { (term, synapseMethod) =>
         val synapseName = synapseMethod.name
         val synapseType = synapseMethod.returnType
@@ -53,6 +75,10 @@ private object Neuron {
       }
     }
 
-    q"""$bindingTerm.breed"""
+    if (isNeuronType) {
+      q"""$bindingTerm.breed"""
+    } else {
+      c.abort(c.enclosingPosition, s"$targetType is not a @Neuron type.")
+    }
   }
 }
