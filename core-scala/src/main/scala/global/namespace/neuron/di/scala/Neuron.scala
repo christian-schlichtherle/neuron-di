@@ -19,7 +19,7 @@ import global.namespace.neuron.di.java.{Neuron => jNeuron}
 
 import scala.annotation.{StaticAnnotation, compileTimeOnly}
 import scala.language.experimental.macros
-import scala.reflect.macros.{TypecheckException, blackbox}
+import scala.reflect.macros.blackbox
 
 @compileTimeOnly("You need to add the Macro Paradise plugin to the Scala compiler to use this macro annotation. See http://docs.scala-lang.org/overviews/macros/paradise .")
 class Neuron(cachingStrategy: CachingStrategy = CachingStrategy.DISABLED)
@@ -57,7 +57,7 @@ private object Neuron {
 
     def bindingTerm = {
 
-      def stubTerm = q"""_root_.global.namespace.neuron.di.scala.Incubator.stub[$targetType]"""
+      def startTerm = q"_root_.global.namespace.neuron.di.scala.Incubator.stub[$targetType]"
 
       def synapses = {
 
@@ -70,28 +70,34 @@ private object Neuron {
         targetType.members.collect(ifAbstractMethod).filter(isParameterless)
       }
 
-      (stubTerm /: synapses) { (term, synapse) =>
-        val dependencyName = synapse.name
-        val dependencyType = synapse.returnType.asSeenFrom(targetType, synapse.owner)
-        val tree = q"$dependencyName"
-        c.typecheck(tree = tree, pt = dependencyType, silent = true) match {
-          case `EmptyTree` =>
-            val dependencyFunctionType = c.typecheck(tree = tq"$targetType => $dependencyType", mode = c.TYPEmode).tpe
-            c.typecheck(tree = tree, pt = dependencyFunctionType, silent = true) match {
-              case `EmptyTree` =>
-                val treeType = c.typecheck(tree).tpe
-                abort(s"Typecheck failed: Dependency `$dependencyName` must be assignable to type `$dependencyType` or `$targetType => $dependencyType`, but has type `$treeType`.")
-              case _ =>
-                q"""$term.bind(_.$dependencyName).to($tree: $targetType => $dependencyType)"""
-            }
-          case _ =>
-            q"""$term.bind(_.$dependencyName).to($tree: $dependencyType)"""
+      (startTerm /: synapses) { (term, synapse) =>
+        val synapseName = synapse.name
+        val synapseType = synapse.returnType.asSeenFrom(targetType, synapse.owner)
+        val dependency = q"$synapseName"
+
+        def typecheckDependencyAs(tpe: Type) = {
+          c.typecheck(tree = dependency, pt = tpe, silent = true) match {
+            case `EmptyTree` => None
+            case typecheckedDependency => Some(typecheckedDependency)
+          }
+        }
+
+        lazy val synapseFunctionType = c.typecheck(tree = tq"$targetType => $synapseType", mode = c.TYPEmode).tpe
+
+        val nextTerm = (dependency: Tree) => q"$term.bind(_.$synapseName).to($dependency)"
+        typecheckDependencyAs(synapseType) map {
+          nextTerm
+        } orElse {
+          typecheckDependencyAs(synapseFunctionType) map nextTerm
+        } getOrElse {
+          val dependencyType = typecheckDependencyAs(WildcardType).get.tpe
+          abort(s"Typecheck failed: Dependency `$synapseName` must be assignable to type `$synapseType` or `$synapseFunctionType`, but has type `$dependencyType`.")
         }
       }
     }
 
     if (isNeuronType) {
-      q"""$bindingTerm.breed"""
+      q"$bindingTerm.breed"
     } else {
       abort(s"$targetType is not a @Neuron type.")
     }

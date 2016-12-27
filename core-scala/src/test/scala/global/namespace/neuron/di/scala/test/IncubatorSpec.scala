@@ -160,7 +160,7 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
         .breed
       import neuron._
       method1 shouldBe "method1"
-      method1 should not be theSameInstanceAs(method1)
+      method1 shouldNot be theSameInstanceAs method1
     }
 
     scenario("Breeding a @Neuron trait with a non-abstract members:") {
@@ -321,7 +321,7 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
       val neuron = Incubator.neuron[Trait6]
       neuron.a shouldBe a
       neuron.b shouldBe a.toString
-      neuron.b should not be theSameInstanceAs(neuron.b)
+      neuron.b shouldNot be theSameInstanceAs neuron.b
     }
 
     scenario("Trait6 again, but with a dependency function literal:") {
@@ -330,7 +330,7 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
       val neuron = Incubator.neuron[Trait6]
       neuron.a shouldBe a
       neuron.b shouldBe a.toString
-      neuron.b should not be theSameInstanceAs(neuron.b)
+      neuron.b shouldNot be theSameInstanceAs neuron.b
     }
   }
 }
