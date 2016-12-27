@@ -76,10 +76,16 @@ private object Neuron {
         val tree = q"$dependencyName"
         c.typecheck(tree = tree, pt = dependencyType, silent = true) match {
           case `EmptyTree` =>
-            val treeType = c.typecheck(tree).tpe
-            abort(s"Typecheck failed: Dependency `$dependencyName` must be assignable to type `$dependencyType`, but has type `$treeType`.")
+            val dependencyFunctionType = c.typecheck(tree = tq"$targetType => $dependencyType", mode = c.TYPEmode).tpe
+            c.typecheck(tree = tree, pt = dependencyFunctionType, silent = true) match {
+              case `EmptyTree` =>
+                val treeType = c.typecheck(tree).tpe
+                abort(s"Typecheck failed: Dependency `$dependencyName` must be assignable to type `$dependencyType` or `$targetType => $dependencyType`, but has type `$treeType`.")
+              case _ =>
+                q"""$term.bind(_.$dependencyName).to($tree: $targetType => $dependencyType)"""
+            }
           case _ =>
-            q"""$term.bind(_.$dependencyName).to($tree)"""
+            q"""$term.bind(_.$dependencyName).to($tree: $dependencyType)"""
         }
       }
     }

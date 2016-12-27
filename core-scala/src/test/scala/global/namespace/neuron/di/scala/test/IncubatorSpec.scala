@@ -314,6 +314,24 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
       neuron.a shouldBe a
       neuron.b shouldBe b
     }
+
+    scenario("Trait6 again, but with a dependency function:") {
+      val a = 1
+      def b(neuron: Trait6) = neuron.a.toString
+      val neuron = Incubator.neuron[Trait6]
+      neuron.a shouldBe a
+      neuron.b shouldBe a.toString
+      neuron.b should not be theSameInstanceAs(neuron.b)
+    }
+
+    scenario("Trait6 again, but with a dependency function literal:") {
+      val a = 1
+      val b = (neuron: Trait6) => neuron.a.toString
+      val neuron = Incubator.neuron[Trait6]
+      neuron.a shouldBe a
+      neuron.b shouldBe a.toString
+      neuron.b should not be theSameInstanceAs(neuron.b)
+    }
   }
 }
 
