@@ -332,6 +332,17 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
       neuron.b shouldBe a.toString
       neuron.b shouldNot be theSameInstanceAs neuron.b
     }
+
+    scenario("Trait7:") {
+      val a = "World"
+      def b(neuron: Trait7[String]) = "Hello, " + neuron.a
+      val c = (neuron: Trait7[String]) => neuron.b + "!"
+      val neuron = Incubator.neuron[Trait7[String]]
+      neuron.c shouldBe "Hello, World!"
+      neuron.a should be theSameInstanceAs neuron.a
+      neuron.b shouldNot be theSameInstanceAs neuron.b
+      neuron.c shouldNot be theSameInstanceAs neuron.c
+    }
   }
 }
 
@@ -386,6 +397,13 @@ object IncubatorSpec {
 
   @Neuron
   trait Trait6 extends Trait5[Int, String]
+
+  @Neuron
+  trait Trait7[A] {
+    def a: A
+    def b: A
+    def c: A
+  }
 
   @Neuron
   trait Illegal1 {
