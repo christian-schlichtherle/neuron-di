@@ -19,7 +19,7 @@ import global.namespace.neuron.di.java.{Neuron => jNeuron}
 
 import scala.annotation.{StaticAnnotation, compileTimeOnly}
 import scala.language.experimental.macros
-import scala.reflect.macros.blackbox
+import scala.reflect.macros.{TypecheckException, blackbox}
 
 @compileTimeOnly("You need to add the Macro Paradise plugin to the Scala compiler to use this macro annotation. See http://docs.scala-lang.org/overviews/macros/paradise .")
 class Neuron(cachingStrategy: CachingStrategy = CachingStrategy.DISABLED)
@@ -34,7 +34,7 @@ private object Neuron {
     new { val c: x.type = x } with NeuronAnnotation apply annottees.toList
   }
 
-  def wire[A : c.WeakTypeTag](c: blackbox.Context): c.Tree = {
+  def wire[A <: AnyRef : c.WeakTypeTag](c: blackbox.Context): c.Tree = {
     import c.universe._
 
     val targetType = weakTypeOf[A]
@@ -53,11 +53,13 @@ private object Neuron {
       targetType.baseClasses exists isTargetTypeOrSuperClassWithNeuronAnnotation
     }
 
+    def abort(msg: String) = c.abort(c.enclosingPosition, msg)
+
     def bindingTerm = {
 
       def stubTerm = q"""_root_.global.namespace.neuron.di.scala.Incubator.stub[$targetType]"""
 
-      def synapseMethods = {
+      def synapses = {
 
         def ifAbstractMethod: PartialFunction[Symbol, MethodSymbol] = {
           case member if member.isAbstract && member.isMethod => member.asMethod
@@ -68,17 +70,24 @@ private object Neuron {
         targetType.members.collect(ifAbstractMethod).filter(isParameterless)
       }
 
-      (stubTerm /: synapseMethods) { (term, synapseMethod) =>
-        val synapseName = synapseMethod.name
-        val synapseType = synapseMethod.returnType
-        q"""$term.bind(_.$synapseName).to($synapseName: $synapseType)"""
+      (stubTerm /: synapses) { (term, synapse) =>
+        val dependencyName = synapse.name
+        val dependencyType = synapse.returnType.asSeenFrom(targetType, synapse.owner)
+        val tree = q"$dependencyName"
+        c.typecheck(tree = tree, pt = dependencyType, silent = true) match {
+          case `EmptyTree` =>
+            val treeType = c.typecheck(tree).tpe
+            abort(s"Typecheck failed: Dependency `$dependencyName` must be assignable to type `$dependencyType`, but has type `$treeType`.")
+          case _ =>
+            q"""$term.bind(_.$dependencyName).to($tree)"""
+        }
       }
     }
 
     if (isNeuronType) {
       q"""$bindingTerm.breed"""
     } else {
-      c.abort(c.enclosingPosition, s"$targetType is not a @Neuron type.")
+      abort(s"$targetType is not a @Neuron type.")
     }
   }
 }
