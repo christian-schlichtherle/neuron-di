@@ -90,8 +90,8 @@ private object Neuron {
         } orElse {
           typecheckDependencyAs(synapseFunctionType) map nextTerm
         } getOrElse {
-          val dependencyType = typecheckDependencyAs(WildcardType).get.tpe
-          abort(s"Typecheck failed: Dependency `$synapseName` must be assignable to type `$synapseType` or `$synapseFunctionType`, but has type `$dependencyType`.")
+          val maybeDependencyType = typecheckDependencyAs(WildcardType) map (_.tpe)
+          abort(s"Typecheck failed: Dependency `$synapseName` must be assignable to type `$synapseType` or `$synapseFunctionType`${maybeDependencyType map (t => s", but has type `$t`") getOrElse ""}.")
         }
       }
     }
