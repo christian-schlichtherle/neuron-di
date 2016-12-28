@@ -15,9 +15,9 @@
  */
 package global.namespace.neuron.di.java.sample.foo;
 
-public abstract class Foo {
+public abstract class Foo<Foo> {
 
-    protected abstract String foo();
+    protected abstract Foo foo();
 
     String fooBar() { return "foo"; }
 

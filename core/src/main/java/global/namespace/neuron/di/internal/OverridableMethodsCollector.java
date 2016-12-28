@@ -23,14 +23,17 @@ import java.util.Map;
 
 import static global.namespace.neuron.di.internal.Reflection.traverse;
 import static java.lang.reflect.Modifier.*;
+import static org.objectweb.asm.Type.getMethodDescriptor;
 
 final class OverridableMethodsCollector {
 
-    private static final int PRIVATE_STATIC_FINAL = PRIVATE | STATIC | FINAL;
+    // VOLATILE methods are synthetic bridge methods, e.g. for use in generic classes.
+    private static final int PRIVATE_STATIC_FINAL_VOLATILE = PRIVATE | STATIC | FINAL | VOLATILE;
+
     private static final int PROTECTED_PUBLIC = PROTECTED | PUBLIC;
 
     private final Package pkg;
-    private final Map<Signature, Method> methods = new LinkedHashMap<>();
+    private final Map<String, Method> methods = new LinkedHashMap<>();
 
     OverridableMethodsCollector(final Package pkg) { this.pkg = pkg; }
 
@@ -40,12 +43,20 @@ final class OverridableMethodsCollector {
         traverse(t -> {
             for (final Method method : t.getDeclaredMethods()) {
                 final int modifiers = method.getModifiers();
-                if (0 == (modifiers & PRIVATE_STATIC_FINAL) &&
+                if (0 == (modifiers & PRIVATE_STATIC_FINAL_VOLATILE) &&
                         (0 != (modifiers & PROTECTED_PUBLIC) || t.getPackage() == pkg)) {
-                    methods.putIfAbsent(Signature.of(method), method);
+                    methods.putIfAbsent(signature(method), method);
                 }
             }
         }).accept(type);
         return this;
+    }
+
+    private static String signature(final Method method) {
+        return method.getName() + methodDescriptorWithoutReturnType(method);
+    }
+
+    private static String methodDescriptorWithoutReturnType(Method method) {
+        return getMethodDescriptor(method).replaceAll("\\).*$", ")");
     }
 }

@@ -17,7 +17,9 @@ package global.namespace.neuron.di.java.sample;
 
 import global.namespace.neuron.di.java.sample.bar.Bar;
 
-public abstract class Baz extends Bar {
+public abstract class Baz extends Bar<String> {
+
+    protected abstract String bar();
 
     public abstract String baz();
 

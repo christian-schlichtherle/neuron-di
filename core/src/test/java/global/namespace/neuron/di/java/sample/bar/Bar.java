@@ -17,9 +17,11 @@ package global.namespace.neuron.di.java.sample.bar;
 
 import global.namespace.neuron.di.java.sample.foo.Foo;
 
-public abstract class Bar extends Foo {
+public abstract class Bar<Bar> extends Foo<String> {
 
-    protected abstract String bar();
+    protected abstract String foo();
+
+    protected abstract Bar bar();
 
     String fooBar() { return "bar"; }
 
