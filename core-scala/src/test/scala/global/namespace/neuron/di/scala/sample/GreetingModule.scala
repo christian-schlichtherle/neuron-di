@@ -26,9 +26,9 @@ trait Greeting {
 @Neuron
 trait RealGreeting extends Greeting {
 
-  val _formatter: Formatter
+  val formatter: Formatter
 
-  def message(entity: String): String = _formatter format entity
+  def message(entity: String): String = formatter format entity
 }
 
 trait Formatter {
@@ -49,7 +49,7 @@ object GreetingModule {
 
   lazy val greeting: Greeting = Incubator
     .stub[RealGreeting]
-    .bind(_._formatter).to(formatter)
+    .bind(_.formatter).to(formatter)
     .breed
 
   def formatter: Formatter = Incubator

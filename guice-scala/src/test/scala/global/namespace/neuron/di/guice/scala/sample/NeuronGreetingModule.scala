@@ -25,9 +25,9 @@ import scala.annotation.meta.getter
 @Neuron
 trait NeuronGreeting extends Greeting {
 
-  val _formatter: Formatter
+  val formatter: Formatter
 
-  def message(entity: String): String = _formatter format entity
+  def message(entity: String): String = formatter format entity
 }
 
 @Neuron
