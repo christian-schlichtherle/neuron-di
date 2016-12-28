@@ -25,29 +25,29 @@ private trait CachingAnnotation extends MacroAnnotation {
       case DefDef(mods, name, tparams, vparamss, tpt, rhs) :: rest =>
         val owner = c.internal.enclosingOwner
         if (!owner.annotations.exists(a => isNeuronAnnotation(a.tree))) {
-          error("A caching definition must be a member of a neuron class or interface...")
+          error("A caching annotation can only be applied to method definitions in a neuron type...")
           error("... but there is no @Neuron annotation here.")(owner.pos)
         }
         if (mods hasFlag MACRO) {
-          abort("A caching definition cannot be a macro.")
+          abort("A caching annotation cannot be applied to a macro definition.")
         }
         if (mods hasFlag FINAL) {
-          error("A caching definition cannot be final.")
+          error("A caching annotation cannot be applied to a final method definition.")
         }
         if (mods hasFlag PRIVATE) {
-          error("A caching definition cannot be private.")
+          error("A caching annotation cannot be applied to a private method definition.")
         }
         vparamss match {
           case Nil | List(Nil) =>
           case _ =>
-            abort("A caching definition cannot have parameters.")
+            abort("A caching annotation cannot be applied to a method definition with parameters.")
         }
         typeOf(rhs) match {
           case ConstantType(_) =>
-            error("A caching method cannot return a constant.")(tpt.pos)
+            error("A caching annotation cannot be applied to a method definition with a constant return type.")(tpt.pos)
           case TypeRef(_, sym, _)
             if sym == c.symbolOf[Unit] || sym == c.symbolOf[Nothing] =>
-            error("A caching method cannot return Unit or Nothing.")(tpt.pos)
+            error("A caching annotation cannot be applied to a method definition with return type `Unit` or `Nothing`.")(tpt.pos)
           case _ =>
         }
         val caching = {

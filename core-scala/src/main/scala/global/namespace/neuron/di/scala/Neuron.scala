@@ -73,25 +73,28 @@ private object Neuron {
       (startTerm /: synapses) { (term, synapse) =>
         val synapseName = synapse.name
         val synapseType = synapse.returnType.asSeenFrom(targetType, synapse.owner)
-        val dependency = q"$synapseName"
+        lazy val synapseFunctionType = c.typecheck(tree = tq"$targetType => $synapseType", mode = c.TYPEmode).tpe
+        val dependencyTree = q"$synapseName"
 
-        def typecheckDependencyAs(tpe: Type) = {
-          c.typecheck(tree = dependency, pt = tpe, silent = true) match {
+        def typecheckDependencyTreeAs(valueType: Type) = {
+          c.typecheck(tree = dependencyTree, pt = valueType, silent = true) match {
             case `EmptyTree` => None
             case typecheckedDependency => Some(typecheckedDependency)
           }
         }
 
-        lazy val synapseFunctionType = c.typecheck(tree = tq"$targetType => $synapseType", mode = c.TYPEmode).tpe
-
-        val nextTerm = (dependency: Tree) => q"$term.bind(_.$synapseName).to($dependency)"
-        typecheckDependencyAs(synapseType) map {
+        val nextTerm = (dependencyTree: Tree) => q"$term.bind(_.$synapseName).to($dependencyTree)"
+        typecheckDependencyTreeAs(synapseType) map {
           nextTerm
         } orElse {
-          typecheckDependencyAs(synapseFunctionType) map nextTerm
+          typecheckDependencyTreeAs(synapseFunctionType) map nextTerm
         } getOrElse {
-          val maybeDependencyType = typecheckDependencyAs(WildcardType) map (_.tpe)
-          abort(s"Typecheck failed: Dependency `$synapseName` must be assignable to type `$synapseType` or `$synapseFunctionType`${maybeDependencyType map (t => s", but has type `$t`") getOrElse ""}.")
+          typecheckDependencyTreeAs(WildcardType) map { dependencyTree =>
+            val dependencyType = dependencyTree.tpe
+            abort(s"Typecheck failed: Dependency `$dependencyTree` must be assignable to `$synapseType` or `$synapseFunctionType`, but has type `$dependencyType`.")
+          } getOrElse {
+            abort(s"Unsatisfied dependency: Cannot bind synapse `$synapseName` with type `$synapseType` in type `$targetType`.")
+          }
         }
       }
     }
