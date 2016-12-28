@@ -254,94 +254,94 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
 
     scenario("HasDependency[String]:") {
       val get = "Hello world!"
-      val neuron = Incubator.neuron[HasDependency[String]]
-      neuron.get shouldBe get
+      val hasDependency = neuron[HasDependency[String]]
+      hasDependency.get shouldBe get
     }
 
     scenario("HasDependency[Int]:") {
       val get = 1
-      val neuron = Incubator.neuron[HasDependency[Int]]
-      neuron.get shouldBe get
+      val hasDependency = neuron[HasDependency[Int]]
+      hasDependency.get shouldBe get
     }
 
     scenario("Trait1:") {
       def method1 = new String("method1")
-      val neuron = Incubator.neuron[Trait1]
-      neuron.method1 shouldBe method1
-      neuron.method1 should not be theSameInstanceAs(neuron.method1)
+      val trait1 = neuron[Trait1]
+      trait1.method1 shouldBe method1
+      trait1.method1 should not be theSameInstanceAs(trait1.method1)
     }
 
     scenario("Trait2:") {
       def method1 = new String("method1")
-      val neuron = Incubator.neuron[Trait2]
-      neuron.method1 shouldBe method1
-      neuron.method1 should be theSameInstanceAs neuron.method1
-      neuron.method2 shouldBe s"$method1 + method2"
-      neuron.method2 should be theSameInstanceAs neuron.method2
+      val trait2 = neuron[Trait2]
+      trait2.method1 shouldBe method1
+      trait2.method1 should be theSameInstanceAs trait2.method1
+      trait2.method2 shouldBe s"$method1 + method2"
+      trait2.method2 should be theSameInstanceAs trait2.method2
     }
 
     scenario("Trait3:") {
       def method1 = new String("method1")
-      val neuron = Incubator.neuron[Trait3]
-      neuron.method1 shouldBe method1
-      neuron.method1 should be theSameInstanceAs neuron.method1
-      neuron.method2 shouldBe s"$method1 + method2"
-      neuron.method2 should be theSameInstanceAs neuron.method2
-      neuron.method3 shouldBe s"$method1 + method2 + method3"
-      neuron.method3 should be theSameInstanceAs neuron.method3
+      val trait3 = neuron[Trait3]
+      trait3.method1 shouldBe method1
+      trait3.method1 should be theSameInstanceAs trait3.method1
+      trait3.method2 shouldBe s"$method1 + method2"
+      trait3.method2 should be theSameInstanceAs trait3.method2
+      trait3.method3 shouldBe s"$method1 + method2 + method3"
+      trait3.method3 should be theSameInstanceAs trait3.method3
     }
 
     scenario("Trait4:") {
       val method1 = "method1"
       val method5 = "method5"
-      val neuron = Incubator.neuron[Trait4]
-      neuron.method1 shouldBe method1
-      neuron.method5 shouldBe method5
+      val trait4 = neuron[Trait4]
+      trait4.method1 shouldBe method1
+      trait4.method5 shouldBe method5
     }
 
     scenario("Trait5:") {
       val a = 1
       val b = 2
-      val neuron = Incubator.neuron[Trait5[Int, Int]]
-      neuron.a shouldBe a
-      neuron.b shouldBe b
+      val trait5 = neuron[Trait5[Int, Int]]
+      trait5.a shouldBe a
+      trait5.b shouldBe b
     }
 
     scenario("Trait6:") {
       val a = 1
       val b = a.toString
-      val neuron = Incubator.neuron[Trait6]
-      neuron.a shouldBe a
-      neuron.b shouldBe b
+      val trait6 = neuron[Trait6]
+      trait6.a shouldBe a
+      trait6.b shouldBe b
     }
 
     scenario("Trait6 again, but with a dependency function:") {
       val a = 1
-      def b(neuron: Trait6) = neuron.a.toString
-      val neuron = Incubator.neuron[Trait6]
-      neuron.a shouldBe a
-      neuron.b shouldBe a.toString
-      neuron.b shouldNot be theSameInstanceAs neuron.b
+      def b(trait6: Trait6) = trait6.a.toString
+      val trait6 = neuron[Trait6]
+      trait6.a shouldBe a
+      trait6.b shouldBe a.toString
+      trait6.b shouldNot be theSameInstanceAs trait6.b
     }
 
     scenario("Trait6 again, but with a dependency function literal:") {
       val a = 1
-      val b = (neuron: Trait6) => neuron.a.toString
-      val neuron = Incubator.neuron[Trait6]
-      neuron.a shouldBe a
-      neuron.b shouldBe a.toString
-      neuron.b shouldNot be theSameInstanceAs neuron.b
+      val b = (trait6: Trait6) => trait6.a.toString
+      val trait6 = neuron[Trait6]
+      trait6.a shouldBe a
+      trait6.b shouldBe a.toString
+      trait6.b shouldNot be theSameInstanceAs trait6.b
     }
 
     scenario("Trait7:") {
       val a = "World"
-      def b(neuron: Trait7[String]) = "Hello, " + neuron.a
-      val c = (neuron: Trait7[String]) => neuron.b + "!"
-      val neuron = Incubator.neuron[Trait7[String]]
-      neuron.c shouldBe "Hello, World!"
-      neuron.a should be theSameInstanceAs neuron.a
-      neuron.b shouldNot be theSameInstanceAs neuron.b
-      neuron.c shouldNot be theSameInstanceAs neuron.c
+      def b(trait7: Trait7[String]) = "Hello, " + trait7.a
+      val c = (trait7: Trait7[String]) => trait7.b + "!"
+      val trait7 = neuron[Trait7[String]]
+      trait7.c shouldBe "Hello, World!"
+      trait7.a should be theSameInstanceAs trait7.a
+      trait7.b shouldNot be theSameInstanceAs trait7.b
+      trait7.c shouldNot be theSameInstanceAs trait7.c
     }
   }
 }
