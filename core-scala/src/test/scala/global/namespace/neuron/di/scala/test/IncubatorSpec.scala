@@ -249,104 +249,9 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
       }.getCause shouldBe a[NullPointerException]
     }
   }
-
-  feature("Dependencies of @Neuron types can be wired using the `neuron` compiler macro.") {
-
-    scenario("HasDependency[String]:") {
-      val get = "Hello world!"
-      val hasDependency = neuron[HasDependency[String]]
-      hasDependency.get shouldBe get
-    }
-
-    scenario("HasDependency[Int]:") {
-      val get = 1
-      val hasDependency = neuron[HasDependency[Int]]
-      hasDependency.get shouldBe get
-    }
-
-    scenario("Trait1:") {
-      def method1 = new String("method1")
-      val trait1 = neuron[Trait1]
-      trait1.method1 shouldBe method1
-      trait1.method1 should not be theSameInstanceAs(trait1.method1)
-    }
-
-    scenario("Trait2:") {
-      def method1 = new String("method1")
-      val trait2 = neuron[Trait2]
-      trait2.method1 shouldBe method1
-      trait2.method1 should be theSameInstanceAs trait2.method1
-      trait2.method2 shouldBe s"$method1 + method2"
-      trait2.method2 should be theSameInstanceAs trait2.method2
-    }
-
-    scenario("Trait3:") {
-      def method1 = new String("method1")
-      val trait3 = neuron[Trait3]
-      trait3.method1 shouldBe method1
-      trait3.method1 should be theSameInstanceAs trait3.method1
-      trait3.method2 shouldBe s"$method1 + method2"
-      trait3.method2 should be theSameInstanceAs trait3.method2
-      trait3.method3 shouldBe s"$method1 + method2 + method3"
-      trait3.method3 should be theSameInstanceAs trait3.method3
-    }
-
-    scenario("Trait4:") {
-      val method1 = "method1"
-      val method5 = "method5"
-      val trait4 = neuron[Trait4]
-      trait4.method1 shouldBe method1
-      trait4.method5 shouldBe method5
-    }
-
-    scenario("Trait5:") {
-      val a = 1
-      val b = 2
-      val trait5 = neuron[Trait5[Int, Int]]
-      trait5.a shouldBe a
-      trait5.b shouldBe b
-    }
-
-    scenario("Trait6:") {
-      val a = 1
-      val b = a.toString
-      val trait6 = neuron[Trait6]
-      trait6.a shouldBe a
-      trait6.b shouldBe b
-    }
-
-    scenario("Trait6 again, but with a dependency function:") {
-      val a = 1
-      def b(trait6: Trait6) = trait6.a.toString
-      val trait6 = neuron[Trait6]
-      trait6.a shouldBe a
-      trait6.b shouldBe a.toString
-      trait6.b shouldNot be theSameInstanceAs trait6.b
-    }
-
-    scenario("Trait6 again, but with a dependency function literal:") {
-      val a = 1
-      val b = (trait6: Trait6) => trait6.a.toString
-      val trait6 = neuron[Trait6]
-      trait6.a shouldBe a
-      trait6.b shouldBe a.toString
-      trait6.b shouldNot be theSameInstanceAs trait6.b
-    }
-
-    scenario("Trait7:") {
-      val a = "World"
-      def b(trait7: Trait7[String]) = "Hello, " + trait7.a
-      val c = (trait7: Trait7[String]) => trait7.b + "!"
-      val trait7 = neuron[Trait7[String]]
-      trait7.c shouldBe "Hello, World!"
-      trait7.a should be theSameInstanceAs trait7.a
-      trait7.b shouldNot be theSameInstanceAs trait7.b
-      trait7.c shouldNot be theSameInstanceAs trait7.c
-    }
-  }
 }
 
-object IncubatorSpec {
+private object IncubatorSpec {
 
   case class synapsesOf[T <: AnyRef](implicit ct: ClassTag[T]) {
 
@@ -381,28 +286,6 @@ object IncubatorSpec {
 
     @Caching(CachingStrategy.THREAD_LOCAL)
     def method3: String = method2 + " + method3"
-  }
-
-  @Neuron
-  trait Trait4 extends Trait1 {
-
-    def method5: String
-  }
-
-  @Neuron
-  trait Trait5[A, B] {
-    def a: A
-    def b: B
-  }
-
-  @Neuron
-  trait Trait6 extends Trait5[Int, String]
-
-  @Neuron
-  trait Trait7[A] {
-    def a: A
-    def b: A
-    def c: A
   }
 
   @Neuron
