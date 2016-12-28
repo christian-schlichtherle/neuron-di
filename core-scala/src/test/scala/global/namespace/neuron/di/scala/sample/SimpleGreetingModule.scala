@@ -17,39 +17,29 @@ package global.namespace.neuron.di.scala.sample
 
 import global.namespace.neuron.di.scala._
 
-trait Greeting {
+@Neuron
+trait SimpleGreeting {
+
+  def formatter: SimpleFormatter
 
   /** Returns a greeting message for the given entity. */
-  def message(entity: String): String
-}
-
-@Neuron
-trait RealGreeting extends Greeting {
-
-  def formatter: Formatter
-
   def message(entity: String): String = formatter format entity
 }
 
-trait Formatter {
-
-  /** Returns a text which has been formatted using the given arguments. */
-  def format(args: AnyRef*): String
-}
-
 @Neuron
-trait RealFormatter extends Formatter {
+trait SimpleFormatter {
 
   def theFormat: String
 
+  /** Returns a text which has been formatted using the given arguments. */
   def format(args: AnyRef*): String = String.format(theFormat, args: _*)
 }
 
-object GreetingModule {
+object SimpleGreetingModule {
 
-  lazy val greeting: Greeting = neuron[RealGreeting]
+  lazy val greeting: SimpleGreeting = neuron[SimpleGreeting]
 
-  lazy val formatter: Formatter = neuron[RealFormatter]
+  lazy val formatter: SimpleFormatter = neuron[SimpleFormatter]
 
   val theFormat = "Hello %s!"
 }
