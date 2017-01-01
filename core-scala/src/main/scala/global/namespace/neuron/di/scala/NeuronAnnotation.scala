@@ -22,7 +22,7 @@ private trait NeuronAnnotation extends MacroAnnotation {
 
   def apply(inputs: List[Tree]): Tree = {
     val outputs = inputs match {
-      case ClassDef(mods@Modifiers(flags, privateWithin, annotations), tpname@TypeName(name), tparams, impl) :: rest =>
+      case ClassDef(mods @ Modifiers(flags, privateWithin, annotations), tname @ TypeName(name), tparams, impl) :: rest =>
         if (mods hasFlag TRAIT) {
           if (!hasStaticContext) {
             error("A neuron trait must have a static context.")
@@ -65,10 +65,10 @@ private trait NeuronAnnotation extends MacroAnnotation {
                 tree
             })
           }
-          ClassDef(mods.mapAnnotations(neuron :: _ ::: shim), tpname, tparams, applyCachingAnnotation(impl)) :: {
+          ClassDef(mods.mapAnnotations(neuron :: _ ::: shim), tname, tparams, applyCachingAnnotation(impl)) :: {
             if (needsShim) {
               val shimMods = Modifiers(flags &~ (TRAIT | DEFAULTPARAM) | ABSTRACT | SYNTHETIC, privateWithin, neuron :: annotations)
-              val shimDef = q"$shimMods class $$shim extends $tpname"
+              val shimDef = q"$shimMods class $$shim extends $tname"
               rest match {
                 case ModuleDef(moduleMods, moduleName, Template(parents, self, body)) :: moduleRest =>
                   ModuleDef(moduleMods, moduleName, Template(parents, self, shimDef :: body)) :: moduleRest
@@ -114,7 +114,7 @@ private trait NeuronAnnotation extends MacroAnnotation {
   private def applyCachingAnnotation(template: Template): Template = {
     val Template(parents, self, body) = template
     Template(parents, self, body map {
-      case valDef@ValDef(mods@Modifiers(_, _, annotations), name, tpt, EmptyTree)
+      case valDef @ ValDef(mods @ Modifiers(_, _, annotations), name, tpt, EmptyTree)
         if !annotations.exists(isCachingAnnotation) && !mods.hasFlag(PRIVATE) =>
         ValDef(mods.mapAnnotations(newCachingAnnotationTerm :: _), name, tpt, EmptyTree)
       case other =>

@@ -15,7 +15,7 @@
  */
 package global.namespace.neuron.di.internal
 
-import reflect.{ClassTag, classTag}
+import _root_.scala.reflect.{ClassTag, classTag}
 
 package object scala {
 
