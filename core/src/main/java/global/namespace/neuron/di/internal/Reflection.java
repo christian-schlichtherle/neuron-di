@@ -77,7 +77,7 @@ class Reflection {
     static <C> Class<? extends C> defineSubclass(final Class<C> clazz,
                                                  final String name,
                                                  final byte[] b) {
-        final ClassLoader cl = associatedClassLoader(clazz);
+        final ClassLoader cl = clazz.getClassLoader();
         try {
             synchronized (getClassLoadingLock.invoke(cl, name)) {
                 return (Class<? extends C>) defineClass.invoke(cl, name, b, 0, b.length);
@@ -87,16 +87,6 @@ class Reflection {
         } catch (IllegalAccessException e) {
             throw new AssertionError(e);
         }
-    }
-
-    static ClassLoader associatedClassLoader(Class<?> clazz) {
-        return Optional
-                .ofNullable(clazz.getClassLoader())
-                .orElse(Optional
-                        .ofNullable(Thread.currentThread().getContextClassLoader())
-                        .orElse(Optional
-                                .ofNullable(ClassLoader.getSystemClassLoader())
-                                .orElseThrow(() -> new IllegalArgumentException("No class loader associated with " + clazz))));
     }
 
     static Class<?> boxed(Class<?> clazz) {

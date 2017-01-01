@@ -24,7 +24,6 @@ import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.util.List;
 
-import static global.namespace.neuron.di.internal.Reflection.associatedClassLoader;
 import static global.namespace.neuron.di.internal.Reflection.defineSubclass;
 import static org.objectweb.asm.ClassReader.SKIP_DEBUG;
 import static org.objectweb.asm.Type.getInternalName;
@@ -52,7 +51,7 @@ final class ASM implements Opcodes {
     }
 
     private static ClassReader classReader(final Class<?> clazz) {
-        try (InputStream in = associatedClassLoader(clazz).getResourceAsStream(getInternalName(clazz) + ".class")) {
+        try (InputStream in = clazz.getClassLoader().getResourceAsStream(getInternalName(clazz) + ".class")) {
             return new ClassReader(in);
         } catch (IOException e) {
             throw new AssertionError(e);
