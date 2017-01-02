@@ -33,7 +33,7 @@ private object Neuron {
     new { val c: x.type = x } with NeuronAnnotation apply annottees.toList
   }
 
-  def wire[A <: AnyRef : c.WeakTypeTag](c: blackbox.Context): c.Tree = {
+  def wire[A : c.WeakTypeTag](c: blackbox.Context): c.Tree = {
     import c.universe._
 
     val targetType = weakTypeOf[A]
