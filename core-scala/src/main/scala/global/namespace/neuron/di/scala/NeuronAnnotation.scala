@@ -47,7 +47,11 @@ private trait NeuronAnnotation extends MacroAnnotation {
           val needsShim = (mods hasFlag TRAIT) && !(mods hasFlag INTERFACE)
           val shim = {
             if (needsShim) {
-              q"new _root_.global.namespace.neuron.di.internal.Shim(classOf[${TermName(name)}.$$shim])" :: Nil
+              // Due to https://issues.scala-lang.org/browse/SI-7551 , we have to put the binary class name into the
+              // shim annotation instead of just the class literal which is bad because the naming schema is supposed to
+              // be an implementation detail of the Scala compiler which may change without notice.
+              val binaryName = enclosingOwner.fullName + (if (enclosingOwner.isPackage) '.' else '$') + name + "$$shim"
+              q"new _root_.global.namespace.neuron.di.internal.Shim(name = $binaryName)" :: Nil
             } else {
               Nil
             }
@@ -108,9 +112,11 @@ private trait NeuronAnnotation extends MacroAnnotation {
     }
   }
 
-  private def hasStaticContext: Boolean = c.internal.enclosingOwner.isStatic
+  private def hasStaticContext = enclosingOwner.isStatic
 
-  private def applyCachingAnnotation(template: Template): Template = {
+  private lazy val enclosingOwner = c.internal.enclosingOwner
+
+  private def applyCachingAnnotation(template: Template) = {
     val Template(parents, self, body) = template
     Template(parents, self, body map {
       case valDef @ ValDef(mods @ Modifiers(_, _, annotations), name, tpt, EmptyTree)

@@ -43,13 +43,29 @@ final class NeuronProxyContext<N> {
         return new NeuronProxyFactory<>(adaptedClass, providerMethods(adaptedClass));
     }
 
-    @SuppressWarnings("unchecked")
     private Class<? extends N> adaptedClass() {
         final Class<N> neuronClass = neuronClass();
         return Optional
                 .ofNullable(neuronClass.getDeclaredAnnotation(Shim.class))
-                .<Class<? extends N>>map(annotation -> (Class<? extends N>) annotation.value())
+                .<Class<? extends N>>map(this::shimClass)
                 .orElse(neuronClass);
+    }
+
+    @SuppressWarnings("unchecked")
+    private Class<? extends N> shimClass(final Shim annotation) {
+        Class<? extends N> shimClass = (Class<? extends N>) annotation.value();
+        if (shimClass == Object.class) {
+            try {
+                shimClass = (Class<? extends N>) neuronClass().getClassLoader().loadClass(annotation.name());
+            } catch (ClassNotFoundException e) {
+                throw new IllegalStateException(e);
+            }
+        }
+        if (shimClass == Object.class) {
+            throw new IllegalStateException(String.format("The @Shim annotation on %s must reference a @Neuron class.",
+                    neuronClass()));
+        }
+        return shimClass;
     }
 
     private Class<N> neuronClass() { return element.runtimeClass(); }
