@@ -200,6 +200,22 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
       method3 shouldBe "method1 + method2 + method3"
       method3 should be theSameInstanceAs method3
     }
+
+    scenario("Breeding a @Neuron trait which requires a shim class and is defined in some static context which is not a package:") {
+
+      Given("a @Neuron trait which requires a shim class")
+      And("is defined in some static context which is not a package")
+      When("breeding an instance")
+      Then("the shim class should be correctly referenced by its binary name in the associated @Shim annotation")
+
+      val neuron = Incubator
+        .stub[Object1.Trait1]
+        .bind(_.index).to(1)
+        .breed
+      neuron.nextIndex shouldBe 2
+      // The @Shim annotation is not inherited by the proxy class, but we can sniff its trace in the class name.
+      neuron.getClass.getName should include("$$shim")
+    }
   }
 
   feature("@Neuron types cannot have synapse methods without a return type.") {
@@ -286,6 +302,16 @@ private object IncubatorSpec {
 
     @Caching(CachingStrategy.THREAD_LOCAL)
     def method3: String = method2 + " + method3"
+  }
+
+  object Object1 {
+
+    @Neuron
+    trait Trait1 {
+
+      def index: Int
+      def nextIndex: Int = index + 1
+    }
   }
 
   @Neuron

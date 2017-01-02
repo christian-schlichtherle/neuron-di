@@ -50,7 +50,12 @@ private trait NeuronAnnotation extends MacroAnnotation {
               // Due to https://issues.scala-lang.org/browse/SI-7551 , we have to put the binary class name into the
               // shim annotation instead of just the class literal which is bad because the naming schema is supposed to
               // be an implementation detail of the Scala compiler which may change without notice.
-              val binaryName = enclosingOwner.fullName + (if (enclosingOwner.isPackage) '.' else '$') + name + "$$shim"
+              val binaryName = {
+                binaryNameOf(enclosingOwner) +
+                  (if (enclosingOwner.isPackage) '.' else '$') +
+                  tname.encodedName +
+                  "$$shim"
+              }
               q"new _root_.global.namespace.neuron.di.internal.Shim(name = $binaryName)" :: Nil
             } else {
               Nil
@@ -115,6 +120,18 @@ private trait NeuronAnnotation extends MacroAnnotation {
   private def hasStaticContext = enclosingOwner.isStatic
 
   private lazy val enclosingOwner = c.internal.enclosingOwner
+
+  private def binaryNameOf(symbol: Symbol): String = {
+    symbol match {
+      case NoSymbol =>
+        ""
+      case other if other.isPackage =>
+        other.fullName
+      case other =>
+        val oo = other.owner
+        binaryNameOf(oo) + (if (oo.isPackage) '.' else '$') + other.name.encodedName
+    }
+  }
 
   private def applyCachingAnnotation(template: Template) = {
     val Template(parents, self, body) = template
