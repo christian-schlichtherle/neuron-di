@@ -38,8 +38,6 @@ final class NeuronProxyContext<N> {
 
     DependencyProvider<?> provider(Method method) { return binding.apply(method); }
 
-    N cast(Object obj) { return neuronClass().cast(obj); }
-
     NeuronProxyFactory<N> factory() {
         final Class<? extends N> adaptedClass = adaptedClass();
         return new NeuronProxyFactory<>(adaptedClass, providerMethods(adaptedClass));

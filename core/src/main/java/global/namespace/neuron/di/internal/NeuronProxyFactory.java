@@ -58,16 +58,17 @@ final class NeuronProxyFactory<N> implements Function<NeuronProxyContext<N>, N> 
     public N apply(final NeuronProxyContext<N> ctx) {
         return new Visitor<N>() {
 
-            final N neuronProxy = ctx.cast(neuronProxy());
+            final Object neuronProxy = neuronProxy();
 
             BoundMethodHandler boundMethodHandler;
 
+            @SuppressWarnings("unchecked")
             N apply() {
                 for (final MethodHandler handler : methodHandlers) {
                     this.boundMethodHandler = handler.bind(neuronProxy);
                     ctx.element(handler.method()).accept(this);
                 }
-                return neuronProxy;
+                return (N) neuronProxy;
             }
 
             public void visitSynapse(SynapseElement<N> element) {
@@ -110,7 +111,7 @@ final class NeuronProxyFactory<N> implements Function<NeuronProxyContext<N>, N> 
 
         Method method() { return method; }
 
-        BoundMethodHandler bind(final N neuronProxy) {
+        BoundMethodHandler bind(final Object neuronProxy) {
             return new BoundMethodHandler() {
 
                 public DependencyProvider<?> getProvider() {
