@@ -53,17 +53,17 @@ final class NeuronProxyContext<N> {
 
     @SuppressWarnings("unchecked")
     private Class<? extends N> shimClass(final Shim annotation) {
-        Class<? extends N> shimClass = (Class<? extends N>) annotation.value();
-        if (shimClass == Object.class) {
-            try {
-                shimClass = (Class<? extends N>) neuronClass().getClassLoader().loadClass(annotation.name());
-            } catch (ClassNotFoundException e) {
-                throw new IllegalStateException(e);
-            }
+        Class<? extends N> shimClass;
+        try {
+            shimClass = (Class<? extends N>) neuronClass().getClassLoader().loadClass(annotation.name());
+        } catch (ClassNotFoundException e) {
+            throw new IllegalStateException(e);
         }
         if (shimClass == Object.class) {
-            throw new IllegalStateException(String.format("The @Shim annotation on %s must reference a @Neuron class.",
-                    neuronClass()));
+            shimClass = (Class<? extends N>) annotation.value();
+        }
+        if (shimClass == Object.class) {
+            throw new IllegalStateException("The @Shim annotation on " + neuronClass() + " must reference a @Neuron class.");
         }
         return shimClass;
     }
