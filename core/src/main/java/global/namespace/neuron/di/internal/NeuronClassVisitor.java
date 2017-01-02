@@ -211,8 +211,8 @@ class NeuronClassVisitor extends ClassVisitor {
                         assert !returnType.isArray();
                         mv.visitMethodInsn(INVOKEVIRTUAL,
                                 boxedReturnTypeName,
-                                returnTypeName + "Value",
-                                "()" + returnTypeDesc,
+                                returnTypeName.concat("Value"),
+                                "()".concat(returnTypeDesc),
                                 false);
                         mv.visitInsn(returnOpCode);
                         mv.visitMaxs(2, 1);

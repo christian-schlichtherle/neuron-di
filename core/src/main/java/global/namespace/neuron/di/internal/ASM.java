@@ -43,7 +43,7 @@ final class ASM implements Opcodes {
             superclass = neuronClass;
             interfaces = NO_CLASSES;
         }
-        final String implName = neuronClass.getName() + "$$neuron";
+        final String implName = neuronClass.getName().concat("$$neuron");
         final ClassReader cr = classReader(neuronClass);
         final ClassWriter cw = new ClassWriter(cr, 0);
         cr.accept(new NeuronClassVisitor(cw, superclass, interfaces, providerMethods, internalName(implName)), SKIP_DEBUG);
@@ -51,7 +51,7 @@ final class ASM implements Opcodes {
     }
 
     private static ClassReader classReader(final Class<?> clazz) {
-        try (InputStream in = clazz.getClassLoader().getResourceAsStream(getInternalName(clazz) + ".class")) {
+        try (InputStream in = clazz.getClassLoader().getResourceAsStream(getInternalName(clazz).concat(".class"))) {
             return new ClassReader(in);
         } catch (IOException e) {
             throw new AssertionError(e);
