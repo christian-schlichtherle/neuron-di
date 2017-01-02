@@ -28,6 +28,9 @@ private trait NeuronAnnotation extends MacroAnnotation {
             error("A neuron trait must have a static context.")
           }
         } else {
+          if (!hasStaticContext) {
+            error("A neuron class must have a static context.")
+          }
           if (!(mods hasFlag ABSTRACT)) {
             warning("A neuron class should be abstract.")
           }
@@ -36,9 +39,6 @@ private trait NeuronAnnotation extends MacroAnnotation {
           }
           if (!hasNonPrivateConstructorWithoutParameters(impl)) {
             error("A neuron class must have a non-private constructor without parameters.")
-          }
-          if (!hasStaticContext) {
-            error("A neuron class must have a static context.")
           }
         }
         if (c.hasErrors) {
@@ -65,7 +65,7 @@ private trait NeuronAnnotation extends MacroAnnotation {
                 tree
             })
           }
-          ClassDef(mods.mapAnnotations(neuron :: _ ::: shim), tname, tparams, applyCachingAnnotation(impl)) :: {
+          ClassDef(mods.mapAnnotations(shim ::: neuron :: _), tname, tparams, applyCachingAnnotation(impl)) :: {
             if (needsShim) {
               val shimMods = Modifiers(flags &~ (TRAIT | DEFAULTPARAM) | ABSTRACT | SYNTHETIC, privateWithin, neuron :: annotations)
               val shimDef = q"$shimMods class $$shim extends $tname"
@@ -84,24 +84,23 @@ private trait NeuronAnnotation extends MacroAnnotation {
       case _ =>
         abort("The @Neuron annotation can only be applied to classes or traits.")
     }
-
     q"..$outputs"
   }
 
-  private def hasNonPrivateConstructorWithoutParameters(template: Template): Boolean = {
+  private def hasNonPrivateConstructorWithoutParameters(template: Template) = {
     val Template(_, _, body) = template
     !(body exists isConstructor) ||
       (body exists isNonPrivateConstructorWithoutParameters)
   }
 
-  private def isConstructor(tree: Tree): Boolean = {
+  private def isConstructor(tree: Tree) = {
     tree match {
       case DefDef(_, termNames.CONSTRUCTOR, _, _, _, _) => true
       case _ => false
     }
   }
 
-  private def isNonPrivateConstructorWithoutParameters(tree: Tree): Boolean = {
+  private def isNonPrivateConstructorWithoutParameters(tree: Tree) = {
     tree match {
       case DefDef(mods, termNames.CONSTRUCTOR, _, Nil | List(Nil), _, _)
         if !mods.hasFlag(PRIVATE) => true

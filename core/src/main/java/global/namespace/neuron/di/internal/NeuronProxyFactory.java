@@ -30,8 +30,13 @@ import java.util.stream.Collectors;
 final class NeuronProxyFactory<N> implements Function<NeuronProxyContext<N>, N> {
 
     private static final MethodHandles.Lookup lookup = MethodHandles.lookup();
-    private static final MethodType dependencyProviderObjectSignature = MethodType.methodType(DependencyProvider.class, Object.class);
-    private static final MethodType voidObjectDependencyProviderSignature = MethodType.methodType(Void.TYPE, Object.class, DependencyProvider.class);
+
+    private static final MethodType dependencyProviderObjectSignature =
+            MethodType.methodType(DependencyProvider.class, Object.class);
+
+    private static final MethodType voidObjectDependencyProviderSignature =
+            MethodType.methodType(Void.TYPE, Object.class, DependencyProvider.class);
+
     private static final MethodType objectSignature = MethodType.methodType(Object.class);
 
     private final Class<? extends N> neuronProxyClass;
