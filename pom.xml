@@ -71,9 +71,7 @@
 
     <modules>
         <module>core</module>
-        <module>core-scala</module>
         <module>guice</module>
-        <module>guice-scala</module>
     </modules>
 
     <properties>
@@ -103,7 +101,7 @@
         </snapshotRepository>
         <repository>
             <id>ossrh</id>
-            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
         </repository>
     </distributionManagement>
 
@@ -112,16 +110,6 @@
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>neuron-di</artifactId>
-                <version>4.2.3-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>neuron-di-guice</artifactId>
-                <version>4.2.3-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>neuron-di-scala_${scala.compat.version}</artifactId>
                 <version>4.2.3-SNAPSHOT</version>
             </dependency>
 
@@ -279,6 +267,7 @@ limitations under the License.
                          </inlineHeader>
                          <mapping>
                              <java>SLASHSTAR_STYLE</java>
+                             <sbt>SLASHSTAR_STYLE</sbt>
                              <scala>SLASHSTAR_STYLE</scala>
                          </mapping>
                      </configuration>

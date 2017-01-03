@@ -1,18 +1,9 @@
-language: java
-jdk: oraclejdk8
 env:
-- SCALA_COMPAT_VERSION=2.11 SCALA_VERSION=2.11.0 GUICE_VERSION=3.0
-- SCALA_COMPAT_VERSION=2.11 SCALA_VERSION=2.11.8 GUICE_VERSION=4.1.0
-- SCALA_COMPAT_VERSION=2.12 SCALA_VERSION=2.12.0 GUICE_VERSION=3.0
-- SCALA_COMPAT_VERSION=2.12 SCALA_VERSION=2.12.1 GUICE_VERSION=4.1.0
-cache:
-  directories:
-  - $HOME/.m2
-install: true
-script:
-  - mvn post-integration-test -Prelease
-    -Dscala.compat.version=$SCALA_COMPAT_VERSION
-    -Dscala.version=$SCALA_VERSION
-    -Dguice.version=$GUICE_VERSION
+- GUICE_VERSION=3.0
+- GUICE_VERSION=4.1.0
 git:
   depth: 3
+language: scala
+scala:
+- 2.11.0
+- 2.12.0
