@@ -35,9 +35,9 @@ trait NeuronFormatter extends Formatter {
 
   private type Named = javax.inject.Named @getter
 
-  @Named("format") val _format: String
+  @Named("format") val theFormat: String
 
-  def format(args: AnyRef*): String = String.format(_format, args: _*)
+  def format(args: AnyRef*): String = String.format(theFormat, args: _*)
 }
 
 class NeuronGreetingModule extends NeuronModule {
