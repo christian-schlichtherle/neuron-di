@@ -19,4 +19,4 @@ set -ev
 
 mvn release:prepare release:perform
 cd target/checkout
-sbt +publishSigned
+sbt +coreScala/test +guiceScala/test +publishSigned
