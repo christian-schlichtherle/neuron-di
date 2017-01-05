@@ -18,7 +18,7 @@ import Dependencies._
 
 import scala.xml._
 
-lazy val mavenProject: SettingKey[NodeSeq] = settingKey[NodeSeq]("The <project> element of a maven POM.")
+lazy val mavenProject: SettingKey[NodeSeq] = SettingKey[NodeSeq]("maven-project", "The <project> element of a maven POM.")
 
 lazy val root = project
   .in(file("."))
