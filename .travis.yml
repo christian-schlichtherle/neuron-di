@@ -1,3 +1,7 @@
+cache:
+  directories:
+  - $HOME/.ivy2
+  - $HOME/.sbt
 env:
 - GUICE_VERSION=3.0
 - GUICE_VERSION=4.1.0
