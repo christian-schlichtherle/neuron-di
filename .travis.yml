@@ -3,6 +3,7 @@ env:
 - GUICE_VERSION=4.1.0
 git:
   depth: 3
+jdk: oraclejdk8
 language: scala
 scala:
 - 2.11.0
