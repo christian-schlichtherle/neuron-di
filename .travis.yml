@@ -9,7 +9,6 @@ git:
   depth: 3
 jdk: oraclejdk8
 language: scala
-sbt_args: -Dguice.version=$GUICE_VERSION
 scala:
 - 2.11.0
 - 2.12.0

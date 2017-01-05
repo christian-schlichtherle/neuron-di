@@ -20,7 +20,7 @@ import sbt.impl.GroupArtifactID
 object Dependencies {
 
   val asm: ModuleID = "org.ow2.asm" % "asm" % "5.1"
-  val guice: ModuleID = "com.google.inject" % "guice" % (sys.props get "guice.version").getOrElse("3.0")
+  val guice: ModuleID = "com.google.inject" % "guice" % sys.env.getOrElse("GUICE_VERSION", "3.0")
   val hamcrestLibrary: ModuleID = "org.hamcrest" % "hamcrest-library" % "1.3"
   val junit: ModuleID = "junit" % "junit" % "4.12"
   val junitInterface: ModuleID = "com.novocode" % "junit-interface" % "0.11"
