@@ -25,7 +25,7 @@
 
     <groupId>global.namespace.neuron-di</groupId>
     <artifactId>neuron-di-parent</artifactId>
-    <version>4.3-SNAPSHOT</version>
+    <version>4.2.4-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Neuron DI Parent</name>
@@ -87,7 +87,7 @@
 
         <!-- scala-maven-plugin -->
         <scala.compat.version>2.11</scala.compat.version>
-        <scala.version>2.11.0</scala.version>
+        <scala.version>2.11.8</scala.version>
 
         <guice.version>3.0</guice.version>
 
@@ -110,7 +110,7 @@
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>neuron-di</artifactId>
-                <version>4.3-SNAPSHOT</version>
+                <version>4.2.4-SNAPSHOT</version>
             </dependency>
 
             <dependency>

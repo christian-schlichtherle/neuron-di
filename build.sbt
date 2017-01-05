@@ -16,6 +16,10 @@
 
 import Dependencies._
 
+import scala.xml._
+
+lazy val mavenProject: SettingKey[NodeSeq] = settingKey[NodeSeq]("The <project> element of a maven POM.")
+
 lazy val root = project
   .in(file("."))
   .aggregate(core, coreScala, guice, guiceScala)
@@ -23,30 +27,15 @@ lazy val root = project
     inThisBuild(Seq(
       addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full),
       compileOrder := CompileOrder.JavaThenScala,
-      crossScalaVersions := Seq(scalaVersion.value, "2.12.0"),
-      fork in Test := true, // required to make `javaOptions` effective.
+      fork := true, // required to make `javaOptions` effective.
       javacOptions in compile := javacOptions.value ++ Seq("-target", "1.8", "-deprecation"),
       javacOptions := Seq("-source", "1.8"), // unfortunately, this is used for running javadoc, e.g. in the `packageDoc` task key?!
       javaOptions += "-ea",
       homepage := Some(url("https://github.com/christian-schlichtherle/neuron-di")),
       licenses := Seq("Apache License, Version 2.0" -> url("https://www.apache.org/licenses/LICENSE-2.0")),
+      mavenProject := XML.loadFile(baseDirectory.value + "/pom.xml"),
       organization := "global.namespace.neuron-di",
-      pomExtra := {
-        <developers>
-          <developer>
-            <name>Christian Schlichtherle</name>
-            <email>christian AT schlichtherle DOT de</email>
-            <organization>Schlichtherle IT Services</organization>
-            <timezone>Europe/Berlin</timezone>
-            <roles>
-              <role>owner</role>
-            </roles>
-            <properties>
-              <picUrl>http://www.gravatar.com/avatar/e2f69ddc944f8891566fc4b18518e4e6.png</picUrl>
-            </properties>
-          </developer>
-        </developers>
-      },
+      pomExtra := mavenProject.value \ "developers",
       pomIncludeRepository := (_ => false),
       publishTo := {
         val nexus = "https://oss.sonatype.org/"
@@ -60,14 +49,14 @@ lazy val root = project
       },
       // Selectively publish Scala artifacts only at this time as long as sbt-assembly doesn't support Java 8.
       scalacOptions := Seq("-deprecation", "-explaintypes", "-feature", "-unchecked"),
-      scalaVersion := "2.11.0",
+      scalaVersion := (mavenProject.value \ "properties" \ "scala.version").text,
       scmInfo := Some(ScmInfo(
         browseUrl = url("https://github.com/christian-schlichtherle/neuron-di"),
         connection = "scm:git:git://github.com/christian-schlichtherle/neuron-di.git",
         devConnection = Some("scm:git:ssh://git@github.com/christian-schlichtherle/neuron-di.git")
       )),
       testOptions += Tests.Argument(TestFrameworks.JUnit, "-a"),
-      version := (xml.XML.loadFile(baseDirectory.value + "/pom.xml") \ "version").text
+      version := (mavenProject.value \ "version").text
     )),
     name := "Neuron DI Parent",
     publishArtifact := false
@@ -77,11 +66,12 @@ lazy val core = project
   .in(file("core"))
   .settings(
     autoScalaLibrary := false,
+    crossPaths := false,
     libraryDependencies ++= Seq(
       asm,
       hamcrestLibrary % Test,
-      junit % "optional, provided",
-      junitInterface % Test,
+      junit % "provided, optional",
+      junitInterface % "test, optional",
       scalaTest % Test
     ),
     name := "Neuron DI for Java",
@@ -106,11 +96,12 @@ lazy val guice = project
   .dependsOn(core)
   .settings(
     autoScalaLibrary := false,
+    crossPaths := false,
     libraryDependencies ++= Seq(
       Dependencies.guice,
       hamcrestLibrary % Test,
       junit % Test,
-      junitInterface % Test,
+      junitInterface % "test, optional",
       mockitoCore % Test,
       scalaTest % Test
     ),

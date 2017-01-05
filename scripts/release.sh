@@ -17,6 +17,8 @@
 
 set -ev
 
-mvn release:prepare release:perform
+mvn clean release:prepare release:perform
 cd target/checkout
-sbt +coreScala/test +guiceScala/test +publishSigned
+for scalaVersion in 2.11.0 2.12.0; do
+    sbt ++$scalaVersion clean coreScala/test guiceScala/test publishSigned
+done
