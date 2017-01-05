@@ -56,6 +56,7 @@ lazy val root = project
         devConnection = Some("scm:git:ssh://git@github.com/christian-schlichtherle/neuron-di.git")
       )),
       testOptions += Tests.Argument(TestFrameworks.JUnit, "-a"),
+      useGpgAgent := true,
       version := (mavenProject.value \ "version").text
     )),
     name := "Neuron DI Parent",
