@@ -25,7 +25,7 @@
 
     <groupId>global.namespace.neuron-di</groupId>
     <artifactId>neuron-di-parent</artifactId>
-    <version>4.4-SNAPSHOT</version>
+    <version>4.3-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Neuron DI Parent</name>
@@ -110,7 +110,7 @@
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>neuron-di</artifactId>
-                <version>4.4-SNAPSHOT</version>
+                <version>4.3-SNAPSHOT</version>
             </dependency>
 
             <dependency>
