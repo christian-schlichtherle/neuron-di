@@ -16,12 +16,12 @@
 package global.namespace.neuron.di.scala.test
 
 import global.namespace.neuron.di.scala.CachingStrategy._
-import global.namespace.neuron.di.scala.test.NeuronSpec._
+import global.namespace.neuron.di.scala.test.NeuronMacroSpec._
 import global.namespace.neuron.di.scala.{Caching, Neuron, neuron}
 import org.scalatest.FeatureSpec
 import org.scalatest.Matchers._
 
-class NeuronSpec extends FeatureSpec {
+class NeuronMacroSpec extends FeatureSpec {
 
   feature("Dependencies of @Neuron types can be auto-wired using the `neuron` macro.") {
 
@@ -103,7 +103,7 @@ class NeuronSpec extends FeatureSpec {
   }
 }
 
-private object NeuronSpec {
+private object NeuronMacroSpec {
 
   @Neuron
   trait A[T] {
