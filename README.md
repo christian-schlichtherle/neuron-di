@@ -2,8 +2,8 @@
 
 [![Build Status](https://travis-ci.org/christian-schlichtherle/neuron-di.svg?branch=master)](https://travis-ci.org/christian-schlichtherle/neuron-di)
 
-Neuron DI is an ultra-light dependency injection framework which emphasizes the beauty and power of _lazy dependency 
-resolution_ and _caching_.
+Neuron DI is an ultra-light dependency injection framework which emphasizes the beauty and power of lazy dependency 
+resolution - see [Features and Benefits].
 It takes advantage of functional programming features in Java SE 8, Scala 2.11 and Scala 2.12 in order to
 provide an API with a simple, yet complete Domain Specific Language for each target environment. 
 
@@ -40,3 +40,4 @@ Neuron DI is covered by the Apache License, Version 2.0:
 - [![Apache License 2.0](https://img.shields.io/github/license/christian-schlichtherle/neuron-di.svg?maxAge=3600)](https://www.apache.org/licenses/LICENSE-2.0)
 
 [Wiki]: https://github.com/christian-schlichtherle/neuron-di/wiki
+[Features and Benefits]: https://github.com/christian-schlichtherle/neuron-di/wiki/Features
