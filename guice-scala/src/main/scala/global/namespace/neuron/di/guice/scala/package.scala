@@ -51,13 +51,13 @@ package object scala {
 
   trait BinderLike extends jBinderLike {
 
-    def bindNeuronClass[A <: AnyRef : ClassTag]: ScopedBindingBuilder =
+    def bindNeuronClass[A >: Null : ClassTag]: ScopedBindingBuilder =
       bindNeuron(runtimeClassOf[A])
 
-    def bindClass[A <: AnyRef : ClassTag]: AnnotatedBindingBuilder[A] =
+    def bindClass[A >: Null : ClassTag]: AnnotatedBindingBuilder[A] =
       binder bind runtimeClassOf[A]
 
-    def getProviderClass[A <: AnyRef : ClassTag]: Provider[A] =
+    def getProviderClass[A >: Null : ClassTag]: Provider[A] =
       binder getProvider runtimeClassOf[A]
   }
 
@@ -75,10 +75,10 @@ package object scala {
       builder annotatedWith runtimeClassOf[A]
   }
 
-  implicit class AnnotatedBindingBuilderOps[A <: AnyRef](val builder: AnnotatedBindingBuilder[A])
+  implicit class AnnotatedBindingBuilderOps[A >: Null](val builder: AnnotatedBindingBuilder[A])
     extends AnnotatedBindingBuilderLike[A]
 
-  trait AnnotatedBindingBuilderLike[A <: AnyRef] {
+  trait AnnotatedBindingBuilderLike[A >: Null] {
 
     def builder: AnnotatedBindingBuilder[A]
 
@@ -89,10 +89,10 @@ package object scala {
       builder annotatedWith runtimeClassOf[B]
   }
 
-  implicit class LinkedBindingBuilderOps[A <: AnyRef](val builder: LinkedBindingBuilder[A])
+  implicit class LinkedBindingBuilderOps[A >: Null](val builder: LinkedBindingBuilder[A])
     extends LinkedBindingBuilderLike[A]
 
-  trait LinkedBindingBuilderLike[A <: AnyRef] {
+  trait LinkedBindingBuilderLike[A >: Null] {
 
     def builder: LinkedBindingBuilder[A]
 

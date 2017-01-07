@@ -25,12 +25,12 @@ import scala.reflect._
 
 object Incubator {
 
-  def breed[A <: AnyRef : ClassTag]: A = jIncubator breed runtimeClassOf[A]
+  def breed[A >: Null : ClassTag]: A = jIncubator breed runtimeClassOf[A]
 
-  def breed[A <: AnyRef : ClassTag](binding: Method => () => _): A =
+  def breed[A >: Null : ClassTag](binding: Method => () => _): A =
     jIncubator.breed(runtimeClassOf[A], (method: Method) => binding(method): DependencyProvider[_])
 
-  case class stub[A <: AnyRef](implicit classTag: ClassTag[A]) {
+  case class stub[A >: Null](implicit classTag: ClassTag[A]) {
     self =>
 
     private var jstub = jIncubator stub runtimeClassOf[A]

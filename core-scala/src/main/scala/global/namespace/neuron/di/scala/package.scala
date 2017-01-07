@@ -64,5 +64,5 @@ package object scala {
     *
     * @since Neuron DI 4.2
     */
-  def neuron[A]: A = macro Neuron.wire[A]
+  def neuron[A >: Null]: A = macro Neuron.wire[A]
 }
