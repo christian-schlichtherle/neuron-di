@@ -37,9 +37,9 @@ private object Neuron {
     import c.universe._
 
     val targetType = weakTypeOf[A]
+    val targetTypeSymbol = targetType.typeSymbol
 
     def isNeuronType = {
-      val targetTypeSymbol = targetType.typeSymbol
 
       def isNeuronAnnotation(annotation: Annotation) = annotation.tree.tpe == typeOf[jNeuron]
 
@@ -90,9 +90,10 @@ private object Neuron {
         } getOrElse {
           typecheckDependencyTreeAs(WildcardType) map { dependencyTree =>
             val dependencyType = dependencyTree.tpe
-            abort(s"Typecheck failed: Dependency `$dependencyTree` must be assignable to `$synapseType` or `$synapseFunctionType`, but has type `$dependencyType`.")
+            abort(s"Dependency `$dependencyTree` must be assignable to type `$synapseType` or `$synapseFunctionType`, but has type `$dependencyType`:")
           } getOrElse {
-            abort(s"Unsatisfied dependency: Cannot bind synapse `$synapseName` with type `$synapseType` in type `$targetType`.")
+            val traitOrClass = if (targetTypeSymbol.asClass.isTrait) "trait" else "class"
+            abort(s"No dependency available to bind synapse method `$synapseName: $synapseType` in Neuron $traitOrClass `$targetType`:")
           }
         }
       }
