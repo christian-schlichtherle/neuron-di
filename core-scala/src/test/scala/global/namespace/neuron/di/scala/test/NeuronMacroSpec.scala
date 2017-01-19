@@ -78,7 +78,7 @@ class NeuronMacroSpec extends FeatureSpec {
     scenario("ABC1[String]:") {
       def foo = new String("foo")
       def bar = new String("bar")
-      val baz = (abc: ABC[String]) => abc.foo + abc.bar
+      val baz = (abc: ABC1[String]) => abc.foo + abc.bar
       val abc1 = neuron[ABC1[String]]
       abc1.foo shouldBe foo
       abc1.foo should be theSameInstanceAs abc1.foo
@@ -91,7 +91,7 @@ class NeuronMacroSpec extends FeatureSpec {
     scenario("ABC2[String]:") {
       def foo = new String("foo")
       def bar = new String("bar")
-      val baz = (abc: ABC[String]) => abc.foo + abc.bar
+      val baz = (abc: ABC2[String]) => abc.foo + abc.bar
       val abc2 = neuron[ABC2[String]]
       abc2.foo shouldBe foo
       abc2.foo should be theSameInstanceAs abc2.foo
@@ -108,7 +108,7 @@ private object NeuronMacroSpec {
   @Neuron
   trait A[T] {
 
-    def foo: T
+    def foo(): T
   }
 
   @Neuron
@@ -121,7 +121,7 @@ private object NeuronMacroSpec {
   trait A2 extends A[String] {
 
     @Caching
-    override def foo: String
+    override def foo(): String
   }
 
   @Neuron
@@ -151,7 +151,7 @@ private object NeuronMacroSpec {
   trait ABC2[T] extends ABC[T] {
 
     @Caching(NOT_THREAD_SAFE)
-    override def foo: T
+    override def foo(): T
 
     @Caching(THREAD_LOCAL)
     override def bar: T
