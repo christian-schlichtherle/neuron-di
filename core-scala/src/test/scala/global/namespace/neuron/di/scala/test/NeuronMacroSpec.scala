@@ -105,13 +105,11 @@ class NeuronMacroSpec extends FeatureSpec {
 
 private object NeuronMacroSpec {
 
-  @Neuron
   trait A[T] {
 
     def foo(): T
   }
 
-  @Neuron
   trait A1 extends A[String] {
 
     override val foo: String
@@ -124,22 +122,18 @@ private object NeuronMacroSpec {
     override def foo(): String
   }
 
-  @Neuron
   trait B[T] {
 
     def bar: T
   }
 
-  @Neuron
   trait C[T] {
 
     def baz: T
   }
 
-  @Neuron
   trait ABC[T] extends A[T] with B[T] with C[T]
 
-  @Neuron
   trait ABC1[T] extends ABC[T] {
 
     override val foo: T

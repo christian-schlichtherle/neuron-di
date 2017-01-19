@@ -39,70 +39,122 @@ private object Neuron {
     val targetType = weakTypeOf[A]
     val targetTypeSymbol = targetType.typeSymbol
 
-    def isNeuronType = {
-
-      def isNeuronAnnotation(annotation: Annotation) = annotation.tree.tpe == typeOf[jNeuron]
-
-      def hasNeuronAnnotation(symbol: Symbol) = symbol.annotations exists isNeuronAnnotation
+    val isNeuronType = {
 
       def isTargetTypeOrSuperClassWithNeuronAnnotation(symbol: Symbol) = {
         (symbol == targetTypeSymbol || !symbol.asClass.isTrait) && hasNeuronAnnotation(symbol)
       }
 
+      def hasNeuronAnnotation(symbol: Symbol) = symbol.annotations exists isNeuronAnnotation
+
+      def isNeuronAnnotation(annotation: Annotation) = annotation.tree.tpe == typeOf[jNeuron]
+
       targetType.baseClasses exists isTargetTypeOrSuperClassWithNeuronAnnotation
     }
 
-    def abort(msg: String) = c.abort(c.enclosingPosition, msg)
+    class SynapseInfo(symbol: MethodSymbol) {
 
-    def bindingTerm = {
+      lazy val isStable: Boolean = symbol.isStable
 
-      def startTerm = q"_root_.global.namespace.neuron.di.scala.Incubator.stub[$targetType]"
+      lazy val name: TermName = symbol.name
 
-      def synapses = {
+      lazy val returnType: Type = symbol.returnType.asSeenFrom(targetType, symbol.owner)
 
-        def ifAbstractMethod: PartialFunction[Symbol, MethodSymbol] = {
-          case member if member.isAbstract && member.isMethod => member.asMethod
+      lazy val functionType: Type = c.typecheck(tree = tq"$targetType => $returnType", mode = c.TYPEmode).tpe
+
+      override def toString: String = {
+        val prefix = if (isNeuronType) "neuron" else "non-neuron"
+        s"synapse method `$name: $returnType` as seen from $prefix `$targetTypeSymbol`"
+      }
+    }
+
+    abstract class SynapseBinder(info: SynapseInfo) {
+
+      import info._
+
+      def bind: Tree = {
+        typecheckDependencyAs(returnType) map {
+          //noinspection ConvertibleToMethodValue
+          returnValueBinding(_)
+        } orElse {
+          //noinspection ConvertibleToMethodValue
+          typecheckDependencyAs(functionType) map (functionBinding(_))
+        } getOrElse {
+          typecheckDependencyAs(WildcardType) map { dependency =>
+            abort(s"Dependency `$dependency` must be assignable to type `$returnType` or `$functionType`, but has type `${dependency.tpe}`:")
+          } getOrElse {
+            abort(s"No dependency available to bind $info:")
+          }
         }
-
-        def isParameterless(method: MethodSymbol) = method.paramLists.flatten.isEmpty
-
-        targetType.members.collect(ifAbstractMethod).filter(isParameterless)
       }
 
-      (startTerm /: synapses) { (term, synapse) =>
-        val synapseName = synapse.name
-        val synapseType = synapse.returnType.asSeenFrom(targetType, synapse.owner)
-        lazy val synapseFunctionType = c.typecheck(tree = tq"$targetType => $synapseType", mode = c.TYPEmode).tpe
-        val dependencyTree = q"$synapseName"
-
-        def typecheckDependencyTreeAs(valueType: Type) = {
-          c.typecheck(tree = dependencyTree, pt = valueType, silent = true) match {
-            case `EmptyTree` => None
-            case typecheckedDependency => Some(typecheckedDependency)
-          }
+      private def typecheckDependencyAs(valueType: Type): Option[c.Tree] = {
+        c.typecheck(tree = dependency, pt = valueType, silent = true) match {
+          case `EmptyTree` => None
+          case typecheckedDependency => Some(typecheckedDependency)
         }
+      }
 
-        val nextTerm = (dependencyTree: Tree) => q"$term.bind(_.$synapseName).to($dependencyTree)"
-        typecheckDependencyTreeAs(synapseType) map {
-          nextTerm
-        } orElse {
-          typecheckDependencyTreeAs(synapseFunctionType) map nextTerm
-        } getOrElse {
-          typecheckDependencyTreeAs(WildcardType) map { dependencyTree =>
-            val dependencyType = dependencyTree.tpe
-            abort(s"Dependency `$dependencyTree` must be assignable to type `$synapseType` or `$synapseFunctionType`, but has type `$dependencyType`:")
-          } getOrElse {
-            val traitOrClass = if (targetTypeSymbol.asClass.isTrait) "trait" else "class"
-            abort(s"No dependency available to bind synapse method `$synapseName: $synapseType` in Neuron $traitOrClass `$targetType`:")
-          }
+      protected def returnValueBinding(dependency: Tree): Tree
+
+      protected def functionBinding(dependency: Tree): Tree
+
+      private def abort(msg: String) = c.abort(c.enclosingPosition, msg)
+
+      private lazy val dependency: Tree = q"$name"
+    }
+
+    class NeuronSynapseBinder(info: SynapseInfo) extends SynapseBinder(info) {
+
+      import info._
+
+      def returnValueBinding(dependency: Tree): Tree = {
+        q"bind(_.$name).to($dependency)"
+      }
+
+      def functionBinding(dependency: Tree): Tree = returnValueBinding(dependency)
+    }
+
+    class NonNeuronSynapseBinder(info: SynapseInfo) extends SynapseBinder(info) {
+
+      import info._
+
+      def returnValueBinding(dependency: Tree): Tree = {
+        if (isStable) {
+          q"lazy val $name: $returnType = $dependency"
+        } else {
+          q"def $name: $returnType = $dependency"
+        }
+      }
+
+      def functionBinding(dependency: Tree): Tree = {
+        if (isStable) {
+          q"lazy val $name: $returnType = $dependency(this)"
+        } else {
+          q"def $name: $returnType = $dependency(this)"
         }
       }
     }
 
+    val synapseInfos = {
+
+      def ifAbstractMethod: PartialFunction[Any, MethodSymbol] = {
+        case member: Symbol if member.isAbstract && member.isMethod => member.asMethod
+      }
+
+      def isParameterless(method: MethodSymbol) = method.paramLists.flatten.isEmpty
+
+      targetType.members collect ifAbstractMethod filter isParameterless map (new SynapseInfo(_))
+    }
+
     if (isNeuronType) {
-      q"$bindingTerm.breed"
+      var tree = q"_root_.global.namespace.neuron.di.scala.Incubator.stub[$targetType]"
+      tree = (tree /: (synapseInfos map (new NeuronSynapseBinder(_).bind))) {
+        case (prefix, q"bind($synapseRef).to($dependency)") => q"$prefix.bind($synapseRef).to($dependency)"
+      }
+      q"$tree.breed"
     } else {
-      abort(s"$targetType is not a @Neuron type.")
+      q"new $targetType { ..${synapseInfos map (new NonNeuronSynapseBinder(_).bind)} }"
     }
   }
 }
