@@ -47,7 +47,6 @@ lazy val root = project
           }
         )
       },
-      // Selectively publish Scala artifacts only at this time as long as sbt-assembly doesn't support Java 8.
       scalacOptions := Seq("-deprecation", "-explaintypes", "-feature", "-unchecked"),
       scalaVersion := (mavenProject.value \ "properties" \ "scala.version").text,
       scmInfo := Some(ScmInfo(
