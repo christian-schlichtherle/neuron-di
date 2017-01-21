@@ -73,9 +73,9 @@ private object Neuron {
       import info._
 
       def bind: Tree = {
-        typecheckDependencyAs(returnType) map {
+        {
           //noinspection ConvertibleToMethodValue
-          returnValueBinding(_)
+          typecheckDependencyAs(returnType) map (returnValueBinding(_))
         } orElse {
           //noinspection ConvertibleToMethodValue
           typecheckDependencyAs(functionType) map (functionBinding(_))
@@ -88,8 +88,8 @@ private object Neuron {
         }
       }
 
-      private def typecheckDependencyAs(valueType: Type): Option[c.Tree] = {
-        c.typecheck(tree = dependency, pt = valueType, silent = true) match {
+      private def typecheckDependencyAs(dependencyType: Type): Option[c.Tree] = {
+        c.typecheck(tree = dependency, pt = dependencyType, silent = true) match {
           case `EmptyTree` => None
           case typecheckedDependency => Some(typecheckedDependency)
         }
@@ -128,10 +128,11 @@ private object Neuron {
       }
 
       def functionBinding(dependency: Tree): Tree = {
+        val fun = c.untypecheck(dependency) // required for Scala 2.12.[0,1], but not 2.11.[0,8]!
         if (isStable) {
-          q"lazy val $name: $returnType = $dependency(this)"
+          q"lazy val $name: $returnType = $fun(this)"
         } else {
-          q"def $name: $returnType = $dependency(this)"
+          q"def $name: $returnType = $fun(this)"
         }
       }
     }

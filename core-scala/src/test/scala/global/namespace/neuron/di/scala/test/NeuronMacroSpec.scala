@@ -23,7 +23,7 @@ import org.scalatest.Matchers._
 
 class NeuronMacroSpec extends FeatureSpec {
 
-  feature("Dependencies of @Neuron types can be auto-wired using the `neuron` macro.") {
+  feature("Synapse methods in neuron and non-neuron types can be auto-wired using the `neuron` macro.") {
 
     scenario("A[Int]:") {
       val foo = 1
@@ -65,7 +65,7 @@ class NeuronMacroSpec extends FeatureSpec {
     scenario("ABC[String]:") {
       def foo = new String("foo")
       def bar = new String("bar")
-      val baz = (abc: ABC[String]) => abc.foo + abc.bar
+      def baz(abc: ABC[String]) = abc.foo + abc.bar
       val abc = neuron[ABC[String]]
       abc.foo shouldBe foo
       abc.foo shouldNot be theSameInstanceAs abc.foo
