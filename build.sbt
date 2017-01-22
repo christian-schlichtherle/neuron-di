@@ -27,7 +27,7 @@ lazy val root = project
     inThisBuild(Seq(
       addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full),
       compileOrder := CompileOrder.JavaThenScala,
-      fork := true, // required to make `javaOptions` effective.
+      fork in Test := true, // required to make `javaOptions` effective.
       javacOptions in compile := javacOptions.value ++ Seq("-target", "1.8", "-deprecation"),
       javacOptions := Seq("-source", "1.8"), // unfortunately, this is used for running javadoc, e.g. in the `packageDoc` task key?!
       javaOptions += "-ea",
