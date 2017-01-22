@@ -99,7 +99,7 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
       Given("a generic @Neuron interface")
       When("breeding an instance")
       And("partial stubbing has been explicitly enabled")
-      And("no binding is defined for a synapse methods")
+      And("no binding is defined for a synapse method")
       Then("the incubator should be recursively applied to resolve the dependency.")
 
       Incubator
