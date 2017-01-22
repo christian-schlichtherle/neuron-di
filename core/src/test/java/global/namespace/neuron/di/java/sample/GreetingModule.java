@@ -23,9 +23,9 @@ import global.namespace.neuron.di.java.Neuron;
 public interface GreetingModule {
 
     @Caching
-    default Greeting greeting() { return Incubator.stub(RealGreeting.class).using(this); }
+    default Greeting greeting() { return Incubator.wire(RealGreeting.class).using(this); }
 
-    default Formatter formatter() { return Incubator.stub(RealFormatter.class).using(this); }
+    default Formatter formatter() { return Incubator.wire(RealFormatter.class).using(this); }
 
     default String getFormat() { return "Hello %s!"; }
 }

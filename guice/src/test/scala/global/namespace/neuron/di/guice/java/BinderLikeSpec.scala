@@ -159,7 +159,7 @@ class BinderLikeSpec extends WordSpec {
     when(binder getProvider classOf[Injector]) thenReturn injectorProvider
     when(injectorProvider.get) thenReturn injector
 
-    def stubbing[A](clazz : Class[A]) = {
+    def wiring[A](clazz : Class[A]) = {
       val typeLiteral = TypeLiteral get clazz
       val key = Key get clazz
 
@@ -188,11 +188,11 @@ class BinderLikeSpec extends WordSpec {
       neuronProvider.typeLiteral shouldBe typeLiteral
     }
 
-    val stubbings = classes map (stubbing(_))
+    val wirings = classes map (wiring(_))
 
     bindingCall
 
-    stubbings foreach { case (clazz, builder, membersInjector) => verification(clazz, builder, membersInjector) }
+    wirings foreach { case (clazz, builder, membersInjector) => verification(clazz, builder, membersInjector) }
   }
 }
 

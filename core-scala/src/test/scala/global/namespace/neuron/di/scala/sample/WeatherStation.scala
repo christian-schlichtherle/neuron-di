@@ -36,7 +36,7 @@ trait WeatherStation extends Clock {
 @Neuron
 trait AprilWeatherStation extends WeatherStation {
 
-  def temperature: Temperature = Incubator.stub[Temperature].using(this)
+  def temperature: Temperature = Incubator.wire[Temperature].using(this)
 
   private[sample] def value: Double = ThreadLocalRandom.current.nextDouble(5D, 25D)
 

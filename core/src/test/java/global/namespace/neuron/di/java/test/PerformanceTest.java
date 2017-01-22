@@ -36,7 +36,7 @@ public class PerformanceTest {
     private static final int INVOCATION_TIMES = 1_000_000;
 
     private static final Formatter helloFormatter = Incubator
-            .stub(RealFormatter.class)
+            .wire(RealFormatter.class)
             .bind(RealFormatter::getFormat).to("Hello %s!")
             .breed();
 
@@ -89,7 +89,7 @@ public class PerformanceTest {
 
         public Greeting greeting() {
             return Incubator
-                    .stub(RealGreeting.class)
+                    .wire(RealGreeting.class)
                     .bind(RealGreeting::formatter).to(helloFormatter)
                     .breed();
         }

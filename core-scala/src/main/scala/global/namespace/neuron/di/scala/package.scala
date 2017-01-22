@@ -46,13 +46,13 @@ package object scala {
     *   val a = "World"
     *   def b(neuron: Foo[String]) = "Hello, " + neuron.a
     *   val c = (neuron: Foo[String]) => neuron.b + "!"
-    *   val foo = neuron[Foo[String]]
+    *   val foo = wire[Foo[String]]
     *   println(foo.c)
     * }
     * }}}
     *
     * When run, `Main` will print `Hello, World!` to standard output.
-    * When calling `neuron[Foo[String]]`, the type parameter of `Foo` is set to `String`, so the synapses `a`,
+    * When calling `wire[Foo[String]]`, the type parameter of `Foo` is set to `String`, so the synapses `a`,
     * `b` and `c` each return a `String`.
     * The synapses are bound to their dependencies as follows:
     * + The synapse `a` is bound to the value `a` of type `String`.
@@ -62,7 +62,7 @@ package object scala {
     * Finally, when calling `foo.c`, the function value `c` will call the function definition `b` which in turn will
     * call the value `a` to compute `"Hello, World!"`.
     *
-    * @since Neuron DI 4.2
+    * @since Neuron DI 5.0 (renamed from `neuron`, which was introduced in Neuron DI 4.2)
     */
-  def neuron[A >: Null]: A = macro Neuron.wire[A]
+  def wire[A >: Null]: A = macro Neuron.wire[A]
 }

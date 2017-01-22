@@ -30,34 +30,34 @@ object Incubator {
   def breed[A >: Null : ClassTag](binding: Method => () => _): A =
     jIncubator.breed(runtimeClassOf[A], (method: Method) => binding(method): DependencyProvider[_])
 
-  case class stub[A >: Null](implicit classTag: ClassTag[A]) {
+  case class wire[A >: Null](implicit classTag: ClassTag[A]) {
     self =>
 
-    private var jstub = jIncubator stub runtimeClassOf[A]
+    private var jwire = jIncubator wire runtimeClassOf[A]
 
     def partial(value: Boolean): self.type = {
-      jstub partial value
+      jwire partial value
       self
     }
 
     case class bind[B](methodReference: A => B) {
 
-      private val jbind = jstub bind methodReference
+      private val jbind = jwire bind methodReference
 
       def to(value: => B): self.type = {
-        jstub = jbind to value _
+        jwire = jbind to value _
         self
       }
 
       def to[C <: B](function: A => C): self.type = {
-        jstub = jbind to function
+        jwire = jbind to function
         self
       }
     }
 
-    def using(delegate: AnyRef): A = jstub using delegate
+    def using(delegate: AnyRef): A = jwire using delegate
 
-    def breed: A = jstub.breed
+    def breed: A = jwire.breed
   }
 
   private implicit class FunctionAdapter[A, B](fun: A => B) extends jFunction[A, B] {

@@ -74,36 +74,36 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
     }
   }
 
-  feature("Neurons can get partially stubbed if explicitly requested.") {
+  feature("Neurons can get partially wired if explicitly requested.") {
 
     info("As a user of Neuron DI")
-    info("either I want to explicitly enable partial stubbing")
+    info("either I want to explicitly enable partial wiring")
     info("or rest assured that I would get an exception otherwise.")
 
-    scenario("Partial stubbing is disabled:") {
+    scenario("Partial wiring is disabled:") {
 
       Given("a generic @Neuron interface")
       When("breeding an instance")
-      And("partial stubbing has not been explicitly enabled")
+      And("partial wiring has not been explicitly enabled")
       And("no binding is defined for a synapse methods")
       Then("an `IllegalStateException` should be thrown.")
 
       intercept[IllegalStateException] {
-        Incubator.stub[HasDependency[_]].breed
+        Incubator.wire[HasDependency[_]].breed
       }.getMessage should fullyMatch regex
-        """Partial stubbing is disabled and no binding is defined for some synapse methods: \[public abstract java\.lang\.Object global\.namespace\.neuron\.di\.scala\.sample\..*HasDependency\.get\(\)\]"""
+        """Partial wiring is disabled and no binding is defined for some synapse methods: \[public abstract java\.lang\.Object global\.namespace\.neuron\.di\.scala\.sample\..*HasDependency\.get\(\)\]"""
     }
 
-    scenario("Partial stubbing is enabled:") {
+    scenario("Partial wiring is enabled:") {
 
       Given("a generic @Neuron interface")
       When("breeding an instance")
-      And("partial stubbing has been explicitly enabled")
+      And("partial wiring has been explicitly enabled")
       And("no binding is defined for a synapse method")
       Then("the incubator should be recursively applied to resolve the dependency.")
 
       Incubator
-        .stub[HasDependency[_]]
+        .wire[HasDependency[_]]
         .partial(true)
         .breed
         .get
@@ -121,17 +121,17 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
     scenario("Breeding a generic @Neuron interface:") {
 
       Given("a generic @Neuron interface")
-      When("breeding two instances stubbed with different properties of different types")
+      When("breeding two instances wired with different properties of different types")
       Then("the incubator returns two instances of the same proxy class.")
 
       val string = Incubator
-        .stub[HasDependency[String]]
+        .wire[HasDependency[String]]
         .bind(_.get).to("Hello world!")
         .breed
       string.get shouldBe "Hello world!"
 
       val int = Incubator
-        .stub[HasDependency[Int]]
+        .wire[HasDependency[Int]]
         .bind(_.get).to(1)
         .breed
       int.get shouldBe 1
@@ -155,7 +155,7 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
       Then("dependencies should not be cached.")
 
       val neuron = Incubator
-        .stub[Trait1]
+        .wire[Trait1]
         .bind(_.method1).to(new String("method1"))
         .breed
       import neuron._
@@ -171,7 +171,7 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
       Then("dependencies should be cached.")
 
       val neuron = Incubator
-        .stub[Trait2]
+        .wire[Trait2]
         .bind(_.method1).to(new String("method1"))
         .breed
       import neuron._
@@ -189,7 +189,7 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
       Then("dependencies should be cached.")
 
       val neuron = Incubator
-        .stub[Trait3]
+        .wire[Trait3]
         .bind(_.method1).to(new String("method1"))
         .breed
       import neuron._
@@ -209,7 +209,7 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
       Then("the shim class should be correctly referenced by its binary name in the associated @Shim annotation")
 
       val neuron = Incubator
-        .stub[Object1.Trait1]
+        .wire[Object1.Trait1]
         .bind(_.index).to(1)
         .breed
       neuron.nextIndex shouldBe 2
@@ -228,7 +228,7 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
 
       intercept[IllegalStateException] {
         Incubator
-          .stub[Illegal1]
+          .wire[Illegal1]
           .bind(_.method()).to(())
           .breed
       }.getMessage shouldBe
@@ -245,7 +245,7 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
       Then("an IllegalArgument should be thrown.")
 
       intercept[IllegalArgumentException] { Incubator.breed[Illegal2] }.getMessage shouldBe
-        "Cannot stub abstract methods with parameters: public abstract java.lang.String global.namespace.neuron.di.scala.test.IncubatorSpec$Illegal2.method(java.lang.String)"
+        "Cannot bind abstract methods with parameters: public abstract java.lang.String global.namespace.neuron.di.scala.test.IncubatorSpec$Illegal2.method(java.lang.String)"
     }
   }
 
@@ -259,7 +259,7 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
 
       intercept[IllegalStateException] {
         Incubator
-          .stub[Illegal3]
+          .wire[Illegal3]
           .bind(_.method1).to("method1")
           .breed
       }.getCause shouldBe a[NullPointerException]

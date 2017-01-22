@@ -16,38 +16,38 @@
 package global.namespace.neuron.di.scala.test
 
 import global.namespace.neuron.di.scala.CachingStrategy._
-import global.namespace.neuron.di.scala.test.NeuronMacroSpec._
-import global.namespace.neuron.di.scala.{Caching, Neuron, neuron}
+import global.namespace.neuron.di.scala.test.WireMacroSpec._
+import global.namespace.neuron.di.scala.{Caching, Neuron, wire}
 import org.scalatest.FeatureSpec
 import org.scalatest.Matchers._
 
-class NeuronMacroSpec extends FeatureSpec {
+class WireMacroSpec extends FeatureSpec {
 
-  feature("Synapse methods in neuron and non-neuron types can be auto-wired using the `neuron` macro.") {
+  feature("Synapse methods in neuron and non-neuron types can be auto-wired using the `wire` macro.") {
 
     scenario("A[Int]:") {
       val foo = 1
-      val a = neuron[A[Int]]
+      val a = wire[A[Int]]
       a.foo shouldBe foo
     }
 
     scenario("A[String]:") {
       def foo = new String("foo")
-      val a = neuron[A[String]]
+      val a = wire[A[String]]
       a.foo shouldBe foo
       a.foo shouldNot be theSameInstanceAs a.foo
     }
 
     scenario("A1:") {
       def foo = new String("foo")
-      val a1 = neuron[A1]
+      val a1 = wire[A1]
       a1.foo shouldBe foo
       a1.foo should be theSameInstanceAs a1.foo
     }
 
     scenario("A2:") {
       def foo = new String("foo")
-      val a2 = neuron[A2]
+      val a2 = wire[A2]
       a2.foo shouldBe foo
       a2.foo should be theSameInstanceAs a2.foo
     }
@@ -56,7 +56,7 @@ class NeuronMacroSpec extends FeatureSpec {
       val foo = 1
       val bar = 2
       def baz(abc: ABC[Int]) = abc.foo + abc.bar
-      val abc = neuron[ABC[Int]]
+      val abc = wire[ABC[Int]]
       abc.foo shouldBe foo
       abc.bar shouldBe bar
       abc.baz shouldBe baz(abc)
@@ -66,7 +66,7 @@ class NeuronMacroSpec extends FeatureSpec {
       def foo = new String("foo")
       def bar = new String("bar")
       def baz(abc: ABC[String]) = abc.foo + abc.bar
-      val abc = neuron[ABC[String]]
+      val abc = wire[ABC[String]]
       abc.foo shouldBe foo
       abc.foo shouldNot be theSameInstanceAs abc.foo
       abc.bar shouldBe bar
@@ -79,7 +79,7 @@ class NeuronMacroSpec extends FeatureSpec {
       def foo = new String("foo")
       def bar = new String("bar")
       val baz = (abc: ABC1[String]) => abc.foo + abc.bar
-      val abc1 = neuron[ABC1[String]]
+      val abc1 = wire[ABC1[String]]
       abc1.foo shouldBe foo
       abc1.foo should be theSameInstanceAs abc1.foo
       abc1.bar shouldBe bar
@@ -92,7 +92,7 @@ class NeuronMacroSpec extends FeatureSpec {
       def foo = new String("foo")
       def bar = new String("bar")
       val baz = (abc: ABC2[String]) => abc.foo + abc.bar
-      val abc2 = neuron[ABC2[String]]
+      val abc2 = wire[ABC2[String]]
       abc2.foo shouldBe foo
       abc2.foo should be theSameInstanceAs abc2.foo
       abc2.bar shouldBe bar
@@ -103,7 +103,7 @@ class NeuronMacroSpec extends FeatureSpec {
   }
 }
 
-private object NeuronMacroSpec {
+private object WireMacroSpec {
 
   trait A[T] {
 

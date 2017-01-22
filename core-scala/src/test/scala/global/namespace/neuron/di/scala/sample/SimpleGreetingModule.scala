@@ -37,9 +37,9 @@ trait SimpleFormatter {
 
 object SimpleGreetingModule {
 
-  lazy val greeting: SimpleGreeting = neuron[SimpleGreeting]
+  lazy val greeting: SimpleGreeting = wire[SimpleGreeting]
 
-  lazy val formatter: SimpleFormatter = neuron[SimpleFormatter]
+  lazy val formatter: SimpleFormatter = wire[SimpleFormatter]
 
   val theFormat = "Hello %s!"
 }

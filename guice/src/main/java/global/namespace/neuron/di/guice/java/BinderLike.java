@@ -114,7 +114,7 @@ public interface BinderLike {
             membersInjector = binder().getMembersInjector(typeLiteral);
         }
         return Incubator
-                .stub(NeuronProvider.class)
+                .wire(NeuronProvider.class)
                 .bind(NeuronProvider::injector).to(injectorProvider::get)
                 .bind(NeuronProvider::membersInjector).to(membersInjector)
                 .bind(NeuronProvider::typeLiteral).to(typeLiteral)

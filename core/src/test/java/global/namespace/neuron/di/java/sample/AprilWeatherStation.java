@@ -23,7 +23,7 @@ import java.util.concurrent.ThreadLocalRandom;
 @Neuron
 public abstract class AprilWeatherStation implements WeatherStation {
 
-    public Temperature temperature() { return Incubator.stub(Temperature.class).using(this); }
+    public Temperature temperature() { return Incubator.wire(Temperature.class).using(this); }
 
     private double value() { return ThreadLocalRandom.current().nextDouble(5D, 25D); }
 
