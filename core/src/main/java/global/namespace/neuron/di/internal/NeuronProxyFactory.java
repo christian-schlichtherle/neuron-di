@@ -18,7 +18,6 @@ package global.namespace.neuron.di.internal;
 import global.namespace.neuron.di.java.DependencyProvider;
 
 import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -27,9 +26,9 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-final class NeuronProxyFactory<N> implements Function<NeuronProxyContext<N>, N> {
+import static java.lang.invoke.MethodHandles.publicLookup;
 
-    private static final MethodHandles.Lookup lookup = MethodHandles.lookup();
+final class NeuronProxyFactory<N> implements Function<NeuronProxyContext<N>, N> {
 
     private static final MethodType dependencyProviderObjectSignature =
             MethodType.methodType(DependencyProvider.class, Object.class);
@@ -48,7 +47,7 @@ final class NeuronProxyFactory<N> implements Function<NeuronProxyContext<N>, N> 
         try {
             final Constructor<?> c = neuronProxyClass.getDeclaredConstructor();
             c.setAccessible(true);
-            this.constructorHandle = lookup.unreflectConstructor(c).asType(objectSignature);
+            this.constructorHandle = publicLookup().unreflectConstructor(c).asType(objectSignature);
         } catch (ReflectiveOperationException e) {
             throw new IllegalStateException(e);
         }
@@ -102,8 +101,8 @@ final class NeuronProxyFactory<N> implements Function<NeuronProxyContext<N>, N> 
             try {
                 final Field field = neuronProxyClass.getDeclaredField(dependencyProviderName);
                 field.setAccessible(true);
-                this.getter = lookup.unreflectGetter(field).asType(dependencyProviderObjectSignature);
-                this.setter = lookup.unreflectSetter(field).asType(voidObjectDependencyProviderSignature);
+                this.getter = publicLookup().unreflectGetter(field).asType(dependencyProviderObjectSignature);
+                this.setter = publicLookup().unreflectSetter(field).asType(voidObjectDependencyProviderSignature);
             } catch (ReflectiveOperationException e) {
                 throw new AssertionError(e);
             }
