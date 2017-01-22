@@ -55,6 +55,8 @@ object Incubator {
       }
     }
 
+    def using(delegate: AnyRef): A = jstub using delegate
+
     def breed: A = jstub.breed
   }
 

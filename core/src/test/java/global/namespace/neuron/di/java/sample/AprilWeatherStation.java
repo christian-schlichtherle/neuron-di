@@ -21,15 +21,11 @@ import global.namespace.neuron.di.java.Neuron;
 import java.util.concurrent.ThreadLocalRandom;
 
 @Neuron
-public interface AprilWeatherStation extends WeatherStation {
+public abstract class AprilWeatherStation implements WeatherStation {
 
-    default Temperature temperature() {
-        return Incubator
-                .stub(Temperature.class)
-                .bind(Temperature::value).to(this::value)
-                .bind(Temperature::unit).to("˚ Celsius")
-                .breed();
-    }
+    public Temperature temperature() { return Incubator.stub(Temperature.class).using(this); }
 
-    default double value() { return ThreadLocalRandom.current().nextDouble(5D, 25D); }
+    private double value() { return ThreadLocalRandom.current().nextDouble(5D, 25D); }
+
+    private String unit() { return "˚ Celsius"; }
 }

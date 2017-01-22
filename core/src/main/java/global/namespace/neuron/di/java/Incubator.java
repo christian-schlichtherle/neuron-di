@@ -17,6 +17,9 @@ package global.namespace.neuron.di.java;
 
 import global.namespace.neuron.di.internal.RealIncubator;
 
+import java.lang.invoke.MethodHandle;
+import static java.lang.invoke.MethodHandles.*;
+import static java.lang.invoke.MethodType.*;
 import java.lang.reflect.Method;
 import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.LinkedList;
@@ -88,6 +91,8 @@ public final class Incubator {
             DependencyResolver<? super T, ?> currentResolver;
             int currentPosition;
 
+            Object delegate;
+
             @Override
             public Stub<T> partial(final boolean value) {
                 this.partial = value;
@@ -103,6 +108,13 @@ public final class Incubator {
             }
 
             @Override
+            public T using(final Object delegate) {
+                this.delegate = delegate;
+                partial = true;
+                return breed();
+            }
+
+            @Override
             public T breed() {
                 synchronized (this) {
                     if (null != neuron) {
@@ -110,15 +122,19 @@ public final class Incubator {
                     }
                     neuron = Incubator.breed(runtimeClass, this::binding);
                 }
+
                 initReplacementProxies();
+                assert null == currentResolver;
+
                 if (!partial && !synapses.isEmpty()) {
                     throw new IllegalStateException(
                             "Partial stubbing is disabled and no binding is defined for some synapse methods: " + synapses);
                 }
-                // Support GC:
-                assert null == currentResolver;
+
+                // Support garbage collection:
                 bindings = null;
                 synapses = null;
+
                 return neuron;
             }
 
@@ -136,11 +152,57 @@ public final class Incubator {
                                 final boolean removed = synapses.remove(method);
                                 assert removed;
                                 throw new BindingSuccessException();
+                            } else if (null != delegate) {
+                                final MethodHandle handle = dependencyMethodHandle();
+                                //noinspection Convert2MethodRef
+                                resolver = neuron -> handle.invokeExact();
                             } else {
                                 resolver = neuron -> Incubator.breed(method.getReturnType());
                             }
                         }
                         return resolver.apply(neuron);
+                    }
+
+                    MethodHandle dependencyMethodHandle() throws NoSuchMethodException {
+                        return new Object() {
+
+                            final String name = method.getName();
+
+                            MethodHandle apply() throws NoSuchMethodException {
+                                final Method substitute = dependencyMethodIn(delegate.getClass());
+                                substitute.setAccessible(true);
+                                try {
+                                    return publicLookup()
+                                            .unreflect(substitute)
+                                            .bindTo(delegate)
+                                            .asType(methodType(Object.class));
+                                } catch (IllegalAccessException e) {
+                                    throw new AssertionError(e);
+                                }
+                            }
+
+                            Method dependencyMethodIn(final Class<?> clazz) throws NoSuchMethodException {
+                                try {
+                                    return clazz.getDeclaredMethod(name);
+                                } catch (final NoSuchMethodException e) {
+                                    for (final Class<?> iface : clazz.getInterfaces()) {
+                                        try {
+                                            return dependencyMethodIn(iface);
+                                        } catch (NoSuchMethodException ignored) {
+                                        }
+                                    }
+                                    final Class<?> zuper = clazz.getSuperclass();
+                                    if (null == zuper) {
+                                        throw e;
+                                    }
+                                    try {
+                                        return dependencyMethodIn(zuper);
+                                    } catch (NoSuchMethodException ignored) {
+                                        throw e;
+                                    }
+                                }
+                            }
+                        }.apply();
                     }
                 };
             }
@@ -184,6 +246,17 @@ public final class Incubator {
 
         /** Binds the synapse method identified by the given method reference. */
         <U> Bind<T, U> bind(DependencyResolver<T, U> methodReference);
+
+        /**
+         * Breeds the stubbed neuron.
+         * If the runtime class is not a neuron class or interface, this method simply calls the default constructor.
+         * Otherwise, the neuron will forward any calls to unbound synapse methods to the given delegate.
+         * Note that this feature depends on reflective access to the methods in the delegate.
+         * The methods will be set accessible.
+         *
+         * @since Neuron DI 4.5
+         */
+        T using(Object delegate);
 
         /**
          * Breeds the stubbed neuron.
