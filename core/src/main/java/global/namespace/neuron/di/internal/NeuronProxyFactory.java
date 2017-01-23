@@ -27,16 +27,18 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static java.lang.invoke.MethodHandles.publicLookup;
+import static java.lang.invoke.MethodType.methodType;
 
 final class NeuronProxyFactory<N> implements Function<NeuronProxyContext<N>, N> {
 
-    private static final MethodType dependencyProviderObjectSignature =
-            MethodType.methodType(DependencyProvider.class, Object.class);
+    private static final MethodType dependencyProviderObjectMethodType =
+            methodType(DependencyProvider.class, Object.class);
 
-    private static final MethodType voidObjectDependencyProviderSignature =
-            MethodType.methodType(Void.TYPE, Object.class, DependencyProvider.class);
+    private static final MethodType voidObjectDependencyProviderMethodType =
+            methodType(Void.TYPE, Object.class, DependencyProvider.class);
 
-    private static final MethodType objectSignature = MethodType.methodType(Object.class);
+    private static final MethodType objectMethodType =
+            methodType(Object.class);
 
     private final Class<? extends N> neuronProxyClass;
     private final MethodHandle constructorHandle;
@@ -47,7 +49,7 @@ final class NeuronProxyFactory<N> implements Function<NeuronProxyContext<N>, N> 
         try {
             final Constructor<?> c = neuronProxyClass.getDeclaredConstructor();
             c.setAccessible(true);
-            this.constructorHandle = publicLookup().unreflectConstructor(c).asType(objectSignature);
+            this.constructorHandle = publicLookup().unreflectConstructor(c).asType(objectMethodType);
         } catch (ReflectiveOperationException e) {
             throw new IllegalStateException(e);
         }
@@ -101,8 +103,8 @@ final class NeuronProxyFactory<N> implements Function<NeuronProxyContext<N>, N> 
             try {
                 final Field field = neuronProxyClass.getDeclaredField(dependencyProviderName);
                 field.setAccessible(true);
-                this.getter = publicLookup().unreflectGetter(field).asType(dependencyProviderObjectSignature);
-                this.setter = publicLookup().unreflectSetter(field).asType(voidObjectDependencyProviderSignature);
+                this.getter = publicLookup().unreflectGetter(field).asType(dependencyProviderObjectMethodType);
+                this.setter = publicLookup().unreflectSetter(field).asType(voidObjectDependencyProviderMethodType);
             } catch (ReflectiveOperationException e) {
                 throw new AssertionError(e);
             }
