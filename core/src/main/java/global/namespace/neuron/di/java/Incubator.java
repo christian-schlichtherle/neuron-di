@@ -194,14 +194,13 @@ public final class Incubator {
                                         }
                                     }
                                     final Class<?> zuper = clazz.getSuperclass();
-                                    if (null == zuper) {
-                                        throw e;
+                                    if (null != zuper) {
+                                        try {
+                                            return dependencyMethodIn(zuper);
+                                        } catch (NoSuchMethodException ignored) {
+                                        }
                                     }
-                                    try {
-                                        return dependencyMethodIn(zuper);
-                                    } catch (NoSuchMethodException ignored) {
-                                        throw e;
-                                    }
+                                    throw e;
                                 }
                             }
                         }.apply();
