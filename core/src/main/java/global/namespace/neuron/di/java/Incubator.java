@@ -144,7 +144,55 @@ public final class Incubator {
                 synapses.add(method);
                 return new DependencyProvider<Object>() {
 
+                    final String name = method.getName();
+
                     DependencyResolver<? super T, ?> resolver;
+
+                    {
+                        if (null != delegate) {
+                            try {
+                                final MethodHandle handle = dependencyMethodHandle();
+                                //noinspection Convert2MethodRef
+                                resolver = neuron -> handle.invokeExact();
+                            } catch (NoSuchMethodException e) {
+                                throw new IllegalStateException(e);
+                            }
+                        }
+                    }
+
+                    MethodHandle dependencyMethodHandle() throws NoSuchMethodException {
+                        final Method substitute = dependencyMethodIn(delegate.getClass());
+                        substitute.setAccessible(true);
+                        try {
+                            return publicLookup()
+                                    .unreflect(substitute)
+                                    .bindTo(delegate)
+                                    .asType(methodType(Object.class));
+                        } catch (IllegalAccessException e) {
+                            throw new AssertionError(e);
+                        }
+                    }
+
+                    Method dependencyMethodIn(final Class<?> clazz) throws NoSuchMethodException {
+                        try {
+                            return clazz.getDeclaredMethod(name);
+                        } catch (final NoSuchMethodException e) {
+                            for (final Class<?> iface : clazz.getInterfaces()) {
+                                try {
+                                    return dependencyMethodIn(iface);
+                                } catch (NoSuchMethodException ignored) {
+                                }
+                            }
+                            final Class<?> zuper = clazz.getSuperclass();
+                            if (null != zuper) {
+                                try {
+                                    return dependencyMethodIn(zuper);
+                                } catch (NoSuchMethodException ignored) {
+                                }
+                            }
+                            throw e;
+                        }
+                    }
 
                     @Override
                     public Object get() throws Throwable {
@@ -154,56 +202,11 @@ public final class Incubator {
                                 final boolean removed = synapses.remove(method);
                                 assert removed;
                                 throw new BindingSuccessException();
-                            } else if (null != delegate) {
-                                final MethodHandle handle = dependencyMethodHandle();
-                                //noinspection Convert2MethodRef
-                                resolver = neuron -> handle.invokeExact();
                             } else {
                                 resolver = neuron -> Incubator.breed(method.getReturnType());
                             }
                         }
                         return resolver.apply(neuron);
-                    }
-
-                    MethodHandle dependencyMethodHandle() throws NoSuchMethodException {
-                        return new Object() {
-
-                            final String name = method.getName();
-
-                            MethodHandle apply() throws NoSuchMethodException {
-                                final Method substitute = dependencyMethodIn(delegate.getClass());
-                                substitute.setAccessible(true);
-                                try {
-                                    return publicLookup()
-                                            .unreflect(substitute)
-                                            .bindTo(delegate)
-                                            .asType(methodType(Object.class));
-                                } catch (IllegalAccessException e) {
-                                    throw new AssertionError(e);
-                                }
-                            }
-
-                            Method dependencyMethodIn(final Class<?> clazz) throws NoSuchMethodException {
-                                try {
-                                    return clazz.getDeclaredMethod(name);
-                                } catch (final NoSuchMethodException e) {
-                                    for (final Class<?> iface : clazz.getInterfaces()) {
-                                        try {
-                                            return dependencyMethodIn(iface);
-                                        } catch (NoSuchMethodException ignored) {
-                                        }
-                                    }
-                                    final Class<?> zuper = clazz.getSuperclass();
-                                    if (null != zuper) {
-                                        try {
-                                            return dependencyMethodIn(zuper);
-                                        } catch (NoSuchMethodException ignored) {
-                                        }
-                                    }
-                                    throw e;
-                                }
-                            }
-                        }.apply();
                     }
                 };
             }
