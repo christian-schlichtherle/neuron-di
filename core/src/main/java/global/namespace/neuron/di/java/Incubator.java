@@ -18,14 +18,14 @@ package global.namespace.neuron.di.java;
 import global.namespace.neuron.di.internal.RealIncubator;
 
 import java.lang.invoke.MethodHandle;
-import static java.lang.invoke.MethodHandles.*;
-import static java.lang.invoke.MethodType.*;
 import java.lang.reflect.Method;
 import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.function.Function;
+
+import static global.namespace.neuron.di.java.Reflection.find;
 
 /** An incubator {@linkplain #wire(Class) wires} and {@linkplain #breed(Class) breeds} neurons. */
 public final class Incubator {
@@ -144,8 +144,6 @@ public final class Incubator {
                 synapses.add(method);
                 return new DependencyProvider<Object>() {
 
-                    final String name = method.getName();
-
                     DependencyResolver<? super T, ?> resolver;
 
                     {
@@ -161,37 +159,11 @@ public final class Incubator {
                     }
 
                     MethodHandle dependencyMethodHandle() throws NoSuchMethodException {
-                        final Method substitute = dependencyMethodIn(delegate.getClass());
-                        substitute.setAccessible(true);
-                        try {
-                            return publicLookup()
-                                    .unreflect(substitute)
-                                    .bindTo(delegate)
-                                    .asType(methodType(Object.class));
-                        } catch (IllegalAccessException e) {
-                            throw new AssertionError(e);
-                        }
-                    }
-
-                    Method dependencyMethodIn(final Class<?> clazz) throws NoSuchMethodException {
-                        try {
-                            return clazz.getDeclaredMethod(name);
-                        } catch (final NoSuchMethodException e) {
-                            for (final Class<?> iface : clazz.getInterfaces()) {
-                                try {
-                                    return dependencyMethodIn(iface);
-                                } catch (NoSuchMethodException ignored) {
-                                }
-                            }
-                            final Class<?> zuper = clazz.getSuperclass();
-                            if (null != zuper) {
-                                try {
-                                    return dependencyMethodIn(zuper);
-                                } catch (NoSuchMethodException ignored) {
-                                }
-                            }
-                            throw e;
-                        }
+                        final String member = method.getName();
+                        return find(member)
+                                .in(delegate)
+                                .orElseThrow(() -> new IllegalStateException(
+                                        "Illegal wiring: A member named `" + member + "` neither exists in `" + delegate.getClass() + "` nor in any of its interfaces and superclasses."));
                     }
 
                     @Override
