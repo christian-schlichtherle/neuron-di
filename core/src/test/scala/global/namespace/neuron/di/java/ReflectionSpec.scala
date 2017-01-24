@@ -27,7 +27,12 @@ class ReflectionSpec extends WordSpec {
 
   implicit class WithOptionalMethodHandle(omh: Optional[MethodHandle]) {
 
-    def as[A]: A = omh.get.invokeExact().asInstanceOf[A]
+    def as[A]: A = {
+      omh
+        .get
+        .invokeWithArguments() // workaround for Scala 2.11.[0,4], otherwise it should be `invokeExact()`
+        .asInstanceOf[A]
+    }
   }
 
   "Reflection.find(...).in(...)" when {
