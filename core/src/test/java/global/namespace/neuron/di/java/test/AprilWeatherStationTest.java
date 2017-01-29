@@ -15,12 +15,10 @@
  */
 package global.namespace.neuron.di.java.test;
 
-import global.namespace.neuron.di.java.Incubator;
+import global.namespace.neuron.di.java.*;
 import global.namespace.neuron.di.java.sample.AprilWeatherStation;
 import global.namespace.neuron.di.java.sample.WeatherStation;
 import org.junit.Test;
-
-import java.util.Date;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -31,7 +29,7 @@ public class AprilWeatherStationTest {
     public void testAprilWeatherStation() {
         final WeatherStation station = Incubator.breed(AprilWeatherStation.class);
         assertThat(station.now(), is(not(sameInstance(station.now()))));
-        assertThat(new Date(), is(lessThanOrEqualTo(station.now())));
+        assertThat(new java.util.Date(), is(lessThanOrEqualTo(station.now())));
         final WeatherStation.Temperature temperature = station.temperature();
         assertThat(temperature, is(not(sameInstance(station.temperature()))));
         assertThat(temperature.value(), is(temperature.value()));
@@ -45,7 +43,7 @@ public class AprilWeatherStationTest {
     public void testAprilWeatherStationWithoutMatchers() {
         final WeatherStation station = Incubator.breed(AprilWeatherStation.class);
         assert station.now() != station.now();
-        assert new Date().compareTo(station.now()) <= 0;
+        assert new java.util.Date().compareTo(station.now()) <= 0;
         final WeatherStation.Temperature temperature = station.temperature();
         assert temperature != station.temperature();
         assert temperature.value() == temperature.value();

@@ -15,17 +15,14 @@
  */
 package global.namespace.neuron.di.java.sample;
 
-import global.namespace.neuron.di.java.Incubator;
-import global.namespace.neuron.di.java.Neuron;
-
-import java.util.concurrent.ThreadLocalRandom;
+import global.namespace.neuron.di.java.*;
 
 @Neuron
 public abstract class AprilWeatherStation implements WeatherStation {
 
     public Temperature temperature() { return Incubator.wire(Temperature.class).using(this); }
 
-    private double value() { return ThreadLocalRandom.current().nextDouble(5D, 25D); }
+    private static double value() { return java.util.concurrent.ThreadLocalRandom.current().nextDouble(5D, 25D); }
 
-    private String unit() { return "˚ Celsius"; }
+    private static final String unit = "˚ Celsius";
 }

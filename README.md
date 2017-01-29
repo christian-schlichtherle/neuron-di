@@ -2,13 +2,13 @@
 
 [![Build Status](https://travis-ci.org/christian-schlichtherle/neuron-di.svg?branch=master)](https://travis-ci.org/christian-schlichtherle/neuron-di)
 
-Neuron DI is an ultra-light dependency injection framework which emphasizes the beauty and power of lazy dependency 
-resolution - see [Features and Benefits].
-It takes advantage of functional programming features in Java SE 8, Scala 2.11 and Scala 2.12 in order to
-provide an API with a simple, yet complete Domain Specific Language for each target environment. 
+Neuron DI is an ultra-light dependency injection framework which emphasizes the beauty and power of type-safe, lazy 
+dependency resolution - see [Features and Benefits].
+It takes advantage of functional programming features in Java SE 8, Scala 2.11 and Scala 2.12 in order to provide an API
+with a simple, yet complete Domain Specific Language for each target environment. 
 
 Neuron DI can be used standalone or combined with other DI frameworks.
-When using it standalone, programmers enjoy a simple, yet complete domain specific language (DSL) for writing 
+When using it standalone, programmers enjoy a simple, yet complete domain specific language (DSL) for writing
 self-contained binding definitions.
 Self-contained binding definitions are checked by the (Java or Scala) compiler, which alleviates the need for testing 
 them separately in many cases. 

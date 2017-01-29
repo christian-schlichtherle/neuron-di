@@ -15,9 +15,7 @@
  */
 package global.namespace.neuron.di.scala.test
 
-import java.util.Date
-
-import global.namespace.neuron.di.scala.Incubator
+import global.namespace.neuron.di.scala._
 import global.namespace.neuron.di.scala.sample.AprilWeatherStation
 import org.scalatest.Matchers._
 import org.scalatest.WordSpec
@@ -27,7 +25,7 @@ class AprilWeatherStationSpec extends WordSpec {
   "Make an April weather station" in {
     val station = Incubator.breed[AprilWeatherStation]
     station.now should not be theSameInstanceAs(station.now)
-    new Date should be <= station.now
+    new java.util.Date should be <= station.now
     val temperature = station.temperature
     temperature should not be theSameInstanceAs(station.temperature)
     temperature.value shouldBe temperature.value
