@@ -36,7 +36,7 @@ trait AprilWeatherStation extends WeatherStation {
 
   def temperature: Temperature = wire[Temperature]
 
-  private[this] def value: Double = java.util.concurrent.ThreadLocalRandom.current.nextDouble(5D, 25D)
+  def value: Double = java.util.concurrent.ThreadLocalRandom.current.nextDouble(5D, 25D)
 
-  private[this] val unit: String = "˚ Celsius"
+  val unit: String = "˚ Celsius"
 }
