@@ -83,7 +83,7 @@ lazy val coreScala = project
   .dependsOn(core)
   .settings(
     libraryDependencies ++= Seq(
-      scalaReflect % scalaVersion.value,
+      scalaReflect(scalaVersion.value),
       scalaTest % Test
     ),
     name := "Neuron DI for Scala " + scalaBinaryVersion.value,
