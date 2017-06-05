@@ -35,8 +35,8 @@ lazy val root = project
       licenses := Seq("Apache License, Version 2.0" -> url("https://www.apache.org/licenses/LICENSE-2.0")),
       mavenProject := XML.loadFile(baseDirectory.value + "/pom.xml"),
       organization := "global.namespace.neuron-di",
-      organizationName := "Schlichtherle IT Services",
       organizationHomepage := Some(new URL("http://schlichtherle.de")),
+      organizationName := "Schlichtherle IT Services",
       pomExtra := mavenProject.value \ "developers",
       pomIncludeRepository := (_ => false),
       publishTo := {
