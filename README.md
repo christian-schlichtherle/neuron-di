@@ -1,6 +1,6 @@
-# Neuron DI
-
 [![Build Status](https://travis-ci.org/christian-schlichtherle/neuron-di.svg?branch=master)](https://travis-ci.org/christian-schlichtherle/neuron-di)
+
+# Neuron DI
 
 Neuron DI is an ultra-light dependency injection framework which emphasizes the beauty and power of type-safe, lazy 
 dependency resolution - see [Features and Benefits].
