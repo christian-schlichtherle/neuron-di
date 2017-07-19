@@ -23,7 +23,7 @@ object Dependencies {
   val hamcrestLibrary: ModuleID = "org.hamcrest" % "hamcrest-library" % "1.3"
   val junit: ModuleID = "junit" % "junit" % "4.12"
   val junitInterface: ModuleID = "com.novocode" % "junit-interface" % "0.11"
-  val mockitoCore: ModuleID = "org.mockito" % "mockito-core" % "2.4.4"
+  val mockitoCore: ModuleID = "org.mockito" % "mockito-core" % "2.8.47"
   def scalaReflect(scalaVersion: String): ModuleID = "org.scala-lang" % "scala-reflect" % scalaVersion
-  val scalaTest: ModuleID = "org.scalatest" %% "scalatest" % "3.0.1"
+  val scalaTest: ModuleID = "org.scalatest" %% "scalatest" % "3.0.3"
 }

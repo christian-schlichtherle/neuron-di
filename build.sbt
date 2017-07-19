@@ -25,7 +25,7 @@ lazy val root = project
   .aggregate(core, coreScala, guice, guiceScala)
   .settings(
     inThisBuild(Seq(
-      addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full),
+      addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.1" cross CrossVersion.full),
       compileOrder := CompileOrder.JavaThenScala,
       fork in Test := true, // required to make `javaOptions` effective.
       javacOptions in compile := javacOptions.value ++ Seq("-target", "1.8", "-deprecation"),

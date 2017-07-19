@@ -19,6 +19,6 @@ set -ev
 
 mvn clean release:prepare release:perform
 cd target/checkout
-for scalaVersion in 2.11.8 2.12.1; do
+for scalaVersion in 2.11.11 2.12.2; do
     sbt ++$scalaVersion clean coreScala/test guiceScala/test publishSigned
 done
