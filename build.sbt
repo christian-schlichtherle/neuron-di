@@ -39,6 +39,7 @@ lazy val root = project
       organizationName := "Schlichtherle IT Services",
       pomExtra := mavenProject.value \ "developers",
       pomIncludeRepository := (_ => false),
+      publishArtifact := false, // sbt-assembly plugin 0.14.3 doesn't support shading Java 8 byte code
       publishTo := {
         val nexus = "https://oss.sonatype.org/"
         Some(
@@ -59,8 +60,7 @@ lazy val root = project
       testOptions += Tests.Argument(TestFrameworks.JUnit, "-a"),
       version := (mavenProject.value \ "version").text
     )),
-    name := "Neuron DI Parent",
-    publishArtifact := false
+    name := "Neuron DI Parent"
   )
 
 lazy val core = project
@@ -76,8 +76,7 @@ lazy val core = project
       scalaTest % Test
     ),
     name := "Neuron DI for Java",
-    normalizedName := "neuron-di",
-    publishArtifact := false // sbt-assembly plugin 0.14.3 doesn't support shading Java 8 byte code
+    normalizedName := "neuron-di"
   )
 
 lazy val coreScala = project
@@ -89,7 +88,8 @@ lazy val coreScala = project
       scalaTest % Test
     ),
     name := "Neuron DI for Scala " + scalaBinaryVersion.value,
-    normalizedName := "neuron-di-scala"
+    normalizedName := "neuron-di-scala",
+    publishArtifact := true
   )
 
 lazy val guice = project
@@ -107,8 +107,7 @@ lazy val guice = project
       scalaTest % Test
     ),
     name := "Neuron DI @ Guice for Java",
-    normalizedName := "neuron-di-guice",
-    publishArtifact := false
+    normalizedName := "neuron-di-guice"
   )
 
 lazy val guiceScala = project
@@ -117,5 +116,6 @@ lazy val guiceScala = project
   .settings(
     libraryDependencies += scalaTest % Test,
     name := "Neuron DI @ Guice for Scala " + scalaBinaryVersion.value,
-    normalizedName := "neuron-di-guice-scala"
+    normalizedName := "neuron-di-guice-scala",
+    publishArtifact := true
   )
