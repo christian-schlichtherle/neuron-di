@@ -269,7 +269,7 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
 
 private object IncubatorSpec {
 
-  case class synapsesOf[T >: Null](implicit ct: ClassTag[T]) {
+  case class synapsesOf[T >: Null : ClassTag]() {
 
     private var synapses = List.empty[Method]
 

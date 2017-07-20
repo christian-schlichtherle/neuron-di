@@ -30,7 +30,7 @@ object Incubator {
   def breed[A >: Null : ClassTag](binding: Method => () => _): A =
     jIncubator.breed(runtimeClassOf[A], (method: Method) => binding(method): DependencyProvider[_])
 
-  case class wire[A >: Null](implicit classTag: ClassTag[A]) { self =>
+  case class wire[A >: Null : ClassTag]() { self =>
 
     private var jwire = jIncubator wire runtimeClassOf[A]
 
