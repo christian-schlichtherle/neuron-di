@@ -25,11 +25,11 @@ lazy val root = project
   .aggregate(core, coreScala, guice, guiceScala)
   .settings(
     inThisBuild(Seq(
-      addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.1" cross CrossVersion.full),
+      addCompilerPlugin(paradise),
       compileOrder := CompileOrder.JavaThenScala,
       fork in Test := true, // required to make `javaOptions` effective.
-      javacOptions in compile := javacOptions.value ++ Seq("-target", "1.8", "-deprecation"),
-      javacOptions := Seq("-source", "1.8"), // unfortunately, this is used for running javadoc, e.g. in the `packageDoc` task key?!
+      javacOptions := DefaultOptions.javac ++ Seq(Opts.compile.deprecation, "-g"),
+      javacOptions in doc := DefaultOptions.javac,
       javaOptions += "-ea",
       homepage := Some(url("https://github.com/christian-schlichtherle/neuron-di")),
       licenses := Seq("Apache License, Version 2.0" -> url("https://www.apache.org/licenses/LICENSE-2.0")),
@@ -50,7 +50,7 @@ lazy val root = project
           }
         )
       },
-      scalacOptions := Seq("-deprecation", "-explaintypes", "-feature", "-unchecked"),
+      scalacOptions := DefaultOptions.scalac ++ Seq(Opts.compile.deprecation, Opts.compile.explaintypes, Opts.compile.unchecked, "-feature"),
       scalaVersion := (mavenProject.value \ "properties" \ "scala.version").text,
       scmInfo := Some(ScmInfo(
         browseUrl = url("https://github.com/christian-schlichtherle/neuron-di"),
