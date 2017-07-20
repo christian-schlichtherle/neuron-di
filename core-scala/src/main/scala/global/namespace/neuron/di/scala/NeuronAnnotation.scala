@@ -15,6 +15,8 @@
  */
 package global.namespace.neuron.di.scala
 
+import scala.annotation.tailrec
+
 private trait NeuronAnnotation extends MacroAnnotation {
 
   import c.universe._
@@ -122,21 +124,27 @@ private trait NeuronAnnotation extends MacroAnnotation {
   private lazy val enclosingOwner = c.internal.enclosingOwner
 
   private def binaryNameOf(symbol: Symbol): String = {
-    symbol match {
-      case NoSymbol =>
-        ""
-      case other if other.isPackage =>
-        other.fullName
-      case other =>
-        val oo = other.owner
-        binaryNameOf(oo) + (if (oo.isPackage) '.' else '$') + other.name.encodedName
+
+    @tailrec
+    def binaryNameOf(symbol: Symbol, tail: String): String = {
+      symbol match {
+        case NoSymbol =>
+          "" + tail
+        case other if other.isPackage =>
+          other.fullName + tail
+        case other =>
+          val oo = other.owner
+          binaryNameOf(oo, (if (oo.isPackage) "." else "$") + other.name.encodedName + tail)
+      }
     }
+
+    binaryNameOf(symbol, "")
   }
 
   private def applyCachingAnnotation(template: Template) = {
     val Template(parents, self, body) = template
     Template(parents, self, body map {
-      case valDef @ ValDef(mods @ Modifiers(_, _, annotations), name, tpt, EmptyTree)
+      case ValDef(mods @ Modifiers(_, _, annotations), name, tpt, EmptyTree)
         if !annotations.exists(isCachingAnnotation) && !mods.hasFlag(PRIVATE) =>
         ValDef(mods.mapAnnotations(newCachingAnnotationTerm :: _), name, tpt, EmptyTree)
       case other =>
