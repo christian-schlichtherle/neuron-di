@@ -86,7 +86,7 @@ final class NeuronProxyFactory<N> implements Function<NeuronProxyContext<N>, N> 
         try {
             return constructorHandle.invokeExact();
         } catch (NullPointerException e) {
-            throw new IllegalStateException(e.toString().concat(": Make sure the constructor does not depend on a synapse method."), e);
+            throw new IllegalStateException(e.toString().concat(": Make sure the (synthetic) constructor does not depend on a synapse method."), e);
         } catch (Throwable e) {
             throw new IllegalStateException(e);
         }
