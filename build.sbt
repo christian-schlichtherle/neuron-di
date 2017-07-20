@@ -60,7 +60,7 @@ lazy val root = project
       testOptions += Tests.Argument(TestFrameworks.JUnit, "-a"),
       version := (mavenProject.value \ "version").text
     )),
-    name := "Neuron DI Parent"
+    name := "Neuron DI"
   )
 
 lazy val core = project
