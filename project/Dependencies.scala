@@ -26,5 +26,5 @@ object Dependencies {
   val mockitoCore: ModuleID = "org.mockito" % "mockito-core" % "2.8.47"
   def scalaReflect(scalaVersion: String): ModuleID = "org.scala-lang" % "scala-reflect" % scalaVersion
   val scalaTest: ModuleID = "org.scalatest" %% "scalatest" % "3.0.3"
-  val paradise: ModuleID = "org.scalamacros" % "paradise" % "2.1.1" cross CrossVersion.full
+  val paradise: ModuleID = "org.scalamacros" % "paradise" % sys.env.getOrElse("PARADISE_VERSION", "2.1.0") cross CrossVersion.full
 }
