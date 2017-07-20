@@ -26,4 +26,6 @@ public abstract class Bar<Bar> extends Foo<String> {
     String fooBar() { return "bar"; }
 
     String fooBarBaz() { return "bar"; }
+
+    public final String abstrakt() { return "no more"; }
 }

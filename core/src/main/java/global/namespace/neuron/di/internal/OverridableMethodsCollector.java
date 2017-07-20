@@ -16,10 +16,7 @@
 package global.namespace.neuron.di.internal;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static global.namespace.neuron.di.internal.Reflection.traverse;
 import static java.lang.reflect.Modifier.*;
@@ -28,7 +25,7 @@ import static org.objectweb.asm.Type.getMethodDescriptor;
 final class OverridableMethodsCollector {
 
     // VOLATILE methods are synthetic bridge methods, e.g. for use in generic classes.
-    private static final int PRIVATE_STATIC_FINAL_VOLATILE = PRIVATE | STATIC | FINAL | VOLATILE;
+    private static final int PRIVATE_STATIC_VOLATILE = PRIVATE | STATIC | VOLATILE;
 
     private static final int PROTECTED_PUBLIC = PROTECTED | PUBLIC;
 
@@ -43,12 +40,13 @@ final class OverridableMethodsCollector {
         traverse(t -> {
             for (final Method method : t.getDeclaredMethods()) {
                 final int modifiers = method.getModifiers();
-                if (0 == (modifiers & PRIVATE_STATIC_FINAL_VOLATILE) &&
+                if (0 == (modifiers & PRIVATE_STATIC_VOLATILE) &&
                         (0 != (modifiers & PROTECTED_PUBLIC) || t.getPackage() == pkg)) {
                     methods.putIfAbsent(signature(method), method);
                 }
             }
         }).accept(type);
+        methods.values().removeIf(method -> 0 != (method.getModifiers() & FINAL));
         return this;
     }
 

@@ -22,4 +22,6 @@ public abstract class Foo<Foo> {
     String fooBar() { return "foo"; }
 
     String fooBarBaz() { return "foo"; }
+
+    public abstract String abstrakt();
 }
