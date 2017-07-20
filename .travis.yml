@@ -4,7 +4,7 @@ cache:
   - $HOME/.sbt
 env:
 - GUICE_VERSION=3.0 PARADISE_VERSION=2.1.0
-- GUICE_VERSION=4.1.0 PARADISE_VERSION=2.1.1
+- GUICE_VERSION=4.1.0 PARADISE_VERSION=2.1.0
 git:
   depth: 3
 jdk: oraclejdk8
