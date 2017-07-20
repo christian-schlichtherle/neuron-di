@@ -31,8 +31,9 @@ package object scala {
     val THREAD_LOCAL = jcs.DISABLED
   }
 
-  /** Breeds a neuron of the given type, wiring each synapse to a value with the same name and return type or to a
-    * function with the same name and return type which accepts the given type as its sole parameter.
+  /** Breeds a neuron of the given type, wiring each synapse to a value with the same name and an assignment-compatible
+    * return type or to a function with the same name and an assignment-compatible return type which accepts the given
+    * type or any supertype as its sole parameter.
     * Example:
     * {{{
     * @Neuron
