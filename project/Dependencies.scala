@@ -24,8 +24,8 @@ object Dependencies {
   val Guice: ModuleID = "com.google.inject" % "guice" % sys.env.getOrElse("GUICE_VERSION", "3.0")
   val HamcrestLibrary: ModuleID = "org.hamcrest" % "hamcrest-library" % "1.3"
   val IO: ModuleID = "org.scala-sbt" % "io" % "0.13.15"
-  val Junit: ModuleID = "junit" % "junit" % "4.12"
-  val JunitInterface: ModuleID = "com.novocode" % "junit-interface" % "0.11"
+  val JUnit: ModuleID = "junit" % "junit" % "4.12"
+  val JUnitInterface: ModuleID = "com.novocode" % "junit-interface" % "0.11"
   val MockitoCore: ModuleID = "org.mockito" % "mockito-core" % "2.8.47"
   val MacroParadise: ModuleID = "org.scalamacros" % "paradise" % "2.1.+" cross CrossVersion.full
   val ScalaPlus: ModuleID = "global.namespace.scala-plus" %% "scala-plus" % "0.1"

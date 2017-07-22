@@ -71,8 +71,8 @@ lazy val core = project
     libraryDependencies ++= Seq(
       ASM,
       HamcrestLibrary % Test,
-      Junit % "provided, optional",
-      JunitInterface % "test, optional",
+      JUnit % "provided, optional",
+      JUnitInterface % "test, optional",
       ScalaTest % Test
     ),
     name := "Neuron DI for Java",
@@ -102,8 +102,8 @@ lazy val guice = project
     libraryDependencies ++= Seq(
       Guice,
       HamcrestLibrary % Test,
-      Junit % Test,
-      JunitInterface % "test, optional",
+      JUnit % Test,
+      JUnitInterface % "test, optional",
       MockitoCore % Test,
       ScalaTest % Test
     ),
