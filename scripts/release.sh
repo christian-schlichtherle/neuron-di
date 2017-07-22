@@ -17,8 +17,9 @@
 
 set -ev
 
-mvn clean release:prepare release:perform
+mvn clean release:prepare release:perform -DskipTests=true
 cd target/checkout
 for scalaVersion in 2.11.11 2.12.2; do
-    sbt ++$scalaVersion clean coreScala/test guiceScala/test publishSigned
+    sbt ++$scalaVersion clean coreScala/publishSigned guiceScala/publishSigned
 done
+sbt clean sbtPlugin/publishSigned

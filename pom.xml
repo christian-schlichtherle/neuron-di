@@ -249,6 +249,8 @@
                          <excludes>
                              <exclude>.*</exclude>
                              <exclude>LICENSE</exclude>
+                             <exclude>sbt-plugin/src/main/scala/global/namespace/neuron/di/sbt/plugin/NeuronRoutesGenerator.scala</exclude>
+                             <exclude>sbt-plugin/src/main/twirl/global/namespace/neuron/di/sbt/plugin/forwardsRouter.scala.twirl</exclude>
                          </excludes>
                          <inlineHeader>
 Copyright © ${project.inceptionYear} ${project.organization.name}

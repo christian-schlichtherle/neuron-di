@@ -18,13 +18,17 @@ import sbt._
 
 object Dependencies {
 
-  val asm: ModuleID = "org.ow2.asm" % "asm" % "5.2"
-  val guice: ModuleID = "com.google.inject" % "guice" % sys.env.getOrElse("GUICE_VERSION", "3.0")
-  val hamcrestLibrary: ModuleID = "org.hamcrest" % "hamcrest-library" % "1.3"
-  val junit: ModuleID = "junit" % "junit" % "4.12"
-  val junitInterface: ModuleID = "com.novocode" % "junit-interface" % "0.11"
-  val mockitoCore: ModuleID = "org.mockito" % "mockito-core" % "2.8.47"
+  private val PlayVersion = "2.6.1"
+
+  val ASM: ModuleID = "org.ow2.asm" % "asm" % "5.2"
+  val Guice: ModuleID = "com.google.inject" % "guice" % sys.env.getOrElse("GUICE_VERSION", "3.0")
+  val HamcrestLibrary: ModuleID = "org.hamcrest" % "hamcrest-library" % "1.3"
+  val IO: ModuleID = "org.scala-sbt" % "io" % "0.13.15"
+  val Junit: ModuleID = "junit" % "junit" % "4.12"
+  val JunitInterface: ModuleID = "com.novocode" % "junit-interface" % "0.11"
+  val MockitoCore: ModuleID = "org.mockito" % "mockito-core" % "2.8.47"
+  val MacroParadise: ModuleID = "org.scalamacros" % "paradise" % "2.1.+" cross CrossVersion.full
+  val ScalaPlus: ModuleID = "global.namespace.scala-plus" %% "scala-plus" % "0.1"
   def scalaReflect(scalaVersion: String): ModuleID = "org.scala-lang" % "scala-reflect" % scalaVersion
-  val scalaTest: ModuleID = "org.scalatest" %% "scalatest" % "3.0.3"
-  val paradise: ModuleID = "org.scalamacros" % "paradise" % sys.env.getOrElse("PARADISE_VERSION", "2.1.1") cross CrossVersion.full
+  val ScalaTest: ModuleID = "org.scalatest" %% "scalatest" % "3.0.3"
 }

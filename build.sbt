@@ -15,6 +15,7 @@
  */
 
 import Dependencies._
+import SbtPluginTools._
 
 import scala.xml._
 
@@ -22,11 +23,11 @@ lazy val mavenProject: SettingKey[NodeSeq] = SettingKey[NodeSeq]("maven-project"
 
 lazy val root = project
   .in(file("."))
-  .aggregate(core, coreScala, guice, guiceScala)
+  .aggregate(core, coreScala, guice, guiceScala, sbtPlugin)
   .settings(
     inThisBuild(Seq(
-      addCompilerPlugin(paradise),
       compileOrder := CompileOrder.JavaThenScala,
+      crossPaths := false,
       fork in Test := true, // required to make `javaOptions` effective.
       javacOptions := DefaultOptions.javac ++ Seq(Opts.compile.deprecation, "-g"),
       javacOptions in doc := DefaultOptions.javac,
@@ -39,7 +40,6 @@ lazy val root = project
       organizationName := "Schlichtherle IT Services",
       pomExtra := mavenProject.value \ "developers",
       pomIncludeRepository := (_ => false),
-      publishArtifact := false, // sbt-assembly plugin 0.14.3 doesn't support shading Java 8 byte code
       publishTo := {
         val nexus = "https://oss.sonatype.org/"
         Some(
@@ -60,36 +60,38 @@ lazy val root = project
       testOptions += Tests.Argument(TestFrameworks.JUnit, "-a"),
       version := (mavenProject.value \ "version").text
     )),
-    name := "Neuron DI"
+    name := "Neuron DI",
+    publishArtifact := false
   )
 
 lazy val core = project
   .in(file("core"))
   .settings(
     autoScalaLibrary := false,
-    crossPaths := false,
     libraryDependencies ++= Seq(
-      asm,
-      hamcrestLibrary % Test,
-      junit % "provided, optional",
-      junitInterface % "test, optional",
-      scalaTest % Test
+      ASM,
+      HamcrestLibrary % Test,
+      Junit % "provided, optional",
+      JunitInterface % "test, optional",
+      ScalaTest % Test
     ),
     name := "Neuron DI for Java",
-    normalizedName := "neuron-di"
+    normalizedName := "neuron-di",
+    publishArtifact := false // built by Maven because the sbt-assembly plugin 0.14.3 doesn't support shading Java 8 byte code
   )
 
 lazy val coreScala = project
   .in(file("core-scala"))
   .dependsOn(core)
   .settings(
+    addCompilerPlugin(MacroParadise),
+    crossPaths := true,
     libraryDependencies ++= Seq(
       scalaReflect(scalaVersion.value),
-      scalaTest % Test
+      ScalaTest % Test
     ),
     name := "Neuron DI for Scala " + scalaBinaryVersion.value,
-    normalizedName := "neuron-di-scala",
-    publishArtifact := true
+    normalizedName := "neuron-di-scala"
   )
 
 lazy val guice = project
@@ -97,25 +99,40 @@ lazy val guice = project
   .dependsOn(core)
   .settings(
     autoScalaLibrary := false,
-    crossPaths := false,
     libraryDependencies ++= Seq(
-      Dependencies.guice,
-      hamcrestLibrary % Test,
-      junit % Test,
-      junitInterface % "test, optional",
-      mockitoCore % Test,
-      scalaTest % Test
+      Guice,
+      HamcrestLibrary % Test,
+      Junit % Test,
+      JunitInterface % "test, optional",
+      MockitoCore % Test,
+      ScalaTest % Test
     ),
     name := "Neuron DI @ Guice for Java",
-    normalizedName := "neuron-di-guice"
+    normalizedName := "neuron-di-guice",
+    publishArtifact := false // built by Maven
   )
 
 lazy val guiceScala = project
   .in(file("guice-scala"))
   .dependsOn(guice, coreScala)
   .settings(
-    libraryDependencies += scalaTest % Test,
+    addCompilerPlugin(MacroParadise),
+    crossPaths := true,
+    libraryDependencies += ScalaTest % Test,
     name := "Neuron DI @ Guice for Scala " + scalaBinaryVersion.value,
-    normalizedName := "neuron-di-guice-scala",
-    publishArtifact := true
+    normalizedName := "neuron-di-guice-scala"
+  )
+
+lazy val sbtPlugin = project
+  .in(file("sbt-plugin"))
+  .settings(
+    libraryDependencies ++= Seq(
+      Dependencies.IO,
+      ScalaPlus
+    ),
+    name := "Neuron DI SBT Plugin",
+    normalizedName := "neuron-di-sbt-plugin",
+    resourceGenerators in Compile += generateVersionFile.taskValue,
+    Keys.sbtPlugin := true,
+    scalaVersion := "2.10.6"
   )
