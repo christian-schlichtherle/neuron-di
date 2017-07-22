@@ -13,11 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package global.namespace.neuron.di.play.plugin
 
-addSbtPlugin("com.eed3si9n" % "sbt-assembly" % "0.14.5")
+import global.namespace.neuron.di.sbt.plugin.NeuronDIForScalaPlugin
+import play.sbt._
+import play.sbt.routes.RoutesKeys._
+import sbt._
 
-addSbtPlugin("com.eed3si9n" % "sbt-doge" % "0.1.5")
+object NeuronDIAtPlayForScalaPlugin extends AutoPlugin {
 
-addSbtPlugin("com.github.gseitz" % "sbt-release" % "1.0.5")
+  override def requires: Plugins = PlayScala && NeuronDIForScalaPlugin
 
-addSbtPlugin("com.typesafe.sbt" % "sbt-twirl" % "1.3.3")
+  override def projectSettings: Seq[Def.Setting[_]] = Seq(routesGenerator := NeuronRoutesGenerator())
+}

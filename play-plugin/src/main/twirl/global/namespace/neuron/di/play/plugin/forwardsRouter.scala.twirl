@@ -1,0 +1,113 @@
+@*
+ * Copyright © 2009-2017 Lightbend Inc. <https://www.lightbend.com>
+ * Copyright © 2016 Schlichtherle IT Services
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+@import global.namespace.neuron.di.play.plugin.NeuronRoutesGenerator.Dependency
+@import play.routes.compiler._
+@import play.routes.compiler.templates._
+
+@(sourceInfo: RoutesSourceInfo, pkg: Option[String], imports: Seq[String],
+  deps: Seq[Dependency[Rule]], rules: Seq[Dependency[Rule]], includes: Seq[Dependency[Include]])
+// @@GENERATOR:play-routes-compiler
+// @@SOURCE:@sourceInfo.source
+// @@DATE:@sourceInfo.date
+
+@for(p <- pkg) {package @p}
+
+import global.namespace.neuron.di.scala._
+import play.api.http._
+import play.api.mvc._
+import play.core.routing._
+import play.core.routing.HandlerInvokerFactory._
+
+@for(i <- imports) {
+import @if(!i.startsWith("_root_.")){_root_.}@i}
+
+@@Neuron
+trait Routes extends GeneratedRouter @ob
+
+  val prefix: String
+
+  @for(dep <- deps){
+  @markLines(dep.rule)
+  def @dep.ident: @dep.clazz}
+
+  final override def errorHandler: HttpErrorHandler = httpErrorHandler
+
+  def httpErrorHandler: HttpErrorHandler
+
+  def withPrefix(prefix: String): Routes = @ob
+    @(pkg.getOrElse("_routes_")).RoutesPrefix.setPrefix(prefix)
+    wire[Routes]
+  @cb
+
+  private[this] lazy val defaultPrefix: String = @ob
+    if (this.prefix.endsWith("/")) "" else "/"
+  @cb
+
+  def documentation: List[(String, String, String)] = List(@for((dep, index) <- rules.zipWithIndex) {
+    @dep.rule match {
+      case Route(verb, path, call, _, _) if path.parts.isEmpty => {(@tq@verb@tq, this.prefix, @tq@call@tq)}
+      case Route(verb, path, call, _, _) => {(@tq@verb@tq, this.prefix + (if(this.prefix.endsWith("/")) "" else "/") + @encodeStringConstant(path.toString), @tq@call@tq)}
+      case include: Include => {prefixed_@(dep.ident)_@(index).router.documentation}
+  },}
+    Nil
+  ).foldLeft(List.empty[(String,String,String)]) { (s,e) => e.asInstanceOf[Any] match {
+    case r @@ (_,_,_) => s :+ r.asInstanceOf[(String,String,String)]
+    case l => s ++ l.asInstanceOf[List[(String,String,String)]]
+  }}
+
+@for((dep, index) <- rules.zipWithIndex){@dep.rule match {
+case route @ Route(verb, path, call, comments, modifiers) => {
+  @markLines(route)
+  private[this] lazy val @routeIdentifier(route, index) = Route("@verb.value",
+    PathPattern(List(StaticPart(this.prefix)@if(path.parts.nonEmpty) {, StaticPart(this.defaultPrefix), }@path.parts.map(_.toString).mkString(", ")))
+  )
+  private[this] lazy val @invokerIdentifier(route, index) = createInvoker(
+    @injectedControllerMethodCall(route, dep.ident, p => s"fakeValue[${p.typeName}]"),
+    play.api.routing.HandlerDef(this.getClass.getClassLoader,
+      "@for(p <- pkg) {@p}",
+      "@(call.packageName).@call.controller",
+      "@call.method",
+      @call.parameters.filterNot(_.isEmpty).map(params => params.map("classOf[" + _.typeName + "]").mkString(", ")).map("Seq(" + _ + ")").getOrElse("Nil"),
+      "@verb",
+      this.prefix + @encodeStringConstant(path.toString),
+      @encodeStringConstant(comments.map(_.comment).mkString("\n")),
+      Seq(@modifiers.map(_.value).map(encodeStringConstant).mkString(", "))
+    )
+  )
+}
+case include @ Include(path, router) => {
+  @markLines(include)
+  private[this] val prefixed_@(dep.ident)_@(index) = Include(@(dep.ident).withPrefix(this.prefix + (if (this.prefix.endsWith("/")) "" else "/") + "@include.prefix"))
+}}}
+
+  def routes: PartialFunction[RequestHeader, Handler] = @ob
+  @if(rules.isEmpty) {
+    Map.empty
+  } else {@for((dep, index) <- rules.zipWithIndex){@dep.rule match {
+  case include: Include => {
+    @markLines(include)
+    case prefixed_@(dep.ident)_@(index)(handler) => handler
+  }
+  case route: Route => {
+    @markLines(route)
+    case @(routeIdentifier(route, index))(params) =>
+      call@(routeBinding(route)) @ob @localNames(route)
+        @(invokerIdentifier(route, index)).call(@injectedControllerMethodCall(route, dep.ident, x => safeKeyword(x.name)))
+      @cb
+  }
+  }}}@cb
+@cb
