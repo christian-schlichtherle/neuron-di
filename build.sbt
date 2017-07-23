@@ -119,7 +119,7 @@ lazy val playPlugin = project
   .enablePlugins(SbtTwirl)
   .settings(sbtPluginSettings: _*)
   .settings(
-    addSbtPlugin(PlaySbtPlugin % Provided),
+    addSbtPlugin(PlaySbtPlugin),
     name := "Neuron DI Play Plugin",
     normalizedName := "neuron-di-play-plugin",
     TwirlKeys.templateFormats := Map("twirl" -> "play.routes.compiler.ScalaFormat")
