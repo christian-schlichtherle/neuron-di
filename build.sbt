@@ -17,28 +17,40 @@
 import Dependencies._
 import SbtPluginTools._
 
-import scala.xml._
-
-lazy val mavenProject: SettingKey[NodeSeq] = SettingKey[NodeSeq]("maven-project", "The <project> element of a maven POM.")
-
 lazy val root = project
   .in(file("."))
   .aggregate(core, coreScala, guice, guiceScala, sbtPlugin)
   .settings(
     inThisBuild(Seq(
       compileOrder := CompileOrder.JavaThenScala,
+      crossScalaVersions := Seq("2.11.0", "2.12.0"),
       crossPaths := false,
+      dependencyOverrides += JUnit,
       fork in Test := true, // required to make `javaOptions` effective.
       javacOptions := DefaultOptions.javac ++ Seq(Opts.compile.deprecation, "-g"),
       javacOptions in doc := DefaultOptions.javac,
       javaOptions += "-ea",
       homepage := Some(url("https://github.com/christian-schlichtherle/neuron-di")),
       licenses := Seq("Apache License, Version 2.0" -> url("https://www.apache.org/licenses/LICENSE-2.0")),
-      mavenProject := XML.loadFile(baseDirectory.value + "/pom.xml"),
       organization := "global.namespace.neuron-di",
       organizationHomepage := Some(new URL("http://schlichtherle.de")),
       organizationName := "Schlichtherle IT Services",
-      pomExtra := mavenProject.value \ "developers",
+      pomExtra := {
+        <developers>
+          <developer>
+            <name>Christian Schlichtherle</name>
+            <email>christian AT schlichtherle DOT de</email>
+            <organization>Schlichtherle IT Services</organization>
+            <timezone>Europe/Berlin</timezone>
+            <roles>
+              <role>owner</role>
+            </roles>
+            <properties>
+              <picUrl>http://www.gravatar.com/avatar/e2f69ddc944f8891566fc4b18518e4e6.png</picUrl>
+            </properties>
+          </developer>
+        </developers>
+      },
       pomIncludeRepository := (_ => false),
       publishTo := {
         val nexus = "https://oss.sonatype.org/"
@@ -50,15 +62,15 @@ lazy val root = project
           }
         )
       },
-      scalacOptions := DefaultOptions.scalac ++ Seq(Opts.compile.deprecation, Opts.compile.explaintypes, Opts.compile.unchecked, "-feature"),
-      scalaVersion := (mavenProject.value \ "properties" \ "scala.version").text,
+      scalacOptions := DefaultOptions.scalac ++ Seq(Opts.compile.deprecation, Opts.compile.explaintypes, "-feature", Opts.compile.unchecked),
+      scalaVersion := "2.11.11",
       scmInfo := Some(ScmInfo(
         browseUrl = url("https://github.com/christian-schlichtherle/neuron-di"),
         connection = "scm:git:git://github.com/christian-schlichtherle/neuron-di.git",
         devConnection = Some("scm:git:ssh://git@github.com/christian-schlichtherle/neuron-di.git")
       )),
-      testOptions += Tests.Argument(TestFrameworks.JUnit, "-a"),
-      version := (mavenProject.value \ "version").text
+      testOptions += Tests.Argument(TestFrameworks.JUnit, "-a", "-v"),
+      version := "5.2-SNAPSHOT"
     )),
     name := "Neuron DI",
     publishArtifact := false
@@ -67,17 +79,36 @@ lazy val root = project
 lazy val core = project
   .in(file("core"))
   .settings(
+    addArtifact(artifact in (Compile, assembly), assembly),
+    artifact in (Compile, packageBin) := {
+      (artifact in (Compile, packageBin)).value.copy(classifier = Some("classes"))
+    },
+    artifact in (Compile, assembly) := {
+      (artifact in (Compile, assembly)).value.copy(configurations = Seq(Compile))
+    },
+    // sbt-assembly 0.14.5 doesn't understand combined dependency configurations like `JUnit % "provided, optional"`.
+    // So JUnit and it's transitive dependencies need to be manually excluded.
+    assemblyExcludedJars in assembly := {
+      (externalDependencyClasspath in assembly).value filter { attributedFile =>
+        val fileName = attributedFile.data.getName
+        fileName.startsWith("junit-") || fileName.startsWith("hamcrest-core-")
+      }
+    },
+    assemblyJarName in assembly := s"${normalizedName.value}-${version.value}.jar",
+    assemblyShadeRules in assembly := Seq(
+      ShadeRule.rename("org.objectweb.**" -> "global.namespace.neuron.di.internal.@1").inLibrary(ASM)
+    ),
     autoScalaLibrary := false,
     libraryDependencies ++= Seq(
-      ASM,
+      ASM % "compile, optional",
       HamcrestLibrary % Test,
       JUnit % "provided, optional",
-      JUnitInterface % "test, optional",
+      JUnitInterface % Test,
       ScalaTest % Test
     ),
     name := "Neuron DI for Java",
     normalizedName := "neuron-di",
-    publishArtifact := false // built by Maven because the sbt-assembly plugin 0.14.3 doesn't support shading Java 8 byte code
+    test in assembly := {}
   )
 
 lazy val coreScala = project
@@ -102,14 +133,12 @@ lazy val guice = project
     libraryDependencies ++= Seq(
       Guice,
       HamcrestLibrary % Test,
-      JUnit % Test,
-      JUnitInterface % "test, optional",
+      JUnitInterface % Test,
       MockitoCore % Test,
       ScalaTest % Test
     ),
     name := "Neuron DI @ Guice for Java",
-    normalizedName := "neuron-di-guice",
-    publishArtifact := false // built by Maven
+    normalizedName := "neuron-di-guice"
   )
 
 lazy val guiceScala = project
