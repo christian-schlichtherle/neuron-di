@@ -18,8 +18,6 @@ import sbt._
 
 object Dependencies {
 
-  private val PlayVersion = "2.6.1"
-
   val ASM: ModuleID = "org.ow2.asm" % "asm" % "5.2"
   val Guice: ModuleID = "com.google.inject" % "guice" % sys.env.getOrElse("GUICE_VERSION", "3.0")
   val HamcrestLibrary: ModuleID = "org.hamcrest" % "hamcrest-library" % "1.3"

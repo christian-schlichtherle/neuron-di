@@ -1,7 +1,7 @@
 import sbt.Keys._
 import sbt._
 
-object SbtPluginTools {
+object BuildTools {
 
   def generateVersionFile: Def.Initialize[Task[Seq[File]]] = {
     Def.task {
