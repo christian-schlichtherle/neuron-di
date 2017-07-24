@@ -46,9 +46,9 @@ class NeuronRoutesGenerator(identifier: (String, String) => String) extends Rout
   def generate(task: RoutesCompilerTask, namespace: Option[String], rules: List[Rule]): Seq[(String, String)] = {
     delegate.generate(task.copy(forwardsRouter = false), namespace, rules) ++ {
       if (task.forwardsRouter) {
-        val folder = namespace.map(_.replace('.', '/') + "/").getOrElse("") + "/"
+        val folder = namespace.map(_.replace('.', '/')).getOrElse("")
         val sourceInfo = RoutesSourceInfo(task.file.getCanonicalPath.replace(File.separator, "/"), new java.util.Date().toString)
-        Seq(folder + "Routes.scala" -> generateRouter(sourceInfo, namespace, task.additionalImports, rules))
+        Seq(folder + "/Routes.scala" -> generateRouter(sourceInfo, namespace, task.additionalImports, rules))
       } else {
         Nil
       }
