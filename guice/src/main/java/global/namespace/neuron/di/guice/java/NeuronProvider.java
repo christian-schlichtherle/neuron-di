@@ -51,8 +51,7 @@ abstract class NeuronProvider<T> implements Provider<T> {
                 .findFirst()
                 .<Key<?>>map(annotation -> Key.get(returnTypeLiteral, annotation))
                 .orElseGet(() -> Key.get(returnTypeLiteral));
-        final Provider<?> provider = injector().getProvider(returnKey);
-        return provider::get;
+        return injector().getProvider(returnKey)::get;
     }
 
     private static boolean isQualifierOrBindingAnnotation(final Annotation annotation) {
