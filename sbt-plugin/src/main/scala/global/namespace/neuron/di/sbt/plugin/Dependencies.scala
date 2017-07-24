@@ -27,12 +27,12 @@ object Dependencies {
   // and Scala 2.12.2, Macro Paradise 2.1.1 is available.
   val MacroParadise: ModuleID = "org.scalamacros" % "paradise" % "2.1.+" cross CrossVersion.full
 
+  private val NeuronDIVersion = loan(getClass.getResourceAsStream("version")).to(IO.readStream(_))
+
   val NeuronDIForJava: ModuleID = component("neuron-di")
   val NeuronDIForScala: ModuleID = component("neuron-di-scala")
   val NeuronDIAtGuiceForJava: ModuleID = component("neuron-di-guice")
   val NeuronDIAtGuiceForScala: ModuleID = component("neuron-di-guice-scala")
 
   private def component(id: String) = "global.namespace.neuron-di" %% id % NeuronDIVersion
-
-  private lazy val NeuronDIVersion = loan(getClass.getResourceAsStream("version")).to(IO.readStream(_))
 }
