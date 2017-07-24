@@ -29,32 +29,42 @@ lazy val core = project
   .settings(javaLibrarySettings: _*)
   .settings(
     inTask(assembly)(Seq(
+
+      // Post the shaded JAR as the main artifact.
       artifact in Compile := {
         (artifact in Compile).value.copy(configurations = Seq(Compile))
       },
-      // sbt-assembly 0.14.5 doesn't understand combined dependency configurations like `JUnit % "provided, optional"`.
-      // So JUnit and it's transitive dependencies need to be manually excluded.
+
+      // sbt-assembly 0.14.5 doesn't understand combined dependency configurations like `JUnit % "provided; optional"`.
+      // So JUnit and it's transitive dependency Hamcrest Core need to be manually excluded.
       assemblyExcludedJars := {
         (externalDependencyClasspath in assembly).value filter { attributedFile =>
           val fileName = attributedFile.data.getName
           fileName.startsWith("junit-") || fileName.startsWith("hamcrest-core-")
         }
       },
+
       assemblyJarName := s"${normalizedName.value}-${version.value}.jar",
+
+      // Relocate the classes and update references to them everywhere.
       assemblyShadeRules := Seq(
-        ShadeRule.rename("org.objectweb.**" -> "global.namespace.neuron.di.internal.@1").inLibrary(ASM)
+        ShadeRule.rename("org.objectweb.**" -> "global.namespace.neuron.di.internal.@1").inAll
       ),
+
       test := {}
     )),
     addArtifact(artifact in (Compile, assembly), assembly),
+
+    // Post the original JAR as an optional artifact with the classifier "classes".
     artifact in (Compile, packageBin) := {
-      (artifact in (Compile, packageBin)).value.copy(classifier = Some("classes"))
+      (artifact in (Compile, packageBin)).value.copy(configurations = Seq(Optional), classifier = Some("classes"))
     },
+
     javacOptions += "-proc:none",
     libraryDependencies ++= Seq(
-      ASM % "compile, optional",
+      ASM % Optional,
       HamcrestLibrary % Test,
-      JUnit % "provided, optional",
+      JUnit % "provided; optional",
       JUnitInterface % Test,
       ScalaTest % Test
     ),
