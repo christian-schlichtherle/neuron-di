@@ -21,6 +21,7 @@ import Dependencies._
 lazy val root = project
   .in(file("."))
   .aggregate(core, coreScala, guice, guiceScala, sbtPlugin, playPlugin)
+  .settings(releaseSettings)
   .settings(aggregateSettings: _*)
 
 lazy val core = project

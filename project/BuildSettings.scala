@@ -29,11 +29,11 @@ object BuildSettings {
         checkSnapshotDependencies,
         inquireVersions,
         runClean,
-        releaseStepCommandAndRemaining("such test"),
+        releaseStepCommandAndRemaining("so test"),
         setReleaseVersion,
         commitReleaseVersion,
         tagRelease,
-        releaseStepCommandAndRemaining("very publishSigned"),
+        releaseStepCommandAndRemaining("so publishSigned"),
         setNextVersion,
         commitNextVersion,
         pushChanges
