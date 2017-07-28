@@ -35,13 +35,13 @@ abstract class CachingStrategySpec extends FeatureSpec with GivenWhenThen {
 
       val neuron = breed(classWithDisabledCachingStrategy)
 
-      When(s"concurrently collecting dependencies injected ${collect.numDependenciesPerThread} times in ${collect.numThreads} threads")
+      When(s"concurrently collecting dependencies injected ${collect.numInjectionsPerThread} times in ${collect.numThreads} threads")
 
       val dependencies = collect dependenciesOf neuron
 
-      Then(s"the size of the dependency set should be ${collect.numDependencies}.")
+      Then(s"the size of the dependency set should be ${collect.numInjections}.")
 
-      dependencies should have size collect.numDependencies
+      dependencies should have size collect.numInjections
     }
 
     scenario("Applying the NOT_THREAD_SAFE caching strategy:") {
@@ -50,7 +50,7 @@ abstract class CachingStrategySpec extends FeatureSpec with GivenWhenThen {
 
       val neuron = breed(classWithNotThreadSafeCachingStrategy)
 
-      When(s"concurrently collecting dependencies injected ${collect.numDependenciesPerThread} times in ${collect.numThreads} threads")
+      When(s"concurrently collecting dependencies injected ${collect.numInjectionsPerThread} times in ${collect.numThreads} threads")
 
       val dependencies = collect dependenciesOf neuron
 
@@ -65,7 +65,7 @@ abstract class CachingStrategySpec extends FeatureSpec with GivenWhenThen {
 
       val neuron = breed(classWithThreadSafeCachingStrategy)
 
-      When(s"concurrently collecting dependencies injected ${collect.numDependenciesPerThread} times in ${collect.numThreads} threads")
+      When(s"concurrently collecting dependencies injected ${collect.numInjectionsPerThread} times in ${collect.numThreads} threads")
 
       val dependencies = collect dependenciesOf neuron
 
@@ -80,7 +80,7 @@ abstract class CachingStrategySpec extends FeatureSpec with GivenWhenThen {
 
       val neuron = breed(classWithThreadLocalCachingStrategy)
 
-      When(s"concurrently collecting dependencies injected ${collect.numDependenciesPerThread} times in ${collect.numThreads} threads")
+      When(s"concurrently collecting dependencies injected ${collect.numInjectionsPerThread} times in ${collect.numThreads} threads")
 
       val dependencies = collect dependenciesOf neuron
 
