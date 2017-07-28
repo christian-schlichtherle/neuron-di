@@ -22,18 +22,14 @@ lazy val root = project
   .in(file("."))
   .aggregate(core, coreScala, guice, guiceScala, sbtPlugin, playPlugin)
   .settings(releaseSettings)
-  .settings(aggregateSettings: _*)
+  .settings(aggregateSettings)
 
 lazy val core = project
   .in(file("core"))
-  .settings(javaLibrarySettings: _*)
+  .settings(javaLibrarySettings)
   .settings(
     inTask(assembly)(Seq(
-
-      // Post the shaded JAR as the main artifact.
-      artifact in Compile := {
-        (artifact in Compile).value.copy(configurations = Seq(Compile))
-      },
+      artifact ~= (_.copy(classifier = Some("shaded"), configurations = Seq(Compile))),
 
       // sbt-assembly 0.14.5 doesn't understand combined dependency configurations like `JUnit % "provided; optional"`.
       // So JUnit and it's transitive dependency Hamcrest Core need to be manually excluded.
@@ -44,25 +40,20 @@ lazy val core = project
         }
       },
 
-      assemblyJarName := s"${normalizedName.value}-${version.value}.jar",
+      assemblyJarName := s"${normalizedName.value}-${version.value}-assembly.jar",
 
       // Relocate the classes and update references to them everywhere.
       assemblyShadeRules := Seq(
         ShadeRule.rename("org.objectweb.**" -> "global.namespace.neuron.di.internal.@1").inAll
       ),
 
-      test := {}
+      test := ()
     )),
-    addArtifact(artifact in (Compile, assembly), assembly),
-
-    // Post the original JAR as an optional artifact with the classifier "classes".
-    artifact in (Compile, packageBin) := {
-      (artifact in (Compile, packageBin)).value.copy(configurations = Seq(Optional), classifier = Some("classes"))
-    },
+    addArtifact(artifact in assembly, assembly),
 
     javacOptions += "-proc:none",
     libraryDependencies ++= Seq(
-      ASM % Optional,
+      ASM,
       HamcrestLibrary % Test,
       JUnit % "provided; optional",
       JUnitInterface % Test,
@@ -75,7 +66,7 @@ lazy val core = project
 lazy val coreScala = project
   .in(file("core-scala"))
   .dependsOn(core)
-  .settings(scalaLibrarySettings: _*)
+  .settings(scalaLibrarySettings)
   .settings(
     libraryDependencies ++= Seq(
       scalaReflect(scalaVersion.value),
@@ -88,7 +79,7 @@ lazy val coreScala = project
 lazy val guice = project
   .in(file("guice"))
   .dependsOn(core)
-  .settings(javaLibrarySettings: _*)
+  .settings(javaLibrarySettings)
   .settings(
     libraryDependencies ++= Seq(
       Guice,
@@ -104,7 +95,7 @@ lazy val guice = project
 lazy val guiceScala = project
   .in(file("guice-scala"))
   .dependsOn(guice, coreScala)
-  .settings(scalaLibrarySettings: _*)
+  .settings(scalaLibrarySettings)
   .settings(
     libraryDependencies += ScalaTest % Test,
     name := "Neuron DI @ Guice for Scala " + scalaBinaryVersion.value,
@@ -113,7 +104,7 @@ lazy val guiceScala = project
 
 lazy val sbtPlugin = project
   .in(file("sbt-plugin"))
-  .settings(sbtPluginSettings: _*)
+  .settings(sbtPluginSettings)
   .settings(
     libraryDependencies ++= Seq(
       Dependencies.IO,

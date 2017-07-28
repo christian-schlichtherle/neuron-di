@@ -18,8 +18,18 @@ import sbt._
 
 object Dependencies {
 
+
   val ASM: ModuleID = "org.ow2.asm" % "asm" % "5.2"
-  val Guice: ModuleID = "com.google.inject" % "guice" % sys.env.getOrElse("GUICE_VERSION", "3.0")
+  val Guice: ModuleID = {
+    val version = sys.env.getOrElse("GUICE_VERSION", "4.1.0")
+    val moduleID = "com.google.inject" % "guice" % version
+    version match {
+      // Exclude ASM 3.1 as a transitive dependency because it has a different group id and conflicts with ASM 5.2.
+      // ASM 3.1 is a transitive dependency of Guice 3.0, which is used for continuous testing.
+      case "3.0" => moduleID exclude("asm", "asm")
+      case _ => moduleID
+    }
+  }
   val HamcrestLibrary: ModuleID = "org.hamcrest" % "hamcrest-library" % "1.3"
   val IO: ModuleID = "org.scala-sbt" % "io" % "0.13.15"
   val JUnit: ModuleID = "junit" % "junit" % "4.12"
