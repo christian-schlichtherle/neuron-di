@@ -21,7 +21,7 @@ import scala.annotation.{StaticAnnotation, compileTimeOnly}
 import scala.language.experimental.macros
 import scala.reflect.macros.blackbox
 
-@compileTimeOnly("Please add the Macro Paradise plugin to the Scala compiler to enable this macro annotation. See http://docs.scala-lang.org/overviews/macros/paradise .")
+@compileTimeOnly("Please add the Macro Paradise plugin to the Scala compiler to enable this macro annotation. See https://docs.scala-lang.org/overviews/macros/paradise.html .")
 class Neuron(cachingStrategy: CachingStrategy = CachingStrategy.DISABLED) extends StaticAnnotation {
 
   def macroTransform(annottees: Any*): Any = macro Neuron.transform
