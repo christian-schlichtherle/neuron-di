@@ -40,7 +40,7 @@ class Reflection {
             final Set<Class<?>> interfaces = new HashSet<>();
 
             @Override
-            public Optional<MethodHandle> in(Object o) {
+            public Optional<MethodHandle> in(final Object target) {
                 return new Function<Class<?>, Optional<MethodHandle>>() {
                     @Override
                     public Optional<MethodHandle> apply(final Class<?> c) {
@@ -80,11 +80,11 @@ class Reflection {
                             throw new AssertionError(e);
                         }
                         if (0 == (member.getModifiers() & Modifier.STATIC)) {
-                            mh = mh.bindTo(o);
+                            mh = mh.bindTo(target);
                         }
                         return Optional.of(mh.asType(objectMethodType));
                     }
-                }.apply(o.getClass());
+                }.apply(target.getClass());
             }
         };
     }
@@ -96,6 +96,6 @@ class Reflection {
 
     interface Find {
 
-        Optional<MethodHandle> in(Object o);
+        Optional<MethodHandle> in(Object target);
     }
 }

@@ -103,8 +103,8 @@ public final class Incubator {
 
             @Override
             public <U> Bind<T, U> bind(final DependencyResolver<T, U> methodReference) {
-                return replacement -> {
-                    bindings.add(new SimpleImmutableEntry<>(methodReference, replacement));
+                return resolver -> {
+                    bindings.add(new SimpleImmutableEntry<>(methodReference, resolver));
                     return this;
                 };
             }
