@@ -124,7 +124,6 @@ object BuildSettings {
 
   def sbtPluginSettings: Seq[Setting[_]] = {
     pluginSettings ++ Seq(
-      crossPaths := false,
       sbtPlugin := true,
       scalacOptions := DefaultOptions.scalac ++ Seq(Opts.compile.deprecation, Opts.compile.explaintypes, "-feature", Opts.compile.unchecked)
     )
