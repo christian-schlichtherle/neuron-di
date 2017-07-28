@@ -13,8 +13,8 @@ self-contained bindings.
 Self-contained bindings are checked by the (Java or Scala) compiler, which alleviates the need for testing 
 them separately in many cases. 
 
-When combining Neuron DI with other DI frameworks, programmers can increase the power and flexibility of their framework
-of choice with lazy dependency resolution, caching and dependency injection into Java interfaces or Scala traits.
+When combining Neuron DI with other DI frameworks, programmers can power-up their framework of choice with lazy 
+dependency resolution, caching and dependency injection into Java interfaces or Scala traits.
 Users of Guice also enjoy extensions to the Guice binding DSL which make it simpler to use, especially when using Guice 
 with Scala.
 
