@@ -3,24 +3,24 @@
 # Neuron DI
 
 Neuron DI is an ultra-light dependency injection framework which emphasizes the beauty and power of type-safe, lazy 
-dependency resolution - see [Features and Benefits].
-It takes advantage of functional programming features in Java SE 8, Scala 2.11 and Scala 2.12 in order to provide an API
-with a simple, yet complete Domain Specific Language for each target environment. 
+dependency resolution with optional compile-time checking - see [Features and Benefits].
+It takes advantage of functional programming features in Java SE 8 and Scala 2.11 in order to provide an API with a 
+simple, yet complete Domain Specific Language for each target environment. 
 
 Neuron DI can be used standalone or combined with other DI frameworks.
 When using it standalone, programmers enjoy a simple, yet complete domain specific language (DSL) for writing
-self-contained binding definitions.
-Self-contained binding definitions are checked by the (Java or Scala) compiler, which alleviates the need for testing 
+self-contained bindings.
+Self-contained bindings are checked by the (Java or Scala) compiler, which alleviates the need for testing 
 them separately in many cases. 
 
-When using Neuron DI embedded, programmers can add lazy dependency resolution and caching to their DI framework of 
-choice, e.g. Guice 3.0+.
-Guice users also enjoy extensions to the Guice binding DSL which make it simpler to use, especially when using Guice 
+When combining Neuron DI with other DI frameworks, programmers can increase the power and flexibility of their DI of 
+choice with lazy dependency resolution, caching and dependency injection into Java interfaces or Scala traits.
+Users of Guice also enjoy extensions to the Guice binding DSL which make it simpler to use, especially when using Guice 
 with Scala.
 
 For documentation, please consult the Wiki:
 
-- [Documentation][Wiki]
+- [Documentation Wiki][Wiki]
 
 Release Notes are available on GitHub:
 
