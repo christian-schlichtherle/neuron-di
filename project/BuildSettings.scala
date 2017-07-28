@@ -85,8 +85,6 @@ object BuildSettings {
 
   def aggregateSettings: Seq[Setting[_]] = {
     commonSettings ++ Seq(
-      autoScalaLibrary := false,
-      crossPaths := false,
       publishArtifact := false
     )
   }
@@ -116,7 +114,6 @@ object BuildSettings {
     librarySettings ++ Seq(
       addCompilerPlugin(MacroParadise),
       compileOrder := CompileOrder.JavaThenScala,
-      crossPaths := true,
       crossScalaVersions := Seq(ScalaVersion_2_11, ScalaVersion_2_12),
       scalacOptions := DefaultOptions.scalac ++ Seq(Opts.compile.deprecation, Opts.compile.explaintypes, "-feature", Opts.compile.unchecked),
       scalaVersion := ScalaVersion_2_12
@@ -127,7 +124,6 @@ object BuildSettings {
 
   def sbtPluginSettings: Seq[Setting[_]] = {
     pluginSettings ++ Seq(
-      crossPaths := false,
       sbtPlugin := true,
       scalacOptions := DefaultOptions.scalac ++ Seq(Opts.compile.deprecation, Opts.compile.explaintypes, "-feature", Opts.compile.unchecked)
     )
