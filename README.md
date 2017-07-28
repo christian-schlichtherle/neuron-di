@@ -39,5 +39,5 @@ Neuron DI is covered by the Apache License, Version 2.0:
 
 - [![Apache License 2.0](https://img.shields.io/github/license/christian-schlichtherle/neuron-di.svg?maxAge=3600)](https://www.apache.org/licenses/LICENSE-2.0)
 
-[Wiki]: https://github.com/christian-schlichtherle/neuron-di/wiki
-[Features and Benefits]: wiki/Features
+[Wiki]: ../../wiki
+[Features and Benefits]: ../../wiki/Features
