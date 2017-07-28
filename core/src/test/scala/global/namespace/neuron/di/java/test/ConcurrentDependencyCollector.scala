@@ -17,42 +17,30 @@ package global.namespace.neuron.di.java.test
 
 import java.util.concurrent.{CyclicBarrier, TimeUnit}
 
-import global.namespace.neuron.di.java.test.ParallelSugar._
 import global.namespace.neuron.di.java.sample.HasDependency
+import global.namespace.neuron.di.java.test.ParallelSugar._
 
 private class ConcurrentDependencyCollector {
+
+  val numThreads: Int = 10 * Runtime.getRuntime.availableProcessors
+
+  val numInjectionsPerThread: Int = 10
+
+  val numInjections: Int = numThreads * numInjectionsPerThread
 
   def dependenciesOf[T](neuron: HasDependency[T]): Set[T] = {
     val barrier: CyclicBarrier = new CyclicBarrier(numThreads)
     Range(0, numThreads).toSet.parallel(numThreads).flatMap { _ =>
-      Range(0, numDependenciesPerThread).toSet.map { _: Int =>
-        await(barrier)
+      Range(0, numInjectionsPerThread).toSet.map { _: Int =>
+        try {
+          barrier.await(3L, TimeUnit.SECONDS)
+        } catch {
+          case e: Any => throw new AssertionError(e)
+        }
         val dependency = neuron.get
         assert(null != dependency)
         dependency
       }
     }.seq
   }
-
-  private def await(barrier: CyclicBarrier) {
-    try {
-      barrier.await(1L, TimeUnit.SECONDS)
-    } catch {
-      case e: Any => throw new AssertionError(e)
-    }
-  }
-
-  private def join(thread: Thread) {
-    try {
-      thread.join(1000L)
-    } catch {
-      case e: InterruptedException => throw new AssertionError(e)
-    }
-  }
-
-  def numDependencies: Int = numDependenciesPerThread * numThreads
-
-  def numDependenciesPerThread: Int = 10
-
-  def numThreads: Int = 10 * Runtime.getRuntime.availableProcessors
 }
