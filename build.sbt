@@ -119,7 +119,7 @@ lazy val playPlugin = project
   .in(file("play-plugin"))
   .dependsOn(sbtPlugin)
   .enablePlugins(SbtTwirl)
-  .settings(sbtPluginSettings: _*)
+  .settings(sbtPluginSettings)
   .settings(
     addSbtPlugin(PlaySbtPlugin),
     name := "Neuron DI Play Plugin",
