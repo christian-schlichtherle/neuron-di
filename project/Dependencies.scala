@@ -39,4 +39,7 @@ object Dependencies {
   val ScalaPlus: ModuleID = "global.namespace.scala-plus" %% "scala-plus" % "0.1"
   def scalaReflect(scalaVersion: String): ModuleID = "org.scala-lang" % "scala-reflect" % scalaVersion
   val ScalaTest: ModuleID = "org.scalatest" %% "scalatest" % "3.0.3"
+
+  val ScalaVersion_2_11: String = sys.props.getOrElse("SCALA_VERSION_2.11", "2.11.11")
+  val ScalaVersion_2_12: String = sys.props.getOrElse("SCALA_VERSION_2.12", "2.12.3")
 }

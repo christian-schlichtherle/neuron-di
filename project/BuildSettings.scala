@@ -128,7 +128,4 @@ object BuildSettings {
       scalacOptions := DefaultOptions.scalac ++ Seq(Opts.compile.deprecation, Opts.compile.explaintypes, "-feature", Opts.compile.unchecked)
     )
   }
-
-  private lazy val ScalaVersion_2_11 = sys.props.getOrElse("SCALA_VERSION_2.11", "2.11.11")
-  private lazy val ScalaVersion_2_12 = sys.props.getOrElse("SCALA_VERSION_2.12", "2.12.2")
 }
