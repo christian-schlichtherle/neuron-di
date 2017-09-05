@@ -99,24 +99,28 @@ object BuildSettings {
     )
   }
 
-  def librarySettings: Seq[Setting[_]] = artifactSettings
+  def librarySettings: Seq[Setting[_]] = {
+    artifactSettings ++ Seq(
+      // Support testing Java projects with ScalaTest et al:
+      compileOrder := CompileOrder.JavaThenScala,
+      javacOptions := DefaultOptions.javac ++ Seq(Opts.compile.deprecation, "-g"),
+      javacOptions in doc := DefaultOptions.javac,
+      scalacOptions := DefaultOptions.scalac ++ Seq(Opts.compile.deprecation, Opts.compile.explaintypes, "-feature", Opts.compile.unchecked),
+      scalaVersion := ScalaVersion_2_12
+    )
+  }
 
   def javaLibrarySettings: Seq[Setting[_]] = {
     librarySettings ++ Seq(
       autoScalaLibrary := false,
-      crossPaths := false,
-      javacOptions := DefaultOptions.javac ++ Seq(Opts.compile.deprecation, "-g"),
-      javacOptions in doc := DefaultOptions.javac
+      crossPaths := false
     )
   }
 
   def scalaLibrarySettings: Seq[Setting[_]] = {
     librarySettings ++ Seq(
       addCompilerPlugin(MacroParadise),
-      compileOrder := CompileOrder.JavaThenScala,
-      crossScalaVersions := Seq(ScalaVersion_2_11, ScalaVersion_2_12),
-      scalacOptions := DefaultOptions.scalac ++ Seq(Opts.compile.deprecation, Opts.compile.explaintypes, "-feature", Opts.compile.unchecked),
-      scalaVersion := ScalaVersion_2_12
+      crossScalaVersions := Seq(ScalaVersion_2_11, ScalaVersion_2_12)
     )
   }
 
