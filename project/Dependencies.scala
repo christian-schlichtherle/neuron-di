@@ -30,15 +30,15 @@ object Dependencies {
     }
   }
   val HamcrestLibrary: ModuleID = "org.hamcrest" % "hamcrest-library" % "1.3"
-  val IO: ModuleID = "org.scala-sbt" % "io" % "0.13.15"
+  val IO: ModuleID = "org.scala-sbt" % "io" % "0.13.16"
   val JUnit: ModuleID = "junit" % "junit" % "4.12"
   val JUnitInterface: ModuleID = "com.novocode" % "junit-interface" % "0.11"
-  val MockitoCore: ModuleID = "org.mockito" % "mockito-core" % "2.8.47"
+  val MockitoCore: ModuleID = "org.mockito" % "mockito-core" % "2.10.0"
   val MacroParadise: ModuleID = "org.scalamacros" % "paradise" % "2.1.+" cross CrossVersion.full
-  val PlaySbtPlugin: ModuleID = "com.typesafe.play" % "sbt-plugin" % "2.6.2"
+  val PlaySbtPlugin: ModuleID = "com.typesafe.play" % "sbt-plugin" % "2.6.5"
   val ScalaPlus: ModuleID = "global.namespace.scala-plus" %% "scala-plus" % "0.1"
   def scalaReflect(scalaVersion: String): ModuleID = "org.scala-lang" % "scala-reflect" % scalaVersion
-  val ScalaTest: ModuleID = "org.scalatest" %% "scalatest" % "3.0.3"
+  val ScalaTest: ModuleID = "org.scalatest" %% "scalatest" % "3.0.4"
 
   val ScalaVersion_2_11: String = sys.props.getOrElse("SCALA_VERSION_2.11", "2.11.11")
   val ScalaVersion_2_12: String = sys.props.getOrElse("SCALA_VERSION_2.12", "2.12.3")
