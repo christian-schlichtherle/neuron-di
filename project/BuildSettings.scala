@@ -85,6 +85,7 @@ object BuildSettings {
 
   def aggregateSettings: Seq[Setting[_]] = {
     commonSettings ++ Seq(
+      crossPaths := false,
       publishArtifact := false
     )
   }
