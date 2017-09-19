@@ -23,6 +23,7 @@ lazy val root = project
   .aggregate(core, coreScala, guice, guiceScala, sbtPlugin, playPlugin)
   .settings(releaseSettings)
   .settings(aggregateSettings)
+  .settings(name := "Neuron DI")
 
 lazy val core = project
   .in(file("core"))
