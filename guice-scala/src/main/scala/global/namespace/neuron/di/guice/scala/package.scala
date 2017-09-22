@@ -21,7 +21,7 @@ import com.google.inject.binder._
 import com.google.inject.name.Names
 import com.google.inject._
 import global.namespace.neuron.di.guice.java.{BinderLike => jBinderLike, NeuronModule => jNeuronModule}
-import global.namespace.neuron.di.internal.scala._
+import global.namespace.neuron.di.scala.internal._
 
 import reflect.ClassTag
 

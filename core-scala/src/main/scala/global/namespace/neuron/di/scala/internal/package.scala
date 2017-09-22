@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package global.namespace.neuron.di.internal
+package global.namespace.neuron.di.scala
 
 import _root_.scala.reflect.{ClassTag, classTag}
 
-package object scala {
+package object internal {
 
   def runtimeClassOf[A](implicit ct: ClassTag[A]): Class[A] = {
     require(ct != classTag[Nothing], "Missing type parameter.")
