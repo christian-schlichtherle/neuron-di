@@ -30,7 +30,7 @@ lazy val core = project
   .settings(javaLibrarySettings)
   .settings(
     inTask(assembly)(Seq(
-      artifact ~= (_.copy(classifier = Some("shaded"), configurations = Seq(Compile))),
+      artifact ~= (_ withClassifier Some("shaded") withConfigurations Vector(Compile)),
 
       // sbt-assembly 0.14.5 doesn't understand combined dependency configurations like `JUnit % "provided; optional"`.
       // So JUnit and it's transitive dependency Hamcrest Core need to be manually excluded.
@@ -48,7 +48,7 @@ lazy val core = project
         ShadeRule.rename("org.objectweb.**" -> "global.namespace.neuron.di.internal.@1").inAll
       ),
 
-      test := ()
+      test := { }
     )),
     addArtifact(artifact in assembly, assembly),
 
@@ -108,7 +108,7 @@ lazy val sbtPlugin = project
   .settings(sbtPluginSettings)
   .settings(
     libraryDependencies ++= Seq(
-      Dependencies.IO,
+      Dependencies.io(sbtVersion.value),
       ScalaPlus
     ),
     name := "Neuron DI SBT Plugin",
