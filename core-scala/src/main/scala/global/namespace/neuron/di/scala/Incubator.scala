@@ -18,7 +18,7 @@ package global.namespace.neuron.di.scala
 import java.lang.reflect.Method
 import java.util.function.{Function => jFunction}
 
-import global.namespace.neuron.di.scala.internal.runtimeClassOf
+import global.namespace.neuron.di.internal.scala.runtimeClassOf
 import global.namespace.neuron.di.java.{DependencyProvider, DependencyResolver, Incubator => jIncubator}
 
 import scala.reflect._
