@@ -35,7 +35,7 @@ object Dependencies {
   val JUnitInterface: ModuleID = "com.novocode" % "junit-interface" % "0.11"
   val MockitoCore: ModuleID = "org.mockito" % "mockito-core" % "2.10.0"
   val MacroParadise: ModuleID = "org.scalamacros" % "paradise" % "2.1.+" cross CrossVersion.full
-  val PlaySbtPlugin: ModuleID = "com.typesafe.play" % "sbt-plugin" % "2.6.5"
+  val PlaySbtPlugin: ModuleID = "com.typesafe.play" % "sbt-plugin_2.12" % "2.6.5"
   val ScalaPlus: ModuleID = "global.namespace.scala-plus" %% "scala-plus" % "0.1"
   def scalaReflect(scalaVersion: String): ModuleID = "org.scala-lang" % "scala-reflect" % scalaVersion
   val ScalaTest: ModuleID = "org.scalatest" %% "scalatest" % "3.0.4"

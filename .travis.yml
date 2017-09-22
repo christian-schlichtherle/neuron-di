@@ -22,6 +22,6 @@ jdk:
 
 language: scala
 
-script: sbt "so test"
+script: sbt +test
 
 sudo: false
