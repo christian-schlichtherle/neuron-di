@@ -30,7 +30,7 @@ object Dependencies {
     }
   }
   val HamcrestLibrary: ModuleID = "org.hamcrest" % "hamcrest-library" % "1.3"
-  val IO: ModuleID = "org.scala-sbt" % "io" % "0.13.16"
+  def io(sbtVersion: String): ModuleID = "org.scala-sbt" % "io" % sbtVersion
   val JUnit: ModuleID = "junit" % "junit" % "4.12"
   val JUnitInterface: ModuleID = "com.novocode" % "junit-interface" % "0.11"
   val MockitoCore: ModuleID = "org.mockito" % "mockito-core" % "2.10.0"
