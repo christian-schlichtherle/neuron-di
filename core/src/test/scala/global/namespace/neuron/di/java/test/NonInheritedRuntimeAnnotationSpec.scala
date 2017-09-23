@@ -15,7 +15,7 @@ class NonInheritedRuntimeAnnotationSpec extends WordSpec {
       val neuron = Incubator breed neuronClass
       val proxyClass = neuron.getClass
       proxyClass should not be neuronClass
-      val superClass = proxyClass.getSuperclass
+      val superClass: Class[_] = proxyClass.getSuperclass
       superClass shouldBe neuronClass
 
       Option(proxyClass getDeclaredAnnotation annotationClass) shouldBe defined

@@ -15,7 +15,7 @@ class NonInheritedRuntimeAnnotationSpec extends WordSpec {
       val neuron = Incubator.breed[NonInheritedRuntimeAnnotationNeuron]
       val proxyClass = neuron.getClass
       proxyClass should not be neuronClass
-      val shimClass = proxyClass.getSuperclass
+      val shimClass: Class[_] = proxyClass.getSuperclass
       shimClass should not be neuronClass
       val interfaceClasses = shimClass.getInterfaces
       interfaceClasses should have size 1
