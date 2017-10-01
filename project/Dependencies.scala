@@ -18,7 +18,7 @@ import sbt._
 
 object Dependencies {
 
-  val ASM: ModuleID = "org.ow2.asm" % "asm" % "5.2"
+  val ASM: ModuleID = "org.ow2.asm" % "asm" % "6.0"
   val Guice: ModuleID = {
     val version = sys.env.getOrElse("GUICE_VERSION", "4.1.0")
     val moduleID = "com.google.inject" % "guice" % version
