@@ -244,7 +244,7 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
 
     scenario("Breeding a @Neuron trait with a synapse method without a return type.") {
 
-      Given("a @Neuron trait with a synapse method without a return type")
+      Given("a @Neuron trait with a synapse method with the return type `Unit`")
       When("breeding an instance")
       Then("an `IllegalStateException` should be thrown because a type is required to return a dependency")
 

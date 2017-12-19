@@ -106,9 +106,9 @@ public final class Incubator {
             }
 
             @Override
-            public <U> Bind<T, U> bind(final DependencyResolver<T, U> synapseReference) {
+            public <U> Bind<T, U> bind(final DependencyResolver<T, U> methodReference) {
                 return resolver -> {
-                    bindings.add(new SimpleImmutableEntry<>(synapseReference, resolver));
+                    bindings.add(new SimpleImmutableEntry<>(methodReference, resolver));
                     return this;
                 };
             }
@@ -183,11 +183,11 @@ public final class Incubator {
             void initReplacementProxies() {
                 try {
                     for (final Entry<DependencyResolver<T, ?>, DependencyResolver<? super T, ?>> binding : bindings) {
-                        final DependencyResolver<T, ?> synapseReference = binding.getKey();
+                        final DependencyResolver<T, ?> methodReference = binding.getKey();
                         currentResolver = binding.getValue();
                         currentPosition++;
                         try {
-                            synapseReference.apply(neuron);
+                            methodReference.apply(neuron);
                             throw illegalStateException(null);
                         } catch (BindingSuccessException ignored) {
                         } catch (Throwable e) {
@@ -217,8 +217,8 @@ public final class Incubator {
          */
         Wire<T> partial(boolean value);
 
-        /** Binds the synapse method identified by the given reference. */
-        <U> Bind<T, U> bind(DependencyResolver<T, U> synapseReference);
+        /** Binds the synapse method identified by the given method reference. */
+        <U> Bind<T, U> bind(DependencyResolver<T, U> methodReference);
 
         /**
          * Breeds the wired neuron.
