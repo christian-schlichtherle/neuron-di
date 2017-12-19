@@ -20,9 +20,11 @@ import global.namespace.neuron.di.internal.RealIncubator;
 import java.lang.invoke.MethodHandle;
 import java.lang.reflect.Method;
 import java.util.AbstractMap.SimpleImmutableEntry;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.function.Function;
 
 import static global.namespace.neuron.di.java.Reflection.find;
@@ -84,13 +86,15 @@ public final class Incubator {
         return new Wire<T>() {
 
             boolean partial;
-            List<Entry<DependencyResolver<T, ?>, DependencyResolver<? super T, ?>>> bindings =
-                    new LinkedList<>();
 
-            List<Method> synapses = new LinkedList<>();
+            List<Entry<DependencyResolver<T, ?>, DependencyResolver<? super T, ?>>> bindings = new LinkedList<>();
+
+            Set<Method> synapses = new HashSet<>();
+
             T neuron;
 
             DependencyResolver<? super T, ?> currentResolver;
+
             int currentPosition;
 
             Object delegate;
@@ -102,9 +106,9 @@ public final class Incubator {
             }
 
             @Override
-            public <U> Bind<T, U> bind(final DependencyResolver<T, U> methodReference) {
+            public <U> Bind<T, U> bind(final DependencyResolver<T, U> synapseReference) {
                 return resolver -> {
-                    bindings.add(new SimpleImmutableEntry<>(methodReference, resolver));
+                    bindings.add(new SimpleImmutableEntry<>(synapseReference, resolver));
                     return this;
                 };
             }
@@ -168,15 +172,12 @@ public final class Incubator {
 
                     @Override
                     public Object get() throws Throwable {
-                        if (null == resolver) {
-                            if (null != currentResolver) {
-                                resolver = currentResolver;
-                                final boolean removed = synapses.remove(method);
-                                assert removed;
-                                throw new BindingSuccessException();
-                            } else {
-                                resolver = neuron -> Incubator.breed(method.getReturnType());
-                            }
+                        if (null != currentResolver) {
+                            resolver = currentResolver;
+                            synapses.remove(method);
+                            throw new BindingSuccessException();
+                        } else if (null == resolver) {
+                            resolver = neuron -> Incubator.breed(method.getReturnType());
                         }
                         return resolver.apply(neuron);
                     }
@@ -186,11 +187,11 @@ public final class Incubator {
             void initReplacementProxies() {
                 try {
                     for (final Entry<DependencyResolver<T, ?>, DependencyResolver<? super T, ?>> binding : bindings) {
-                        final DependencyResolver<T, ?> methodReference = binding.getKey();
+                        final DependencyResolver<T, ?> synapseReference = binding.getKey();
                         currentResolver = binding.getValue();
                         currentPosition++;
                         try {
-                            methodReference.apply(neuron);
+                            synapseReference.apply(neuron);
                             throw illegalStateException(null);
                         } catch (BindingSuccessException ignored) {
                         } catch (Throwable e) {
@@ -203,7 +204,7 @@ public final class Incubator {
             }
 
             IllegalStateException illegalStateException(Throwable cause) {
-                return new IllegalStateException("Illegal wiring: The function parameter of the `bind` call at position " + currentPosition + " does not call a synapse method.", cause);
+                return new IllegalStateException("Illegal wiring: The parameter provided to the `bind` call at position " + currentPosition + " does not reference a synapse method.", cause);
             }
         };
     }
@@ -220,8 +221,8 @@ public final class Incubator {
          */
         Wire<T> partial(boolean value);
 
-        /** Binds the synapse method identified by the given method reference. */
-        <U> Bind<T, U> bind(DependencyResolver<T, U> methodReference);
+        /** Binds the synapse method identified by the given reference. */
+        <U> Bind<T, U> bind(DependencyResolver<T, U> synapseReference);
 
         /**
          * Breeds the wired neuron.

@@ -140,6 +140,28 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
     }
   }
 
+  feature("`.bind(synapseReference).to(...)` can be called multiple times") {
+
+    info("As a user of Neuron DI")
+    info("I want to be able to call `.bind(synapseReference).to(...)` multiple times")
+    info("for the same synapse reference")
+    info("so that the effect of only the last call persists.")
+
+    scenario("Breeding a generic @Neuron interface:") {
+
+      Given("a generic @Neuron interface")
+      When("calling `.bind(synapseReference).to(...)` multiple times for the same synapse reference")
+      Then("the incubator persists the effect of the last call only.")
+
+      val string = Incubator
+        .wire[HasDependency[String]]
+        .bind(_.get).to("Hello Christian!")
+        .bind(_.get).to("Hello world!")
+        .breed
+      string.get shouldBe "Hello world!"
+    }
+  }
+
   feature("Any Scala trait with a static context can be a @Neuron trait.") {
 
     info("As a user of Neuron DI")
