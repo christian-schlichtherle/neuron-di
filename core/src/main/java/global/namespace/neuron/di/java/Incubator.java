@@ -152,17 +152,13 @@ public final class Incubator {
 
                     {
                         if (null != delegate) {
-                            try {
-                                final MethodHandle handle = dependencyMethodHandle();
-                                //noinspection Convert2MethodRef
-                                resolver = neuron -> handle.invokeExact();
-                            } catch (NoSuchMethodException e) {
-                                throw new IllegalStateException(e);
-                            }
+                            final MethodHandle handle = dependencyMethodHandle();
+                            //noinspection Convert2MethodRef
+                            resolver = neuron -> handle.invokeExact();
                         }
                     }
 
-                    MethodHandle dependencyMethodHandle() throws NoSuchMethodException {
+                    MethodHandle dependencyMethodHandle() {
                         final String member = method.getName();
                         return find(member)
                                 .in(delegate)
