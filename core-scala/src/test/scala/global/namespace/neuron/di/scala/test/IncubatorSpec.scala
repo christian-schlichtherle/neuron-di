@@ -162,6 +162,28 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
     }
   }
 
+  feature("`.breed` can be called multiple times") {
+
+    info("As a user of Neuron DI")
+    info("I want to be able to call `.breed` multiple times")
+    info("so that different neurons with different bindings can be created in one go.")
+
+    scenario("Breeding a generic @Neuron interface:") {
+
+      Given("a generic @Neuron interface")
+      When("calling `.breed` multiple times with different bindings")
+      Then("the incubator should create a different neuron reflecting the respective binding each time.")
+
+      var builder = Incubator.wire[HasDependency[String]]
+      val helloWorld = builder.bind(_.get).to("Hello world!").breed
+      val helloChristian = builder.bind(_.get).to("Hello Christian!").breed
+
+      helloWorld should not be theSameInstanceAs(helloChristian)
+      helloWorld.get shouldBe "Hello world!"
+      helloChristian.get shouldBe "Hello Christian!"
+    }
+  }
+
   feature("Any Scala trait with a static context can be a @Neuron trait.") {
 
     info("As a user of Neuron DI")

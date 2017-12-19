@@ -85,17 +85,9 @@ public final class Incubator {
     public static <T> Wire<T> wire(final Class<T> runtimeClass) {
         return new Wire<T>() {
 
-            boolean partial;
-
             List<Entry<DependencyResolver<T, ?>, DependencyResolver<? super T, ?>>> bindings = new LinkedList<>();
 
-            Set<Method> synapses = new HashSet<>();
-
-            T neuron;
-
-            DependencyResolver<? super T, ?> currentResolver;
-
-            int currentPosition;
+            boolean partial;
 
             Object delegate;
 
@@ -115,92 +107,101 @@ public final class Incubator {
 
             @Override
             public T using(final Object delegate) {
-                this.delegate = delegate;
                 partial = true;
+                this.delegate = delegate;
                 return breed();
             }
 
             @Override
             public T breed() {
-                synchronized (this) {
-                    if (null != neuron) {
-                        throw new IllegalStateException("`breed()` has already been called");
-                    }
-                    neuron = Incubator.breed(runtimeClass, this::binding);
-                }
+                return new Object() {
 
-                initReplacementProxies();
-                assert null == currentResolver;
+                    T neuron;
 
-                if (!partial && !synapses.isEmpty()) {
-                    throw new IllegalStateException(
-                            "Partial wiring is disabled and no binding is defined for some synapse methods: " + synapses);
-                }
+                    Set<Method> synapses = new HashSet<>();
 
-                // Support garbage collection:
-                bindings = null;
-                synapses = null;
+                    DependencyResolver<? super T, ?> currentResolver;
 
-                return neuron;
-            }
+                    int currentPosition;
 
-            DependencyProvider<?> binding(final Method method) {
-                synapses.add(method);
-                return new DependencyProvider<Object>() {
+                    T breed() {
+                        neuron = Incubator.breed(runtimeClass, this::binding);
 
-                    DependencyResolver<? super T, ?> resolver;
+                        initReplacementProxies();
+                        assert null == currentResolver;
 
-                    {
-                        if (null != delegate) {
-                            final MethodHandle handle = dependencyMethodHandle();
-                            //noinspection Convert2MethodRef
-                            resolver = neuron -> handle.invokeExact();
+                        if (!partial && !synapses.isEmpty()) {
+                            throw new IllegalStateException(
+                                    "Partial wiring is disabled and no binding is defined for some synapse methods: " + synapses);
                         }
+
+                        // Support garbage collection:
+                        synapses = null;
+
+                        return neuron;
                     }
 
-                    MethodHandle dependencyMethodHandle() {
-                        final String member = method.getName();
-                        return find(member)
-                                .in(delegate)
-                                .orElseThrow(() -> new IllegalStateException(
-                                        "Illegal wiring: A member named `" + member + "` neither exists in `" + delegate.getClass() + "` nor in any of its interfaces and superclasses."));
+                    DependencyProvider<?> binding(final Method method) {
+                        synapses.add(method);
+                        return new DependencyProvider<Object>() {
+
+                            DependencyResolver<? super T, ?> resolver;
+
+                            {
+                                if (null != delegate) {
+                                    final MethodHandle handle = dependencyMethodHandle();
+                                    //noinspection Convert2MethodRef
+                                    resolver = neuron -> handle.invokeExact();
+                                }
+                            }
+
+                            MethodHandle dependencyMethodHandle() {
+                                final String member = method.getName();
+                                return find(member)
+                                        .in(delegate)
+                                        .orElseThrow(() -> new IllegalStateException(
+                                                "Illegal wiring: A member named `" + member + "` neither exists in `" + delegate.getClass() + "` nor in any of its interfaces and superclasses."));
+                            }
+
+                            @Override
+                            public Object get() throws Throwable {
+                                if (null != currentResolver) {
+                                    resolver = currentResolver;
+                                    synapses.remove(method);
+                                    throw new BindingSuccessException();
+                                } else if (null == resolver) {
+                                    resolver = neuron -> Incubator.breed(method.getReturnType());
+                                }
+                                return resolver.apply(neuron);
+                            }
+                        };
                     }
 
-                    @Override
-                    public Object get() throws Throwable {
-                        if (null != currentResolver) {
-                            resolver = currentResolver;
-                            synapses.remove(method);
-                            throw new BindingSuccessException();
-                        } else if (null == resolver) {
-                            resolver = neuron -> Incubator.breed(method.getReturnType());
-                        }
-                        return resolver.apply(neuron);
-                    }
-                };
-            }
-
-            void initReplacementProxies() {
-                try {
-                    for (final Entry<DependencyResolver<T, ?>, DependencyResolver<? super T, ?>> binding : bindings) {
-                        final DependencyResolver<T, ?> methodReference = binding.getKey();
-                        currentResolver = binding.getValue();
-                        currentPosition++;
+                    void initReplacementProxies() {
                         try {
-                            methodReference.apply(neuron);
-                            throw illegalStateException(null);
-                        } catch (BindingSuccessException ignored) {
-                        } catch (Throwable e) {
-                            throw illegalStateException(e);
+                            for (final Entry<DependencyResolver<T, ?>, DependencyResolver<? super T, ?>> binding : bindings) {
+                                final DependencyResolver<T, ?> methodReference = binding.getKey();
+                                currentResolver = binding.getValue();
+                                currentPosition++;
+                                try {
+                                    methodReference.apply(neuron);
+                                    throw illegalStateException(null);
+                                } catch (BindingSuccessException ignored) {
+                                } catch (RuntimeException | Error e) {
+                                    throw e;
+                                } catch (Throwable e) {
+                                    throw illegalStateException(e);
+                                }
+                            }
+                        } finally {
+                            currentResolver = null;
                         }
                     }
-                } finally {
-                    currentResolver = null;
-                }
-            }
 
-            IllegalStateException illegalStateException(Throwable cause) {
-                return new IllegalStateException("Illegal wiring: The parameter provided to the `bind` call at position " + currentPosition + " does not reference a synapse method.", cause);
+                    IllegalStateException illegalStateException(Throwable cause) {
+                        return new IllegalStateException("Illegal wiring: The parameter provided to the `bind` call at position " + currentPosition + " does not reference a synapse method.", cause);
+                    }
+                }.breed();
             }
         };
     }
