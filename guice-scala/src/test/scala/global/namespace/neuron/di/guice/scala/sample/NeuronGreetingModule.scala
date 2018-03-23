@@ -15,10 +15,9 @@
  */
 package global.namespace.neuron.di.guice.scala.sample
 
-import javax.inject.Singleton
-
 import global.namespace.neuron.di.guice.scala._
 import global.namespace.neuron.di.scala.Neuron
+import javax.inject.Singleton
 
 import scala.annotation.meta.getter
 
@@ -42,7 +41,7 @@ trait NeuronFormatter extends Formatter {
 
 class NeuronGreetingModule extends NeuronModule {
 
-  def configure() {
+  override def configure() {
     bindClass[Greeting].toNeuronClass[NeuronGreeting].inScope[Singleton]
     bindClass[Formatter].toNeuronClass[NeuronFormatter]
     bindConstantNamed("format").to("Hello %s!")

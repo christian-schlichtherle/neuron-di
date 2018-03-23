@@ -15,9 +15,8 @@
  */
 package global.namespace.neuron.di.guice.scala.sample
 
-import javax.inject.{Inject, Named, Singleton}
-
 import global.namespace.neuron.di.guice.scala._
+import javax.inject.{Inject, Named, Singleton}
 
 trait Foo {
 
@@ -35,7 +34,7 @@ class BarImpl @Inject() (@Named("impl") val foo: Foo) extends Bar
 
 class FooBarModule extends NeuronModule {
 
-  def configure() {
+  override def configure() {
     bindConstantNamed("one").to(1)
     bindClass[Foo]
       .named("impl")
