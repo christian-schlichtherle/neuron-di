@@ -108,8 +108,7 @@ lazy val sbtPlugin = project
   .settings(sbtPluginSettings)
   .settings(
     libraryDependencies ++= Seq(
-      Dependencies.io(sbtVersion.value),
-      ScalaPlus
+      FunIoScalaApi
     ),
     name := "Neuron DI SBT Plugin",
     normalizedName := "neuron-di-sbt-plugin",
