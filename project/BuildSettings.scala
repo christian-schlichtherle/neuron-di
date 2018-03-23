@@ -99,14 +99,14 @@ object BuildSettings {
       fork := true, // triggers `javaOptions`
       javaOptions += "-ea"
     )) ++ Seq(
-      dependencyOverrides += JUnit,
+      dependencyOverrides += Junit,
       testOptions += Tests.Argument(TestFrameworks.JUnit, "-a", "-v")
     )
   }
 
   def librarySettings: Seq[Setting[_]] = {
     artifactSettings ++ Seq(
-      // Support testing Java projects with ScalaTest et al:
+      // Support testing Java projects with Scalatest et al:
       compileOrder := CompileOrder.JavaThenScala,
       javacOptions := DefaultOptions.javac ++ Seq(Opts.compile.deprecation, "-source", "1.8", "-target", "1.8", "-g"),
       javacOptions in doc := DefaultOptions.javac ++ Seq("-source", "1.8"),
