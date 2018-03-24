@@ -24,5 +24,3 @@ jdk:
 language: scala
 
 script: sbt "so test"
-
-sudo: false
