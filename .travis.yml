@@ -1,3 +1,8 @@
+addons:
+  apt:
+    packages:
+    - oracle-java9-installer
+
 before_cache:
 - find $HOME/.sbt -name "*.lock" | xargs rm
 - find $HOME/.ivy2 -name "ivydata-*.properties" | xargs rm
@@ -10,7 +15,7 @@ cache:
 dist: trusty
 
 env:
-- GUICE_VERSION=3.0 SCALA_VERSION_2_11=2.11.12 SCALA_VERSION_2_12=2.12.4
+- GUICE_VERSION=3.0 SCALA_VERSION_2_11=2.11.0 SCALA_VERSION_2_12=2.12.0
 - GUICE_VERSION=4.2.0 SCALA_VERSION_2_11=2.11.12 SCALA_VERSION_2_12=2.12.4
 
 git:
@@ -22,5 +27,10 @@ jdk:
 - oraclejdk9
 
 language: scala
+
+#matrix:
+#  exclude:
+#  - env: GUICE_VERSION=3.0 SCALA_VERSION_2_11=2.11.0 SCALA_VERSION_2_12=2.12.0
+#    jdk: oraclejdk9
 
 script: sbt "so test"
