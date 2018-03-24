@@ -34,3 +34,5 @@ language: scala
 #    jdk: oraclejdk9
 
 script: sbt "so test"
+
+sudo: false
