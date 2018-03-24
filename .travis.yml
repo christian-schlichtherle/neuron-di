@@ -1,8 +1,3 @@
-addons:
-  apt:
-    packages:
-    - oracle-java9-installer
-
 before_cache:
 - find $HOME/.sbt -name "*.lock" | xargs rm
 - find $HOME/.ivy2 -name "ivydata-*.properties" | xargs rm
@@ -28,11 +23,9 @@ jdk:
 
 language: scala
 
-#matrix:
-#  exclude:
-#  - env: GUICE_VERSION=3.0 SCALA_VERSION_2_11=2.11.0 SCALA_VERSION_2_12=2.12.0
-#    jdk: oraclejdk9
+matrix:
+  exclude:
+  - env: GUICE_VERSION=3.0 SCALA_VERSION_2_11=2.11.0 SCALA_VERSION_2_12=2.12.0
+    jdk: oraclejdk9
 
 script: sbt "so test"
-
-sudo: false
