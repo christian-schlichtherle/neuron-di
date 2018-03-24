@@ -16,9 +16,9 @@
 package global.namespace.neuron.di.scala.test
 
 import java.lang.reflect.Method
+import java.util.Date
 
 import global.namespace.neuron.di.scala._
-import global.namespace.neuron.di.scala.sample._
 import global.namespace.neuron.di.scala.test.IncubatorSpec._
 import org.scalatest.Matchers._
 import org.scalatest.{FeatureSpec, GivenWhenThen}
@@ -27,7 +27,7 @@ import scala.reflect.ClassTag
 
 class IncubatorSpec extends FeatureSpec with GivenWhenThen {
 
-  feature("In @Neuron types, synapse methods get bound eagerly, but dependencies get resolved lazily.") {
+  feature("In neuron types, synapse methods get bound eagerly, but dependencies get resolved lazily.") {
 
     info("As a user of Neuron DI")
     info("I want to be able to visit synapse methods when breeding the neuron")
@@ -35,7 +35,7 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
 
     scenario("Breeding a neuron class:") {
 
-      Given("a @Neuron class")
+      Given("a neuron class")
       When("breeding an instance")
       Then("the incubator should visit all synapse methods of all super classes and implemented interfaces.")
       And("not yet compute their return values.")
@@ -45,7 +45,7 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
 
     scenario("Breeding another neuron class:") {
 
-      Given("a @Neuron class extending a class")
+      Given("a neuron class extending a class")
       When("breeding an instance")
       Then("the incubator should visit all synapse methods of all super classes and implemented interfaces.")
       And("not yet compute their return values.")
@@ -55,7 +55,7 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
 
     scenario("Breeding a neuron interface:") {
 
-      Given("a @Neuron interface")
+      Given("a neuron interface")
       When("breeding an instance")
       Then("the incubator should visit all synapse methods of all extended interfaces.")
       And("not yet compute their return values.")
@@ -65,12 +65,14 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
 
     scenario("Breeding another class:") {
 
-      Given("a class implementing a @Neuron interface")
+      Given("a class implementing a neuron interface")
       When("breeding an instance")
       Then("an `IllegalStateException` should be thrown because the @Neuron annotation is not inherited when applied to interfaces")
       And("so the class is NOT a neuron.")
 
-      intercept[IllegalStateException] { synapsesOf[AnotherClass] }
+      intercept[IllegalStateException] {
+        synapsesOf[AnotherClass]
+      }.getMessage should include("Did you forget the @Neuron annotation?")
     }
   }
 
@@ -82,7 +84,7 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
 
     scenario("Partial wiring is disabled:") {
 
-      Given("a generic @Neuron interface")
+      Given("a generic neuron interface")
       When("breeding an instance")
       And("partial wiring has not been explicitly enabled")
       And("no binding is defined for a synapse methods")
@@ -96,7 +98,7 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
 
     scenario("Partial wiring is enabled:") {
 
-      Given("a generic @Neuron interface")
+      Given("a generic neuron interface")
       When("breeding an instance")
       And("partial wiring has been explicitly enabled")
       And("no binding is defined for a synapse method")
@@ -111,16 +113,16 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
     }
   }
 
-  feature("There is at most one proxy class for any neuron class or interface and class loader.") {
+  feature("There is at most one proxy class for any neuron type and class loader.") {
 
     info("As an application architect")
     info("I want to rest assured that Neuron DI scales nicely")
-    info("because it will create at most one proxy class per neuron class or interface (and class loader)")
+    info("because it will create at most one proxy class per neuron type (and class loader)")
     info("no matter how many instances of them are created.")
 
-    scenario("Breeding a generic @Neuron interface:") {
+    scenario("Breeding a generic neuron interface:") {
 
-      Given("a generic @Neuron interface")
+      Given("a generic neuron interface")
       When("breeding two instances wired with different properties of different types")
       Then("the incubator returns two instances of the same proxy class.")
 
@@ -147,9 +149,9 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
     info("for the same synapse reference")
     info("so that the effect of only the last call persists.")
 
-    scenario("Breeding a generic @Neuron interface:") {
+    scenario("Breeding a generic neuron interface:") {
 
-      Given("a generic @Neuron interface")
+      Given("a generic neuron interface")
       When("calling `.bind(synapseReference).to(...)` multiple times for the same synapse reference")
       Then("the incubator persists the effect of the last call only.")
 
@@ -168,9 +170,9 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
     info("I want to be able to call `.breed` multiple times")
     info("so that different neurons with different bindings can be created in one go.")
 
-    scenario("Breeding a generic @Neuron interface:") {
+    scenario("Breeding a generic neuron interface:") {
 
-      Given("a generic @Neuron interface")
+      Given("a generic neuron interface")
       When("calling `.breed` multiple times with different bindings")
       Then("the incubator should create a different neuron reflecting the respective binding each time.")
 
@@ -184,16 +186,16 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
     }
   }
 
-  feature("Any Scala trait with a static context can be a @Neuron trait.") {
+  feature("Any Scala trait with a static context can be a neuron trait.") {
 
     info("As a user of Neuron DI")
     info("I want to be able to annotate any Scala trait with the @Neuron annotation")
     info("so that I can take advantage of the binding DSL")
     info("and eventually apply caching, too.")
 
-    scenario("Breeding a @Neuron trait with only abstract members:") {
+    scenario("Breeding a neuron trait with only abstract members:") {
 
-      Given("a @Neuron trait with only abstract members")
+      Given("a neuron trait with only abstract members")
       And("no `val` definition or @Caching annotation")
       When("breeding an instance")
       Then("dependencies should not be cached.")
@@ -207,9 +209,9 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
       method1 shouldNot be theSameInstanceAs method1
     }
 
-    scenario("Breeding a @Neuron trait with a non-abstract members:") {
+    scenario("Breeding a neuron trait with a non-abstract members:") {
 
-      Given("a @Neuron trait with a non-abstract members")
+      Given("a neuron trait with a non-abstract members")
       And("a `val` definition but no @Caching annotation")
       When("breeding an instance")
       Then("dependencies should be cached.")
@@ -225,9 +227,9 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
       method2 should be theSameInstanceAs method2
     }
 
-    scenario("Breeding a @Neuron trait extending another trait with a non-abstract members:") {
+    scenario("Breeding a neuron trait extending another trait with a non-abstract members:") {
 
-      Given("a @Neuron trait extending another trait with a non-abstract members")
+      Given("a neuron trait extending another trait with a non-abstract members")
       And("a @Caching annotation but no `val` definitions")
       When("breeding an instance")
       Then("dependencies should be cached.")
@@ -245,9 +247,9 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
       method3 should be theSameInstanceAs method3
     }
 
-    scenario("Breeding a @Neuron trait which requires a shim class and is defined in some static context which is not a package:") {
+    scenario("Breeding a neuron trait which requires a shim class and is defined in some static context which is not a package:") {
 
-      Given("a @Neuron trait which requires a shim class")
+      Given("a neuron trait which requires a shim class")
       And("is defined in some static context which is not a package")
       When("breeding an instance")
       Then("the shim class should be correctly referenced by its binary name in the associated @Shim annotation")
@@ -262,11 +264,11 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
     }
   }
 
-  feature("@Neuron types cannot have synapse methods without a return type.") {
+  feature("Neuron types cannot have synapse methods without a return type.") {
 
-    scenario("Breeding a @Neuron trait with a synapse method without a return type.") {
+    scenario("Breeding a neuron trait with a synapse method without a return type.") {
 
-      Given("a @Neuron trait with a synapse method with the return type `Unit`")
+      Given("a neuron trait with a synapse method with the return type `Unit`")
       When("breeding an instance")
       Then("an `IllegalStateException` should be thrown because a type is required to return a dependency")
 
@@ -280,11 +282,11 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
     }
   }
 
-  feature("@Neuron types cannot have abstract methods with parameters.") {
+  feature("Neuron types cannot have abstract methods with parameters.") {
 
-    scenario("Breeding a @Neuron trait with an abstract method with a parameter:") {
+    scenario("Breeding a neuron trait with an abstract method with a parameter:") {
 
-      Given("a @Neuron trait with an abstract method with a parameter")
+      Given("a neuron trait with an abstract method with a parameter")
       When("breeding an instance")
       Then("an IllegalArgument should be thrown.")
 
@@ -293,11 +295,11 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
     }
   }
 
-  feature("@Neuron types cannot have constructors which depend on synapses.") {
+  feature("Neuron types cannot have constructors which depend on synapses.") {
 
-    scenario("Breeding a @Neuron trait with an eagerly initialized field whose value depends on a synapse:") {
+    scenario("Breeding a neuron trait with an eagerly initialized field whose value depends on a synapse:") {
 
-      Given("a @Neuron trait with an eagerly initialized field whose value depends on a synapse")
+      Given("a neuron trait with an eagerly initialized field whose value depends on a synapse")
       When("breeding an instance")
       Then("an `IllegalStateException` should be thrown because the lazy dependency resolution is initialized only AFTER the constructor call")
 
@@ -376,5 +378,54 @@ private object IncubatorSpec {
     val method1: String
 
     val method2: String = method1 + " + method2"
+  }
+
+  trait A {
+
+    def a: A = this
+  }
+
+  trait B {
+
+    def b: B = this
+  }
+
+  trait HasA {
+
+    def a: A
+  }
+
+  trait HasB {
+
+    def b: B
+  }
+
+  trait C {
+
+    def c: C = this
+  }
+
+  trait HasC {
+
+    def c: C
+  }
+
+  @Neuron
+  trait SomeNeuronInterface extends HasA with HasB with HasC
+
+  @Neuron
+  abstract class SomeNeuronClass extends SomeNeuronInterface
+
+  abstract class AnotherNeuronClass extends SomeNeuronClass {
+
+    def now: Date
+  }
+
+  abstract class AnotherClass extends SomeNeuronInterface
+
+  @Neuron
+  trait HasDependency[T] {
+
+    def get: T
   }
 }

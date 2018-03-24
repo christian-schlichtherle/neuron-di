@@ -15,52 +15,7 @@
  */
 package global.namespace.neuron.di.scala
 
-import java.util.Date
-
 package object sample {
-
-  trait A {
-
-    def a: A = this
-  }
-
-  trait B {
-
-    def b: B = this
-  }
-
-  trait HasA {
-
-    def a: A
-  }
-
-  trait HasB {
-
-    def b: B
-  }
-
-  trait C {
-
-    def c: C = this
-  }
-
-  trait HasC {
-
-    def c: C
-  }
-
-  @Neuron
-  trait SomeNeuronInterface extends HasA with HasB with HasC
-
-  @Neuron
-  abstract class SomeNeuronClass extends SomeNeuronInterface
-
-  abstract class AnotherNeuronClass extends SomeNeuronClass {
-
-    def now: Date
-  }
-
-  abstract class AnotherClass extends SomeNeuronInterface
 
   class Counter {
 
@@ -70,11 +25,5 @@ package object sample {
       count += 1
       this
     }
-  }
-
-  @Neuron
-  trait HasDependency[T] {
-
-    def get: T
   }
 }
