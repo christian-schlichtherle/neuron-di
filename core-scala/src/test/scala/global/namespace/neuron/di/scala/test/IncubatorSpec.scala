@@ -92,8 +92,7 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
 
       intercept[IllegalStateException] {
         Incubator.wire[HasDependency[_]].breed
-      }.getMessage should fullyMatch regex
-        """Partial wiring is disabled and no binding is defined for some synapse methods: \[public abstract java\.lang\.Object global\.namespace\.neuron\.di\.scala\.sample\..*HasDependency\.get\(\)\]"""
+      }.getMessage should fullyMatch regex """Partial wiring is disabled and no binding is defined for some synapse methods: \[.*\]"""
     }
 
     scenario("Partial wiring is enabled:") {
