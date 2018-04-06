@@ -15,10 +15,9 @@
  */
 package global.namespace.neuron.di.sbt.plugin
 
-import java.io.InputStream
-
-import global.namespace.fun.io.scala.api._
 import sbt._
+
+import scala.io.Source
 
 /** @author Christian Schlichtherle */
 object Dependencies {
@@ -30,12 +29,14 @@ object Dependencies {
   // and Scala 2.12.2, Macro Paradise 2.1.1 is available.
   val MacroParadise: ModuleID = "org.scalamacros" % "paradise" % "2.1.+" cross CrossVersion.full
 
-  private val NeuronDIVersion: String = {
-    socket(getClass.getResourceAsStream("version")).apply(IO.readStream(_: InputStream))
+  val NeuronDIVersion: String = {
+    val source = Source fromInputStream (getClass getResourceAsStream "version")
+    try {
+      source.mkString
+    } finally {
+      source close ()
+    }
   }
-
-  // TODO: Add this to the Fun I/O Scala API!
-  private def socket[R <: AutoCloseable](r: => R): Socket[R] = new Socket[R] { def get: R = r }
 
   val NeuronDIForJava: ModuleID = component("neuron-di")
   val NeuronDIForScala: ModuleID = component("neuron-di-scala")

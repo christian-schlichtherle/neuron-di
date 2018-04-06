@@ -20,7 +20,6 @@ import sbt._
 object Dependencies {
 
   val ASM: ModuleID = "org.ow2.asm" % "asm" % "6.1.1"
-  val FunIoScalaApi: ModuleID = "global.namespace.fun-io" %% "fun-io-scala-api" % "0.9.3"
   val Guice: ModuleID = {
     val version = sys.env.getOrElse("GUICE_VERSION", "4.2.0")
     val moduleID = "com.google.inject" % "guice" % version
