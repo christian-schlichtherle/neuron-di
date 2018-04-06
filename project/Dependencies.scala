@@ -42,5 +42,5 @@ object Dependencies {
   val Scalatest: ModuleID = "org.scalatest" %% "scalatest" % "3.0.5"
 
   val ScalaVersion_2_11: String = sys.env.getOrElse("SCALA_VERSION_2_11", "2.11.12")
-  val ScalaVersion_2_12: String = sys.env.getOrElse("SCALA_VERSION_2_12", "2.12.5")
+  val ScalaVersion_2_12: String = sys.env.getOrElse("SCALA_VERSION_2_12", "2.12.4")
 }
