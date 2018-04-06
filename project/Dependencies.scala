@@ -16,9 +16,10 @@
 
 import sbt._
 
+/** @author Christian Schlichtherle */
 object Dependencies {
 
-  val ASM: ModuleID = "org.ow2.asm" % "asm" % "6.1"
+  val ASM: ModuleID = "org.ow2.asm" % "asm" % "6.1.1"
   val Guice: ModuleID = {
     val version = sys.env.getOrElse("GUICE_VERSION", "4.2.0")
     val moduleID = "com.google.inject" % "guice" % version
@@ -33,13 +34,13 @@ object Dependencies {
   def io(sbtVersion: String): ModuleID = "org.scala-sbt" % "io" % sbtVersion
   val Junit: ModuleID = "junit" % "junit" % "4.12"
   val JunitInterface: ModuleID = "com.novocode" % "junit-interface" % "0.11"
-  val MockitoCore: ModuleID = "org.mockito" % "mockito-core" % "2.16.0"
+  val MockitoCore: ModuleID = "org.mockito" % "mockito-core" % "2.17.0"
   val MacroParadise: ModuleID = "org.scalamacros" % "paradise" % "2.1.+" cross CrossVersion.full
-  val PlaySbtPlugin: ModuleID = "com.typesafe.play" % "sbt-plugin" % "2.6.5"
+  val PlaySbtPlugin: ModuleID = "com.typesafe.play" % "sbt-plugin" % "2.6.12"
   val ScalaPlus: ModuleID = "global.namespace.scala-plus" %% "scala-plus" % "0.1"
   def scalaReflect(scalaVersion: String): ModuleID = "org.scala-lang" % "scala-reflect" % scalaVersion
   val Scalatest: ModuleID = "org.scalatest" %% "scalatest" % "3.0.5"
 
   val ScalaVersion_2_11: String = sys.env.getOrElse("SCALA_VERSION_2_11", "2.11.12")
-  val ScalaVersion_2_12: String = sys.env.getOrElse("SCALA_VERSION_2_12", "2.12.4")
+  val ScalaVersion_2_12: String = sys.env.getOrElse("SCALA_VERSION_2_12", "2.12.5")
 }
