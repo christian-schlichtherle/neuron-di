@@ -15,13 +15,20 @@
  */
 package global.namespace.neuron.di.java;
 
-/** Enumerates strategies for caching the return values of methods. */
+/**
+ * Enumerates strategies for caching the return values of synapse methods.
+ *
+ * @author Christian Schlichtherle
+ */
 public enum CachingStrategy {
 
     /**
-     * Does not cache the return value of the annotated method:
-     * Although not strictly required, a subsequent call by any thread should
-     * return another instance.
+     * Does not cache the return value of the synapse method.
+     * <p>
+     * Suppose a synapse method without a {@link Caching} annotation returns a different instance on each call, that is,
+     * it behaves like a factory.
+     * Now if this strategy is applied instead and {@code n} threads each make {@code m} calls to this synapse method,
+     * then exactly {@code n * m} different instances are returned.
      */
     DISABLED {
 
@@ -30,26 +37,32 @@ public enum CachingStrategy {
     },
 
     /**
-     * Caches the return value of the annotated method:
-     * Although not strictly required, a subsequent call by the same thread
-     * should return the same instance.
-     * A subsequent call by any other thread may return another instance.
-     * This definition recursively applies to any thread.
+     * Caches the return value of the synapse method so that it's <em>not</em> thread-safe.
+     * <p>
+     * Suppose a synapse method without a {@link Caching} annotation returns a different instance on each call, that is,
+     * it behaves like a factory.
+     * Now if this strategy is applied instead and {@code n} threads each make {@code m} calls to this synapse method,
+     * then at most {@code n} different instances are returned.
      */
     NOT_THREAD_SAFE,
 
     /**
-     * Caches the return value of the annotated method:
-     * A subsequent call by any thread must return the same instance.
+     * Caches the return value of the synapse method so that it's thread-safe.
+     * <p>
+     * Suppose a synapse method without a {@link Caching} annotation returns a different instance on each call, that is,
+     * it behaves like a factory.
+     * Now if this strategy is applied instead and {@code n} threads each make {@code m} calls to this synapse method,
+     * then exactly one instance is returned.
      */
     THREAD_SAFE,
 
     /**
-     * Caches the return value of the annotated method:
-     * A subsequent call by the same thread must return the same instance.
-     * Although not strictly required, a subsequent call by any other thread
-     * should return another instance.
-     * This definition recursively applies to any thread.
+     * Caches the return value of the synapse method so that it's thread local.
+     * <p>
+     * Suppose a synapse method without a {@link Caching} annotation returns a different instance on each call, that is,
+     * it behaves like a factory.
+     * Now if this strategy is applied instead and {@code n} threads each make {@code m} calls to this synapse method,
+     * then exactly {@code n} different instances are returned.
      */
     THREAD_LOCAL;
 

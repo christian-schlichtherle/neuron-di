@@ -22,6 +22,7 @@ import global.namespace.neuron.di.java.Incubator;
 
 import static com.google.inject.name.Names.named;
 
+/** @author Christian Schlichtherle */
 public interface BinderLike {
 
     /** Returns the underlying binder. */

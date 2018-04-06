@@ -18,6 +18,7 @@ package global.namespace.neuron.di.sbt.plugin
 import global.namespace.scala.plus.ResourceLoan._
 import sbt._
 
+/** @author Christian Schlichtherle */
 object Dependencies {
 
   // Allow for some limited variance of this dependency using '+' as the increment version number:

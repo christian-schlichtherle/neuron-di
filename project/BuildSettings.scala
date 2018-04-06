@@ -20,6 +20,7 @@ import sbt._
 import sbtrelease.ReleasePlugin.autoImport._
 import sbtrelease.ReleaseStateTransformations._
 
+/** @author Christian Schlichtherle */
 object BuildSettings {
 
   def releaseSettings: Seq[Setting[_]] = {

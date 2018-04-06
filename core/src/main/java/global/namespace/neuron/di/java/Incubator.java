@@ -29,7 +29,11 @@ import java.util.function.Function;
 
 import static global.namespace.neuron.di.java.Reflection.find;
 
-/** An incubator {@linkplain #wire(Class) wires} and {@linkplain #breed(Class) breeds} neurons. */
+/**
+ * An incubator {@linkplain #wire(Class) wires} and {@linkplain #breed(Class) breeds} neuron classes and interfaces.
+ *
+ * @author Christian Schlichtherle
+ */
 public final class Incubator {
 
     private Incubator() { }

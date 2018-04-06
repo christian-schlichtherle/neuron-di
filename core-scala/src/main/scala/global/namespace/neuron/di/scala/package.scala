@@ -19,6 +19,7 @@ import global.namespace.neuron.di.java.{CachingStrategy => jcs}
 
 import _root_.scala.language.experimental.macros
 
+/** @author Christian Schlichtherle */
 package object scala {
 
   type CachingStrategy = jcs

@@ -29,6 +29,7 @@ import org.scalatest.mockito.MockitoSugar.mock
 
 import scala.reflect._
 
+/** @author Christian Schlichtherle */
 class BinderLikeSpec extends WordSpec {
 
   val binderLike = new BinderLike {

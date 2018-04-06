@@ -2,6 +2,7 @@ import sbt.Keys._
 import sbt._
 import sbt.IO
 
+/** @author Christian Schlichtherle */
 object BuildTools {
 
   def generateVersionFile: Def.Initialize[Task[Seq[File]]] = {

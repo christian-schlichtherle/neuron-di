@@ -19,6 +19,7 @@ import scala.annotation.{StaticAnnotation, compileTimeOnly}
 import scala.language.experimental.macros
 import scala.reflect.macros.blackbox
 
+/** @author Christian Schlichtherle */
 @compileTimeOnly("Please add the Macro Paradise plugin to the Scala compiler to enable this macro annotation. See https://docs.scala-lang.org/overviews/macros/paradise.html .")
 class Caching(value: CachingStrategy = CachingStrategy.THREAD_SAFE) extends StaticAnnotation {
 

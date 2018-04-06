@@ -23,6 +23,7 @@ import global.namespace.neuron.di.play.plugin.NeuronRoutesGenerator._
 import play.routes.compiler.RoutesCompiler.RoutesCompilerTask
 import play.routes.compiler.{InjectedRoutesGenerator => delegate, _}
 
+/** @author Christian Schlichtherle */
 object NeuronRoutesGenerator {
 
   case class Dependency[+T <: Rule](ident: String, clazz: String, rule: T)
@@ -41,6 +42,7 @@ object NeuronRoutesGenerator {
   }
 }
 
+/** @author Christian Schlichtherle */
 class NeuronRoutesGenerator(identifier: (String, String) => String) extends RoutesGenerator {
 
   def generate(task: RoutesCompilerTask, namespace: Option[String], rules: List[Rule]): Seq[(String, String)] = {
