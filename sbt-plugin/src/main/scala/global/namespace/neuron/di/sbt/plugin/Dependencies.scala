@@ -20,6 +20,7 @@ import java.io.InputStream
 import global.namespace.fun.io.scala.api._
 import sbt._
 
+/** @author Christian Schlichtherle */
 object Dependencies {
 
   // Allow for some limited variance of this dependency using '+' as the increment version number:

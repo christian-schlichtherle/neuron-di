@@ -26,6 +26,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 
+/** @author Christian Schlichtherle */
 @Neuron
 abstract class NeuronProvider<T> implements Provider<T> {
 

@@ -15,6 +15,7 @@
  */
 package global.namespace.neuron.di.scala
 
+/** @author Christian Schlichtherle */
 private trait CachingAnnotation extends MacroAnnotation {
 
   import c.universe._

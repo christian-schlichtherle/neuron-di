@@ -25,6 +25,7 @@ import global.namespace.neuron.di.internal.scala._
 
 import reflect.ClassTag
 
+/** @author Christian Schlichtherle */
 package object scala {
 
   abstract class NeuronModule

@@ -28,6 +28,7 @@ import java.util.function.Function;
 import static java.lang.invoke.MethodHandles.publicLookup;
 import static java.lang.invoke.MethodType.methodType;
 
+/** @author Christian Schlichtherle */
 class Reflection {
 
     private static final MethodType objectMethodType = methodType(Object.class);

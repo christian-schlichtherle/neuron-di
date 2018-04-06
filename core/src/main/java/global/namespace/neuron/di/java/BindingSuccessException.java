@@ -15,6 +15,7 @@
  */
 package global.namespace.neuron.di.java;
 
+/** @author Christian Schlichtherle */
 final class BindingSuccessException extends RuntimeException {
 
     BindingSuccessException() { super(null, null, false, false); }

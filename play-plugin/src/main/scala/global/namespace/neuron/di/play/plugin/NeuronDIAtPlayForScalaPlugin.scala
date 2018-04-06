@@ -20,6 +20,7 @@ import play.sbt._
 import play.sbt.routes.RoutesKeys._
 import sbt._
 
+/** @author Christian Schlichtherle */
 object NeuronDIAtPlayForScalaPlugin extends AutoPlugin {
 
   override def requires: Plugins = PlayScala && NeuronDIForScalaPlugin

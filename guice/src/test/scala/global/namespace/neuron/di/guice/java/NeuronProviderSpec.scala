@@ -28,6 +28,7 @@ import org.scalatest.Matchers._
 import org.scalatest.WordSpec
 import org.scalatest.mockito.MockitoSugar.mock
 
+/** @author Christian Schlichtherle */
 class NeuronProviderSpec extends WordSpec {
 
   "A neuron provider" should {
