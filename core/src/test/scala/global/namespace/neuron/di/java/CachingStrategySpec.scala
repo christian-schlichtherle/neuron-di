@@ -18,6 +18,7 @@ package global.namespace.neuron.di.java
 import org.scalatest.WordSpec
 import org.scalatest.Matchers._
 
+/** @author Christian Schlichtherle */
 class CachingStrategySpec extends WordSpec {
 
   "A caching strategy" should {

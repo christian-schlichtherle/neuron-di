@@ -20,6 +20,7 @@ import sbt._
 import sbtrelease.ReleasePlugin.autoImport._
 import sbtrelease.ReleaseStateTransformations._
 
+/** @author Christian Schlichtherle */
 object BuildSettings {
 
   def releaseSettings: Seq[Setting[_]] = {
@@ -63,6 +64,10 @@ object BuildSettings {
             </properties>
           </developer>
         </developers>
+        <issueManagement>
+          <system>Github</system>
+          <url>https://github.com/christian-schlichtherle/neuron-di/issues</url>
+        </issueManagement>
       },
       pomIncludeRepository := (_ => false),
       publishTo := {
@@ -95,19 +100,19 @@ object BuildSettings {
       fork := true, // triggers `javaOptions`
       javaOptions += "-ea"
     )) ++ Seq(
-      dependencyOverrides += JUnit,
+      dependencyOverrides += Junit,
       testOptions += Tests.Argument(TestFrameworks.JUnit, "-a", "-v")
     )
   }
 
   def librarySettings: Seq[Setting[_]] = {
     artifactSettings ++ Seq(
-      // Support testing Java projects with ScalaTest et al:
+      // Support testing Java projects with Scalatest et al:
       compileOrder := CompileOrder.JavaThenScala,
-      javacOptions := DefaultOptions.javac ++ Seq(Opts.compile.deprecation, "-g"),
-      javacOptions in doc := DefaultOptions.javac,
+      javacOptions := DefaultOptions.javac ++ Seq(Opts.compile.deprecation, "-source", "1.8", "-target", "1.8", "-g"),
+      javacOptions in doc := DefaultOptions.javac ++ Seq("-source", "1.8"),
       scalacOptions := DefaultOptions.scalac ++ Seq(Opts.compile.deprecation, Opts.compile.explaintypes, "-feature", Opts.compile.unchecked),
-      scalaVersion := ScalaVersion_2_12
+      scalaVersion := ScalaVersion_2_11
     )
   }
 

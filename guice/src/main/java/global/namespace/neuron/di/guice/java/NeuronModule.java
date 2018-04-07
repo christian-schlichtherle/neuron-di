@@ -18,6 +18,7 @@ package global.namespace.neuron.di.guice.java;
 import com.google.inject.AbstractModule;
 import com.google.inject.Binder;
 
+/** @author Christian Schlichtherle */
 public abstract class NeuronModule
         extends AbstractModule
         implements BinderLike {

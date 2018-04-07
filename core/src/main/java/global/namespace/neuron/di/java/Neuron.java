@@ -18,14 +18,19 @@ package global.namespace.neuron.di.java;
 import java.lang.annotation.*;
 
 /**
- * Indicates that the return values of any abstract, parameterless methods
- * are subject to lazy dependency resolution by the {@link Incubator}.
- * Abstract, parameterless methods in classes or interfaces annotated with
- * {@code @Neuron} are generally called "synapse methods".
+ * Indicates that the annotated class or interface is a <i>neuron type</i>.
+ * A neuron type is supposed to have <i>synapse methods</i> to make contact with its dependencies.
+ * All abstract, parameterless methods in a neuron type are synapse methods - there is no need to declare them.
+ * The {@link Incubator} implements these methods when <i>breeding</i> a neuron so that its dependencies are resolved
+ * <i>lazily</i>, that is, no sooner as the neuron calls a synapse method.
+ * In a nutshell, a neuron resolves all its dependencies lazily by calling its synapse methods, so they all have a name
+ * and a type.
  * <p>
  * If this annotation is present on a class, it gets inherited by any subclass.
- * In compliance with the Java Language Specification, this does not apply to
- * interfaces.
+ * In compliance with the Java Language Specification, this does not apply to interfaces.
+ *
+ * @see <a href="https://en.wikipedia.org/wiki/Neuron">Neuron on the English Wikipedia</a>
+ * @author Christian Schlichtherle
  */
 @Documented
 @Inherited

@@ -19,6 +19,7 @@ import global.namespace.neuron.di.scala.MacroAnnotation._
 
 import scala.reflect.macros.blackbox
 
+/** @author Christian Schlichtherle */
 private trait MacroAnnotation {
 
   protected val c: blackbox.Context
@@ -108,6 +109,7 @@ private trait MacroAnnotation {
   private def tpeName(tree: Tree) = Option(tree.tpe).map(_.toString)
 }
 
+/** @author Christian Schlichtherle */
 private object MacroAnnotation {
 
   import global.namespace.neuron.di._

@@ -15,9 +15,11 @@
  */
 package global.namespace.neuron.di.sbt.plugin
 
-import global.namespace.scala.plus.ResourceLoan._
 import sbt._
 
+import scala.io.Source
+
+/** @author Christian Schlichtherle */
 object Dependencies {
 
   // Allow for some limited variance of this dependency using '+' as the increment version number:
@@ -27,7 +29,14 @@ object Dependencies {
   // and Scala 2.12.2, Macro Paradise 2.1.1 is available.
   val MacroParadise: ModuleID = "org.scalamacros" % "paradise" % "2.1.+" cross CrossVersion.full
 
-  private val NeuronDIVersion = loan(getClass.getResourceAsStream("version")).to(IO.readStream(_))
+  val NeuronDIVersion: String = {
+    val source = Source fromInputStream (getClass getResourceAsStream "version")
+    try {
+      source.mkString
+    } finally {
+      source close ()
+    }
+  }
 
   val NeuronDIForJava: ModuleID = component("neuron-di")
   val NeuronDIForScala: ModuleID = component("neuron-di-scala")

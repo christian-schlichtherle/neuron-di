@@ -23,16 +23,15 @@ import global.namespace.neuron.di.java.sample.{A, HasPrivateMembers}
 import org.scalatest.Matchers._
 import org.scalatest.WordSpec
 
+/** @author Christian Schlichtherle */
 class ReflectionSpec extends WordSpec {
 
   implicit class WithOptionalMethodHandle(omh: Optional[MethodHandle]) {
 
-    def as[A]: A = {
-      omh
-        .get
-        .invokeWithArguments() // workaround for Scala 2.11.[0,4], otherwise it should be `invokeExact()`
-        .asInstanceOf[A]
-    }
+    def as[A]: A = omh
+      .get
+      .invokeWithArguments() // workaround for Scala 2.11.[0,4], otherwise it should be `invokeExact()`
+      .asInstanceOf[A]
   }
 
   "Reflection.find(...).in(...)" when {

@@ -18,15 +18,14 @@ package global.namespace.neuron.di.java;
 import java.lang.annotation.*;
 
 /**
- * Indicates that a caching strategy should be applied to the return value of
- * the annotated method.
+ * Indicates that a caching strategy should be applied to the return value of the annotated synapse method.
  * <p>
- * In compliance with the Java Language Specification, this annotation is not
- * inherited, so if you override a method with this annotation and you want to
- * apply a caching strategy to the overriding method, you have to add this
+ * In compliance with the Java Language Specification, this annotation is not inherited, so if you override a method
+ * with this annotation and you want to apply a caching strategy to the overriding method, you have to add this
  * annotation again.
- * In other words, if this annotation is not present on a method, no caching
- * strategy is applied to it.
+ * In other words, if this annotation is not present on a synapse method, no caching strategy is applied to it.
+ *
+ * @author Christian Schlichtherle
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)

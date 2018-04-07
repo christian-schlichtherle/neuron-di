@@ -23,6 +23,7 @@ import global.namespace.neuron.di.java.{DependencyProvider, DependencyResolver, 
 
 import scala.reflect._
 
+/** @author Christian Schlichtherle */
 object Incubator {
 
   def breed[A >: Null : ClassTag]: A = jIncubator breed runtimeClassOf[A]

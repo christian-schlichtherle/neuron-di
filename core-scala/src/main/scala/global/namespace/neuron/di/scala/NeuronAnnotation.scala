@@ -17,6 +17,7 @@ package global.namespace.neuron.di.scala
 
 import scala.annotation.tailrec
 
+/** @author Christian Schlichtherle */
 private trait NeuronAnnotation extends MacroAnnotation {
 
   import c.universe._

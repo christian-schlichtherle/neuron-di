@@ -15,10 +15,9 @@
  */
 package global.namespace.neuron.di.guice.scala.sample
 
-import javax.inject.{Inject, Named, Singleton}
-
 import com.google.inject.AbstractModule
 import com.google.inject.name.Names
+import javax.inject.{Inject, Named, Singleton}
 
 class GuiceGreeting @Inject() (formatter: Formatter) extends Greeting {
 
@@ -32,7 +31,7 @@ class GuiceFormatter @Inject() (@Named("format") format: String) extends Formatt
 
 class GuiceGreetingModule extends AbstractModule {
 
-  protected def configure() {
+  override def configure() {
     bind(classOf[Greeting]).to(classOf[GuiceGreeting]).in(classOf[Singleton])
     bind(classOf[Formatter]).to(classOf[GuiceFormatter])
     bindConstant.annotatedWith(Names.named("format")).to("Hello %s!")

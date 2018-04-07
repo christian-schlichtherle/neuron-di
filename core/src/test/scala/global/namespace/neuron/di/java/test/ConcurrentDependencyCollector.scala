@@ -19,23 +19,30 @@ import java.util.concurrent.{CyclicBarrier, TimeUnit}
 
 import global.namespace.neuron.di.java.sample.HasDependency
 import global.namespace.neuron.di.java.test.ParallelSugar._
+import org.scalatest.concurrent.PatienceConfiguration
 
-private class ConcurrentDependencyCollector {
+import scala.util.control.NonFatal
 
-  val numThreads: Int = 10 * Runtime.getRuntime.availableProcessors
+private class ConcurrentDependencyCollector extends PatienceConfiguration {
 
-  val numInjectionsPerThread: Int = 10
+  val numThreadsPerProcessor: Int = 2
 
-  val numInjections: Int = numThreads * numInjectionsPerThread
+  val numProcessors: Int = Runtime.getRuntime.availableProcessors
+
+  val numThreads: Int = numThreadsPerProcessor * numProcessors
+
+  val numInjectionsPerThread: Int = 2
+
+  val numInjections: Int = numInjectionsPerThread * numThreads
 
   def dependenciesOf[T](neuron: HasDependency[T]): Set[T] = {
     val barrier: CyclicBarrier = new CyclicBarrier(numThreads)
     Range(0, numThreads).toSet.parallel(numThreads).flatMap { _ =>
       Range(0, numInjectionsPerThread).toSet.map { _: Int =>
         try {
-          barrier.await(3L, TimeUnit.SECONDS)
+          barrier.await(patienceConfig.timeout.toNanos, TimeUnit.NANOSECONDS)
         } catch {
-          case e: Any => throw new AssertionError(e)
+          case NonFatal(e) => throw new AssertionError(e)
         }
         val dependency = neuron.get
         assert(null != dependency)

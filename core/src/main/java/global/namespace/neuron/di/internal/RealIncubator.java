@@ -17,6 +17,7 @@ package global.namespace.neuron.di.internal;
 
 import global.namespace.neuron.di.java.DependencyProvider;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.Map;
@@ -61,10 +62,12 @@ public final class RealIncubator {
 
     private static <C> C newInstance(final Class<C> runtimeClass) {
         try {
-            return runtimeClass.newInstance();
+            return runtimeClass.getDeclaredConstructor().newInstance();
+        } catch (NoSuchMethodException e) {
+            throw new IllegalStateException(e.toString() + ": A neuron class must have a non-private constructor without parameters. Do not disable annotation processing to detect this at compile time.", e);
         } catch (InstantiationException e) {
-            throw new IllegalStateException(e.toString() + ": Did you forget the @Neuron annotation?", e);
-        } catch (IllegalAccessException e) {
+            throw new IllegalStateException(e.toString() + ": This is an abstract class. Did you forget the @Neuron annotation?", e);
+        } catch (IllegalAccessException | InvocationTargetException e) {
             throw new IllegalStateException(e);
         }
     }

@@ -56,9 +56,9 @@ lazy val core = project
     libraryDependencies ++= Seq(
       ASM,
       HamcrestLibrary % Test,
-      JUnit % "provided; optional",
-      JUnitInterface % Test,
-      ScalaTest % Test
+      Junit % "provided; optional",
+      JunitInterface % Test,
+      Scalatest % Test
     ),
     name := "Neuron DI for Java",
     normalizedName := "neuron-di"
@@ -71,7 +71,7 @@ lazy val coreScala = project
   .settings(
     libraryDependencies ++= Seq(
       scalaReflect(scalaVersion.value),
-      ScalaTest % Test
+      Scalatest % Test
     ),
     name := "Neuron DI for Scala " + scalaBinaryVersion.value,
     normalizedName := "neuron-di-scala"
@@ -85,9 +85,9 @@ lazy val guice = project
     libraryDependencies ++= Seq(
       Guice,
       HamcrestLibrary % Test,
-      JUnitInterface % Test,
+      JunitInterface % Test,
       MockitoCore % Test,
-      ScalaTest % Test
+      Scalatest % Test
     ),
     name := "Neuron DI @ Guice for Java",
     normalizedName := "neuron-di-guice"
@@ -98,7 +98,7 @@ lazy val guiceScala = project
   .dependsOn(guice, coreScala)
   .settings(scalaLibrarySettings)
   .settings(
-    libraryDependencies += ScalaTest % Test,
+    libraryDependencies += Scalatest % Test,
     name := "Neuron DI @ Guice for Scala " + scalaBinaryVersion.value,
     normalizedName := "neuron-di-guice-scala"
   )
@@ -107,10 +107,6 @@ lazy val sbtPlugin = project
   .in(file("sbt-plugin"))
   .settings(sbtPluginSettings)
   .settings(
-    libraryDependencies ++= Seq(
-      Dependencies.io(sbtVersion.value),
-      ScalaPlus
-    ),
     name := "Neuron DI SBT Plugin",
     normalizedName := "neuron-di-sbt-plugin",
     resourceGenerators in Compile += generateVersionFile.taskValue
