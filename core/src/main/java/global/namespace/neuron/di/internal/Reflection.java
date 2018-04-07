@@ -15,29 +15,15 @@
  */
 package global.namespace.neuron.di.internal;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Consumer;
 
+import static java.lang.invoke.MethodHandles.lookup;
+import static java.lang.invoke.MethodHandles.privateLookupIn;
+
+/** @author Christian Schlichtherle */
 class Reflection {
-
-    private static final Method getClassLoadingLock, defineClass;
-
-    static {
-        final Class<ClassLoader> classLoaderClass = ClassLoader.class;
-        try {
-            getClassLoadingLock = classLoaderClass
-                    .getDeclaredMethod("getClassLoadingLock", String.class);
-            getClassLoadingLock.setAccessible(true);
-            defineClass = classLoaderClass
-                    .getDeclaredMethod("defineClass", String.class, byte[].class, int.class, int.class);
-            defineClass.setAccessible(true);
-        } catch (NoSuchMethodException e) {
-            throw new AssertionError(e);
-        }
-    }
 
     private Reflection() { }
 
@@ -73,16 +59,11 @@ class Reflection {
     }
 
     @SuppressWarnings("unchecked")
-    static <C> Class<? extends C> defineSubclass(final Class<C> clazz,
-                                                 final String name,
-                                                 final byte[] b) {
-        final ClassLoader cl = clazz.getClassLoader();
+    static <C> Class<? extends C> defineSubclass(final Class<C> clazz, final String name, final byte[] b) {
         try {
-            synchronized (getClassLoadingLock.invoke(cl, name)) {
-                return (Class<? extends C>) defineClass.invoke(cl, name, b, 0, b.length);
-            }
-        } catch (InvocationTargetException e) {
-            throw new IllegalArgumentException(e.getCause());
+            return (Class<? extends C>) privateLookupIn(clazz, lookup()).defineClass(b);
+        } catch (NoSuchMethodError e) {
+            return Reflection8.defineSubclass(clazz, name, b);
         } catch (IllegalAccessException e) {
             throw new AssertionError(e);
         }
