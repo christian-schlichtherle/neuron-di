@@ -37,28 +37,30 @@ class Reflection {
      * The returned function will visit any interface at most once, however.
      */
     static Consumer<Class<?>> traverse(final Consumer<Class<?>> consumer) {
-        return new Consumer<Class<?>>() {
+        return clazz -> {
+            new Consumer<Class<?>>() {
 
-            final Set<Class<?>> interfaces = new HashSet<>();
+                final Set<Class<?>> interfaces = new HashSet<>();
 
-            @Override
-            public void accept(final Class<?> visitor) {
-                consumer.accept(visitor);
-                for (final Class<?> iface : visitor.getInterfaces()) {
-                    if (!interfaces.contains(iface)) {
-                        accept(iface);
-                        interfaces.add(iface);
+                @Override
+                public void accept(final Class<?> visitor) {
+                    consumer.accept(visitor);
+                    for (final Class<?> iface : visitor.getInterfaces()) {
+                        if (!interfaces.contains(iface)) {
+                            accept(iface);
+                            interfaces.add(iface);
+                        }
+                    }
+                    final Class<?> zuper = visitor.getSuperclass();
+                    if (null != zuper) {
+                        accept(zuper);
                     }
                 }
-                final Class<?> zuper = visitor.getSuperclass();
-                if (null != zuper) {
-                    accept(zuper);
-                }
-            }
+            }.accept(clazz);
         };
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "Since15"})
     static <C> Class<? extends C> defineSubclass(final Class<C> clazz, final String name, final byte[] b) {
         try {
             return (Class<? extends C>) privateLookupIn(clazz, lookup()).defineClass(b);
