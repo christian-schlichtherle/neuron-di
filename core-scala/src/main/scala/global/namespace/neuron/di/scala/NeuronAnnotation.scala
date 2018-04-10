@@ -85,7 +85,7 @@ private trait NeuronAnnotation extends MacroAnnotation {
                 case ModuleDef(moduleMods, moduleName, Template(parents, self, body)) :: moduleRest =>
                   ModuleDef(moduleMods, moduleName, Template(parents, self, shimDef :: body)) :: moduleRest
                 case _ =>
-                  val moduleMods = Modifiers(flags &~ (ABSTRACT | TRAIT | DEFAULTPARAM) | SYNTHETIC, privateWithin, annotations)
+                  val moduleMods = Modifiers(flags &~ (ABSTRACT | TRAIT | DEFAULTPARAM), privateWithin, annotations)
                   q"$moduleMods object ${TermName(name)} { $shimDef }" :: rest
               }
             } else {
