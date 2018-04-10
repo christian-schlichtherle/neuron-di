@@ -82,8 +82,8 @@ object BuildSettings {
       },
       scmInfo := Some(ScmInfo(
         browseUrl = url("https://github.com/christian-schlichtherle/neuron-di"),
-        connection = "scm:git:git://github.com/christian-schlichtherle/neuron-di.git",
-        devConnection = Some("scm:git:ssh://git@github.com/christian-schlichtherle/neuron-di.git")
+        connection = "scm:git:git@github.com/christian-schlichtherle/neuron-di.git",
+        devConnection = Some("scm:git:git@github.com/christian-schlichtherle/neuron-di.git")
       ))
     )
   }
