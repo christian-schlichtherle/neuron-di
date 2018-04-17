@@ -20,6 +20,7 @@ import com.google.inject.binder.{AnnotatedBindingBuilder, AnnotatedConstantBindi
 import com.google.inject.name.Names.named
 import global.namespace.neuron.di.guice.java.BinderLikeSpec._
 import global.namespace.neuron.di.java.Neuron
+import global.namespace.neuron.di.internal.scala._
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers._
 import org.mockito.Mockito._
@@ -32,7 +33,7 @@ import scala.reflect._
 /** @author Christian Schlichtherle */
 class BinderLikeSpec extends WordSpec {
 
-  val binderLike = new BinderLike {
+  val binderLike: BinderLike = new BinderLike {
 
     val binder: Binder = mock[Binder]
 
@@ -90,15 +91,15 @@ class BinderLikeSpec extends WordSpec {
   }
 
   private def testBindNeuronUsingClass[A](implicit classTag: ClassTag[A]) {
-    testBindNeuron[A] { binderLike bindNeuron implicitly[Class[A]] }
+    testBindNeuron[A] { binderLike bindNeuron runtimeClassOf[A] }
   }
 
   private def testBindNeuronUsingTypeLiteral[A](implicit classTag: ClassTag[A]) {
-    testBindNeuron[A] { binderLike bindNeuron (TypeLiteral get implicitly[Class[A]]) }
+    testBindNeuron[A] { binderLike bindNeuron (TypeLiteral get runtimeClassOf[A]) }
   }
 
   private def testBindNeuronUsingKey[A](implicit classTag: ClassTag[A]) {
-    testBindNeuron[A] { binderLike bindNeuron (Key get implicitly[Class[A]]) }
+    testBindNeuron[A] { binderLike bindNeuron (Key get runtimeClassOf[A]) }
   }
 
   private def testBindNeuron[A : ClassTag](bindingCall: => ScopedBindingBuilder) {
@@ -108,7 +109,7 @@ class BinderLikeSpec extends WordSpec {
     when(binder getProvider classOf[Injector]) thenReturn injectorProvider
     when(injectorProvider.get) thenReturn injector
 
-    val clazz = implicitly[Class[A]]
+    val clazz = runtimeClassOf[A]
     val typeLiteral = TypeLiteral get clazz
     val key = Key get clazz
 
@@ -198,9 +199,6 @@ class BinderLikeSpec extends WordSpec {
 }
 
 private object BinderLikeSpec {
-
-  implicit def runtimeClassOf[A](implicit classTag: ClassTag[A]): Class[A] =
-    classTag.runtimeClass.asInstanceOf[Class[A]]
 
   @Neuron
   trait NeuronInterface

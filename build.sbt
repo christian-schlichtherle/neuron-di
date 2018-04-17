@@ -79,7 +79,7 @@ lazy val coreScala = project
 
 lazy val guice = project
   .in(file("guice"))
-  .dependsOn(core)
+  .dependsOn(core, coreScala % Test)
   .settings(javaLibrarySettings)
   .settings(
     libraryDependencies ++= Seq(
