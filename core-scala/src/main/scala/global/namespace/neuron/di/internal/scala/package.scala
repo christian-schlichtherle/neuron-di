@@ -19,8 +19,8 @@ import _root_.scala.reflect.{ClassTag, classTag}
 
 package object scala {
 
-  def runtimeClassOf[A](implicit ct: ClassTag[A]): Class[A] = {
-    require(ct != classTag[Nothing], "Missing type parameter.")
-    ct.runtimeClass.asInstanceOf[Class[A]]
+  def runtimeClassOf[A](implicit tag: ClassTag[A]): Class[A] = {
+    require(tag != classTag[Nothing], "Missing type parameter.")
+    tag.runtimeClass.asInstanceOf[Class[A]]
   }
 }
