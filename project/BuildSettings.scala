@@ -109,9 +109,10 @@ object BuildSettings {
     artifactSettings ++ Seq(
       // Support testing Java projects with Scalatest et al:
       compileOrder := CompileOrder.JavaThenScala,
-      javacOptions := DefaultOptions.javac ++ Seq(Opts.compile.deprecation, "-source", "1.8", "-target", "1.8", "-g"),
+      crossScalaVersions := Seq(ScalaVersion_2_11, ScalaVersion_2_12),
+      javacOptions := DefaultOptions.javac ++ Seq(Opts.compile.deprecation, "-Xlint", "-source", "1.8", "-target", "1.8", "-g"),
       javacOptions in doc := DefaultOptions.javac ++ Seq("-source", "1.8"),
-      scalacOptions := DefaultOptions.scalac ++ Seq(Opts.compile.deprecation, Opts.compile.explaintypes, "-feature", Opts.compile.unchecked),
+      scalacOptions := DefaultOptions.scalac ++ Seq(Opts.compile.deprecation, "-feature", Opts.compile.unchecked),
       scalaVersion := ScalaVersion_2_11
     )
   }
@@ -125,8 +126,7 @@ object BuildSettings {
 
   def scalaLibrarySettings: Seq[Setting[_]] = {
     librarySettings ++ Seq(
-      addCompilerPlugin(MacroParadise),
-      crossScalaVersions := Seq(ScalaVersion_2_11, ScalaVersion_2_12)
+      addCompilerPlugin(MacroParadise)
     )
   }
 
@@ -135,7 +135,7 @@ object BuildSettings {
   def sbtPluginSettings: Seq[Setting[_]] = {
     pluginSettings ++ Seq(
       sbtPlugin := true,
-      scalacOptions := DefaultOptions.scalac ++ Seq(Opts.compile.deprecation, Opts.compile.explaintypes, "-feature", Opts.compile.unchecked)
+      scalacOptions := DefaultOptions.scalac ++ Seq(Opts.compile.deprecation, "-feature", Opts.compile.unchecked)
     )
   }
 }
