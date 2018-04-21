@@ -40,7 +40,7 @@ enum RealCachingStrategy {
                 D returnValue;
 
                 @Override
-                public D get() throws Exception {
+                public D get() throws Throwable {
                     final D value = returnValue;
                     return null != value ? value : (returnValue = provider.get());
                 }
@@ -59,7 +59,7 @@ enum RealCachingStrategy {
                 volatile D returnValue;
 
                 @Override
-                public D get() throws Exception {
+                public D get() throws Throwable {
                     D value;
                     if (null == (value = returnValue)) {
                         synchronized (this) {
@@ -85,7 +85,7 @@ enum RealCachingStrategy {
                 final ThreadLocal<D> results = new ThreadLocal<>();
 
                 @Override
-                public D get() throws Exception {
+                public D get() throws Throwable {
                     D result = results.get();
                     if (null == result) {
                         results.set(result = provider.get());
