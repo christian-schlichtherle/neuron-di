@@ -30,5 +30,5 @@ public interface DependencyResolver<N, D> {
      *
      * @param neuron the neuron.
      */
-    D apply(N neuron) throws Exception;
+    D apply(N neuron) throws Throwable;
 }

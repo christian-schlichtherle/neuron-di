@@ -25,5 +25,5 @@ package global.namespace.neuron.di.java;
 public interface DependencyProvider<D> {
 
     /** Returns the dependency of the neuron. */
-    D get() throws Exception;
+    D get() throws Throwable;
 }
