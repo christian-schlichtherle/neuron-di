@@ -20,7 +20,6 @@ import com.google.inject.binder.{AnnotatedBindingBuilder, AnnotatedConstantBindi
 import com.google.inject.name.Names.named
 import global.namespace.neuron.di.guice.java.BinderLikeSpec._
 import global.namespace.neuron.di.java.Neuron
-import global.namespace.neuron.di.internal.scala._
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers._
 import org.mockito.Mockito._
@@ -205,4 +204,9 @@ private object BinderLikeSpec {
 
   @Neuron
   abstract class NeuronClass
+
+  def runtimeClassOf[A](implicit tag: ClassTag[A]): Class[A] = {
+    require(tag != classTag[Nothing], "Missing type parameter.")
+    tag.runtimeClass.asInstanceOf[Class[A]]
+  }
 }
