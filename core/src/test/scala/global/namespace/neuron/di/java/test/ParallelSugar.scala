@@ -15,9 +15,10 @@
  */
 package global.namespace.neuron.di.java.test
 
+import java.util.concurrent.ForkJoinPool
+
 import scala.collection.parallel.{ForkJoinTaskSupport, ParIterableLike}
 import scala.collection.{Parallel, Parallelizable}
-import scala.concurrent.forkjoin.ForkJoinPool
 
 trait ParallelSugar {
 
