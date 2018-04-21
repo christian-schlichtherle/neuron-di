@@ -44,7 +44,7 @@ public final class NeuronProcessor extends CommonProcessor {
     private void validateClass(final TypeElement clazz) {
         final Set<Modifier> modifiers = clazz.getModifiers();
         if (modifiers.contains(FINAL)) {
-            error("A neuron class cannot be final.", clazz);
+            error("A neuron class must not be final.", clazz);
         }
         if (!hasStaticContext(clazz)) {
             error("A neuron class must have a static context.", clazz);
@@ -52,11 +52,13 @@ public final class NeuronProcessor extends CommonProcessor {
         if (!hasNonPrivateConstructorWithoutParameters(clazz)) {
             error("A neuron class must have a non-private constructor without parameters.", clazz);
         }
+        if (isSerializable(clazz)) {
+            error("A neuron class or interface must not be serializable.", clazz);
+        }
     }
 
     private static boolean hasStaticContext(TypeElement clazz) {
-        return !clazz.getNestingKind().isNested() ||
-                clazz.getModifiers().contains(STATIC);
+        return !clazz.getNestingKind().isNested() || clazz.getModifiers().contains(STATIC);
     }
 
     private static boolean hasNonPrivateConstructorWithoutParameters(TypeElement type) {
@@ -68,7 +70,10 @@ public final class NeuronProcessor extends CommonProcessor {
     }
 
     private static boolean isNonPrivateConstructorWithoutParameters(ExecutableElement ctor) {
-        return !ctor.getModifiers().contains(PRIVATE) &&
-                ctor.getParameters().isEmpty();
+        return !ctor.getModifiers().contains(PRIVATE) && ctor.getParameters().isEmpty();
+    }
+
+    private static boolean isSerializable(TypeElement type) {
+        return type.getInterfaces().stream().anyMatch(i -> i.toString().equals("java.io.Serializable"));
     }
 }

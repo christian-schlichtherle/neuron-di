@@ -33,8 +33,7 @@ import static javax.tools.Diagnostic.Kind.WARNING;
 
 abstract class CommonProcessor extends AbstractProcessor {
 
-    private static final EnumSet<Modifier> privateProtectedOrPublic =
-            EnumSet.of(PRIVATE, PROTECTED, PUBLIC);
+    private static final EnumSet<Modifier> privateProtectedOrPublic = EnumSet.of(PRIVATE, PROTECTED, PUBLIC);
 
     void error(CharSequence message, javax.lang.model.element.Element e) {
         messager().printMessage(ERROR, message , e);
