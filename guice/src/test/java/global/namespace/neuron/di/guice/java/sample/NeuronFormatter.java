@@ -28,5 +28,5 @@ interface NeuronFormatter extends Formatter {
     String getFormat();
 
     @Override
-    default String format(Object... args) { return String.format(getFormat(), (Object[]) args); }
+    default String format(Object... args) { return String.format(getFormat(), args); }
 }

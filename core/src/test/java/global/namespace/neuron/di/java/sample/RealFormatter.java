@@ -22,7 +22,7 @@ import global.namespace.neuron.di.java.Neuron;
 public interface RealFormatter extends Formatter {
 
     @Override
-    default String format(Object... args) { return String.format(getFormat(), (Object[]) args); }
+    default String format(Object... args) { return String.format(getFormat(), args); }
 
     @Caching
     String getFormat();

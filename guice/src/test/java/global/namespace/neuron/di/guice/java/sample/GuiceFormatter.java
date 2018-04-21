@@ -25,5 +25,5 @@ class GuiceFormatter implements Formatter {
     private String format;
 
     @Override
-    public String format(Object... args) { return String.format(format, (Object[]) args); }
+    public String format(Object... args) { return String.format(format, args); }
 }

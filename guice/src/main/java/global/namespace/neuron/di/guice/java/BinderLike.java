@@ -116,9 +116,9 @@ public interface BinderLike {
         }
         return Incubator
                 .wire(NeuronProvider.class)
-                .bind(NeuronProvider::injector).to(injectorProvider::get)
-                .bind(NeuronProvider::membersInjector).to(membersInjector)
-                .bind(NeuronProvider::typeLiteral).to(typeLiteral)
+                .bind(NeuronProvider<T>::injector).to(injectorProvider::get)
+                .bind(NeuronProvider<T>::membersInjector).to(membersInjector)
+                .bind(NeuronProvider<T>::typeLiteral).to(typeLiteral)
                 .breed();
     }
 }

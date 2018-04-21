@@ -18,5 +18,7 @@ package global.namespace.neuron.di.java;
 /** @author Christian Schlichtherle */
 final class BindingSuccessException extends RuntimeException {
 
+    private static final long serialVersionUID = 0L;
+
     BindingSuccessException() { super(null, null, false, false); }
 }
