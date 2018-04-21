@@ -43,9 +43,6 @@ public final class NeuronProcessor extends CommonProcessor {
 
     private void validateClass(final TypeElement clazz) {
         final Set<Modifier> modifiers = clazz.getModifiers();
-        if (!modifiers.contains(ABSTRACT) && !isRunWithNeuronJUnitRunner(clazz)) {
-            warning("A neuron class should be abstract or annotated with @org.junit.runner.RunWith(global.namespace.neuron.di.junit.NeuronJUnitRunner.class).", clazz);
-        }
         if (modifiers.contains(FINAL)) {
             error("A neuron class cannot be final.", clazz);
         }
@@ -55,12 +52,6 @@ public final class NeuronProcessor extends CommonProcessor {
         if (!hasNonPrivateConstructorWithoutParameters(clazz)) {
             error("A neuron class must have a non-private constructor without parameters.", clazz);
         }
-    }
-
-    private boolean isRunWithNeuronJUnitRunner(TypeElement clazz) {
-        return filter("org.junit.runner.RunWith", "value")
-                .where(elementUtils().getAllAnnotationMirrors(clazz))
-                .anyMatch(value -> value.getValue().toString().equals("global.namespace.neuron.di.junit.NeuronJUnitRunner"));
     }
 
     private static boolean hasStaticContext(TypeElement clazz) {

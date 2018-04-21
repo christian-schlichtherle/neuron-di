@@ -31,8 +31,8 @@ object Dependencies {
     }
   }
   val HamcrestLibrary: ModuleID = "org.hamcrest" % "hamcrest-library" % "1.3"
-  val Junit: ModuleID = "junit" % "junit" % "4.12"
-  val JunitInterface: ModuleID = "com.novocode" % "junit-interface" % "0.11"
+  val JUnit: ModuleID = "junit" % "junit" % "4.12"
+  val JUnitInterface: ModuleID = "com.novocode" % "junit-interface" % "0.11"
   val MockitoCore: ModuleID = "org.mockito" % "mockito-core" % "2.18.0"
   val MacroParadise: ModuleID = "org.scalamacros" % "paradise" % "2.1.+" cross CrossVersion.full
   val PlaySbtPlugin: ModuleID = "com.typesafe.play" % "sbt-plugin" % "2.6.13"

@@ -40,29 +40,9 @@ abstract class CommonProcessor extends AbstractProcessor {
         messager().printMessage(ERROR, message , e);
     }
 
-    void warning(CharSequence message, javax.lang.model.element.Element e) {
-        messager().printMessage(WARNING, message , e);
-    }
-
     private Messager messager() { return processingEnv.getMessager(); }
-
-    Elements elementUtils() { return processingEnv.getElementUtils(); }
 
     static boolean isPackagePrivate(Element element) {
         return !privateProtectedOrPublic.clone().removeAll(element.getModifiers());
-    }
-
-    static Filter filter(String annotationName, String keyName) {
-        return annotationMirrors -> annotationMirrors
-                .stream()
-                .filter(mirror -> mirror.getAnnotationType().toString().equals(annotationName))
-                .flatMap(mirror -> mirror.getElementValues().entrySet().stream())
-                .filter(entry -> entry.getKey().getSimpleName().toString().equals(keyName))
-                .map(Map.Entry::getValue);
-    }
-
-    interface Filter {
-
-        Stream<? extends AnnotationValue> where(List<? extends AnnotationMirror> where);
     }
 }

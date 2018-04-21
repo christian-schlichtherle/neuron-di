@@ -20,7 +20,7 @@ import Dependencies._
 
 lazy val root = project
   .in(file("."))
-  .aggregate(core, coreScala, guice, guiceScala, sbtPlugin, playPlugin)
+  .aggregate(core, coreScala, guice, guiceScala, junit, sbtPlugin, playPlugin)
   .settings(releaseSettings)
   .settings(aggregateSettings)
   .settings(name := "Neuron DI")
@@ -32,16 +32,7 @@ lazy val core = project
     inTask(assembly)(Seq(
       artifact ~= (_ withClassifier Some("shaded") withConfigurations Vector(Compile)),
 
-      // sbt-assembly 0.14.5 doesn't understand combined dependency configurations like `JUnit % "provided; optional"`.
-      // So JUnit and it's transitive dependency Hamcrest Core need to be manually excluded.
-      assemblyExcludedJars := {
-        (externalDependencyClasspath in assembly).value filter { attributedFile =>
-          val fileName = attributedFile.data.getName
-          fileName.startsWith("junit-") || fileName.startsWith("hamcrest-core-")
-        }
-      },
-
-      assemblyJarName := s"${normalizedName.value}-${version.value}-assembly.jar",
+      assemblyJarName := s"${normalizedName.value}-${version.value}-shaded.jar",
 
       // Relocate the classes and update references to them everywhere.
       assemblyShadeRules := Seq(
@@ -56,8 +47,7 @@ lazy val core = project
     libraryDependencies ++= Seq(
       ASM,
       HamcrestLibrary % Test,
-      Junit % "provided; optional",
-      JunitInterface % Test,
+      JUnitInterface % Test,
       Scalatest % Test
     ),
     name := "Neuron DI for Java",
@@ -79,13 +69,13 @@ lazy val coreScala = project
 
 lazy val guice = project
   .in(file("guice"))
-  .dependsOn(core)
+  .dependsOn(core, junit % Test)
   .settings(javaLibrarySettings)
   .settings(
     libraryDependencies ++= Seq(
       Guice,
       HamcrestLibrary % Test,
-      JunitInterface % Test,
+      JUnitInterface % Test,
       MockitoCore % Test,
       Scalatest % Test
     ),
@@ -101,6 +91,16 @@ lazy val guiceScala = project
     libraryDependencies += Scalatest % Test,
     name := "Neuron DI @ Guice for Scala " + scalaBinaryVersion.value,
     normalizedName := "neuron-di-guice-scala"
+  )
+
+lazy val junit = project
+  .in(file("junit"))
+  .dependsOn(core)
+  .settings(javaLibrarySettings)
+  .settings(
+    libraryDependencies += JUnit,
+    name := "Neuron DI JUnit",
+    normalizedName := "neuron-di-junit"
   )
 
 lazy val sbtPlugin = project

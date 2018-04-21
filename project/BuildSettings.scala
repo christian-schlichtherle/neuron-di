@@ -100,7 +100,7 @@ object BuildSettings {
       fork := true, // triggers `javaOptions`
       javaOptions += "-ea"
     )) ++ Seq(
-      dependencyOverrides += Junit,
+      dependencyOverrides += JUnit,
       testOptions += Tests.Argument(TestFrameworks.JUnit, "-a", "-v")
     )
   }
@@ -126,7 +126,7 @@ object BuildSettings {
   def scalaLibrarySettings: Seq[Setting[_]] = {
     librarySettings ++ Seq(
       addCompilerPlugin(MacroParadise),
-      crossScalaVersions := Seq(ScalaVersion_2_11, ScalaVersion_2_12),
+      crossScalaVersions := Seq(ScalaVersion_2_11, ScalaVersion_2_12)
     )
   }
 
