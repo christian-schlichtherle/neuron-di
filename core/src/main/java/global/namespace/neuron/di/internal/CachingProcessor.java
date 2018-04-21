@@ -60,9 +60,7 @@ public final class CachingProcessor extends CommonProcessor {
         if (modifiers.contains(PRIVATE)) {
             error("A caching method cannot be private.", method);
         }
-        if (isPackagePrivate(method) &&
-                !isPackagePrivate(type) &&
-                !type.getModifiers().contains(PRIVATE)) {
+        if (isPackagePrivate(method) && !isPackagePrivate(type) && !type.getModifiers().contains(PRIVATE)) {
             error("A package-private caching method must be a member of a package-private or private type.", method);
         }
         if (!method.getParameters().isEmpty()) {
