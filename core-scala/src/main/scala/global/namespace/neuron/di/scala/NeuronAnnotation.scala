@@ -26,23 +26,20 @@ private trait NeuronAnnotation extends MacroAnnotation {
   def apply(inputs: List[Tree]): Tree = {
     val outputs = inputs match {
       case ClassDef(mods @ Modifiers(flags, privateWithin, annotations), tname @ TypeName(name), tparams, impl) :: rest =>
-        if (mods hasFlag TRAIT) {
-          if (!hasStaticContext) {
-            error("A neuron trait must have a static context.")
-          }
-        } else {
-          if (!hasStaticContext) {
-            error("A neuron class must have a static context.")
-          }
-          if (!(mods hasFlag ABSTRACT)) {
-            warning("A neuron class should be abstract.")
-          }
-          if (mods hasFlag FINAL) {
-            error("A neuron class cannot be final.")
-          }
-          if (!hasNonPrivateConstructorWithoutParameters(impl)) {
-            error("A neuron class must have a non-private constructor without parameters.")
-          }
+        if (!hasStaticContext) {
+          error("A neuron type must have a static context.")
+        }
+        if (!(mods hasFlag ABSTRACT)) {
+          warning("A neuron class must be abstract.")
+        }
+        if (mods hasFlag FINAL) {
+          error("A neuron class must not be final.")
+        }
+        if (!hasNonPrivateConstructorWithoutParameters(impl)) {
+          error("A neuron class must have a non-private constructor without parameters.")
+        }
+        if (isSerializable(impl)) {
+          error("A neuron class or interface must not be serializable.")
         }
         if (c.hasErrors) {
           inputs
@@ -95,10 +92,14 @@ private trait NeuronAnnotation extends MacroAnnotation {
           }
         }
       case _ =>
-        abort("The @Neuron annotation can only be applied to classes or traits.")
+        abort("A neuron annotation can only be applied to classes or traits.")
     }
     q"..$outputs"
   }
+
+  private def hasStaticContext = enclosingOwner.isStatic
+
+  private lazy val enclosingOwner = c.internal.enclosingOwner
 
   private def hasNonPrivateConstructorWithoutParameters(template: Template) = {
     val Template(_, _, body) = template
@@ -121,9 +122,9 @@ private trait NeuronAnnotation extends MacroAnnotation {
     }
   }
 
-  private def hasStaticContext = enclosingOwner.isStatic
-
-  private lazy val enclosingOwner = c.internal.enclosingOwner
+  private def isSerializable(template: Template) = {
+    template.parents.exists(_.toString == classOf[java.io.Serializable].getName)
+  }
 
   private def binaryNameOf(symbol: Symbol): String = {
 

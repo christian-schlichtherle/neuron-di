@@ -70,12 +70,10 @@ final class NeuronProxyContext<N> {
 
     private Class<N> neuronClass() { return element.runtimeClass(); }
 
-    private List<Method> providerMethods(final Class<? extends N> neuronClass) {
-        final OverridableMethodsCollector collector =
-                new OverridableMethodsCollector(neuronClass.getPackage()).add(neuronClass);
+    private List<Method> providerMethods(Class<? extends N> neuronClass) {
         return new Visitor<N>() {
 
-            final List<Method> methods = collector.result();
+            final List<Method> methods = new OverridableMethodsCollector(neuronClass.getPackage()).collect(neuronClass);
 
             final ArrayList<Method> filtered = new ArrayList<>(methods.size());
 
@@ -87,7 +85,7 @@ final class NeuronProxyContext<N> {
                 return filtered;
             }
 
-            public void visitSynapse(final SynapseElement<N> element) { filtered.add(element.method()); }
+            public void visitSynapse(SynapseElement<N> element) { filtered.add(element.method()); }
 
             public void visitMethod(final MethodElement<N> element) {
                 if (element.isCachingEnabled()) {

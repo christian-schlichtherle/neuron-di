@@ -24,19 +24,17 @@ import static org.objectweb.asm.Type.getMethodDescriptor;
 
 final class OverridableMethodsCollector {
 
-    // VOLATILE methods are synthetic bridge methods, e.g. for use in generic classes.
+    // VOLATILE methods are bridge methods, e.g. for use in generic classes.
     private static final int PRIVATE_STATIC_VOLATILE = PRIVATE | STATIC | VOLATILE;
 
     private static final int PROTECTED_PUBLIC = PROTECTED | PUBLIC;
 
     private final Package pkg;
-    private final Map<String, Method> methods = new LinkedHashMap<>();
 
     OverridableMethodsCollector(final Package pkg) { this.pkg = pkg; }
 
-    List<Method> result() { return new ArrayList<>(methods.values()); }
-
-    OverridableMethodsCollector add(final Class<?> type) {
+    List<Method> collect(final Class<?> type) {
+        final Map<String, Method> methods = new LinkedHashMap<>();
         traverse(t -> {
             for (final Method method : t.getDeclaredMethods()) {
                 final int modifiers = method.getModifiers();
@@ -46,8 +44,9 @@ final class OverridableMethodsCollector {
                 }
             }
         }).accept(type);
-        methods.values().removeIf(method -> 0 != (method.getModifiers() & FINAL));
-        return this;
+        final Collection<Method> values = methods.values();
+        values.removeIf(method -> 0 != (method.getModifiers() & FINAL));
+        return new ArrayList<>(values);
     }
 
     private static String signature(final Method method) {

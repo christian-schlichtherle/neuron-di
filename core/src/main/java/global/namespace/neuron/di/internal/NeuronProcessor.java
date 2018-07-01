@@ -35,30 +35,31 @@ public final class NeuronProcessor extends CommonProcessor {
     public boolean process(final Set<? extends TypeElement> annotations, final RoundEnvironment roundEnv) {
         annotations.forEach(annotation ->
                 roundEnv.getElementsAnnotatedWith(annotation)
-                        .stream()
-                        .filter(element -> element.getKind().isClass())
-                        .forEach(element -> validateClass((TypeElement) element)));
+                        .forEach(element -> validate((TypeElement) element)));
         return true;
     }
 
-    private void validateClass(final TypeElement clazz) {
-        final Set<Modifier> modifiers = clazz.getModifiers();
+    private void validate(final TypeElement type) {
+        final Set<Modifier> modifiers = type.getModifiers();
+        if (!hasStaticContext(type)) {
+            error("A neuron class must have a static context.", type);
+        }
+        if (!modifiers.contains(ABSTRACT)) {
+            error("A neuron class must be abstract.", type);
+        }
         if (modifiers.contains(FINAL)) {
-            error("A neuron class must not be final.", clazz);
+            error("A neuron class must not be final.", type);
         }
-        if (!hasStaticContext(clazz)) {
-            error("A neuron class must have a static context.", clazz);
+        if (!hasNonPrivateConstructorWithoutParameters(type)) {
+            error("A neuron class must have a non-private constructor without parameters.", type);
         }
-        if (!hasNonPrivateConstructorWithoutParameters(clazz)) {
-            error("A neuron class must have a non-private constructor without parameters.", clazz);
-        }
-        if (isSerializable(clazz)) {
-            error("A neuron class or interface must not be serializable.", clazz);
+        if (isSerializable(type)) {
+            error("A neuron class or interface must not be serializable.", type);
         }
     }
 
-    private static boolean hasStaticContext(TypeElement clazz) {
-        return !clazz.getNestingKind().isNested() || clazz.getModifiers().contains(STATIC);
+    private static boolean hasStaticContext(TypeElement type) {
+        return !type.getNestingKind().isNested() || type.getModifiers().contains(STATIC);
     }
 
     private static boolean hasNonPrivateConstructorWithoutParameters(TypeElement type) {

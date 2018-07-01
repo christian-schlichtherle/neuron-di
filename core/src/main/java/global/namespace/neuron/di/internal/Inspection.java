@@ -32,9 +32,7 @@ final class Inspection {
         final Neuron neuron = runtimeClass.getAnnotation(Neuron.class);
         if (null != neuron) {
 
-            class RealNeuronElement
-                    extends RealClassElement
-                    implements NeuronElement<C> {
+            class RealNeuronElement extends RealClassElement implements NeuronElement<C> {
 
                 @Override
                 public CachingStrategy cachingStrategy() { return neuron.cachingStrategy(); }

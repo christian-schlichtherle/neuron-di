@@ -106,7 +106,7 @@ private trait MacroAnnotation {
   protected def isNeuronAnnotation(tree: Tree): Boolean =
     tpeName(tree).exists(name => name == javaNeuronAnnotationName || name == scalaNeuronAnnotationName)
 
-  private def tpeName(tree: Tree) = Option(tree.tpe).map(_.toString)
+  protected def tpeName(tree: Tree): Option[String] = Option(tree.tpe).map(_.toString)
 }
 
 /** @author Christian Schlichtherle */

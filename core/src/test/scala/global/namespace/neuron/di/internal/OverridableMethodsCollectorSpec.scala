@@ -19,15 +19,14 @@ import global.namespace.neuron.di.java.sample.Baz
 import org.scalatest.Matchers._
 import org.scalatest.WordSpec
 
-import collection.JavaConverters._
+import scala.collection.JavaConverters._
 
 class OverridableMethodsCollectorSpec extends WordSpec {
 
   "An overridable methods collector" should {
     "collect overridable methods" in {
       val methods = new OverridableMethodsCollector(classOf[Baz].getPackage)
-        .add(classOf[Baz])
-        .result
+        .collect(classOf[Baz])
         .asScala
         .map(_.toString)
         .toSet

@@ -66,7 +66,7 @@ final class NeuronProxyFactory<N> implements Function<NeuronProxyContext<N>, N> 
             @SuppressWarnings("unchecked")
             N apply() {
                 for (final MethodHandler handler : methodHandlers) {
-                    this.boundMethodHandler = handler.bind(neuronProxy);
+                    boundMethodHandler = handler.bind(neuronProxy);
                     ctx.element(handler.method()).accept(this);
                 }
                 return (N) neuronProxy;

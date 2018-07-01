@@ -13,13 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package global.namespace.neuron.di.scala.sample;
+package global.namespace.neuron.di.scala.sample
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+class Counter {
 
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
-public @interface NonInheritedRuntimeAnnotation { }
+  var count: Int = _
+
+  def increment: Counter = {
+    count += 1
+    this
+  }
+}

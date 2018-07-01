@@ -76,7 +76,7 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
     }
   }
 
-  feature("Neurons can get partially wired if explicitly requested.") {
+  feature("Neurons can get partially wired if and only if explicitly requested.") {
 
     info("As a user of Neuron DI")
     info("either I want to explicitly enable partial wiring")
@@ -265,7 +265,7 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
 
   feature("Neuron types cannot have synapse methods without a return type.") {
 
-    scenario("Breeding a neuron trait with a synapse method without a return type.") {
+    scenario("Breeding a neuron trait with a synapse method without a return type:") {
 
       Given("a neuron trait with a synapse method with the return type `Unit`")
       When("breeding an instance")
@@ -287,7 +287,7 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
 
       Given("a neuron trait with an abstract method with a parameter")
       When("breeding an instance")
-      Then("an IllegalArgument should be thrown.")
+      Then("an IllegalArgumentException should be thrown.")
 
       intercept[IllegalArgumentException] { Incubator.breed[Illegal2] }.getMessage shouldBe
         "Cannot bind abstract methods with parameters: public abstract java.lang.String global.namespace.neuron.di.scala.test.IncubatorSpec$Illegal2.method(java.lang.String)"

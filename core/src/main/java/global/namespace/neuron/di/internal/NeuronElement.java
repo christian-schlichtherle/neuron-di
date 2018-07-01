@@ -54,16 +54,17 @@ interface NeuronElement<N> extends ClassElement<N>, HasCachingStrategy {
             }
         }
 
+        final Optional<CachingStrategy> option = declaredCachingStrategy(method);
         if (isParameterless(method)) {
-            final Optional<CachingStrategy> option =
-                    declaredCachingStrategy(method);
             if (isAbstract(method)) {
-                return new RealSynapseElement(
-                        option.orElseGet(this::cachingStrategy));
+                return new RealSynapseElement(option.orElseGet(this::cachingStrategy));
             } else {
                 return new RealMethodElement(option.orElse(DISABLED));
             }
         } else {
+            if (option.isPresent()) {
+                throw new IllegalArgumentException("A caching method must not have parameters: " + method);
+            }
             if (isAbstract(method)) {
                 throw new IllegalArgumentException("Cannot bind abstract methods with parameters: " + method);
             } else {
@@ -77,8 +78,6 @@ interface NeuronElement<N> extends ClassElement<N>, HasCachingStrategy {
     static boolean isAbstract(Method method) { return Modifier.isAbstract(method.getModifiers()); }
 
     static Optional<CachingStrategy> declaredCachingStrategy(Method method) {
-        return Optional
-                .ofNullable(method.getDeclaredAnnotation(Caching.class))
-                .map(Caching::value);
+        return Optional.ofNullable(method.getDeclaredAnnotation(Caching.class)).map(Caching::value);
     }
 }

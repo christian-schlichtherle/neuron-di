@@ -47,27 +47,27 @@ public final class CachingProcessor extends CommonProcessor {
     private void validateMethod(final ExecutableElement method) {
         final TypeElement type = (TypeElement) method.getEnclosingElement();
         if (null == type.getAnnotation(Neuron.class)) {
-            error("A caching method must be a member of a neuron class or interface...", method);
+            error("A caching method must be a member of a neuron type...", method);
             error("... but there is no @Neuron annotation here.", type);
         }
         final Set<Modifier> modifiers = method.getModifiers();
         if (modifiers.contains(STATIC)) {
-            error("A caching method cannot be static.", method);
+            error("A caching method must not be static.", method);
         }
         if (modifiers.contains(FINAL)) {
-            error("A caching method cannot be final.", method);
+            error("A caching method must not be final.", method);
         }
         if (modifiers.contains(PRIVATE)) {
-            error("A caching method cannot be private.", method);
-        }
-        if (isPackagePrivate(method) && !isPackagePrivate(type) && !type.getModifiers().contains(PRIVATE)) {
-            error("A package-private caching method must be a member of a package-private or private type.", method);
+            error("A caching method must not be private.", method);
         }
         if (!method.getParameters().isEmpty()) {
-            error("A caching method cannot have parameters.", method);
+            error("A caching method must not have parameters.", method);
         }
         if (isVoid(method.getReturnType())) {
-            error("A caching method cannot return void.", method);
+            error("A caching method must have a return value.", method);
+        }
+        if (isPackagePrivate(method) && !isPackagePrivate(type) && !type.getModifiers().contains(PRIVATE)) {
+            error("A package-private caching method must be a member of a package-private or private neuron type.", method);
         }
     }
 
