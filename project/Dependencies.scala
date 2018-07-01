@@ -19,7 +19,7 @@ import sbt._
 /** @author Christian Schlichtherle */
 object Dependencies {
 
-  val ASM: ModuleID = "org.ow2.asm" % "asm" % "6.1.1"
+  val ASM: ModuleID = "org.ow2.asm" % "asm" % "6.2"
   val Guice: ModuleID = {
     val version = sys.env.getOrElse("GUICE_VERSION", "4.2.0")
     val moduleID = "com.google.inject" % "guice" % version
@@ -33,7 +33,7 @@ object Dependencies {
   val HamcrestLibrary: ModuleID = "org.hamcrest" % "hamcrest-library" % "1.3"
   val JUnit: ModuleID = "junit" % "junit" % "4.12"
   val JUnitInterface: ModuleID = "com.novocode" % "junit-interface" % "0.11"
-  val MockitoCore: ModuleID = "org.mockito" % "mockito-core" % "2.18.0"
+  val MockitoCore: ModuleID = "org.mockito" % "mockito-core" % "2.19.0"
   val MacroParadise: ModuleID = "org.scalamacros" % "paradise" % "2.1.+" cross CrossVersion.full
   val PlaySbtPlugin: ModuleID = "com.typesafe.play" % "sbt-plugin" % "2.6.13"
   def scalaReflect(scalaVersion: String): ModuleID = "org.scala-lang" % "scala-reflect" % scalaVersion
