@@ -19,6 +19,7 @@ import global.namespace.neuron.di.java.DependencyProvider;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
@@ -73,20 +74,20 @@ final class NeuronProxyContext<N> {
     private List<Method> providerMethods(Class<? extends N> neuronClass) {
         return new Visitor<N>() {
 
-            final List<Method> methods = new OverridableMethodsCollector(neuronClass.getPackage()).collect(neuronClass);
+            final Collection<Method> methods = new OverridableMethodsCollector(neuronClass.getPackage()).collect(neuronClass);
 
             final ArrayList<Method> filtered = new ArrayList<>(methods.size());
 
             List<Method> apply() {
-                for (Method method : methods) {
-                    element(method).accept(this);
-                }
+                methods.forEach(method -> element(method).accept(this));
                 filtered.trimToSize();
                 return filtered;
             }
 
+            @Override
             public void visitSynapse(SynapseElement<N> element) { filtered.add(element.method()); }
 
+            @Override
             public void visitMethod(final MethodElement<N> element) {
                 if (element.isCachingEnabled()) {
                     filtered.add(element.method());

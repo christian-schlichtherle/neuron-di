@@ -16,7 +16,9 @@
 package global.namespace.neuron.di.internal;
 
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import static global.namespace.neuron.di.internal.Reflection.traverse;
 import static java.lang.reflect.Modifier.*;
@@ -33,7 +35,7 @@ final class OverridableMethodsCollector {
 
     OverridableMethodsCollector(final Package pkg) { this.pkg = pkg; }
 
-    List<Method> collect(final Class<?> type) {
+    Collection<Method> collect(final Class<?> type) {
         final Map<String, Method> methods = new LinkedHashMap<>();
         traverse(t -> {
             for (final Method method : t.getDeclaredMethods()) {
@@ -46,7 +48,7 @@ final class OverridableMethodsCollector {
         }).accept(type);
         final Collection<Method> values = methods.values();
         values.removeIf(method -> 0 != (method.getModifiers() & FINAL));
-        return new ArrayList<>(values);
+        return values;
     }
 
     private static String signature(final Method method) {
