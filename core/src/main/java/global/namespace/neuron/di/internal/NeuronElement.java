@@ -23,6 +23,7 @@ import java.lang.reflect.Modifier;
 import java.util.Optional;
 
 import static global.namespace.neuron.di.java.CachingStrategy.DISABLED;
+import static java.util.Optional.ofNullable;
 
 interface NeuronElement<N> extends ClassElement<N>, HasCachingStrategy {
 
@@ -78,6 +79,6 @@ interface NeuronElement<N> extends ClassElement<N>, HasCachingStrategy {
     static boolean isAbstract(Method method) { return Modifier.isAbstract(method.getModifiers()); }
 
     static Optional<CachingStrategy> declaredCachingStrategy(Method method) {
-        return Optional.ofNullable(method.getDeclaredAnnotation(Caching.class)).map(Caching::value);
+        return ofNullable(method.getDeclaredAnnotation(Caching.class)).map(Caching::value);
     }
 }
