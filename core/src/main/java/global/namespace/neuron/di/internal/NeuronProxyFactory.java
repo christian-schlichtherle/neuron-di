@@ -15,6 +15,7 @@
  */
 package global.namespace.neuron.di.internal;
 
+import global.namespace.neuron.di.java.BreedingException;
 import global.namespace.neuron.di.java.DependencyProvider;
 
 import java.lang.invoke.MethodHandle;
@@ -51,7 +52,7 @@ final class NeuronProxyFactory<N> implements Function<NeuronProxyContext<N>, N> 
             c.setAccessible(true);
             this.constructorHandle = publicLookup().unreflectConstructor(c).asType(objectMethodType);
         } catch (ReflectiveOperationException e) {
-            throw new IllegalStateException(e);
+            throw new BreedingException(e);
         }
         this.methodHandlers = providerMethods.stream().map(MethodHandler::new).collect(Collectors.toList());
     }
@@ -72,12 +73,17 @@ final class NeuronProxyFactory<N> implements Function<NeuronProxyContext<N>, N> 
                 return (N) neuronProxy;
             }
 
+            @SuppressWarnings("ConstantConditions")
             public void visitSynapse(SynapseElement<N> element) {
-                boundMethodHandler.setProvider(element.decorate(ctx.provider(element.method())));
+                boundMethodHandler.setProvider(element.decorate(ctx.provider(element).get()));
             }
 
-            public void visitMethod(MethodElement<N> element) {
-                boundMethodHandler.setProvider(element.decorate(boundMethodHandler.getProvider()));
+            public void visitMethod(final MethodElement<N> element) {
+                //final Optional<DependencyProvider<?>> contextProvider = ctx.provider(element);
+                final DependencyProvider<?> provider = /*contextProvider.isPresent()
+                        ? contextProvider.get() :*/
+                        boundMethodHandler.getProvider();
+                boundMethodHandler.setProvider(element.decorate(provider));
             }
         }.apply();
     }
@@ -86,9 +92,9 @@ final class NeuronProxyFactory<N> implements Function<NeuronProxyContext<N>, N> 
         try {
             return constructorHandle.invokeExact();
         } catch (NullPointerException e) {
-            throw new IllegalStateException(e.toString().concat(": Make sure the (synthetic) constructor does not depend on a synapse method."), e);
+            throw new BreedingException(e.toString().concat(": Make sure the (synthetic) constructor does not depend on a synapse method."), e);
         } catch (Throwable e) {
-            throw new IllegalStateException(e);
+            throw new BreedingException(e);
         }
     }
 

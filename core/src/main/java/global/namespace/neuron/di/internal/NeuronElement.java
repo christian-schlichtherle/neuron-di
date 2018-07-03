@@ -15,6 +15,7 @@
  */
 package global.namespace.neuron.di.internal;
 
+import global.namespace.neuron.di.java.BreedingException;
 import global.namespace.neuron.di.java.Caching;
 import global.namespace.neuron.di.java.CachingStrategy;
 
@@ -56,29 +57,35 @@ interface NeuronElement<N> extends ClassElement<N>, HasCachingStrategy {
         }
 
         final Optional<CachingStrategy> option = declaredCachingStrategy(method);
-        if (isParameterless(method)) {
-            if (isAbstract(method)) {
-                return new RealSynapseElement(option.orElseGet(this::cachingStrategy));
-            } else {
-                return new RealMethodElement(option.orElse(DISABLED));
-            }
-        } else {
+        if (hasParameters(method)) {
             if (option.isPresent()) {
-                throw new IllegalArgumentException("A caching method must not have parameters: " + method);
+                throw new BreedingException("A caching method must not have parameters: " + method);
             }
             if (isAbstract(method)) {
-                throw new IllegalArgumentException("Cannot bind abstract methods with parameters: " + method);
+                throw new BreedingException("Cannot bind abstract methods with parameters: " + method);
             } else {
                 return new RealMethodElement(DISABLED);
+            }
+        } else {
+            if (isAbstract(method)) {
+                if (isVoid(method)) {
+                    throw new BreedingException("A synapse method must have a return value: " + method);
+                } else {
+                    return new RealSynapseElement(option.orElseGet(this::cachingStrategy));
+                }
+            } else {
+                return new RealMethodElement(option.orElse(DISABLED));
             }
         }
     }
 
-    static boolean isParameterless(Method method) { return 0 == method.getParameterCount(); }
-
-    static boolean isAbstract(Method method) { return Modifier.isAbstract(method.getModifiers()); }
-
     static Optional<CachingStrategy> declaredCachingStrategy(Method method) {
         return ofNullable(method.getDeclaredAnnotation(Caching.class)).map(Caching::value);
     }
+
+    static boolean hasParameters(Method method) { return 0 != method.getParameterCount(); }
+
+    static boolean isAbstract(Method method) { return Modifier.isAbstract(method.getModifiers()); }
+
+    static boolean isVoid(Method method) { return Void.TYPE == method.getReturnType(); }
 }

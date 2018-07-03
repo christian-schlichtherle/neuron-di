@@ -15,6 +15,7 @@
  */
 package global.namespace.neuron.di.internal;
 
+import global.namespace.neuron.di.java.BreedingException;
 import global.namespace.neuron.di.java.DependencyProvider;
 
 import java.lang.reflect.Method;
@@ -27,17 +28,17 @@ import java.util.function.Function;
 final class NeuronProxyContext<N> {
 
     private final NeuronElement<N> element;
-    private final Function<Method, DependencyProvider<?>> binding;
+    private final Function<Method, Optional<DependencyProvider<?>>> binding;
 
     NeuronProxyContext(final NeuronElement<N> element,
-                       final Function<Method, DependencyProvider<?>> binding) {
+                       final Function<Method, Optional<DependencyProvider<?>>> binding) {
         this.element = element;
         this.binding = binding;
     }
 
     MethodElement<N> element(Method method) { return element.element(method); }
 
-    DependencyProvider<?> provider(Method method) { return binding.apply(method); }
+    Optional<DependencyProvider<?>> provider(MethodElement<N> element) { return binding.apply(element.method()); }
 
     NeuronProxyFactory<N> factory() {
         final Class<? extends N> adaptedClass = adaptedClass();
@@ -58,13 +59,13 @@ final class NeuronProxyContext<N> {
         try {
             shimClass = (Class<? extends N>) neuronClass().getClassLoader().loadClass(annotation.name());
         } catch (ClassNotFoundException e) {
-            throw new IllegalStateException(e);
+            throw new BreedingException(e);
         }
         if (shimClass == Object.class) {
             shimClass = (Class<? extends N>) annotation.value();
         }
         if (shimClass == Object.class) {
-            throw new IllegalStateException("The @Shim annotation on " + neuronClass() + " must reference a @Neuron class.");
+            throw new BreedingException("The @Shim annotation on " + neuronClass() + " must reference a @Neuron class.");
         }
         return shimClass;
     }
@@ -89,7 +90,7 @@ final class NeuronProxyContext<N> {
 
             @Override
             public void visitMethod(final MethodElement<N> element) {
-                if (element.isCachingEnabled()) {
+                if (element.isCachingEnabled() /*|| provider(element).isPresent()*/) {
                     filtered.add(element.method());
                 }
             }

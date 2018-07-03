@@ -15,6 +15,7 @@
  */
 package global.namespace.neuron.di.internal;
 
+import global.namespace.neuron.di.java.BreedingException;
 import global.namespace.neuron.di.java.DependencyProvider;
 import org.objectweb.asm.*;
 
@@ -236,13 +237,13 @@ class NeuronClassVisitor extends ClassVisitor {
             } else if (returnType == Long.TYPE) {
                 return LRETURN;
             } else if (returnType == Void.TYPE) {
-                throw new IllegalStateException("Method has void return type: " + method);
+                throw new BreedingException("Method has void return type: " + method);
             } else {
                 return IRETURN;
             }
         } else {
             if (returnType == Void.class) {
-                throw new IllegalStateException("Method has Void return type: " + method);
+                throw new BreedingException("Method has Void return type: " + method);
             } else {
                 return ARETURN;
             }

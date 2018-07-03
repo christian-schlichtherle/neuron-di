@@ -15,12 +15,14 @@
  */
 package global.namespace.neuron.di.internal;
 
+import global.namespace.neuron.di.java.BreedingException;
 import global.namespace.neuron.di.java.DependencyProvider;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Optional;
 import java.util.WeakHashMap;
 import java.util.function.Function;
 
@@ -32,7 +34,7 @@ public final class RealIncubator {
     private RealIncubator() { }
 
     public static <C> C breed(final Class<C> runtimeClass,
-                              final Function<Method, DependencyProvider<?>> binding) {
+                              final Function<Method, Optional<DependencyProvider<?>>> binding) {
 
         class ClassVisitor implements Visitor<C> {
 
@@ -64,11 +66,11 @@ public final class RealIncubator {
         try {
             return runtimeClass.getDeclaredConstructor().newInstance();
         } catch (NoSuchMethodException e) {
-            throw new IllegalStateException(e.toString() + ": A neuron class must have a non-private constructor without parameters. Do not disable annotation processing to detect this at compile time.", e);
+            throw new BreedingException(e.toString() + ": A neuron class must have a non-private constructor without parameters. Do not disable annotation processing to detect this at compile time.", e);
         } catch (InstantiationException e) {
-            throw new IllegalStateException(e.toString() + ": This is an abstract class. Did you forget the @Neuron annotation?", e);
+            throw new BreedingException(e.toString() + ": This is an abstract class. Did you forget the @Neuron annotation?", e);
         } catch (IllegalAccessException | InvocationTargetException e) {
-            throw new IllegalStateException(e);
+            throw new BreedingException(e);
         }
     }
 }

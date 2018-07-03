@@ -18,7 +18,9 @@ package global.namespace.neuron.di.scala.test
 import java.lang.reflect.Method
 import java.util.Date
 
+import global.namespace.neuron.di.java.BreedingException
 import global.namespace.neuron.di.scala._
+import global.namespace.neuron.di.scala.sample.HasDefaultSynapseMethod
 import global.namespace.neuron.di.scala.test.IncubatorSpec._
 import org.scalatest.Matchers._
 import org.scalatest.{FeatureSpec, GivenWhenThen}
@@ -67,39 +69,39 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
 
       Given("a class implementing a neuron interface")
       When("breeding an instance")
-      Then("an `IllegalStateException` should be thrown because the @Neuron annotation is not inherited when applied to interfaces")
+      Then("a `BreedingException` should be thrown because the @Neuron annotation is not inherited when applied to interfaces")
       And("so the class is NOT a neuron.")
 
-      intercept[IllegalStateException] {
+      intercept[BreedingException] {
         synapsesOf[AnotherClass]
       }.getMessage should include("Did you forget the @Neuron annotation?")
     }
   }
 
-  feature("Neurons can get partially wired if and only if explicitly requested.") {
+  feature("Neurons can get partially bound if and only if explicitly requested.") {
 
     info("As a user of Neuron DI")
     info("either I want to explicitly enable partial wiring")
     info("or rest assured that I would get an exception otherwise.")
 
-    scenario("Partial wiring is disabled:") {
+    scenario("Partial binding is disabled:") {
 
       Given("a generic neuron interface")
       When("breeding an instance")
-      And("partial wiring has not been explicitly enabled")
+      And("partial binding has not been explicitly enabled")
       And("no binding is defined for a synapse methods")
-      Then("an `IllegalStateException` should be thrown.")
+      Then("a `BreedingException` should be thrown.")
 
-      intercept[IllegalStateException] {
+      intercept[BreedingException] {
         Incubator.wire[HasDependency[_]].breed
-      }.getMessage should fullyMatch regex """Partial wiring is disabled and no binding is defined for some synapse methods: \[.*\]"""
+      }.getMessage should fullyMatch regex """Partial binding is disabled and no binding is defined for some synapse methods: \[.*\]"""
     }
 
-    scenario("Partial wiring is enabled:") {
+    scenario("Partial binding is enabled:") {
 
       Given("a generic neuron interface")
       When("breeding an instance")
-      And("partial wiring has been explicitly enabled")
+      And("partial binding has been explicitly enabled")
       And("no binding is defined for a synapse method")
       Then("the incubator should be recursively applied to resolve the dependency.")
 
@@ -208,9 +210,9 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
       method1 shouldNot be theSameInstanceAs method1
     }
 
-    scenario("Breeding an instance of a neuron trait with a non-abstract members:") {
+    scenario("Breeding an instance of a neuron trait with non-abstract members:") {
 
-      Given("a neuron trait with a non-abstract members")
+      Given("a neuron trait with non-abstract members")
       And("a `val` definition but no @Caching annotation")
       When("breeding an instance")
       Then("dependencies should be cached.")
@@ -226,9 +228,9 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
       method2 should be theSameInstanceAs method2
     }
 
-    scenario("Breeding an instance of a neuron trait extending another trait with a non-abstract members:") {
+    scenario("Breeding an instance of a neuron trait extending another trait with non-abstract members:") {
 
-      Given("a neuron trait extending another trait with a non-abstract members")
+      Given("a neuron trait extending another trait with non-abstract members")
       And("a @Caching annotation but no `val` definitions")
       When("breeding an instance")
       Then("dependencies should be cached.")
@@ -291,15 +293,15 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
 
       Given("a neuron trait with a synapse method with the return type `Unit`")
       When("breeding an instance")
-      Then("an `IllegalStateException` should be thrown because a type is required to return a dependency")
+      Then("a `BreedingException` should be thrown because a type is required to return a dependency")
 
-      intercept[IllegalStateException] {
+      intercept[BreedingException] {
         Incubator
           .wire[Illegal1]
           .bind(_.method()).to(())
           .breed
       }.getMessage shouldBe
-        "Method has void return type: public abstract void global.namespace.neuron.di.scala.test.IncubatorSpec$Illegal1.method()"
+        "A synapse method must have a return value: public abstract void global.namespace.neuron.di.scala.test.IncubatorSpec$Illegal1.method()"
     }
   }
 
@@ -309,9 +311,9 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
 
       Given("a neuron trait with an abstract method with a parameter")
       When("breeding an instance")
-      Then("an IllegalArgumentException should be thrown.")
+      Then("a `BreedingException` should be thrown.")
 
-      intercept[IllegalArgumentException] { Incubator.breed[Illegal2] }.getMessage shouldBe
+      intercept[BreedingException] { Incubator.breed[Illegal2] }.getMessage shouldBe
         "Cannot bind abstract methods with parameters: public abstract java.lang.String global.namespace.neuron.di.scala.test.IncubatorSpec$Illegal2.method(java.lang.String)"
     }
   }
@@ -322,14 +324,31 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
 
       Given("a neuron trait with an eagerly initialized field whose value depends on a synapse")
       When("breeding an instance")
-      Then("an `IllegalStateException` should be thrown because the lazy dependency resolution is initialized only AFTER the constructor call")
+      Then("a `BreedingException` should be thrown because the lazy dependency resolution is initialized only AFTER the constructor call")
 
-      intercept[IllegalStateException] {
+      intercept[BreedingException] {
         Incubator
           .wire[Illegal3]
           .bind(_.method1).to("method1")
           .breed
       }.getCause shouldBe a[NullPointerException]
+    }
+  }
+
+  feature("Non-abstract synapse methods can be bound, too.") {
+
+    scenario("Breeding an instance of a neuron interface with a synapse method with a default implementation:") {
+
+      Given("a neuron interface with a synapse method with a default implementation")
+      When("breeding an instance with a binding for this synapse method")
+      Then("the bound value should be used")
+
+      pending
+      Incubator
+        .wire[HasDefaultSynapseMethod]
+        .bind(_.get).to("Hello Christian!")
+        .breed
+        .get shouldBe "Hello Christian!"
     }
   }
 }

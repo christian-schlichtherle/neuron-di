@@ -15,6 +15,8 @@
  */
 package global.namespace.neuron.di.internal;
 
+import global.namespace.neuron.di.java.BreedingException;
+
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
@@ -47,7 +49,7 @@ class Reflection8 {
                 return (Class<? extends C>) defineClass.invoke(cl, name, b, 0, b.length);
             }
         } catch (InvocationTargetException e) {
-            throw new IllegalArgumentException(e.getCause());
+            throw new BreedingException(e.getCause());
         } catch (IllegalAccessException e) {
             throw new AssertionError(e);
         }

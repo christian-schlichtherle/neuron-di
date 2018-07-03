@@ -13,17 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package global.namespace.neuron.di.scala
+package global.namespace.neuron.di.java;
 
-package object sample {
+/**
+ * Indicates an error when breeding a neuron.
+ *
+ * @see Incubator
+ * @author Christian Schlichtherle
+ */
+public class BreedingException extends RuntimeException {
 
-  class Counter {
+    private static final long serialVersionUID = 0L;
 
-    var count: Int = _
+    public BreedingException(String message) { super(message); }
 
-    def increment: Counter = {
-      count += 1
-      this
-    }
-  }
+    public BreedingException(String message, Throwable cause) { super(message, cause); }
+
+    public BreedingException(Throwable cause) { super(cause); }
 }

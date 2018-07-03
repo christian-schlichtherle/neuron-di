@@ -19,15 +19,15 @@ import global.namespace.neuron.di.internal.RealIncubator;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.AbstractMap.SimpleImmutableEntry;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.function.Function;
 
 import static global.namespace.neuron.di.java.Reflection.find;
+import static java.util.Optional.empty;
+import static java.util.Optional.of;
 
 /**
  * An incubator {@linkplain #wire(Class) wires} and {@linkplain #breed(Class) breeds} neuron classes and interfaces.
@@ -65,7 +65,12 @@ public final class Incubator {
      */
     public static <T> T breed(Class<T> runtimeClass,
                               Function<Method, DependencyProvider<?>> binding) {
-        return RealIncubator.breed(runtimeClass, binding);
+        return RealIncubator.breed(runtimeClass, method -> isSynapse(method) ? of(binding.apply(method)) : empty());
+    }
+
+    private static boolean isSynapse(Method method) {
+        // TODO: Reuse NeuronElement.isAbstract and NeuronElement.hasParameters
+        return Modifier.isAbstract(method.getModifiers()) && 0 == method.getParameterCount();
     }
 
     /**
@@ -129,14 +134,14 @@ public final class Incubator {
                     int currentPosition;
 
                     T breed() {
-                        neuron = Incubator.breed(runtimeClass, this::binding);
+                        neuron = RealIncubator.breed(runtimeClass, this::binding);
 
                         initReplacementProxies();
                         assert null == currentResolver;
 
                         if (!partial && !synapses.isEmpty()) {
-                            throw new IllegalStateException(
-                                    "Partial wiring is disabled and no binding is defined for some synapse methods: " + synapses);
+                            throw new BreedingException(
+                                    "Partial binding is disabled and no binding is defined for some synapse methods: " + synapses);
                         }
 
                         // Support garbage collection:
@@ -145,9 +150,11 @@ public final class Incubator {
                         return neuron;
                     }
 
-                    DependencyProvider<?> binding(final Method method) {
-                        synapses.add(method);
-                        return new DependencyProvider<Object>() {
+                    Optional<DependencyProvider<?>> binding(final Method method) {
+                        if (isSynapse(method)) {
+                            synapses.add(method);
+                        }
+                        return of(new DependencyProvider<Object>() {
 
                             DependencyResolver<? super T, ?> resolver;
 
@@ -163,8 +170,8 @@ public final class Incubator {
                                 final String member = method.getName();
                                 return find(member)
                                         .in(delegate)
-                                        .orElseThrow(() -> new IllegalStateException(
-                                                "Illegal wiring: A member named `" + member + "` neither exists in `" + delegate.getClass() + "` nor in any of its interfaces and superclasses."));
+                                        .orElseThrow(() -> new BreedingException(
+                                                "Illegal binding: A member named `" + member + "` neither exists in `" + delegate.getClass() + "` nor in any of its interfaces and superclasses."));
                             }
 
                             @Override
@@ -178,7 +185,7 @@ public final class Incubator {
                                 }
                                 return resolver.apply(neuron);
                             }
-                        };
+                        });
                     }
 
                     void initReplacementProxies() {
@@ -189,12 +196,12 @@ public final class Incubator {
                                 currentPosition++;
                                 try {
                                     methodReference.apply(neuron);
-                                    throw illegalStateException(null);
+                                    throw breedingException(null);
                                 } catch (BindingSuccessException ignored) {
                                 } catch (RuntimeException | Error e) {
                                     throw e;
                                 } catch (Throwable e) {
-                                    throw illegalStateException(e);
+                                    throw breedingException(e);
                                 }
                             }
                         } finally {
@@ -202,8 +209,8 @@ public final class Incubator {
                         }
                     }
 
-                    IllegalStateException illegalStateException(Throwable cause) {
-                        return new IllegalStateException("Illegal wiring: The parameter provided to the `bind` call at position " + currentPosition + " does not reference a synapse method.", cause);
+                    BreedingException breedingException(Throwable cause) {
+                        return new BreedingException("Illegal binding: The parameter provided to the `bind` call at position " + currentPosition + " does not reference a synapse method.", cause);
                     }
                 }.breed();
             }
@@ -214,9 +221,9 @@ public final class Incubator {
     public interface Wire<T> {
 
         /**
-         * Enables or disables partial wiring.
-         * By default, partial wiring is disabled, resulting in an {@link IllegalStateException} when breeding a
-         * neuron and there is no binding defined for some synapse methods.
+         * Enables or disables partial binding.
+         * By default, partial binding is disabled, resulting in a {@link BreedingException} when breeding a neuron and
+         * there is no binding defined for some synapse methods.
          *
          * @since Neuron DI 1.3
          */
