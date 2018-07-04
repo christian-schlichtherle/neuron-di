@@ -65,7 +65,7 @@ final class NeuronProxyContext<N> {
             shimClass = (Class<? extends N>) annotation.value();
         }
         if (shimClass == Object.class) {
-            throw new BreedingException("The @Shim annotation on " + neuronClass() + " must reference a @Neuron class.");
+            throw new BreedingException("The @Shim annotation must reference a @Neuron class: " + neuronClass());
         }
         return shimClass;
     }

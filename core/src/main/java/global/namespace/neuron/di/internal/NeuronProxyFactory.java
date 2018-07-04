@@ -19,6 +19,7 @@ import global.namespace.neuron.di.java.BreedingException;
 import global.namespace.neuron.di.java.DependencyProvider;
 
 import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -73,9 +74,9 @@ final class NeuronProxyFactory<N> implements Function<NeuronProxyContext<N>, N> 
                 return (N) neuronProxy;
             }
 
-            @SuppressWarnings("ConstantConditions")
             public void visitSynapse(SynapseElement<N> element) {
-                boundMethodHandler.setProvider(element.decorate(ctx.provider(element).get()));
+                boundMethodHandler.setProvider(element.decorate(ctx.provider(element)
+                        .orElseThrow(() -> new BreedingException("No binding for synapse method: " + element.method()))));
             }
 
             public void visitMethod(final MethodElement<N> element) {
@@ -109,8 +110,9 @@ final class NeuronProxyFactory<N> implements Function<NeuronProxyContext<N>, N> 
             try {
                 final Field field = neuronProxyClass.getDeclaredField(dependencyProviderName);
                 field.setAccessible(true);
-                this.getter = publicLookup().unreflectGetter(field).asType(dependencyProviderObjectMethodType);
-                this.setter = publicLookup().unreflectSetter(field).asType(voidObjectDependencyProviderMethodType);
+                final MethodHandles.Lookup lookup = publicLookup();
+                this.getter = lookup.unreflectGetter(field).asType(dependencyProviderObjectMethodType);
+                this.setter = lookup.unreflectSetter(field).asType(voidObjectDependencyProviderMethodType);
             } catch (ReflectiveOperationException e) {
                 throw new AssertionError(e);
             }

@@ -45,8 +45,8 @@ public final class RealIncubator {
             public void visitNeuron(final NeuronElement<C> element) {
                 assert runtimeClass == element.runtimeClass();
                 final NeuronProxyContext<C> ctx = new NeuronProxyContext<>(element, binding);
-                final NeuronProxyFactory<C> factory =
-                        (NeuronProxyFactory<C>) factories.computeIfAbsent(runtimeClass, key -> ctx.factory());
+                final NeuronProxyFactory<C> factory = (NeuronProxyFactory<C>) factories
+                        .computeIfAbsent(runtimeClass, key -> ctx.factory());
                 instance = factory.apply(ctx);
             }
 
@@ -68,7 +68,7 @@ public final class RealIncubator {
         } catch (NoSuchMethodException e) {
             throw new BreedingException(e.toString() + ": A neuron class must have a non-private constructor without parameters. Do not disable annotation processing to detect this at compile time.", e);
         } catch (InstantiationException e) {
-            throw new BreedingException(e.toString() + ": This is an abstract class. Did you forget the @Neuron annotation?", e);
+            throw new BreedingException(e.toString() + ": This is an abstract class. Did you forget the @Neuron annotation?!", e);
         } catch (IllegalAccessException | InvocationTargetException e) {
             throw new BreedingException(e);
         }
