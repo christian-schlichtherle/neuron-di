@@ -24,7 +24,6 @@ import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import java.util.Set;
 
-import static javax.lang.model.element.ElementKind.CLASS;
 import static javax.lang.model.element.ElementKind.CONSTRUCTOR;
 import static javax.lang.model.element.Modifier.*;
 
@@ -53,7 +52,7 @@ public final class NeuronProcessor extends CommonProcessor {
         if (modifiers.contains(FINAL)) {
             error("A neuron class must not be final.", type);
         }
-        if (type.getKind() == CLASS && !hasNonPrivateConstructorWithoutParameters(type)) {
+        if (!hasNonPrivateConstructorWithoutParameters(type)) {
             error("A neuron class must have a non-private constructor without parameters.", type);
         }
         if (isSerializable(type)) {
@@ -66,9 +65,7 @@ public final class NeuronProcessor extends CommonProcessor {
     }
 
     private static boolean hasNonPrivateConstructorWithoutParameters(TypeElement type) {
-        return type
-                .getEnclosedElements()
-                .stream()
+        return !type.getKind().isClass() || type.getEnclosedElements().stream()
                 .filter(elem -> elem.getKind() == CONSTRUCTOR)
                 .anyMatch(elem -> isNonPrivateConstructorWithoutParameters((ExecutableElement) elem));
     }
