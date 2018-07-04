@@ -24,6 +24,7 @@ import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import java.util.Set;
 
+import static javax.lang.model.element.ElementKind.CLASS;
 import static javax.lang.model.element.ElementKind.CONSTRUCTOR;
 import static javax.lang.model.element.Modifier.*;
 
@@ -35,6 +36,11 @@ public final class NeuronProcessor extends CommonProcessor {
     public boolean process(final Set<? extends TypeElement> annotations, final RoundEnvironment roundEnv) {
         annotations.forEach(annotation ->
                 roundEnv.getElementsAnnotatedWith(annotation)
+                        .stream()
+                        .filter(element -> element
+                                .getAnnotationMirrors()
+                                .stream()
+                                .anyMatch(mirror -> mirror.getAnnotationType().asElement() == annotation))
                         .forEach(element -> validate((TypeElement) element)));
         return true;
     }
@@ -44,17 +50,14 @@ public final class NeuronProcessor extends CommonProcessor {
         if (!hasStaticContext(type)) {
             error("A neuron class must have a static context.", type);
         }
-        if (!modifiers.contains(ABSTRACT)) {
-            error("A neuron class must be abstract.", type);
-        }
         if (modifiers.contains(FINAL)) {
             error("A neuron class must not be final.", type);
         }
-        if (!hasNonPrivateConstructorWithoutParameters(type)) {
+        if (type.getKind() == CLASS && !hasNonPrivateConstructorWithoutParameters(type)) {
             error("A neuron class must have a non-private constructor without parameters.", type);
         }
         if (isSerializable(type)) {
-            error("A neuron class or interface must not be serializable.", type);
+            error("A neuron type must not be serializable.", type);
         }
     }
 
