@@ -22,10 +22,11 @@ import org.objectweb.asm.Opcodes;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
-import java.util.Set;
+import java.util.List;
 
 import static global.namespace.neuron.di.internal.Reflection.defineSubclass;
 import static org.objectweb.asm.ClassReader.SKIP_DEBUG;
+import static org.objectweb.asm.ClassWriter.COMPUTE_MAXS;
 import static org.objectweb.asm.Type.getInternalName;
 
 final class ASM implements Opcodes {
@@ -33,7 +34,7 @@ final class ASM implements Opcodes {
     private static final Class<?>[] NO_CLASSES = new Class<?>[0];
 
     /** Returns a class which proxies the given Neuron class or interface. */
-    static <N> Class<? extends N> neuronProxyClass(final Class<? extends N> neuronClass, final Set<Method> providerMethods) {
+    static <N> Class<? extends N> neuronProxyClass(final Class<? extends N> neuronClass, final List<Method> providerMethods) {
         final Class<?> superclass;
         final Class<?>[] interfaces;
         if (neuronClass.isInterface()) {
@@ -45,7 +46,7 @@ final class ASM implements Opcodes {
         }
         final String implName = neuronClass.getName().concat("$$neuron");
         final ClassReader cr = classReader(neuronClass);
-        final ClassWriter cw = new ClassWriter(cr, 0);
+        final ClassWriter cw = new ClassWriter(cr, COMPUTE_MAXS);
         cr.accept(new NeuronClassVisitor(cw, superclass, interfaces, providerMethods, internalName(implName)), SKIP_DEBUG);
         return defineSubclass(neuronClass, implName, cw.toByteArray());
     }

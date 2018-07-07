@@ -21,7 +21,7 @@ import org.objectweb.asm.*;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.Set;
+import java.util.List;
 
 import static global.namespace.neuron.di.internal.Reflection.boxed;
 import static java.lang.Math.max;
@@ -52,12 +52,12 @@ final class NeuronClassVisitor extends ClassVisitor {
 
     private final String superName, neuronProxyName, neuronProxyDesc;
     private final String[] interfaces;
-    private final Set<Method> providerMethods;
+    private final List<Method> providerMethods;
 
     NeuronClassVisitor(final ClassVisitor cv,
                        final Class<?> superclass,
                        final Class<?>[] interfaces,
-                       final Set<Method> providerMethods,
+                       final List<Method> providerMethods,
                        final String neuronProxyName) {
         super(ASM5, cv);
         this.superName = getInternalName(superclass);
@@ -116,10 +116,8 @@ final class NeuronClassVisitor extends ClassVisitor {
                 CONSTRUCTOR_NAME,
                 ACCEPTS_NOTHING_AND_RETURNS_VOID_DESC,
                 false);
-        boolean nonAbstract = false;
         for (final Method method : providerMethods) {
             if (!Modifier.isAbstract(method.getModifiers())) {
-                nonAbstract = true;
                 final String name = method.getName();
                 final String desc = getMethodDescriptor(method);
                 mv.visitVarInsn(ALOAD, 0);
@@ -138,7 +136,7 @@ final class NeuronClassVisitor extends ClassVisitor {
             }
         }
         mv.visitInsn(RETURN);
-        mv.visitMaxs(nonAbstract ? 2 : 1, 1);
+        mv.visitMaxs(-1, -1);
         mv.visitEnd();
     }
 
@@ -186,9 +184,9 @@ final class NeuronClassVisitor extends ClassVisitor {
                                 returnTypeName.concat("Value"),
                                 "()".concat(returnTypeDesc),
                                 false);
-                        endMethod(mv, 2);
+                        endMethod(mv);
                     } else {
-                        endMethod(mv, 1);
+                        endMethod(mv);
                     }
                 }
 
@@ -200,7 +198,7 @@ final class NeuronClassVisitor extends ClassVisitor {
                                 name,
                                 desc,
                                 0 != interfaces.length);
-                        endMethod(mv, 1);
+                        endMethod(mv);
                     }
                 }
 
@@ -213,9 +211,9 @@ final class NeuronClassVisitor extends ClassVisitor {
                     return mv;
                 }
 
-                void endMethod(final MethodVisitor mv, final int maxStack) {
+                void endMethod(final MethodVisitor mv) {
                     mv.visitInsn(returnOpCode);
-                    mv.visitMaxs(maxStack, 1);
+                    mv.visitMaxs(-1, -1);
                     mv.visitEnd();
                 }
             }.apply();

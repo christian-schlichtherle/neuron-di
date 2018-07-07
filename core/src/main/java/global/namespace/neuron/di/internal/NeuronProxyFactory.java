@@ -26,7 +26,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -48,7 +47,7 @@ final class NeuronProxyFactory<N> implements Function<NeuronProxyContext<N>, N> 
     private final MethodHandle constructorHandle;
     private final List<MethodHandler> methodHandlers;
 
-    NeuronProxyFactory(final Class<? extends N> neuronClass, final Set<Method> providerMethods) {
+    NeuronProxyFactory(final Class<? extends N> neuronClass, final List<Method> providerMethods) {
         this.neuronProxyClass = ASM.neuronProxyClass(neuronClass, providerMethods);
         try {
             final Constructor<?> c = neuronProxyClass.getDeclaredConstructor();
