@@ -35,7 +35,7 @@ final class OverridableMethodsCollector {
 
     OverridableMethodsCollector(final Package pkg) { this.pkg = pkg; }
 
-    Collection<Method> collect(final Class<?> type) {
+    Collection<Method> collect(final Class<?> clazz) {
         final Map<String, Method> methods = new LinkedHashMap<>();
         traverse(t -> {
             for (final Method method : t.getDeclaredMethods()) {
@@ -45,17 +45,17 @@ final class OverridableMethodsCollector {
                     methods.putIfAbsent(signature(method), method);
                 }
             }
-        }).accept(type);
+        }).accept(clazz);
         final Collection<Method> values = methods.values();
         values.removeIf(method -> 0 != (method.getModifiers() & FINAL));
         return values;
     }
 
-    private static String signature(final Method method) {
+    private static String signature(Method method) {
         return method.getName() + methodDescriptorWithoutReturnType(method);
     }
 
     private static String methodDescriptorWithoutReturnType(Method method) {
-        return getMethodDescriptor(method).replaceAll("\\).*$", ")");
+        return getMethodDescriptor(method).replaceAll("\\).*", ")");
     }
 }

@@ -56,9 +56,9 @@ interface NeuronElement<N> extends ClassElement<N>, HasCachingStrategy {
             }
         }
 
-        final Optional<CachingStrategy> option = declaredCachingStrategy(method);
+        final Optional<CachingStrategy> declaredCachingStrategy = declaredCachingStrategy(method);
         if (hasParameters(method)) {
-            if (option.isPresent()) {
+            if (declaredCachingStrategy.isPresent()) {
                 throw new BreedingException("A caching method must not have parameters: " + method);
             }
             if (isAbstract(method)) {
@@ -71,10 +71,10 @@ interface NeuronElement<N> extends ClassElement<N>, HasCachingStrategy {
                 if (isVoid(method)) {
                     throw new BreedingException("A synapse method must have a return value: " + method);
                 } else {
-                    return new RealSynapseElement(option.orElseGet(this::cachingStrategy));
+                    return new RealSynapseElement(declaredCachingStrategy.orElseGet(this::cachingStrategy));
                 }
             } else {
-                return new RealMethodElement(option.orElse(DISABLED));
+                return new RealMethodElement(declaredCachingStrategy.orElse(DISABLED));
             }
         }
     }

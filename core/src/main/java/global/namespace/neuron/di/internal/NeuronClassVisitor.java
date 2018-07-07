@@ -28,7 +28,7 @@ import static java.lang.Math.max;
 import static org.objectweb.asm.Opcodes.*;
 import static org.objectweb.asm.Type.*;
 
-class NeuronClassVisitor extends ClassVisitor {
+final class NeuronClassVisitor extends ClassVisitor {
 
     private static final int ACC_ABSTRACT_INTERFACE = ACC_ABSTRACT | ACC_INTERFACE;
     private static final int ACC_PRIVATE_SYNTHETIC = ACC_PRIVATE | ACC_SYNTHETIC;
@@ -138,11 +138,7 @@ class NeuronClassVisitor extends ClassVisitor {
             }
         }
         mv.visitInsn(RETURN);
-        if (nonAbstract) {
-            mv.visitMaxs(2, 1);
-        } else {
-            mv.visitMaxs(1, 1);
-        }
+        mv.visitMaxs(nonAbstract ? 2 : 1, 1);
         mv.visitEnd();
     }
 
@@ -230,14 +226,14 @@ class NeuronClassVisitor extends ClassVisitor {
     private static int returnOpCode(final Method method) {
         final Class<?> returnType = method.getReturnType();
         if (returnType.isPrimitive()) {
-            if (returnType == Float.TYPE) {
-                return FRETURN;
+            if (returnType == Void.TYPE) {
+                throw new BreedingException("Method has void return type: " + method);
             } else if (returnType == Double.TYPE) {
                 return DRETURN;
+            } else if (returnType == Float.TYPE) {
+                return FRETURN;
             } else if (returnType == Long.TYPE) {
                 return LRETURN;
-            } else if (returnType == Void.TYPE) {
-                throw new BreedingException("Method has void return type: " + method);
             } else {
                 return IRETURN;
             }
