@@ -146,7 +146,7 @@ final class NeuronClassVisitor extends ClassVisitor {
         for (final Method method : providerMethods) {
             new Object() {
 
-                final int access = method.getModifiers() & ~ACC_ABSTRACT | ACC_SYNTHETIC;
+                final int access = method.getModifiers() & ~(ACC_ABSTRACT | ACC_NATIVE) | ACC_SYNTHETIC;
                 final String name = method.getName();
                 final String desc = getMethodDescriptor(method);
 
@@ -179,7 +179,17 @@ final class NeuronClassVisitor extends ClassVisitor {
                         mv.visitTypeInsn(CHECKCAST,
                                 boxedReturnType.isArray() ? boxedReturnTypeDesc : boxedReturnTypeName);
                     }
-                    endMethod(mv);
+                    if (boxedReturnType != returnType) {
+                        assert !returnType.isArray();
+                        mv.visitMethodInsn(INVOKEVIRTUAL,
+                                boxedReturnTypeName,
+                                returnTypeName.concat("Value"),
+                                "()".concat(returnTypeDesc),
+                                false);
+                        endMethod(mv, 2);
+                    } else {
+                        endMethod(mv, 1);
+                    }
                 }
 
                 void generateSuperCallMethod() {
@@ -190,7 +200,7 @@ final class NeuronClassVisitor extends ClassVisitor {
                                 name,
                                 desc,
                                 0 != interfaces.length);
-                        endMethod(mv);
+                        endMethod(mv, 1);
                     }
                 }
 
@@ -203,20 +213,9 @@ final class NeuronClassVisitor extends ClassVisitor {
                     return mv;
                 }
 
-                void endMethod(final MethodVisitor mv) {
-                    if (returnType != boxedReturnType ) {
-                        assert !returnType.isArray();
-                        mv.visitMethodInsn(INVOKEVIRTUAL,
-                                boxedReturnTypeName,
-                                returnTypeName.concat("Value"),
-                                "()".concat(returnTypeDesc),
-                                false);
-                        mv.visitInsn(returnOpCode);
-                        mv.visitMaxs(2, 1);
-                    } else {
-                        mv.visitInsn(returnOpCode);
-                        mv.visitMaxs(1, 1);
-                    }
+                void endMethod(final MethodVisitor mv, final int maxStack) {
+                    mv.visitInsn(returnOpCode);
+                    mv.visitMaxs(maxStack, 1);
                     mv.visitEnd();
                 }
             }.apply();
