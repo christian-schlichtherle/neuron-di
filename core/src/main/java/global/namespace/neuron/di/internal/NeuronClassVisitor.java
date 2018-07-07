@@ -21,7 +21,7 @@ import org.objectweb.asm.*;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.List;
+import java.util.Set;
 
 import static global.namespace.neuron.di.internal.Reflection.boxed;
 import static java.lang.Math.max;
@@ -52,12 +52,12 @@ final class NeuronClassVisitor extends ClassVisitor {
 
     private final String superName, neuronProxyName, neuronProxyDesc;
     private final String[] interfaces;
-    private final List<Method> providerMethods;
+    private final Set<Method> providerMethods;
 
     NeuronClassVisitor(final ClassVisitor cv,
                        final Class<?> superclass,
                        final Class<?>[] interfaces,
-                       final List<Method> providerMethods,
+                       final Set<Method> providerMethods,
                        final String neuronProxyName) {
         super(ASM5, cv);
         this.superName = getInternalName(superclass);

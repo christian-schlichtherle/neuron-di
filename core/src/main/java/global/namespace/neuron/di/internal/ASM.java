@@ -22,7 +22,7 @@ import org.objectweb.asm.Opcodes;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
-import java.util.List;
+import java.util.Set;
 
 import static global.namespace.neuron.di.internal.Reflection.defineSubclass;
 import static org.objectweb.asm.ClassReader.SKIP_DEBUG;
@@ -33,7 +33,7 @@ final class ASM implements Opcodes {
     private static final Class<?>[] NO_CLASSES = new Class<?>[0];
 
     /** Returns a class which proxies the given Neuron class or interface. */
-    static <N> Class<? extends N> neuronProxyClass(final Class<? extends N> neuronClass, final List<Method> providerMethods) {
+    static <N> Class<? extends N> neuronProxyClass(final Class<? extends N> neuronClass, final Set<Method> providerMethods) {
         final Class<?> superclass;
         final Class<?>[] interfaces;
         if (neuronClass.isInterface()) {

@@ -19,10 +19,10 @@ import global.namespace.neuron.di.java.BreedingException;
 import global.namespace.neuron.di.java.DependencyProvider;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
+import java.util.LinkedHashSet;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 
 final class NeuronProxyContext<N> {
@@ -72,17 +72,16 @@ final class NeuronProxyContext<N> {
 
     private Class<N> neuronClass() { return element.runtimeClass(); }
 
-    private List<Method> providerMethods(Class<? extends N> neuronClass) {
+    private Set<Method> providerMethods(Class<? extends N> neuronClass) {
         return new Visitor<N>() {
 
             final Collection<Method> methods =
                     new OverridableMethodsCollector(neuronClass.getPackage()).collect(neuronClass);
 
-            final ArrayList<Method> filtered = new ArrayList<>(methods.size());
+            final Set<Method> filtered = new LinkedHashSet<>((methods.size() + 2) * 4 / 3);
 
-            List<Method> apply() {
+            Set<Method> apply() {
                 methods.forEach(method -> element(method).accept(this));
-                filtered.trimToSize();
                 return filtered;
             }
 
