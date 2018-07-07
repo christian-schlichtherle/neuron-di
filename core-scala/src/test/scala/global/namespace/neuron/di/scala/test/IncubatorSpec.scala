@@ -17,10 +17,10 @@ package global.namespace.neuron.di.scala.test
 
 import java.lang.reflect.Method
 import java.util.Date
+import java.util.function.Supplier
 
 import global.namespace.neuron.di.java.BreedingException
 import global.namespace.neuron.di.scala._
-import global.namespace.neuron.di.scala.sample.HasDefaultSynapseMethod
 import global.namespace.neuron.di.scala.test.IncubatorSpec._
 import org.scalatest.Matchers._
 import org.scalatest.{FeatureSpec, GivenWhenThen}
@@ -94,7 +94,7 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
 
       intercept[BreedingException] {
         Incubator.wire[HasDependency[_]].breed
-      }.getMessage should fullyMatch regex """Partial binding is disabled and no binding is defined for some synapse methods: \[.*\]"""
+      }.getMessage should fullyMatch regex """Partial binding is disabled and no binding is defined for synapse method: .*"""
     }
 
     scenario("Partial binding is enabled:") {
@@ -143,17 +143,17 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
     }
   }
 
-  feature("`.bind(synapseReference).to(...)` can be called multiple times") {
+  feature("`.bind(methodReference).to(...)` can be called multiple times for the same method reference") {
 
     info("As a user of Neuron DI")
-    info("I want to be able to call `.bind(synapseReference).to(...)` multiple times")
+    info("I want to be able to call `.bind(methodReference).to(...)` multiple times")
     info("for the same synapse reference")
     info("so that the effect of only the last call persists.")
 
     scenario("Breeding an instance of a generic neuron interface:") {
 
       Given("a generic neuron interface")
-      When("calling `.bind(synapseReference).to(...)` multiple times for the same synapse reference")
+      When("calling `.bind(methodReference).to(...)` multiple times for the same synapse reference")
       Then("the incubator persists the effect of the last call only.")
 
       val string = Incubator
@@ -314,7 +314,7 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
       Then("a `BreedingException` should be thrown.")
 
       intercept[BreedingException] { Incubator.breed[Illegal2] }.getMessage shouldBe
-        "Cannot bind abstract methods with parameters: public abstract java.lang.String global.namespace.neuron.di.scala.test.IncubatorSpec$Illegal2.method(java.lang.String)"
+        "A synapse method must not have parameters: public abstract java.lang.String global.namespace.neuron.di.scala.test.IncubatorSpec$Illegal2.method(java.lang.String)"
     }
   }
 
@@ -335,20 +335,34 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
     }
   }
 
-  feature("Non-abstract synapse methods can be bound, too.") {
+  feature("Any method without parameters and a non-void return type can be bound.") {
 
-    scenario("Breeding an instance of a neuron interface with a synapse method with a default implementation:") {
+    scenario("Breeding an instance of a neuron interface with a greeting method:") {
 
-      Given("a neuron interface with a synapse method with a default implementation")
-      When("breeding an instance with a binding for this synapse method")
-      Then("the bound value should be used")
+      Given("a neuron interface with a greeting method")
+      When("breeding an instance with a binding for this method")
+      Then("the bound expression should override the method body")
 
-      pending
-      Incubator
-        .wire[HasDefaultSynapseMethod]
-        .bind(_.get).to("Hello Christian!")
+      val neuron = Incubator
+        .wire[Greeting]
+        .bind(_.get).to(new String("Hello Christian!"))
         .breed
-        .get shouldBe "Hello Christian!"
+
+      val greeting1 = neuron.get
+      greeting1 shouldBe "Hello Christian!"
+      val greeting2 = neuron.get
+      greeting2 shouldBe greeting1
+      greeting2 should not be theSameInstanceAs(greeting1)
+
+      val cachedGreeting1 = neuron.cached
+      cachedGreeting1 shouldBe "Hello Christian!"
+      val cachedGreeting2 = neuron.cached
+      cachedGreeting2 shouldBe theSameInstanceAs(cachedGreeting1)
+
+      val cachedAgainGreeting1 = neuron.cachedAgain
+      cachedAgainGreeting1 shouldBe "Hello Christian!"
+      val cachedAgainGreeting2 = neuron.cachedAgain
+      cachedAgainGreeting2 shouldBe theSameInstanceAs(cachedAgainGreeting1)
     }
   }
 }
@@ -464,8 +478,16 @@ private object IncubatorSpec {
   abstract class AnotherClass extends SomeNeuronInterface
 
   @Neuron
-  trait HasDependency[T] {
+  trait HasDependency[T] extends Supplier[T]
 
-    def get: T
+  @Neuron
+  trait Greeting extends Supplier[String] {
+
+    def get: String = "Hello world!"
+
+    @Caching
+    def cached: String = get
+
+    lazy val cachedAgain: String = get
   }
 }

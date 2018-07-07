@@ -75,7 +75,8 @@ final class NeuronProxyContext<N> {
     private List<Method> providerMethods(Class<? extends N> neuronClass) {
         return new Visitor<N>() {
 
-            final Collection<Method> methods = new OverridableMethodsCollector(neuronClass.getPackage()).collect(neuronClass);
+            final Collection<Method> methods =
+                    new OverridableMethodsCollector(neuronClass.getPackage()).collect(neuronClass);
 
             final ArrayList<Method> filtered = new ArrayList<>(methods.size());
 
@@ -90,8 +91,10 @@ final class NeuronProxyContext<N> {
 
             @Override
             public void visitMethod(final MethodElement<N> element) {
-                if (element.isCachingEnabled() /*|| provider(element).isPresent()*/) {
-                    filtered.add(element.method());
+                if (!element.hasParameters() && !element.isVoid()) {
+                    if (element.isCachingEnabled() || provider(element).isPresent()) {
+                        filtered.add(element.method());
+                    }
                 }
             }
         }.apply();

@@ -25,6 +25,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -75,16 +76,17 @@ final class NeuronProxyFactory<N> implements Function<NeuronProxyContext<N>, N> 
             }
 
             public void visitSynapse(SynapseElement<N> element) {
-                boundMethodHandler.setProvider(element.decorate(ctx.provider(element)
-                        .orElseThrow(() -> new BreedingException("No binding for synapse method: " + element.method()))));
+                setProvider(element, opt -> opt.orElseThrow(() ->
+                        new BreedingException("No binding defined for synapse method: " + element.method())));
             }
 
-            public void visitMethod(final MethodElement<N> element) {
-                //final Optional<DependencyProvider<?>> contextProvider = ctx.provider(element);
-                final DependencyProvider<?> provider = /*contextProvider.isPresent()
-                        ? contextProvider.get() :*/
-                        boundMethodHandler.getProvider();
-                boundMethodHandler.setProvider(element.decorate(provider));
+            public void visitMethod(MethodElement<N> element) {
+                setProvider(element, opt -> opt.orElseGet(boundMethodHandler::getProvider));
+            }
+
+            void setProvider(MethodElement<N> element,
+                             Function<Optional<DependencyProvider<?>>, DependencyProvider<?>> fun) {
+                boundMethodHandler.setProvider(element.decorate(fun.apply(ctx.provider(element))));
             }
         }.apply();
     }

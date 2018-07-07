@@ -16,15 +16,12 @@
 package global.namespace.neuron.di.internal;
 
 import global.namespace.neuron.di.java.BreedingException;
-import global.namespace.neuron.di.java.Caching;
 import global.namespace.neuron.di.java.CachingStrategy;
 
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.util.Optional;
 
 import static global.namespace.neuron.di.java.CachingStrategy.DISABLED;
-import static java.util.Optional.ofNullable;
 
 interface NeuronElement<N> extends ClassElement<N>, HasCachingStrategy {
 
@@ -56,36 +53,26 @@ interface NeuronElement<N> extends ClassElement<N>, HasCachingStrategy {
             }
         }
 
-        final Optional<CachingStrategy> declaredCachingStrategy = declaredCachingStrategy(method);
-        if (hasParameters(method)) {
-            if (declaredCachingStrategy.isPresent()) {
-                throw new BreedingException("A caching method must not have parameters: " + method);
-            }
-            if (isAbstract(method)) {
-                throw new BreedingException("Cannot bind abstract methods with parameters: " + method);
+        final MethodInfo info = () -> method;
+        final Optional<CachingStrategy> declaredCachingStrategy = info.declaredCachingStrategy();
+        if (info.isAbstract()) {
+            if (info.hasParameters()) {
+                throw new BreedingException("A synapse method must not have parameters: " + method);
+            } else if (info.isVoid()) {
+                throw new BreedingException("A synapse method must have a return value: " + method);
             } else {
-                return new RealMethodElement(DISABLED);
+                return new RealSynapseElement(declaredCachingStrategy.orElseGet(this::cachingStrategy));
+            }
+        } else if (declaredCachingStrategy.isPresent()) {
+            if (info.hasParameters()) {
+                throw new BreedingException("A caching method must not have parameters: " + method);
+            } else if (info.isVoid()) {
+                throw new BreedingException("A caching method must have a return value: " + method);
+            } else {
+                return new RealMethodElement(declaredCachingStrategy.get());
             }
         } else {
-            if (isAbstract(method)) {
-                if (isVoid(method)) {
-                    throw new BreedingException("A synapse method must have a return value: " + method);
-                } else {
-                    return new RealSynapseElement(declaredCachingStrategy.orElseGet(this::cachingStrategy));
-                }
-            } else {
-                return new RealMethodElement(declaredCachingStrategy.orElse(DISABLED));
-            }
+            return new RealMethodElement(DISABLED);
         }
     }
-
-    static Optional<CachingStrategy> declaredCachingStrategy(Method method) {
-        return ofNullable(method.getDeclaredAnnotation(Caching.class)).map(Caching::value);
-    }
-
-    static boolean hasParameters(Method method) { return 0 != method.getParameterCount(); }
-
-    static boolean isAbstract(Method method) { return Modifier.isAbstract(method.getModifiers()); }
-
-    static boolean isVoid(Method method) { return Void.TYPE == method.getReturnType(); }
 }

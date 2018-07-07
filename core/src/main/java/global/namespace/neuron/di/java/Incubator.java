@@ -21,13 +21,15 @@ import java.lang.invoke.MethodHandle;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.AbstractMap.SimpleImmutableEntry;
-import java.util.*;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.function.Function;
 
 import static global.namespace.neuron.di.java.Reflection.find;
-import static java.util.Optional.empty;
-import static java.util.Optional.of;
+import static java.util.Optional.*;
 
 /**
  * An incubator {@linkplain #wire(Class) wires} and {@linkplain #breed(Class) breeds} neuron classes and interfaces.
@@ -66,11 +68,6 @@ public final class Incubator {
     public static <T> T breed(Class<T> runtimeClass,
                               Function<Method, DependencyProvider<?>> binding) {
         return RealIncubator.breed(runtimeClass, method -> isSynapse(method) ? of(binding.apply(method)) : empty());
-    }
-
-    private static boolean isSynapse(Method method) {
-        // TODO: Reuse NeuronElement.isAbstract and NeuronElement.hasParameters
-        return Modifier.isAbstract(method.getModifiers()) && 0 == method.getParameterCount();
     }
 
     /**
@@ -125,38 +122,34 @@ public final class Incubator {
             public T breed() {
                 return new Object() {
 
-                    T neuron;
+                    final Map<Method, DependencyResolver<? super T, ?>> resolvedBindings =
+                            Resolver.resolve(runtimeClass, bindings);
 
-                    Set<Method> synapses = new HashSet<>();
+                    final T neuron = RealIncubator.breed(runtimeClass, this::binding);
 
-                    DependencyResolver<? super T, ?> currentResolver;
-
-                    int currentPosition;
-
-                    T breed() {
-                        neuron = RealIncubator.breed(runtimeClass, this::binding);
-
-                        initReplacementProxies();
-                        assert null == currentResolver;
-
-                        if (!partial && !synapses.isEmpty()) {
-                            throw new BreedingException(
-                                    "Partial binding is disabled and no binding is defined for some synapse methods: " + synapses);
+                    Optional<DependencyProvider<?>> binding(Method method) {
+                        final Optional<DependencyProvider<?>> optionalDependencyProvider =
+                                ofNullable(resolvedBindings.get(method)).map(resolver -> () -> resolver.apply(neuron));
+                        if (optionalDependencyProvider.isPresent()) {
+                            return optionalDependencyProvider;
+                        } else {
+                            if (isSynapse(method)) {
+                                if (partial) {
+                                    return of(synapseBinding(method));
+                                } else {
+                                    throw new BreedingException(
+                                            "Partial binding is disabled and no binding is defined for synapse method: " + method);
+                                }
+                            } else {
+                                return empty();
+                            }
                         }
-
-                        // Support garbage collection:
-                        synapses = null;
-
-                        return neuron;
                     }
 
-                    Optional<DependencyProvider<?>> binding(final Method method) {
-                        if (isSynapse(method)) {
-                            synapses.add(method);
-                        }
-                        return of(new DependencyProvider<Object>() {
+                    DependencyProvider<?> synapseBinding(final Method method) {
+                        return new DependencyProvider<Object>() {
 
-                            DependencyResolver<? super T, ?> resolver;
+                            volatile DependencyResolver<? super T, ?> resolver;
 
                             {
                                 if (null != delegate) {
@@ -176,45 +169,20 @@ public final class Incubator {
 
                             @Override
                             public Object get() throws Throwable {
-                                if (null != currentResolver) {
-                                    resolver = currentResolver;
-                                    synapses.remove(method);
-                                    throw new BindingSuccessException();
-                                } else if (null == resolver) {
+                                if (null == resolver) {
                                     resolver = neuron -> Incubator.breed(method.getReturnType());
                                 }
                                 return resolver.apply(neuron);
                             }
-                        });
+                        };
                     }
-
-                    void initReplacementProxies() {
-                        try {
-                            for (final Entry<DependencyResolver<T, ?>, DependencyResolver<? super T, ?>> binding : bindings) {
-                                final DependencyResolver<T, ?> methodReference = binding.getKey();
-                                currentResolver = binding.getValue();
-                                currentPosition++;
-                                try {
-                                    methodReference.apply(neuron);
-                                    throw breedingException(null);
-                                } catch (BindingSuccessException ignored) {
-                                } catch (RuntimeException | Error e) {
-                                    throw e;
-                                } catch (Throwable e) {
-                                    throw breedingException(e);
-                                }
-                            }
-                        } finally {
-                            currentResolver = null;
-                        }
-                    }
-
-                    BreedingException breedingException(Throwable cause) {
-                        return new BreedingException("Illegal binding: The parameter provided to the `bind` call at position " + currentPosition + " does not reference a synapse method.", cause);
-                    }
-                }.breed();
+                }.neuron;
             }
         };
+    }
+
+    private static boolean isSynapse(Method method) {
+        return Modifier.isAbstract(method.getModifiers()) && 0 == method.getParameterCount();
     }
 
     @SuppressWarnings("WeakerAccess")
