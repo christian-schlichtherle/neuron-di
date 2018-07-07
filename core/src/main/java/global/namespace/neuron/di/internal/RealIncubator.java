@@ -66,9 +66,9 @@ public final class RealIncubator {
         try {
             return runtimeClass.getDeclaredConstructor().newInstance();
         } catch (NoSuchMethodException e) {
-            throw new BreedingException(e.toString() + ": A neuron class must have a non-private constructor without parameters. Do not disable annotation processing to detect this at compile time.", e);
+            throw new BreedingException("A neuron class must have a non-private constructor without parameters. Do not disable annotation processing to detect this at compile time.", e);
         } catch (InstantiationException e) {
-            throw new BreedingException(e.toString() + ": This is an abstract class. Did you forget the @Neuron annotation?!", e);
+            throw new BreedingException("Cannot breed an abstract class without a @Neuron annotation.", e);
         } catch (IllegalAccessException | InvocationTargetException e) {
             throw new BreedingException(e);
         }

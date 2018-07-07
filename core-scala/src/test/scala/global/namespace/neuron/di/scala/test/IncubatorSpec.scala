@@ -74,7 +74,7 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
 
       intercept[BreedingException] {
         synapsesOf[AnotherClass]
-      }.getMessage should include("Did you forget the @Neuron annotation?")
+      }.getMessage should startWith("Cannot breed an abstract class without a @Neuron annotation.")
     }
   }
 
