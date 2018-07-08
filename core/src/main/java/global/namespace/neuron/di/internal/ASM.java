@@ -44,11 +44,11 @@ final class ASM implements Opcodes {
             superclass = neuronClass;
             interfaces = NO_CLASSES;
         }
-        final String implName = neuronClass.getName().concat("$$neuron");
+        final String neuronProxyName = neuronClass.getName().concat("$$neuron");
         final ClassReader cr = classReader(neuronClass);
         final ClassWriter cw = new ClassWriter(cr, COMPUTE_MAXS);
-        cr.accept(new NeuronClassVisitor(cw, superclass, interfaces, bindableMethods, internalName(implName)), SKIP_DEBUG);
-        return defineSubclass(neuronClass, implName, cw.toByteArray());
+        cr.accept(new NeuronClassVisitor(cw, internalName(neuronProxyName), superclass, interfaces, bindableMethods), SKIP_DEBUG);
+        return defineSubclass(neuronClass, neuronProxyName, cw.toByteArray());
     }
 
     private static ClassReader classReader(final Class<?> clazz) {

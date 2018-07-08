@@ -54,10 +54,10 @@ final class NeuronClassVisitor extends ClassVisitor {
     private final List<Method> bindableMethods;
 
     NeuronClassVisitor(final ClassVisitor cv,
+                       final String neuronProxyName,
                        final Class<?> superclass,
                        final Class<?>[] interfaces,
-                       final List<Method> bindableMethods,
-                       final String neuronProxyName) {
+                       final List<Method> bindableMethods) {
         super(ASM5, cv);
         this.neuronProxyName = neuronProxyName;
         this.neuronProxyDesc = "L" + neuronProxyName + ";";
