@@ -24,7 +24,7 @@ object Dependencies {
     val version = sys.env.getOrElse("GUICE_VERSION", "4.2.0")
     val moduleID = "com.google.inject" % "guice" % version
     version match {
-      // Exclude ASM 3.1 as a transitive dependency because it has a different group id and conflicts with ASM 5.2.
+      // Exclude ASM 3.1 as a transitive dependency because it has a different group id and conflicts with ASM 6.2.
       // ASM 3.1 is a transitive dependency of Guice 3.0, which is used for continuous testing.
       case "3.0" => moduleID exclude("asm", "asm")
       case _ => moduleID

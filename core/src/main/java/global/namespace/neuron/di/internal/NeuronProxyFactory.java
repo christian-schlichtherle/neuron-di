@@ -47,8 +47,8 @@ final class NeuronProxyFactory<N> implements Function<NeuronProxyContext<N>, N> 
     private final MethodHandle constructorHandle;
     private final List<MethodHandler> methodHandlers;
 
-    NeuronProxyFactory(final Class<? extends N> neuronClass, final List<Method> providerMethods) {
-        this.neuronProxyClass = ASM.neuronProxyClass(neuronClass, providerMethods);
+    NeuronProxyFactory(final Class<? extends N> neuronClass, final List<Method> bindableMethods) {
+        this.neuronProxyClass = ASM.neuronProxyClass(neuronClass, bindableMethods);
         try {
             final Constructor<?> c = neuronProxyClass.getDeclaredConstructor();
             c.setAccessible(true);
@@ -56,46 +56,45 @@ final class NeuronProxyFactory<N> implements Function<NeuronProxyContext<N>, N> 
         } catch (ReflectiveOperationException e) {
             throw new BreedingException(e);
         }
-        this.methodHandlers = providerMethods.stream().map(MethodHandler::new).collect(Collectors.toList());
+        this.methodHandlers = bindableMethods.stream().map(MethodHandler::new).collect(Collectors.toList());
     }
 
     public N apply(final NeuronProxyContext<N> ctx) {
         return new Visitor<N>() {
 
-            final Object neuronProxy = neuronProxy();
+            final N neuronProxy = neuronProxy();
 
             BoundMethodHandler boundMethodHandler;
 
-            @SuppressWarnings("unchecked")
-            N apply() {
+            {
                 for (final MethodHandler handler : methodHandlers) {
                     boundMethodHandler = handler.bind(neuronProxy);
                     ctx.element(handler.method()).accept(this);
                 }
-                return (N) neuronProxy;
             }
 
             public void visitSynapse(SynapseElement<N> element) {
-                setProvider(element, opt -> opt.orElseThrow(() ->
+                provider(element, opt -> opt.orElseThrow(() ->
                         new BreedingException("No binding defined for synapse method: " + element.method())));
             }
 
             public void visitMethod(MethodElement<N> element) {
-                setProvider(element, opt -> opt.orElseGet(boundMethodHandler::getProvider));
+                provider(element, opt -> opt.orElseGet(boundMethodHandler::provider));
             }
 
-            void setProvider(MethodElement<N> element,
-                             Function<Optional<DependencyProvider<?>>, DependencyProvider<?>> fun) {
-                boundMethodHandler.setProvider(element.decorate(fun.apply(ctx.provider(element))));
+            void provider(MethodElement<N> element,
+                          Function<Optional<DependencyProvider<?>>, DependencyProvider<?>> fun) {
+                boundMethodHandler.provider(element.decorate(fun.apply(ctx.provider(element))));
             }
-        }.apply();
+        }.neuronProxy;
     }
 
-    private Object neuronProxy() {
+    @SuppressWarnings("unchecked")
+    private N neuronProxy() {
         try {
-            return constructorHandle.invokeExact();
+            return (N) constructorHandle.invokeExact();
         } catch (NullPointerException e) {
-            throw new BreedingException(e.toString().concat(": Make sure the (synthetic) constructor does not depend on a synapse method."), e);
+            throw new BreedingException("Make sure the (synthetic) constructor does not depend on a synapse method.", e);
         } catch (Throwable e) {
             throw new BreedingException(e);
         }
@@ -109,10 +108,10 @@ final class NeuronProxyFactory<N> implements Function<NeuronProxyContext<N>, N> 
         MethodHandler(final Method method) {
             this.method = method;
             final String dependencyProviderName = method.getName() + NeuronClassVisitor.PROVIDER;
+            final MethodHandles.Lookup lookup = publicLookup();
             try {
                 final Field field = neuronProxyClass.getDeclaredField(dependencyProviderName);
                 field.setAccessible(true);
-                final MethodHandles.Lookup lookup = publicLookup();
                 this.getter = lookup.unreflectGetter(field).asType(dependencyProviderObjectMethodType);
                 this.setter = lookup.unreflectSetter(field).asType(voidObjectDependencyProviderMethodType);
             } catch (ReflectiveOperationException e) {
@@ -122,10 +121,10 @@ final class NeuronProxyFactory<N> implements Function<NeuronProxyContext<N>, N> 
 
         Method method() { return method; }
 
-        BoundMethodHandler bind(final Object neuronProxy) {
+        BoundMethodHandler bind(final N neuronProxy) {
             return new BoundMethodHandler() {
 
-                public DependencyProvider<?> getProvider() {
+                public DependencyProvider<?> provider() {
                     try {
                         return (DependencyProvider<?>) getter.invokeExact(neuronProxy);
                     } catch (Throwable e) {
@@ -133,7 +132,7 @@ final class NeuronProxyFactory<N> implements Function<NeuronProxyContext<N>, N> 
                     }
                 }
 
-                public void setProvider(final DependencyProvider<?> provider) {
+                public void provider(final DependencyProvider<?> provider) {
                     try {
                         setter.invokeExact(neuronProxy, provider);
                     } catch (Throwable e) {
@@ -146,7 +145,8 @@ final class NeuronProxyFactory<N> implements Function<NeuronProxyContext<N>, N> 
 
     private interface BoundMethodHandler {
 
-        DependencyProvider<?> getProvider();
-        void setProvider(DependencyProvider<?> provider);
+        DependencyProvider<?> provider();
+
+        void provider(DependencyProvider<?> provider);
     }
 }

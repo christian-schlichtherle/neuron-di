@@ -34,7 +34,7 @@ final class ASM implements Opcodes {
     private static final Class<?>[] NO_CLASSES = new Class<?>[0];
 
     /** Returns a class which proxies the given Neuron class or interface. */
-    static <N> Class<? extends N> neuronProxyClass(final Class<? extends N> neuronClass, final List<Method> providerMethods) {
+    static <N> Class<? extends N> neuronProxyClass(final Class<? extends N> neuronClass, final List<Method> bindableMethods) {
         final Class<?> superclass;
         final Class<?>[] interfaces;
         if (neuronClass.isInterface()) {
@@ -47,7 +47,7 @@ final class ASM implements Opcodes {
         final String implName = neuronClass.getName().concat("$$neuron");
         final ClassReader cr = classReader(neuronClass);
         final ClassWriter cw = new ClassWriter(cr, COMPUTE_MAXS);
-        cr.accept(new NeuronClassVisitor(cw, superclass, interfaces, providerMethods, internalName(implName)), SKIP_DEBUG);
+        cr.accept(new NeuronClassVisitor(cw, superclass, interfaces, bindableMethods, internalName(implName)), SKIP_DEBUG);
         return defineSubclass(neuronClass, implName, cw.toByteArray());
     }
 

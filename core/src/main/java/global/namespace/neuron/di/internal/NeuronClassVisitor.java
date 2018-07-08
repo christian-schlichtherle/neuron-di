@@ -20,7 +20,6 @@ import global.namespace.neuron.di.java.DependencyProvider;
 import org.objectweb.asm.*;
 
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.util.List;
 
 import static global.namespace.neuron.di.internal.Reflection.boxed;
@@ -50,25 +49,25 @@ final class NeuronClassVisitor extends ClassVisitor {
             "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;",
             false);
 
-    private final String superName, neuronProxyName, neuronProxyDesc;
+    private final String neuronProxyName, neuronProxyDesc, superName;
     private final String[] interfaces;
-    private final List<Method> providerMethods;
+    private final List<Method> bindableMethods;
 
     NeuronClassVisitor(final ClassVisitor cv,
                        final Class<?> superclass,
                        final Class<?>[] interfaces,
-                       final List<Method> providerMethods,
+                       final List<Method> bindableMethods,
                        final String neuronProxyName) {
         super(ASM5, cv);
+        this.neuronProxyName = neuronProxyName;
+        this.neuronProxyDesc = "L" + neuronProxyName + ";";
         this.superName = getInternalName(superclass);
         int i = interfaces.length;
         this.interfaces = new String[i];
         while (0 <= --i) {
             this.interfaces[i] = getInternalName(interfaces[i]);
         }
-        this.providerMethods = providerMethods;
-        this.neuronProxyName = neuronProxyName;
-        this.neuronProxyDesc = "L" + neuronProxyName + ";";
+        this.bindableMethods = bindableMethods;
     }
 
     @Override
@@ -116,8 +115,8 @@ final class NeuronClassVisitor extends ClassVisitor {
                 CONSTRUCTOR_NAME,
                 ACCEPTS_NOTHING_AND_RETURNS_VOID_DESC,
                 false);
-        for (final Method method : providerMethods) {
-            if (!Modifier.isAbstract(method.getModifiers())) {
+        for (final Method method : bindableMethods) {
+            if (0 == (method.getModifiers() & ACC_ABSTRACT)) {
                 final String name = method.getName();
                 final String desc = getMethodDescriptor(method);
                 mv.visitVarInsn(ALOAD, 0);
@@ -141,7 +140,7 @@ final class NeuronClassVisitor extends ClassVisitor {
     }
 
     private void insertMethods() {
-        for (final Method method : providerMethods) {
+        for (final Method method : bindableMethods) {
             new Object() {
 
                 final int access = method.getModifiers() & ~(ACC_ABSTRACT | ACC_NATIVE) | ACC_SYNTHETIC;
@@ -184,14 +183,12 @@ final class NeuronClassVisitor extends ClassVisitor {
                                 returnTypeName.concat("Value"),
                                 "()".concat(returnTypeDesc),
                                 false);
-                        endMethod(mv);
-                    } else {
-                        endMethod(mv);
                     }
+                    endMethod(mv);
                 }
 
                 void generateSuperCallMethod() {
-                    if (!Modifier.isAbstract(method.getModifiers())) {
+                    if (0 == (method.getModifiers() & ACC_ABSTRACT)) {
                         final MethodVisitor mv = beginMethod(SUPER + name);
                         mv.visitMethodInsn(INVOKESPECIAL,
                                 0 == interfaces.length ? superName : ownerName(),

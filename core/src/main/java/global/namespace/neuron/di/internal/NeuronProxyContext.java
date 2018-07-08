@@ -42,7 +42,7 @@ final class NeuronProxyContext<N> {
 
     NeuronProxyFactory<N> factory() {
         final Class<? extends N> adaptedClass = adaptedClass();
-        return new NeuronProxyFactory<>(adaptedClass, providerMethods(adaptedClass));
+        return new NeuronProxyFactory<>(adaptedClass, bindableMethods(adaptedClass));
     }
 
     private Class<? extends N> adaptedClass() {
@@ -72,7 +72,7 @@ final class NeuronProxyContext<N> {
 
     private Class<N> neuronClass() { return element.runtimeClass(); }
 
-    private List<Method> providerMethods(Class<? extends N> neuronClass) {
+    private List<Method> bindableMethods(Class<? extends N> neuronClass) {
         return new Visitor<N>() {
 
             final Collection<Method> methods =
@@ -80,10 +80,9 @@ final class NeuronProxyContext<N> {
 
             final ArrayList<Method> filtered = new ArrayList<>(methods.size());
 
-            List<Method> apply() {
+            {
                 methods.forEach(method -> element(method).accept(this));
                 filtered.trimToSize();
-                return filtered;
             }
 
             @Override
@@ -95,6 +94,6 @@ final class NeuronProxyContext<N> {
                     filtered.add(element.method());
                 }
             }
-        }.apply();
+        }.filtered;
     }
 }

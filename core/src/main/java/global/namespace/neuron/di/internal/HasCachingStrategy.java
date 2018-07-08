@@ -26,7 +26,5 @@ interface HasCachingStrategy {
 
     default RealCachingStrategy realCachingStrategy() { return RealCachingStrategy.valueOf(cachingStrategy()); }
 
-    default boolean isCachingEnabled() { return cachingStrategy().isEnabled(); }
-
     CachingStrategy cachingStrategy();
 }
