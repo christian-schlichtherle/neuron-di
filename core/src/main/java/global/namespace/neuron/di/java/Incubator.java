@@ -132,49 +132,19 @@ public final class Incubator {
                                 ofNullable(resolvedBindings.get(info.method())).map(resolver -> () -> resolver.apply(neuron));
                         if (optionalDependencyProvider.isPresent()) {
                             return optionalDependencyProvider;
+                        } else if (!info.isSynapse()) {
+                            return empty();
+                        } else if (!partial) {
+                            throw new BreedingException(
+                                    "Partial binding is disabled and no binding is defined for synapse method: " + info.method());
+                        } else if (null != delegate) {
+                            final String member = info.name();
+                            final MethodHandle handle = find(member).in(delegate).orElseThrow(() ->
+                                    new BreedingException("Illegal binding: A member named `" + member + "` neither exists in `" + delegate.getClass() + "` nor in any of its interfaces and superclasses."));
+                            return of(handle::invokeExact);
                         } else {
-                            if (info.isSynapse()) {
-                                if (partial) {
-                                    return of(synapseBinding(info));
-                                } else {
-                                    throw new BreedingException(
-                                            "Partial binding is disabled and no binding is defined for synapse method: " + info.method());
-                                }
-                            } else {
-                                return empty();
-                            }
+                            return of(() -> Incubator.breed(info.returnType()));
                         }
-                    }
-
-                    DependencyProvider<?> synapseBinding(final MethodInfo info) {
-                        return new DependencyProvider<Object>() {
-
-                            volatile DependencyResolver<? super T, ?> resolver;
-
-                            {
-                                if (null != delegate) {
-                                    final MethodHandle handle = dependencyMethodHandle();
-                                    //noinspection Convert2MethodRef
-                                    resolver = neuron -> handle.invokeExact();
-                                }
-                            }
-
-                            MethodHandle dependencyMethodHandle() {
-                                final String member = info.name();
-                                return find(member)
-                                        .in(delegate)
-                                        .orElseThrow(() -> new BreedingException(
-                                                "Illegal binding: A member named `" + member + "` neither exists in `" + delegate.getClass() + "` nor in any of its interfaces and superclasses."));
-                            }
-
-                            @Override
-                            public Object get() throws Throwable {
-                                if (null == resolver) {
-                                    resolver = neuron -> Incubator.breed(info.returnType());
-                                }
-                                return resolver.apply(neuron);
-                            }
-                        };
                     }
                 }.neuron;
             }
