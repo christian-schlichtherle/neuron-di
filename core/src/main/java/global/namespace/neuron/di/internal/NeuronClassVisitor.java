@@ -38,7 +38,6 @@ final class NeuronClassVisitor extends ClassVisitor {
     private static final String ACCEPTS_NOTHING_AND_RETURNS_OBJECT_DESC = "()" + OBJECT_DESC;
 
     static final String PROVIDER = "$provider";
-    private static final String SUPER = "super$";
 
     private static final Type acceptsNothingAndReturnsObjectType = getType(ACCEPTS_NOTHING_AND_RETURNS_OBJECT_DESC);
     private static final String dependencyProviderName = getInternalName(DependencyProvider.class);
@@ -117,6 +116,7 @@ final class NeuronClassVisitor extends ClassVisitor {
                 false);
         for (final Method method : bindableMethods) {
             if (0 == (method.getModifiers() & ACC_ABSTRACT)) {
+                final String owner = 0 == interfaces.length ? superName : getInternalName(method.getDeclaringClass());
                 final String name = method.getName();
                 final String desc = getMethodDescriptor(method);
                 mv.visitVarInsn(ALOAD, 0);
@@ -125,11 +125,7 @@ final class NeuronClassVisitor extends ClassVisitor {
                         "(" + neuronProxyDesc + ")" + dependencyProviderDesc,
                         metaFactoryHandle,
                         acceptsNothingAndReturnsObjectType,
-                        new Handle(H_INVOKESPECIAL,
-                                neuronProxyName,
-                                SUPER + name,
-                                desc,
-                                false),
+                        new Handle(H_INVOKESPECIAL, owner, name, desc, 0 != interfaces.length),
                         acceptsNothingAndReturnsObjectType);
                 mv.visitFieldInsn(PUTFIELD, neuronProxyName, name + PROVIDER, dependencyProviderDesc);
             }
@@ -160,7 +156,6 @@ final class NeuronClassVisitor extends ClassVisitor {
                 void apply() {
                     generateProxyField();
                     generateProxyCallMethod();
-                    generateSuperCallMethod();
                 }
 
                 void generateProxyField() {
@@ -186,20 +181,6 @@ final class NeuronClassVisitor extends ClassVisitor {
                     }
                     endMethod(mv);
                 }
-
-                void generateSuperCallMethod() {
-                    if (0 == (method.getModifiers() & ACC_ABSTRACT)) {
-                        final MethodVisitor mv = beginMethod(SUPER + name);
-                        mv.visitMethodInsn(INVOKESPECIAL,
-                                0 == interfaces.length ? superName : ownerName(),
-                                name,
-                                desc,
-                                0 != interfaces.length);
-                        endMethod(mv);
-                    }
-                }
-
-                String ownerName() { return getInternalName(method.getDeclaringClass()); }
 
                 MethodVisitor beginMethod(final String name) {
                     final MethodVisitor mv = cv.visitMethod(access, name, desc, null, null);
