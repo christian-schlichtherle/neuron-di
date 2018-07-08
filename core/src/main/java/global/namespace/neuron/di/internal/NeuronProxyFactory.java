@@ -23,9 +23,7 @@ import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -63,45 +61,40 @@ final class NeuronProxyFactory<N> implements Function<Binding, N>{
         return list.stream().map(fun).collect(Collectors.toList());
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public N apply(final Binding binding) {
-        final N neuronProxy = neuronProxy();
-        for (final MethodHandler handler : methodHandlers) {
-            new Visitor<N>() {
+        return new Visitor<N>() {
 
-                final BoundMethodHandler boundMethodHandler = handler.bind(neuronProxy);
+            final N neuronProxy;
 
-                {
+            BoundMethodHandler boundMethodHandler;
+
+            {
+                try {
+                    neuronProxy = (N) constructorHandle.invokeExact();
+                } catch (Throwable e) {
+                    throw new BreedingException(e);
+                }
+                for (final MethodHandler handler : methodHandlers) {
+                    boundMethodHandler = handler.bind(neuronProxy);
                     handler.accept(this);
                 }
+            }
 
-                @Override
-                public void visitSynapse(SynapseElement<N> element) {
-                    provider(element, opt -> opt.orElseThrow(() ->
-                            new BreedingException("No binding defined for synapse method: " + element.method())));
-                }
+            @Override
+            public void visitSynapse(SynapseElement<N> element) {
+                boundMethodHandler.provider(element.decorate(binding.apply(element)
+                        .orElseThrow(() -> new BreedingException("No binding defined for synapse method: " + element.method()))));
+            }
 
-                @Override
-                public void visitMethod(MethodElement<N> element) {
-                    provider(element, opt -> opt.orElseGet(boundMethodHandler::provider));
-                }
+            @Override
+            public void visitMethod(MethodElement<N> element) {
+                boundMethodHandler.provider(element.decorate(binding.apply(element)
+                        .orElseGet(boundMethodHandler::provider)));
+            }
 
-                void provider(MethodElement<N> element,
-                              Function<Optional<DependencyProvider<?>>, DependencyProvider<?>> fun) {
-                    boundMethodHandler.provider(element.decorate(fun.apply(binding.apply(element))));
-                }
-            };
-        }
-        return neuronProxy;
-    }
-
-    @SuppressWarnings("unchecked")
-    private N neuronProxy() {
-        try {
-            return (N) constructorHandle.invokeExact();
-        } catch (Throwable e) {
-            throw new BreedingException(e);
-        }
+        }.neuronProxy;
     }
 
     private final class MethodHandler {
