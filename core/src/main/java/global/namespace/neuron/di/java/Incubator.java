@@ -15,11 +15,11 @@
  */
 package global.namespace.neuron.di.java;
 
+import global.namespace.neuron.di.internal.MethodInfo;
 import global.namespace.neuron.di.internal.RealIncubator;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.LinkedList;
 import java.util.List;
@@ -67,7 +67,7 @@ public final class Incubator {
      */
     public static <T> T breed(Class<T> runtimeClass,
                               Function<Method, DependencyProvider<?>> binding) {
-        return RealIncubator.breed(runtimeClass, method -> isSynapse(method) ? of(binding.apply(method)) : empty());
+        return RealIncubator.breed(runtimeClass, info -> info.isSynapse() ? of(binding.apply(info.method())) : empty());
     }
 
     /**
@@ -127,18 +127,18 @@ public final class Incubator {
 
                     final T neuron = RealIncubator.breed(runtimeClass, this::binding);
 
-                    Optional<DependencyProvider<?>> binding(Method method) {
+                    Optional<DependencyProvider<?>> binding(final MethodInfo info) {
                         final Optional<DependencyProvider<?>> optionalDependencyProvider =
-                                ofNullable(resolvedBindings.get(method)).map(resolver -> () -> resolver.apply(neuron));
+                                ofNullable(resolvedBindings.get(info.method())).map(resolver -> () -> resolver.apply(neuron));
                         if (optionalDependencyProvider.isPresent()) {
                             return optionalDependencyProvider;
                         } else {
-                            if (isSynapse(method)) {
+                            if (info.isSynapse()) {
                                 if (partial) {
-                                    return of(synapseBinding(method));
+                                    return of(synapseBinding(info));
                                 } else {
                                     throw new BreedingException(
-                                            "Partial binding is disabled and no binding is defined for synapse method: " + method);
+                                            "Partial binding is disabled and no binding is defined for synapse method: " + info.method());
                                 }
                             } else {
                                 return empty();
@@ -146,7 +146,7 @@ public final class Incubator {
                         }
                     }
 
-                    DependencyProvider<?> synapseBinding(final Method method) {
+                    DependencyProvider<?> synapseBinding(final MethodInfo info) {
                         return new DependencyProvider<Object>() {
 
                             volatile DependencyResolver<? super T, ?> resolver;
@@ -160,7 +160,7 @@ public final class Incubator {
                             }
 
                             MethodHandle dependencyMethodHandle() {
-                                final String member = method.getName();
+                                final String member = info.name();
                                 return find(member)
                                         .in(delegate)
                                         .orElseThrow(() -> new BreedingException(
@@ -170,7 +170,7 @@ public final class Incubator {
                             @Override
                             public Object get() throws Throwable {
                                 if (null == resolver) {
-                                    resolver = neuron -> Incubator.breed(method.getReturnType());
+                                    resolver = neuron -> Incubator.breed(info.returnType());
                                 }
                                 return resolver.apply(neuron);
                             }
@@ -179,10 +179,6 @@ public final class Incubator {
                 }.neuron;
             }
         };
-    }
-
-    private static boolean isSynapse(Method method) {
-        return Modifier.isAbstract(method.getModifiers()) && 0 == method.getParameterCount();
     }
 
     @SuppressWarnings("WeakerAccess")

@@ -19,7 +19,6 @@ import global.namespace.neuron.di.java.BreedingException;
 import global.namespace.neuron.di.java.DependencyProvider;
 
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
@@ -34,7 +33,7 @@ public final class RealIncubator {
     private RealIncubator() { }
 
     public static <C> C breed(final Class<C> runtimeClass,
-                              final Function<Method, Optional<DependencyProvider<?>>> binding) {
+                              final Function<MethodInfo, Optional<DependencyProvider<?>>> binding) {
 
         class ClassVisitor implements Visitor<C> {
 

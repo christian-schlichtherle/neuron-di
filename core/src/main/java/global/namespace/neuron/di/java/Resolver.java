@@ -15,6 +15,7 @@
  */
 package global.namespace.neuron.di.java;
 
+import global.namespace.neuron.di.internal.MethodInfo;
 import global.namespace.neuron.di.internal.RealIncubator;
 
 import java.lang.reflect.Method;
@@ -42,7 +43,7 @@ final class Resolver {
                         binding.getKey().apply(fuze);
                         throw breedingException(null);
                     } catch (IgnitionError e) {
-                        resolvers.put(e.method, binding.getValue());
+                        resolvers.put(e.method(), binding.getValue());
                     } catch (BreedingException e) {
                         throw e;
                     } catch (Throwable e) {
@@ -63,19 +64,21 @@ final class Resolver {
         return (T) fuzes.computeIfAbsent(clazz, c -> RealIncubator.breed(c, Resolver::blowUp));
     }
 
-    private static Optional<DependencyProvider<?>> blowUp(Method method) {
-        return of(() -> { throw new IgnitionError(method); });
+    private static Optional<DependencyProvider<?>> blowUp(MethodInfo info) {
+        return of(() -> { throw new IgnitionError(info); });
     }
 
     private static final class IgnitionError extends Error {
 
         private static final long serialVersionUID = 0L;
 
-        final Method method;
+        private final MethodInfo info;
 
-        IgnitionError(final Method method) {
+        IgnitionError(final MethodInfo info) {
             super(null, null, false, false);
-            this.method = method;
+            this.info = info;
         }
+
+        Method method() { return info.method(); }
     }
 }

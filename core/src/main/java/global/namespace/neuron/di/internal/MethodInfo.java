@@ -24,13 +24,15 @@ import java.util.Optional;
 
 import static java.util.Optional.ofNullable;
 
-interface MethodInfo {
+public interface MethodInfo {
 
     Method method();
 
     default Optional<CachingStrategy> declaredCachingStrategy() {
         return ofNullable(method().getDeclaredAnnotation(Caching.class)).map(Caching::value);
     }
+
+    default boolean isSynapse() { return isAbstract() && !isVoid() && !hasParameters(); }
 
     default boolean isAbstract() { return Modifier.isAbstract(method().getModifiers()); }
 
@@ -40,4 +42,8 @@ interface MethodInfo {
     }
 
     default boolean hasParameters() { return 0 != method().getParameterCount(); }
+
+    default String name() { return method().getName(); }
+
+    default Class<?> returnType() { return method().getReturnType(); }
 }

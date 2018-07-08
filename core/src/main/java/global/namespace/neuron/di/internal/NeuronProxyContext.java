@@ -28,21 +28,19 @@ import java.util.function.Function;
 final class NeuronProxyContext<N> {
 
     private final NeuronElement<N> element;
-    private final Function<Method, Optional<DependencyProvider<?>>> binding;
+    private final Function<MethodInfo, Optional<DependencyProvider<?>>> binding;
 
     NeuronProxyContext(final NeuronElement<N> element,
-                       final Function<Method, Optional<DependencyProvider<?>>> binding) {
+                       final Function<MethodInfo, Optional<DependencyProvider<?>>> binding) {
         this.element = element;
         this.binding = binding;
     }
 
-    MethodElement<N> element(Method method) { return element.element(method); }
-
-    Optional<DependencyProvider<?>> provider(MethodElement<N> element) { return binding.apply(element.method()); }
+    Optional<DependencyProvider<?>> provider(MethodElement<N> element) { return binding.apply(element); }
 
     NeuronProxyFactory<N> factory() {
         final Class<? extends N> adaptedClass = adaptedClass();
-        return new NeuronProxyFactory<>(adaptedClass, bindableMethods(adaptedClass));
+        return new NeuronProxyFactory<>(adaptedClass, bindableElements(adaptedClass));
     }
 
     private Class<? extends N> adaptedClass() {
@@ -72,28 +70,30 @@ final class NeuronProxyContext<N> {
 
     private Class<N> neuronClass() { return element.runtimeClass(); }
 
-    private List<Method> bindableMethods(Class<? extends N> neuronClass) {
+    private List<MethodElement<N>> bindableElements(Class<? extends N> neuronClass) {
         return new Visitor<N>() {
 
             final Collection<Method> methods =
                     new OverridableMethodsCollector(neuronClass.getPackage()).collect(neuronClass);
 
-            final ArrayList<Method> filtered = new ArrayList<>(methods.size());
+            final ArrayList<MethodElement<N>> bindableElements = new ArrayList<>(methods.size());
 
             {
                 methods.forEach(method -> element(method).accept(this));
-                filtered.trimToSize();
+                bindableElements.trimToSize();
             }
 
             @Override
-            public void visitSynapse(SynapseElement<N> element) { filtered.add(element.method()); }
+            public void visitSynapse(SynapseElement<N> element) { bindableElements.add(element); }
 
             @Override
             public void visitMethod(final MethodElement<N> element) {
                 if (!element.hasParameters() && !element.isVoid()) {
-                    filtered.add(element.method());
+                    bindableElements.add(element);
                 }
             }
-        }.filtered;
+        }.bindableElements;
     }
+
+    private MethodElement<N> element(Method method) { return element.element(method); }
 }

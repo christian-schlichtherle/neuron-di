@@ -23,7 +23,6 @@ import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
@@ -47,8 +46,9 @@ final class NeuronProxyFactory<N> implements Function<NeuronProxyContext<N>, N> 
     private final MethodHandle constructorHandle;
     private final List<MethodHandler> methodHandlers;
 
-    NeuronProxyFactory(final Class<? extends N> neuronClass, final List<Method> bindableMethods) {
-        this.neuronProxyClass = ASM.neuronProxyClass(neuronClass, bindableMethods);
+    NeuronProxyFactory(final Class<? extends N> neuronClass, final List<MethodElement<N>> bindableElements) {
+        this.neuronProxyClass = ASM.neuronProxyClass(neuronClass,
+                bindableElements.stream().map(MethodInfo::method).collect(Collectors.toList()));
         try {
             final Constructor<?> c = neuronProxyClass.getDeclaredConstructor();
             c.setAccessible(true);
@@ -56,45 +56,44 @@ final class NeuronProxyFactory<N> implements Function<NeuronProxyContext<N>, N> 
         } catch (ReflectiveOperationException e) {
             throw new BreedingException(e);
         }
-        this.methodHandlers = bindableMethods.stream().map(MethodHandler::new).collect(Collectors.toList());
+        this.methodHandlers = bindableElements.stream().map(MethodHandler::new).collect(Collectors.toList());
     }
 
     public N apply(final NeuronProxyContext<N> ctx) {
-        return new Visitor<N>() {
+        final N neuronProxy = neuronProxy();
+        for (final MethodHandler handler : methodHandlers) {
+            new Visitor<N>() {
 
-            final N neuronProxy = neuronProxy();
+                final BoundMethodHandler boundMethodHandler = handler.bind(neuronProxy);
 
-            BoundMethodHandler boundMethodHandler;
-
-            {
-                for (final MethodHandler handler : methodHandlers) {
-                    boundMethodHandler = handler.bind(neuronProxy);
-                    ctx.element(handler.method()).accept(this);
+                {
+                    handler.accept(this);
                 }
-            }
 
-            public void visitSynapse(SynapseElement<N> element) {
-                provider(element, opt -> opt.orElseThrow(() ->
-                        new BreedingException("No binding defined for synapse method: " + element.method())));
-            }
+                @Override
+                public void visitSynapse(SynapseElement<N> element) {
+                    provider(element, opt -> opt.orElseThrow(() ->
+                            new BreedingException("No binding defined for synapse method: " + element.method())));
+                }
 
-            public void visitMethod(MethodElement<N> element) {
-                provider(element, opt -> opt.orElseGet(boundMethodHandler::provider));
-            }
+                @Override
+                public void visitMethod(MethodElement<N> element) {
+                    provider(element, opt -> opt.orElseGet(boundMethodHandler::provider));
+                }
 
-            void provider(MethodElement<N> element,
-                          Function<Optional<DependencyProvider<?>>, DependencyProvider<?>> fun) {
-                boundMethodHandler.provider(element.decorate(fun.apply(ctx.provider(element))));
-            }
-        }.neuronProxy;
+                void provider(MethodElement<N> element,
+                              Function<Optional<DependencyProvider<?>>, DependencyProvider<?>> fun) {
+                    boundMethodHandler.provider(element.decorate(fun.apply(ctx.provider(element))));
+                }
+            };
+        }
+        return neuronProxy;
     }
 
     @SuppressWarnings("unchecked")
     private N neuronProxy() {
         try {
             return (N) constructorHandle.invokeExact();
-        } catch (NullPointerException e) {
-            throw new BreedingException("Make sure the (synthetic) constructor does not depend on a synapse method.", e);
         } catch (Throwable e) {
             throw new BreedingException(e);
         }
@@ -102,12 +101,12 @@ final class NeuronProxyFactory<N> implements Function<NeuronProxyContext<N>, N> 
 
     private final class MethodHandler {
 
-        final Method method;
+        final MethodElement<N> element;
         final MethodHandle getter, setter;
 
-        MethodHandler(final Method method) {
-            this.method = method;
-            final String dependencyProviderName = method.getName() + NeuronClassVisitor.PROVIDER;
+        MethodHandler(final MethodElement<N> element) {
+            this.element = element;
+            final String dependencyProviderName = element.name() + NeuronClassVisitor.PROVIDER;
             final MethodHandles.Lookup lookup = publicLookup();
             try {
                 final Field field = neuronProxyClass.getDeclaredField(dependencyProviderName);
@@ -119,11 +118,10 @@ final class NeuronProxyFactory<N> implements Function<NeuronProxyContext<N>, N> 
             }
         }
 
-        Method method() { return method; }
-
         BoundMethodHandler bind(final N neuronProxy) {
             return new BoundMethodHandler() {
 
+                @Override
                 public DependencyProvider<?> provider() {
                     try {
                         return (DependencyProvider<?>) getter.invokeExact(neuronProxy);
@@ -132,6 +130,7 @@ final class NeuronProxyFactory<N> implements Function<NeuronProxyContext<N>, N> 
                     }
                 }
 
+                @Override
                 public void provider(final DependencyProvider<?> provider) {
                     try {
                         setter.invokeExact(neuronProxy, provider);
@@ -141,6 +140,8 @@ final class NeuronProxyFactory<N> implements Function<NeuronProxyContext<N>, N> 
                 }
             };
         }
+
+        void accept(Visitor<N> visitor) { element.accept(visitor); }
     }
 
     private interface BoundMethodHandler {
