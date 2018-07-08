@@ -15,6 +15,7 @@
  */
 package global.namespace.neuron.di.java;
 
+import global.namespace.neuron.di.internal.Binding;
 import global.namespace.neuron.di.internal.MethodInfo;
 import global.namespace.neuron.di.internal.RealIncubator;
 
@@ -120,14 +121,15 @@ public final class Incubator {
 
             @Override
             public T breed() {
-                return new Object() {
+                return new Binding() {
 
                     final Map<Method, DependencyResolver<? super T, ?>> resolvedBindings =
                             Resolver.resolve(runtimeClass, bindings);
 
-                    final T neuron = RealIncubator.breed(runtimeClass, this::binding);
+                    final T neuron = RealIncubator.breed(runtimeClass, this);
 
-                    Optional<DependencyProvider<?>> binding(final MethodInfo info) {
+                    @Override
+                    public Optional<DependencyProvider<?>> apply(final MethodInfo info) {
                         final Optional<DependencyProvider<?>> optionalDependencyProvider =
                                 ofNullable(resolvedBindings.get(info.method())).map(resolver -> () -> resolver.apply(neuron));
                         if (optionalDependencyProvider.isPresent()) {

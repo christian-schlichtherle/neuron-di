@@ -23,6 +23,7 @@ import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
@@ -31,7 +32,7 @@ import java.util.stream.Collectors;
 import static java.lang.invoke.MethodHandles.publicLookup;
 import static java.lang.invoke.MethodType.methodType;
 
-final class NeuronProxyFactory<N> implements Function<NeuronProxyContext<N>, N> {
+final class NeuronProxyFactory<N> implements Function<Binding, N>{
 
     private static final MethodType dependencyProviderObjectMethodType =
             methodType(DependencyProvider.class, Object.class);
@@ -47,8 +48,7 @@ final class NeuronProxyFactory<N> implements Function<NeuronProxyContext<N>, N> 
     private final List<MethodHandler> methodHandlers;
 
     NeuronProxyFactory(final Class<? extends N> neuronClass, final List<MethodElement<N>> bindableElements) {
-        this.neuronProxyClass = ASM.neuronProxyClass(neuronClass,
-                bindableElements.stream().map(MethodInfo::method).collect(Collectors.toList()));
+        this.neuronProxyClass = ASM.neuronProxyClass(neuronClass, map(bindableElements, MethodElement<N>::method));
         try {
             final Constructor<?> c = neuronProxyClass.getDeclaredConstructor();
             c.setAccessible(true);
@@ -56,10 +56,15 @@ final class NeuronProxyFactory<N> implements Function<NeuronProxyContext<N>, N> 
         } catch (ReflectiveOperationException e) {
             throw new BreedingException(e);
         }
-        this.methodHandlers = bindableElements.stream().map(MethodHandler::new).collect(Collectors.toList());
+        this.methodHandlers = map(bindableElements, MethodHandler::new);
     }
 
-    public N apply(final NeuronProxyContext<N> ctx) {
+    private static <T, U> List<U> map(List<T> list, Function<? super T, ? extends U> fun) {
+        return list.stream().map(fun).collect(Collectors.toList());
+    }
+
+    @Override
+    public N apply(final Binding binding) {
         final N neuronProxy = neuronProxy();
         for (final MethodHandler handler : methodHandlers) {
             new Visitor<N>() {
@@ -83,7 +88,7 @@ final class NeuronProxyFactory<N> implements Function<NeuronProxyContext<N>, N> 
 
                 void provider(MethodElement<N> element,
                               Function<Optional<DependencyProvider<?>>, DependencyProvider<?>> fun) {
-                    boundMethodHandler.provider(element.decorate(fun.apply(ctx.provider(element))));
+                    boundMethodHandler.provider(element.decorate(fun.apply(binding.apply(element))));
                 }
             };
         }

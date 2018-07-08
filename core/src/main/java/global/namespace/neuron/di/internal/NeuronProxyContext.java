@@ -16,27 +16,18 @@
 package global.namespace.neuron.di.internal;
 
 import global.namespace.neuron.di.java.BreedingException;
-import global.namespace.neuron.di.java.DependencyProvider;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Function;
 
 final class NeuronProxyContext<N> {
 
     private final NeuronElement<N> element;
-    private final Function<MethodInfo, Optional<DependencyProvider<?>>> binding;
 
-    NeuronProxyContext(final NeuronElement<N> element,
-                       final Function<MethodInfo, Optional<DependencyProvider<?>>> binding) {
-        this.element = element;
-        this.binding = binding;
-    }
-
-    Optional<DependencyProvider<?>> provider(MethodElement<N> element) { return binding.apply(element); }
+    NeuronProxyContext(final NeuronElement<N> element) { this.element = element; }
 
     NeuronProxyFactory<N> factory() {
         final Class<? extends N> adaptedClass = adaptedClass();

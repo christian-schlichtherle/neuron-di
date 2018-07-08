@@ -32,8 +32,7 @@ public final class RealIncubator {
 
     private RealIncubator() { }
 
-    public static <C> C breed(final Class<C> runtimeClass,
-                              final Function<MethodInfo, Optional<DependencyProvider<?>>> binding) {
+    public static <C> C breed(final Class<C> runtimeClass, final Binding binding) {
 
         class ClassVisitor implements Visitor<C> {
 
@@ -43,10 +42,9 @@ public final class RealIncubator {
             @Override
             public void visitNeuron(final NeuronElement<C> element) {
                 assert runtimeClass == element.runtimeClass();
-                final NeuronProxyContext<C> ctx = new NeuronProxyContext<>(element, binding);
                 final NeuronProxyFactory<C> factory = (NeuronProxyFactory<C>) factories
-                        .computeIfAbsent(runtimeClass, key -> ctx.factory());
-                instance = factory.apply(ctx);
+                        .computeIfAbsent(runtimeClass, key -> new NeuronProxyContext<>(element).factory());
+                instance = factory.apply(binding);
             }
 
             @Override
