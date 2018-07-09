@@ -16,14 +16,11 @@
 package global.namespace.neuron.di.internal;
 
 import global.namespace.neuron.di.java.BreedingException;
-import global.namespace.neuron.di.java.DependencyProvider;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collections;
 import java.util.Map;
-import java.util.Optional;
 import java.util.WeakHashMap;
-import java.util.function.Function;
 
 public final class RealIncubator {
 

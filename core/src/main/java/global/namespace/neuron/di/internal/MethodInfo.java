@@ -17,6 +17,7 @@ package global.namespace.neuron.di.internal;
 
 import global.namespace.neuron.di.java.Caching;
 import global.namespace.neuron.di.java.CachingStrategy;
+import global.namespace.neuron.di.java.DependencyProvider;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -25,26 +26,24 @@ import java.util.Optional;
 import static java.util.Optional.ofNullable;
 
 @FunctionalInterface
-public interface MethodInfo {
+interface MethodInfo {
 
     Method method();
+
+    default Optional<DependencyProvider<?>> apply(Binding binding) { return binding.apply(method()); }
 
     default Optional<CachingStrategy> declaredCachingStrategy() {
         return ofNullable(method().getDeclaredAnnotation(Caching.class)).map(Caching::value);
     }
 
-    default boolean isSynapse() { return isAbstract() && !isVoid() && !hasParameters(); }
+    default String name() { return method().getName(); }
 
     default boolean isAbstract() { return Modifier.isAbstract(method().getModifiers()); }
+
+    default boolean hasParameters() { return 0 != method().getParameterCount(); }
 
     default boolean isVoid() {
         final Class<?> returnType = method().getReturnType();
         return Void.TYPE == returnType || Void.class == returnType;
     }
-
-    default boolean hasParameters() { return 0 != method().getParameterCount(); }
-
-    default String name() { return method().getName(); }
-
-    default Class<?> returnType() { return method().getReturnType(); }
 }
