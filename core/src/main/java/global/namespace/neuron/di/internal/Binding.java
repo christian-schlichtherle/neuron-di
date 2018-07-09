@@ -20,4 +20,5 @@ import global.namespace.neuron.di.java.DependencyProvider;
 import java.util.Optional;
 import java.util.function.Function;
 
+@FunctionalInterface
 public interface Binding extends Function<MethodInfo, Optional<DependencyProvider<?>>> { }

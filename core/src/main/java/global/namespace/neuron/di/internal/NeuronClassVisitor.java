@@ -30,8 +30,10 @@ import static org.objectweb.asm.Type.*;
 final class NeuronClassVisitor extends ClassVisitor {
 
     private static final int ACC_ABSTRACT_INTERFACE = ACC_ABSTRACT | ACC_INTERFACE;
+    private static final int ACC_ABSTRACT_NATIVE = ACC_ABSTRACT | ACC_NATIVE;
     private static final int ACC_PRIVATE_SYNTHETIC = ACC_PRIVATE | ACC_SYNTHETIC;
     private static final int ACC_FINAL_SUPER_SYNTHETIC = ACC_FINAL | ACC_SUPER | ACC_SYNTHETIC;
+
     private static final String CONSTRUCTOR_NAME = "<init>";
     private static final String ACCEPTS_NOTHING_AND_RETURNS_VOID_DESC = "()V";
     private static final String OBJECT_DESC = "Ljava/lang/Object;";
@@ -139,7 +141,7 @@ final class NeuronClassVisitor extends ClassVisitor {
         for (final Method method : bindableMethods) {
             new Object() {
 
-                final int access = method.getModifiers() & ~(ACC_ABSTRACT | ACC_NATIVE) | ACC_SYNTHETIC;
+                final int access = method.getModifiers() & ~ACC_ABSTRACT_NATIVE | ACC_SYNTHETIC;
                 final String name = method.getName();
                 final String desc = getMethodDescriptor(method);
 
@@ -153,7 +155,7 @@ final class NeuronClassVisitor extends ClassVisitor {
 
                 final int returnOpCode = returnOpCode(method);
 
-                void apply() {
+                {
                     generateProxyField();
                     generateProxyCallMethod();
                 }
@@ -194,7 +196,7 @@ final class NeuronClassVisitor extends ClassVisitor {
                     mv.visitMaxs(-1, -1);
                     mv.visitEnd();
                 }
-            }.apply();
+            };
         }
     }
 

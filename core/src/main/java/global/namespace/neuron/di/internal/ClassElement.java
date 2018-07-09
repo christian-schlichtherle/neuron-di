@@ -15,6 +15,7 @@
  */
 package global.namespace.neuron.di.internal;
 
+@FunctionalInterface
 interface ClassElement<C> extends Element<C> {
 
     Class<C> runtimeClass();

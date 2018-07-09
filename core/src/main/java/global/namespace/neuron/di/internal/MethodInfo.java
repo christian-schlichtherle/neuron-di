@@ -24,6 +24,7 @@ import java.util.Optional;
 
 import static java.util.Optional.ofNullable;
 
+@FunctionalInterface
 public interface MethodInfo {
 
     Method method();

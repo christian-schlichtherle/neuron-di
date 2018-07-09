@@ -121,33 +121,34 @@ public final class Incubator {
 
             @Override
             public T breed() {
-                return new Binding() {
+                return new Object() {
 
-                    final Map<Method, DependencyResolver<? super T, ?>> resolvedBindings =
-                            Resolver.resolve(runtimeClass, bindings);
+                    final T neuron = RealIncubator.breed(runtimeClass, new Binding() {
 
-                    final T neuron = RealIncubator.breed(runtimeClass, this);
+                        final Map<Method, DependencyResolver<? super T, ?>> resolvedBindings =
+                                Resolver.resolve(runtimeClass, bindings);
 
-                    @Override
-                    public Optional<DependencyProvider<?>> apply(final MethodInfo info) {
-                        final Optional<DependencyProvider<?>> optionalDependencyProvider =
-                                ofNullable(resolvedBindings.get(info.method())).map(resolver -> () -> resolver.apply(neuron));
-                        if (optionalDependencyProvider.isPresent()) {
-                            return optionalDependencyProvider;
-                        } else if (!info.isSynapse()) {
-                            return empty();
-                        } else if (!partial) {
-                            throw new BreedingException(
-                                    "Partial binding is disabled and no binding is defined for synapse method: " + info.method());
-                        } else if (null != delegate) {
-                            final String member = info.name();
-                            final MethodHandle handle = find(member).in(delegate).orElseThrow(() ->
-                                    new BreedingException("Illegal binding: A member named `" + member + "` neither exists in `" + delegate.getClass() + "` nor in any of its interfaces and superclasses."));
-                            return of(handle::invokeExact);
-                        } else {
-                            return of(() -> Incubator.breed(info.returnType()));
+                        @Override
+                        public Optional<DependencyProvider<?>> apply(final MethodInfo info) {
+                            final Optional<DependencyProvider<?>> optionalDependencyProvider =
+                                    ofNullable(resolvedBindings.get(info.method())).map(resolver -> () -> resolver.apply(neuron));
+                            if (optionalDependencyProvider.isPresent()) {
+                                return optionalDependencyProvider;
+                            } else if (!info.isSynapse()) {
+                                return empty();
+                            } else if (!partial) {
+                                throw new BreedingException(
+                                        "Partial binding is disabled and no binding is defined for synapse method: " + info.method());
+                            } else if (null != delegate) {
+                                final String member = info.name();
+                                final MethodHandle handle = find(member).in(delegate).orElseThrow(() ->
+                                        new BreedingException("Illegal binding: A member named `" + member + "` neither exists in `" + delegate.getClass() + "` nor in any of its interfaces and superclasses."));
+                                return of(handle::invokeExact);
+                            } else {
+                                return of(() -> Incubator.breed(info.returnType()));
+                            }
                         }
-                    }
+                    });
                 }.neuron;
             }
         };

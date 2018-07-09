@@ -18,6 +18,7 @@ package global.namespace.neuron.di.internal;
 import global.namespace.neuron.di.java.CachingStrategy;
 import global.namespace.neuron.di.java.DependencyProvider;
 
+@FunctionalInterface
 interface HasCachingStrategy {
 
     default <D> DependencyProvider<D> decorate(DependencyProvider<D> provider) {

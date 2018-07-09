@@ -15,6 +15,8 @@
  */
 package global.namespace.neuron.di.scala.sample
 
+import java.util.concurrent.ThreadLocalRandom
+
 import global.namespace.neuron.di.scala._
 
 @Neuron
@@ -34,9 +36,14 @@ trait WeatherStation extends Clock {
 @Neuron
 trait AprilWeatherStation extends WeatherStation {
 
-  def temperature: Temperature = wire[Temperature]
+  import AprilWeatherStation._
 
-  def value: Double = java.util.concurrent.ThreadLocalRandom.current.nextDouble(5D, 25D)
+  def temperature: Temperature = wire[Temperature]
+}
+
+private object AprilWeatherStation {
+
+  def value: Double = ThreadLocalRandom.current.nextDouble(5D, 25D)
 
   val unit: String = "˚ Celsius"
 }
