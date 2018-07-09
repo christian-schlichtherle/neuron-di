@@ -1,4 +1,7 @@
-# Neuron DI [![Build Status](https://api.travis-ci.org/christian-schlichtherle/neuron-di.svg)](https://travis-ci.org/christian-schlichtherle/neuron-di)
+[![Apache License 2.0](https://img.shields.io/github/license/christian-schlichtherle/neuron-di.svg?maxAge=3600)](https://www.apache.org/licenses/LICENSE-2.0)
+[![Build Status](https://api.travis-ci.org/christian-schlichtherle/neuron-di.svg)](https://travis-ci.org/christian-schlichtherle/neuron-di)
+
+# Neuron DI 
 
 Neuron DI is an ultra-light dependency injection framework which emphasizes the beauty and power of lazy 
 dependency resolution with compile-time type-safety - see [Features and Benefits].
@@ -33,9 +36,7 @@ Release artifacts are deployed to [Maven Central](https://search.maven.org/#sear
 - [![Neuron DI @ Guice for Scala 2.11](https://img.shields.io/maven-central/v/global.namespace.neuron-di/neuron-di-guice-scala_2.11.svg?label=Neuron%20DI%20@%20Guice%20for%20Scala%202.11&maxAge=3600)](https://search.maven.org/#search%7Cga%7C1%7Cg%3A%22global.namespace.neuron-di%22%20AND%20a%3A%22neuron-di-guice-scala_2.11%22)
 - [![Neuron DI @ Guice for Scala 2.12](https://img.shields.io/maven-central/v/global.namespace.neuron-di/neuron-di-guice-scala_2.12.svg?label=Neuron%20DI%20@%20Guice%20for%20Scala%202.12&maxAge=3600)](https://search.maven.org/#search%7Cga%7C1%7Cg%3A%22global.namespace.neuron-di%22%20AND%20a%3A%22neuron-di-guice-scala_2.12%22)
 
-Neuron DI is covered by the Apache License, Version 2.0:
-
-- [![Apache License 2.0](https://img.shields.io/github/license/christian-schlichtherle/neuron-di.svg?maxAge=3600)](https://www.apache.org/licenses/LICENSE-2.0)
+Neuron DI is covered by the Apache License, Version 2.0.
 
 [Wiki]: ../../wiki
 [Features and Benefits]: ../../wiki/Features
