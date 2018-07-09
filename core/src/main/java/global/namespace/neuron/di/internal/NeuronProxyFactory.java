@@ -84,13 +84,13 @@ final class NeuronProxyFactory<N> implements Function<Binding, N>{
 
             @Override
             public void visitSynapse(SynapseElement<N> element) {
-                boundMethodHandler.provider(element.decorate(binding.apply(element)
+                boundMethodHandler.provider(element.decorate(element.apply(binding)
                         .orElseThrow(() -> new BreedingException("No binding defined for synapse method: " + element.method()))));
             }
 
             @Override
             public void visitMethod(MethodElement<N> element) {
-                boundMethodHandler.provider(element.decorate(binding.apply(element)
+                boundMethodHandler.provider(element.decorate(element.apply(binding)
                         .orElseGet(boundMethodHandler::provider)));
             }
 

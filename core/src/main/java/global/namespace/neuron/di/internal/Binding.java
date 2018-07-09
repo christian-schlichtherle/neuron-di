@@ -17,8 +17,9 @@ package global.namespace.neuron.di.internal;
 
 import global.namespace.neuron.di.java.DependencyProvider;
 
+import java.lang.reflect.Method;
 import java.util.Optional;
 import java.util.function.Function;
 
 @FunctionalInterface
-public interface Binding extends Function<MethodInfo, Optional<DependencyProvider<?>>> { }
+public interface Binding extends Function<Method, Optional<DependencyProvider<?>>> { }

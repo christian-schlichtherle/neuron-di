@@ -16,11 +16,11 @@
 package global.namespace.neuron.di.java;
 
 import global.namespace.neuron.di.internal.Binding;
-import global.namespace.neuron.di.internal.MethodInfo;
 import global.namespace.neuron.di.internal.RealIncubator;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.LinkedList;
 import java.util.List;
@@ -68,7 +68,7 @@ public final class Incubator {
      */
     public static <T> T breed(Class<T> runtimeClass,
                               Function<Method, DependencyProvider<?>> binding) {
-        return RealIncubator.breed(runtimeClass, info -> info.isSynapse() ? of(binding.apply(info.method())) : empty());
+        return RealIncubator.breed(runtimeClass, method -> isAbstract(method) ? of(binding.apply(method)) : empty());
     }
 
     /**
@@ -129,23 +129,23 @@ public final class Incubator {
                                 Resolver.resolve(runtimeClass, bindings);
 
                         @Override
-                        public Optional<DependencyProvider<?>> apply(final MethodInfo info) {
+                        public Optional<DependencyProvider<?>> apply(final Method method) {
                             final Optional<DependencyProvider<?>> optionalDependencyProvider =
-                                    ofNullable(resolvedBindings.get(info.method())).map(resolver -> () -> resolver.apply(neuron));
+                                    ofNullable(resolvedBindings.get(method)).map(resolver -> () -> resolver.apply(neuron));
                             if (optionalDependencyProvider.isPresent()) {
                                 return optionalDependencyProvider;
-                            } else if (!info.isSynapse()) {
+                            } else if (!isAbstract(method)) {
                                 return empty();
                             } else if (!partial) {
                                 throw new BreedingException(
-                                        "Partial binding is disabled and no binding is defined for synapse method: " + info.method());
+                                        "Partial binding is disabled and no binding is defined for synapse method: " + method);
                             } else if (null != delegate) {
-                                final String member = info.name();
+                                final String member = method.getName();
                                 final MethodHandle handle = find(member).in(delegate).orElseThrow(() ->
                                         new BreedingException("Illegal binding: A member named `" + member + "` neither exists in `" + delegate.getClass() + "` nor in any of its interfaces and superclasses."));
                                 return of(handle::invokeExact);
                             } else {
-                                return of(() -> Incubator.breed(info.returnType()));
+                                return of(() -> Incubator.breed(method.getReturnType()));
                             }
                         }
                     });
@@ -153,6 +153,8 @@ public final class Incubator {
             }
         };
     }
+
+    private static boolean isAbstract(Method method ) { return Modifier.isAbstract(method.getModifiers()); }
 
     @SuppressWarnings("WeakerAccess")
     public interface Wire<T> {
