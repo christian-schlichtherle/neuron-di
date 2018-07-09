@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
-import java.util.function.Function;
 
 import static global.namespace.neuron.di.java.Reflection.find;
 import static java.util.Optional.*;
@@ -47,7 +46,7 @@ public final class Incubator {
     public static <T> T breed(Class<T> runtimeClass) {
         return breed(runtimeClass, synapse -> {
             final Class<?> returnType = synapse.getReturnType();
-            return () -> breed(returnType);
+            return of(() -> breed(returnType));
         });
     }
 
@@ -65,9 +64,8 @@ public final class Incubator {
      *                Depending on the caching strategy for the synapse method, the provided dependency may get cached
      *                for future use.
      */
-    public static <T> T breed(Class<T> runtimeClass,
-                              Function<Method, DependencyProvider<?>> binding) {
-        return RealIncubator.breed(runtimeClass, method -> isAbstract(method) ? of(binding.apply(method)) : empty());
+    public static <T> T breed(Class<T> runtimeClass, Binding binding) {
+        return RealIncubator.breed(runtimeClass, method -> isAbstract(method) ? binding.apply(method) : empty());
     }
 
     /**

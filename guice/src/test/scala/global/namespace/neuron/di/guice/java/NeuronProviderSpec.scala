@@ -16,13 +16,14 @@
 package global.namespace.neuron.di.guice.java
 
 import java.lang.reflect.Method
+import java.util.Optional
 import java.util.function.{Function => jFunction, Supplier => jSupplier}
 
 import com.google.inject._
 import com.google.inject.name.Names.named
 import global.namespace.neuron.di.guice.java.NeuronProviderSpec._
 import global.namespace.neuron.di.guice.java.sample.{NeuronWithQualifiedSynapses, TestBindingAnnotation, TestQualifier}
-import global.namespace.neuron.di.java.{DependencyResolver, DependencyProvider, Incubator}
+import global.namespace.neuron.di.java.{DependencyProvider, DependencyResolver, Incubator}
 import org.mockito.Mockito._
 import org.scalatest.Matchers._
 import org.scalatest.WordSpec
@@ -42,8 +43,8 @@ class NeuronProviderSpec extends WordSpec {
             case "membersInjector" => noOpMembersInjector
             case "typeLiteral" => TypeLiteral get classOf[NeuronWithQualifiedSynapses]
           }
-          () => result
-        }: DependencyProvider[_]
+          Optional.of(() => result)
+        }: Optional[DependencyProvider[_]]
       )
 
       val fooKey = Key.get(classOf[String], named("foo"))

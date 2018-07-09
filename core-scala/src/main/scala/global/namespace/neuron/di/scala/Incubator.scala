@@ -16,6 +16,7 @@
 package global.namespace.neuron.di.scala
 
 import java.lang.reflect.Method
+import java.util.Optional
 import java.util.function.{Function => jFunction}
 
 import global.namespace.neuron.di.internal.scala.runtimeClassOf
@@ -26,10 +27,12 @@ import scala.reflect._
 /** @author Christian Schlichtherle */
 object Incubator {
 
-  def breed[A >: Null : ClassTag]: A = jIncubator breed runtimeClassOf[A]
+  def breed[A >: Null : ClassTag](): A = jIncubator breed runtimeClassOf[A]
 
-  def breed[A >: Null : ClassTag](binding: Method => () => _): A =
-    jIncubator.breed(runtimeClassOf[A], (method: Method) => binding(method): DependencyProvider[_])
+  def foo[A >: Null : ClassTag](binding: Binding): A =
+    jIncubator.breed(runtimeClassOf[A], { method: Method =>
+      Optional.ofNullable[DependencyProvider[_]](binding.applyOrElse(method, (_: Method) => null))
+    })
 
   case class wire[A >: Null : ClassTag]() { self =>
 
