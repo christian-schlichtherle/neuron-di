@@ -20,7 +20,7 @@ import Dependencies._
 
 lazy val root = project
   .in(file("."))
-  .aggregate(core, coreScala, guice, guiceScala, junit, sbtPlugin, playPlugin)
+  .aggregate(core, coreScala, guice, guiceScala)
   .settings(releaseSettings)
   .settings(aggregateSettings)
   .settings(name := "Neuron DI")
@@ -101,25 +101,4 @@ lazy val junit = project
     libraryDependencies += JUnit,
     name := "Neuron DI JUnit",
     normalizedName := "neuron-di-junit"
-  )
-
-lazy val sbtPlugin = project
-  .in(file("sbt-plugin"))
-  .settings(sbtPluginSettings)
-  .settings(
-    name := "Neuron DI SBT Plugin",
-    normalizedName := "neuron-di-sbt-plugin",
-    resourceGenerators in Compile += generateVersionFile.taskValue
-  )
-
-lazy val playPlugin = project
-  .in(file("play-plugin"))
-  .dependsOn(sbtPlugin)
-  .enablePlugins(SbtTwirl)
-  .settings(sbtPluginSettings)
-  .settings(
-    addSbtPlugin(PlaySbtPlugin),
-    name := "Neuron DI Play Plugin",
-    normalizedName := "neuron-di-play-plugin",
-    TwirlKeys.templateFormats := Map("twirl" -> "play.routes.compiler.ScalaFormat")
   )
