@@ -373,7 +373,7 @@ private object IncubatorSpec {
 
     private var synapses = List.empty[Method]
 
-    Incubator.foo[T] { case method: Method =>
+    Incubator.make[T] { case method: Method =>
       synapses ::= method
       () => throw new AssertionError
     }

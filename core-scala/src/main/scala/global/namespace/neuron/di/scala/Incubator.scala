@@ -27,14 +27,14 @@ import scala.reflect._
 /** @author Christian Schlichtherle */
 object Incubator {
 
-  def breed[A >: Null : ClassTag](): A = jIncubator breed runtimeClassOf[A]
+  def breed[A >: Null : ClassTag]: A = jIncubator breed runtimeClassOf[A]
 
-  def foo[A >: Null : ClassTag](binding: Binding): A =
-    jIncubator.breed(runtimeClassOf[A], { method: Method =>
+  def make[A >: Null : ClassTag](binding: Binding): A =
+    jIncubator.make(runtimeClassOf[A], { method: Method =>
       Optional.ofNullable[DependencyProvider[_]](binding.applyOrElse(method, (_: Method) => null))
     })
 
-  case class wire[A >: Null : ClassTag]() { self =>
+  case class wire[A >: Null](implicit tag: ClassTag[A]) { self =>
 
     private var jwire = jIncubator wire runtimeClassOf[A]
 

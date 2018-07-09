@@ -44,7 +44,7 @@ public final class Incubator {
      * calling this method.
      */
     public static <T> T breed(Class<T> runtimeClass) {
-        return breed(runtimeClass, synapse -> {
+        return make(runtimeClass, synapse -> {
             final Class<?> returnType = synapse.getReturnType();
             return of(() -> breed(returnType));
         });
@@ -57,14 +57,14 @@ public final class Incubator {
      *
      * @param binding a function which looks up a binding for a given synapse method (the injection point) and returns
      *                some provider to resolve the dependency.
-     *                The {@code binding} function is called before the call to {@code breed} returns in order to look
+     *                The {@code binding} function is called before the call to {@code make} returns in order to look
      *                up the binding eagerly.
      *                The returned provider is called later when the synapse method is accessed in order to resolve the
      *                dependency lazily.
      *                Depending on the caching strategy for the synapse method, the provided dependency may get cached
      *                for future use.
      */
-    public static <T> T breed(Class<T> runtimeClass, Binding binding) {
+    public static <T> T make(Class<T> runtimeClass, Binding binding) {
         return RealIncubator.breed(runtimeClass, method -> isAbstract(method) ? binding.apply(method) : empty());
     }
 

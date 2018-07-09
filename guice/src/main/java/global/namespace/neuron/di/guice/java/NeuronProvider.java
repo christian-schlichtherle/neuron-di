@@ -40,7 +40,7 @@ abstract class NeuronProvider<T> implements Provider<T> {
 
     @SuppressWarnings("unchecked")
     public T get() {
-        final T instance = (T) Incubator.breed(typeLiteral().getRawType(), this::binding);
+        final T instance = (T) Incubator.make(typeLiteral().getRawType(), this::binding);
         membersInjector().injectMembers(instance);
         return instance;
     }
