@@ -15,7 +15,6 @@
  */
 package global.namespace.neuron.di.java;
 
-import global.namespace.neuron.di.internal.Binding;
 import global.namespace.neuron.di.internal.RealIncubator;
 
 import java.lang.invoke.MethodHandle;
