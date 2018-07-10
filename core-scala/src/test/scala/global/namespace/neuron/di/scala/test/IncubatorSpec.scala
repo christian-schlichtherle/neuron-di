@@ -177,7 +177,7 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
       When("calling `.breed` multiple times with different bindings")
       Then("the incubator should create a different neuron reflecting the respective binding each time.")
 
-      var builder = Incubator.wire[HasDependency[String]]
+      val builder = Incubator.wire[HasDependency[String]]
       val helloWorld = builder.bind(_.get).to("Hello world!").breed
       val helloChristian = builder.bind(_.get).to("Hello Christian!").breed
 
@@ -369,11 +369,11 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
 
 private object IncubatorSpec {
 
-  case class synapsesOf[T >: Null : ClassTag]() {
+  case class synapsesOf[T >: Null](implicit tag: ClassTag[T]) {
 
     private var synapses = List.empty[Method]
 
-    Incubator.make[T] { case method: Method =>
+    Incubator.breed[T] { method: Method =>
       synapses ::= method
       () => throw new AssertionError
     }

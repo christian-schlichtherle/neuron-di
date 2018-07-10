@@ -15,6 +15,7 @@
  */
 package global.namespace.neuron.di.java;
 
+import global.namespace.neuron.di.internal.Binding;
 import global.namespace.neuron.di.internal.RealIncubator;
 
 import java.lang.invoke.MethodHandle;
@@ -26,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.function.Function;
 
 import static global.namespace.neuron.di.java.Reflection.find;
 import static java.util.Optional.*;
@@ -44,9 +46,9 @@ public final class Incubator {
      * calling this method.
      */
     public static <T> T breed(Class<T> runtimeClass) {
-        return make(runtimeClass, synapse -> {
+        return breed(runtimeClass, synapse -> {
             final Class<?> returnType = synapse.getReturnType();
-            return of(() -> breed(returnType));
+            return () -> breed(returnType);
         });
     }
 
@@ -57,15 +59,15 @@ public final class Incubator {
      *
      * @param binding a function which looks up a binding for a given synapse method (the injection point) and returns
      *                some provider to resolve the dependency.
-     *                The {@code binding} function is called before the call to {@code make} returns in order to look
+     *                The {@code binding} function is called before the call to {@code breed} returns in order to look
      *                up the binding eagerly.
      *                The returned provider is called later when the synapse method is accessed in order to resolve the
      *                dependency lazily.
      *                Depending on the caching strategy for the synapse method, the provided dependency may get cached
      *                for future use.
      */
-    public static <T> T make(Class<T> runtimeClass, Binding binding) {
-        return RealIncubator.breed(runtimeClass, method -> isAbstract(method) ? binding.apply(method) : empty());
+    public static <T> T breed(Class<T> runtimeClass, Function<Method, DependencyProvider<?>> binding) {
+        return RealIncubator.breed(runtimeClass, method -> isAbstract(method) ? of(binding.apply(method)) : empty());
     }
 
     /**
@@ -86,7 +88,7 @@ public final class Incubator {
      *
      * @since Neuron DI 5.0 (renamed from {@code stub}, which was introduced in Neuron DI 1.0)
      */
-    public static <T> Wire<T> wire(final Class<T> runtimeClass) {
+    public static <T> Wire<T> wire(Class<T> runtimeClass) {
         return new Wire<T>() {
 
             List<Entry<DependencyResolver<T, ?>, DependencyResolver<? super T, ?>>> bindings = new LinkedList<>();

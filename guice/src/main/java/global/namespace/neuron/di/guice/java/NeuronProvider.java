@@ -25,7 +25,6 @@ import javax.inject.Qualifier;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.Arrays;
-import java.util.Optional;
 
 /** @author Christian Schlichtherle */
 @Neuron
@@ -40,12 +39,12 @@ abstract class NeuronProvider<T> implements Provider<T> {
 
     @SuppressWarnings("unchecked")
     public T get() {
-        final T instance = (T) Incubator.make(typeLiteral().getRawType(), this::binding);
+        final T instance = (T) Incubator.breed(typeLiteral().getRawType(), this::binding);
         membersInjector().injectMembers(instance);
         return instance;
     }
 
-    private Optional<DependencyProvider<?>> binding(final Method method) {
+    private DependencyProvider<?> binding(final Method method) {
         final TypeLiteral<?> returnTypeLiteral = typeLiteral().getReturnType(method);
         final Key<?> returnKey = Arrays
                 .stream(method.getDeclaredAnnotations())
@@ -53,7 +52,7 @@ abstract class NeuronProvider<T> implements Provider<T> {
                 .findFirst()
                 .<Key<?>>map(annotation -> Key.get(returnTypeLiteral, annotation))
                 .orElseGet(() -> Key.get(returnTypeLiteral));
-        return Optional.of(injector().getProvider(returnKey)::get);
+        return injector().getProvider(returnKey)::get;
     }
 
     private static boolean isQualifierOrBindingAnnotation(final Annotation annotation) {

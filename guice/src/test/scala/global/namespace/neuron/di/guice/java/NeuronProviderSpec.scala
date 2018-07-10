@@ -16,7 +16,6 @@
 package global.namespace.neuron.di.guice.java
 
 import java.lang.reflect.Method
-import java.util.Optional
 
 import com.google.inject._
 import com.google.inject.name.Names.named
@@ -34,16 +33,16 @@ class NeuronProviderSpec extends WordSpec {
   "A neuron provider" should {
     "use a given injector to create providers for keys with qualifying and binding annotations" in {
       val injector = mock[Injector]
-      val provider = Incubator.make(
+      val provider = Incubator.breed(
         classOf[NeuronProvider[NeuronWithQualifiedSynapses]],
-        method => {
+        (method: Method) => {
           val result = method.getName match {
             case "injector" => injector
             case "membersInjector" => noOpMembersInjector
             case "typeLiteral" => TypeLiteral get classOf[NeuronWithQualifiedSynapses]
           }
-          Optional.of(() => result)
-        }
+          () => result
+        }: DependencyProvider[_]
       )
 
       val fooKey = Key.get(classOf[String], named("foo"))

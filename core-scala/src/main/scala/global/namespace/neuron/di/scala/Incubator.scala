@@ -16,10 +16,10 @@
 package global.namespace.neuron.di.scala
 
 import java.lang.reflect.Method
-import java.util.Optional
+import java.util.function.{Function => jFunction}
 
 import global.namespace.neuron.di.internal.scala.runtimeClassOf
-import global.namespace.neuron.di.java.{DependencyProvider, DependencyResolver, Binding => jBinding, Incubator => jIncubator}
+import global.namespace.neuron.di.java.{DependencyProvider, DependencyResolver, Incubator => jIncubator}
 
 import scala.reflect._
 
@@ -28,10 +28,8 @@ object Incubator {
 
   def breed[A >: Null : ClassTag]: A = jIncubator breed runtimeClassOf[A]
 
-  def make[A >: Null : ClassTag](binding: Binding): A =
-    jIncubator.make(runtimeClassOf[A], { method: Method =>
-      Optional.ofNullable[DependencyProvider[_]](binding.applyOrElse(method, (_: Method) => null))
-    })
+  def breed[A >: Null : ClassTag](binding: Method => () => _): A =
+    jIncubator.breed(runtimeClassOf[A], (method: Method) => binding(method): DependencyProvider[_])
 
   case class wire[A >: Null](implicit tag: ClassTag[A]) { self =>
 
@@ -62,9 +60,9 @@ object Incubator {
     def breed: A = jwire.breed
   }
 
-  private implicit class BindingAdapter(fun: Method => Optional[DependencyProvider[_]]) extends jBinding {
+  private implicit class FunctionAdapter[A, B](fun: A => B) extends jFunction[A, B] {
 
-    def apply(method: Method): Optional[DependencyProvider[_]] = fun(method)
+    def apply(a: A): B = fun(a)
   }
 
   private implicit class DependencyResolverAdapter[A, B](fun: A => B) extends DependencyResolver[A, B] {

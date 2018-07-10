@@ -15,7 +15,6 @@
  */
 package global.namespace.neuron.di.internal;
 
-import global.namespace.neuron.di.java.Binding;
 import global.namespace.neuron.di.java.BreedingException;
 
 import java.lang.reflect.InvocationTargetException;
