@@ -17,13 +17,12 @@ package global.namespace.neuron.di.guice.java
 
 import java.lang.reflect.Method
 import java.util.Optional
-import java.util.function.{Function => jFunction}
 
 import com.google.inject._
 import com.google.inject.name.Names.named
 import global.namespace.neuron.di.guice.java.NeuronProviderSpec._
 import global.namespace.neuron.di.guice.java.sample.{NeuronWithQualifiedSynapses, TestBindingAnnotation, TestQualifier}
-import global.namespace.neuron.di.java.{DependencyProvider, DependencyResolver, Incubator}
+import global.namespace.neuron.di.java.{DependencyProvider, Incubator}
 import org.mockito.Mockito._
 import org.scalatest.Matchers._
 import org.scalatest.WordSpec
@@ -37,14 +36,14 @@ class NeuronProviderSpec extends WordSpec {
       val injector = mock[Injector]
       val provider = Incubator.make(
         classOf[NeuronProvider[NeuronWithQualifiedSynapses]],
-        (method: Method) => {
+        method => {
           val result = method.getName match {
             case "injector" => injector
             case "membersInjector" => noOpMembersInjector
             case "typeLiteral" => TypeLiteral get classOf[NeuronWithQualifiedSynapses]
           }
           Optional.of(() => result)
-        }: Optional[DependencyProvider[_]]
+        }
       )
 
       val fooKey = Key.get(classOf[String], named("foo"))
@@ -73,20 +72,5 @@ private object NeuronProviderSpec {
   object noOpMembersInjector extends MembersInjector[NeuronWithQualifiedSynapses] {
 
     def injectMembers(instance: NeuronWithQualifiedSynapses) { }
-  }
-
-  implicit class FunctionAdapter[A, B](fun: A => B) extends jFunction[A, B] {
-
-    def apply(a: A): B = fun(a)
-  }
-
-  implicit class DependencyResolverAdapter[A, B](fun: A => B) extends DependencyResolver[A, B] {
-
-    def apply(a: A): B = fun(a)
-  }
-
-  implicit class DependencyProviderAdapter[A](supplier: () => A) extends DependencyProvider[A] {
-
-    def get(): A = supplier()
   }
 }
