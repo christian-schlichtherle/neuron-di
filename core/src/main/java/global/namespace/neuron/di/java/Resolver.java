@@ -60,7 +60,7 @@ final class Resolver {
 
     @SuppressWarnings("unchecked")
     private static <T> T fuze(Class<T> clazz) {
-        return (T) fuzes.computeIfAbsent(clazz, c -> RealIncubator.breed(c, Resolver::blowUp));
+        return (T) fuzes.computeIfAbsent(clazz, c -> Incubator.breed(c, Resolver::blowUp));
     }
 
     private static Optional<DependencyProvider<?>> blowUp(Method method) {

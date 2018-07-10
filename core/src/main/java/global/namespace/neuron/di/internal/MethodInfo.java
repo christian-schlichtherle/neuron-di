@@ -15,6 +15,7 @@
  */
 package global.namespace.neuron.di.internal;
 
+import global.namespace.neuron.di.java.Binding;
 import global.namespace.neuron.di.java.Caching;
 import global.namespace.neuron.di.java.CachingStrategy;
 import global.namespace.neuron.di.java.DependencyProvider;

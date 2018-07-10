@@ -15,7 +15,6 @@
  */
 package global.namespace.neuron.di.java;
 
-import global.namespace.neuron.di.internal.Binding;
 import global.namespace.neuron.di.internal.RealIncubator;
 
 import java.lang.invoke.MethodHandle;
@@ -46,7 +45,7 @@ public final class Incubator {
      * calling this method.
      */
     public static <T> T breed(Class<T> runtimeClass) {
-        return breed(runtimeClass, synapse -> {
+        return breed(runtimeClass, (Function<Method, DependencyProvider<?>>) synapse -> {
             final Class<?> returnType = synapse.getReturnType();
             return () -> breed(returnType);
         });
@@ -67,7 +66,11 @@ public final class Incubator {
      *                for future use.
      */
     public static <T> T breed(Class<T> runtimeClass, Function<Method, DependencyProvider<?>> binding) {
-        return RealIncubator.breed(runtimeClass, method -> isAbstract(method) ? of(binding.apply(method)) : empty());
+        return breed(runtimeClass, (Binding) method -> isAbstract(method) ? of(binding.apply(method)) : empty());
+    }
+
+    public static <T> T breed(Class<T> runtimeClass, Binding binding) {
+        return RealIncubator.breed(runtimeClass, binding);
     }
 
     /**
@@ -122,7 +125,7 @@ public final class Incubator {
             public T breed() {
                 return new Object() {
 
-                    final T neuron = RealIncubator.breed(runtimeClass, new Binding() {
+                    final T neuron = Incubator.breed(runtimeClass, new Binding() {
 
                         final Map<Method, DependencyResolver<? super T, ?>> resolvedBindings =
                                 Resolver.resolve(runtimeClass, bindings);
