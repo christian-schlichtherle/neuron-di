@@ -29,11 +29,14 @@ public final class RealIncubator {
 
     private RealIncubator() { }
 
-    public static <C> C breed(final Class<C> runtimeClass, final Binding binding) {
+    public static <C> C breed(Class<C> runtimeClass, Binding binding) {
+        return new Visitor<C>() {
 
-        class ClassVisitor implements Visitor<C> {
+            C instance;
 
-            private C instance;
+            {
+                Inspection.of(runtimeClass).accept(this);
+            }
 
             @SuppressWarnings("unchecked")
             @Override
@@ -49,11 +52,7 @@ public final class RealIncubator {
                 assert runtimeClass == element.runtimeClass();
                 instance = newInstance(runtimeClass);
             }
-        }
-
-        final ClassVisitor visitor = new ClassVisitor();
-        Inspection.of(runtimeClass).accept(visitor);
-        return visitor.instance;
+        }.instance;
     }
 
     private static <C> C newInstance(final Class<C> runtimeClass) {
