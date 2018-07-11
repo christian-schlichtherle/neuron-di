@@ -15,8 +15,6 @@
  */
 package global.namespace.neuron.di.java;
 
-import global.namespace.neuron.di.internal.RealIncubator;
-
 import java.lang.reflect.Method;
 import java.util.*;
 
@@ -60,7 +58,7 @@ final class Resolver {
 
     @SuppressWarnings("unchecked")
     private static <T> T fuze(Class<T> clazz) {
-        return (T) fuzes.computeIfAbsent(clazz, c -> Incubator.breed(c, Resolver::blowUp));
+        return (T) fuzes.computeIfAbsent(clazz, c -> Builder.build(c, Resolver::blowUp));
     }
 
     private static Optional<DependencyProvider<?>> blowUp(Method method) {

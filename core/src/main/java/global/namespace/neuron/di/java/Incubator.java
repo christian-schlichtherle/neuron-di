@@ -15,8 +15,6 @@
  */
 package global.namespace.neuron.di.java;
 
-import global.namespace.neuron.di.internal.RealIncubator;
-
 import java.lang.invoke.MethodHandle;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -28,11 +26,13 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.function.Function;
 
+import static global.namespace.neuron.di.java.Builder.build;
 import static global.namespace.neuron.di.java.Reflection.find;
 import static java.util.Optional.*;
 
 /**
- * An incubator {@linkplain #wire(Class) wires} and {@linkplain #breed(Class) breeds} neuron classes and interfaces.
+ * An incubator breeds neuron types.
+ * A neuron type is a class or interface with the {@link Neuron} annotation.
  *
  * @author Christian Schlichtherle
  */
@@ -45,7 +45,7 @@ public final class Incubator {
      * calling this method.
      */
     public static <T> T breed(Class<T> runtimeClass) {
-        return breed(runtimeClass, (Function<Method, DependencyProvider<?>>) synapse -> {
+        return breed(runtimeClass, synapse -> {
             final Class<?> returnType = synapse.getReturnType();
             return () -> breed(returnType);
         });
@@ -66,11 +66,7 @@ public final class Incubator {
      *                for subsequent calls to the synapse method.
      */
     public static <T> T breed(Class<T> runtimeClass, Function<Method, DependencyProvider<?>> binding) {
-        return breed(runtimeClass, (Binding) method -> isAbstract(method) ? of(binding.apply(method)) : empty());
-    }
-
-    public static <T> T breed(Class<T> runtimeClass, Binding binding) {
-        return RealIncubator.breed(runtimeClass, binding);
+        return build(runtimeClass, method -> isAbstract(method) ? of(binding.apply(method)) : empty());
     }
 
     /**
@@ -124,7 +120,7 @@ public final class Incubator {
             public T breed() {
                 return new Object() {
 
-                    final T neuron = Incubator.breed(runtimeClass, new Binding() {
+                    final T neuron = build(runtimeClass, new MethodBinding() {
 
                         final Map<Method, DependencyResolver<? super T, ?>> resolvedBindings =
                                 Resolver.resolve(runtimeClass, bindings);

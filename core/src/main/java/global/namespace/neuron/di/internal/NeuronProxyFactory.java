@@ -15,7 +15,7 @@
  */
 package global.namespace.neuron.di.internal;
 
-import global.namespace.neuron.di.java.Binding;
+import global.namespace.neuron.di.java.MethodBinding;
 import global.namespace.neuron.di.java.BreedingException;
 import global.namespace.neuron.di.java.DependencyProvider;
 
@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
 import static java.lang.invoke.MethodHandles.publicLookup;
 import static java.lang.invoke.MethodType.methodType;
 
-final class NeuronProxyFactory<N> implements Function<Binding, N>{
+final class NeuronProxyFactory<N> implements Function<MethodBinding, N>{
 
     private static final MethodType dependencyProviderObjectMethodType =
             methodType(DependencyProvider.class, Object.class);
@@ -64,7 +64,7 @@ final class NeuronProxyFactory<N> implements Function<Binding, N>{
 
     @SuppressWarnings("unchecked")
     @Override
-    public N apply(final Binding binding) {
+    public N apply(final MethodBinding binding) {
         return new Visitor<N>() {
 
             final N neuronProxy;

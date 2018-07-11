@@ -22,4 +22,4 @@ import java.util.Optional;
 import java.util.function.Function;
 
 @FunctionalInterface
-public interface Binding extends Function<Method, Optional<DependencyProvider<?>>> { }
+public interface MethodBinding extends Function<Method, Optional<DependencyProvider<?>>> { }

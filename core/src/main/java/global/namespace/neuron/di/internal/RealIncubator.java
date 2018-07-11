@@ -15,7 +15,7 @@
  */
 package global.namespace.neuron.di.internal;
 
-import global.namespace.neuron.di.java.Binding;
+import global.namespace.neuron.di.java.MethodBinding;
 import global.namespace.neuron.di.java.BreedingException;
 
 import java.lang.reflect.InvocationTargetException;
@@ -30,7 +30,7 @@ public final class RealIncubator {
 
     private RealIncubator() { }
 
-    public static <C> C breed(Class<C> runtimeClass, Binding binding) {
+    public static <C> C breed(Class<C> runtimeClass, MethodBinding binding) {
         return new Visitor<C>() {
 
             C instance;

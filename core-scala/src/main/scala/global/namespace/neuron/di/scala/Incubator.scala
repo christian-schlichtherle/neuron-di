@@ -28,8 +28,9 @@ object Incubator {
 
   def breed[A >: Null : ClassTag]: A = jIncubator breed runtimeClassOf[A]
 
-  def breed[A >: Null : ClassTag](binding: Method => () => _): A =
+  def breed[A >: Null : ClassTag](binding: Method => () => _): A = {
     jIncubator.breed(runtimeClassOf[A], (method: Method) => binding(method): DependencyProvider[_])
+  }
 
   case class wire[A >: Null](implicit tag: ClassTag[A]) { self =>
 
@@ -60,9 +61,9 @@ object Incubator {
     def breed: A = jwire.breed
   }
 
-  private implicit class FunctionAdapter[A, B](fun: A => B) extends jFunction[A, B] {
+  private implicit class DependencyProviderAdapter[A](supplier: () => A) extends DependencyProvider[A] {
 
-    def apply(a: A): B = fun(a)
+    def get(): A = supplier()
   }
 
   private implicit class DependencyResolverAdapter[A, B](fun: A => B) extends DependencyResolver[A, B] {
@@ -70,8 +71,8 @@ object Incubator {
     def apply(a: A): B = fun(a)
   }
 
-  private implicit class DependencyProviderAdapter[A](supplier: () => A) extends DependencyProvider[A] {
+  private implicit class FunctionAdapter[A, B](fun: A => B) extends jFunction[A, B] {
 
-    def get(): A = supplier()
+    def apply(a: A): B = fun(a)
   }
 }

@@ -15,7 +15,7 @@
  */
 package global.namespace.neuron.di.internal;
 
-import global.namespace.neuron.di.java.Binding;
+import global.namespace.neuron.di.java.MethodBinding;
 import global.namespace.neuron.di.java.Caching;
 import global.namespace.neuron.di.java.CachingStrategy;
 import global.namespace.neuron.di.java.DependencyProvider;
@@ -23,15 +23,16 @@ import global.namespace.neuron.di.java.DependencyProvider;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Optional;
+import java.util.function.Function;
 
 import static java.util.Optional.ofNullable;
 
 @FunctionalInterface
-interface MethodInfo {
+interface MethodInfo extends Function<MethodBinding, Optional<DependencyProvider<?>>> {
 
     Method method();
 
-    default Optional<DependencyProvider<?>> apply(Binding binding) { return binding.apply(method()); }
+    default Optional<DependencyProvider<?>> apply(MethodBinding binding) { return binding.apply(method()); }
 
     default Optional<CachingStrategy> declaredCachingStrategy() {
         return ofNullable(method().getDeclaredAnnotation(Caching.class)).map(Caching::value);
