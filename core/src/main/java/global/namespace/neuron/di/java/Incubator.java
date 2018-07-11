@@ -56,14 +56,14 @@ public final class Incubator {
      * This method is usually called from plugins or bridges for other DI frameworks in order to integrate Neuron DI
      * into the other DI framework.
      *
-     * @param binding a function which looks up a binding for a given synapse method (the injection point) and returns
-     *                some provider to resolve the dependency.
+     * @param binding a function which looks up a binding for a given synapse method (the injection point) to some
+     *                dependency provider which resolves the synapse method's return value.
      *                The {@code binding} function is called before the call to {@code breed} returns in order to look
-     *                up the binding eagerly.
-     *                The returned provider is called later when the synapse method is accessed in order to resolve the
-     *                dependency lazily.
-     *                Depending on the caching strategy for the synapse method, the provided dependency may get cached
-     *                for future use.
+     *                up the dependency provider eagerly.
+     *                The returned dependency provider is called later when the synapse method is called in order to
+     *                resolve its return value.
+     *                Depending on the caching strategy for the synapse method, the resolved dependency may get cached
+     *                for subsequent calls to the synapse method.
      */
     public static <T> T breed(Class<T> runtimeClass, Function<Method, DependencyProvider<?>> binding) {
         return breed(runtimeClass, (Binding) method -> isAbstract(method) ? of(binding.apply(method)) : empty());
@@ -74,14 +74,13 @@ public final class Incubator {
     }
 
     /**
-     * Starts constructing an instance of the given runtime class.
-     * This is a generic substitute for the {@code new} statement for use with neuron classes and interfaces.
-     * Note that the {@code new} statement can neither be used with neuron classes nor interfaces because they are
-     * abstract.
+     * Starts breeding an instance of the given runtime class.
+     * This is a generic substitute for the {@code new} statement for use with neuron types.
+     * Note that the {@code new} statement cannot be used with neuron types because they are abstract.
      * <p>
      * If the given runtime class is a neuron class or interface, then when {@linkplain Wire#breed() breeding} the
-     * neuron, the binding definitions will be examined eagerly in order to create providers for resolving the
-     * dependencies lazily.
+     * neuron, the binding definitions will be examined eagerly in order to lookup the dependency providers for
+     * lazily resolving the return value of the synapse methods.
      * The dependencies will be resolved using {@linkplain Bind#to(Object) values},
      * {@linkplain Bind#to(DependencyProvider) providers} or {@linkplain Bind#to(DependencyResolver) resolvers}.
      * <p>
