@@ -15,6 +15,8 @@
  */
 package global.namespace.neuron.di
 
+import _root_.java.lang.reflect.Method
+
 import global.namespace.neuron.di.java.{CachingStrategy => jcs}
 
 import _root_.scala.language.experimental.macros
@@ -23,6 +25,8 @@ import _root_.scala.language.experimental.macros
 package object scala {
 
   type CachingStrategy = jcs
+  type MethodBinding = PartialFunction[Method, () => _]
+  type SynapseBinding = Method => () => _
 
   object CachingStrategy {
 

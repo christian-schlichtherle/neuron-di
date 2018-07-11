@@ -16,10 +16,9 @@
 package global.namespace.neuron.di.scala
 
 import java.lang.reflect.Method
-import java.util.function.{Function => jFunction}
 
 import global.namespace.neuron.di.internal.scala.runtimeClassOf
-import global.namespace.neuron.di.java.{DependencyProvider, DependencyResolver, Incubator => jIncubator}
+import global.namespace.neuron.di.java.{DependencyProvider, DependencyResolver, Incubator => jIncubator, SynapseBinding => jSynapseBinding}
 
 import scala.reflect._
 
@@ -28,7 +27,7 @@ object Incubator {
 
   def breed[A >: Null : ClassTag]: A = jIncubator breed runtimeClassOf[A]
 
-  def breed[A >: Null : ClassTag](binding: Method => () => _): A = {
+  def breed[A >: Null : ClassTag](binding: SynapseBinding): A = {
     jIncubator.breed(runtimeClassOf[A], (method: Method) => binding(method): DependencyProvider[_])
   }
 
@@ -71,8 +70,8 @@ object Incubator {
     def apply(a: A): B = fun(a)
   }
 
-  private implicit class FunctionAdapter[A, B](fun: A => B) extends jFunction[A, B] {
+  private implicit class SynapseBindingAdapter(fun: Method => DependencyProvider[_]) extends jSynapseBinding {
 
-    def apply(a: A): B = fun(a)
+    def apply(method: Method): DependencyProvider[_] = fun(method)
   }
 }

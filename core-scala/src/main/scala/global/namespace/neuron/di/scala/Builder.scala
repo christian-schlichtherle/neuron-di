@@ -19,7 +19,7 @@ import java.lang.reflect.Method
 import java.util.Optional
 
 import global.namespace.neuron.di.internal.scala.runtimeClassOf
-import global.namespace.neuron.di.java.{DependencyProvider, MethodBinding, Builder => jBuilder}
+import global.namespace.neuron.di.java.{DependencyProvider, Builder => jBuilder, MethodBinding => jMethodBinding}
 
 import scala.languageFeature.implicitConversions
 import scala.reflect.ClassTag
@@ -27,8 +27,8 @@ import scala.reflect.ClassTag
 /** @author Christian Schlichtherle */
 object Builder {
 
-  def breed[A >: Null : ClassTag](binding: PartialFunction[Method, () => _]): A = {
-    jBuilder.build(runtimeClassOf[A], new MethodBinding {
+  def breed[A >: Null : ClassTag](binding: MethodBinding): A = {
+    jBuilder.build(runtimeClassOf[A], new jMethodBinding {
 
       def apply(method: Method): Optional[DependencyProvider[_]] = Optional.ofNullable(binding.applyOrElse(method, null))
     })

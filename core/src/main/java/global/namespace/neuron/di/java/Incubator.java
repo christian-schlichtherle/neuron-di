@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
-import java.util.function.Function;
 
 import static global.namespace.neuron.di.java.Builder.build;
 import static global.namespace.neuron.di.java.Reflection.find;
@@ -65,7 +64,7 @@ public final class Incubator {
      *                Depending on the caching strategy for the synapse method, the resolved dependency may get cached
      *                for subsequent calls to the synapse method.
      */
-    public static <T> T breed(Class<T> runtimeClass, Function<Method, DependencyProvider<?>> binding) {
+    public static <T> T breed(Class<T> runtimeClass, SynapseBinding binding) {
         return build(runtimeClass, method -> isAbstract(method) ? of(binding.apply(method)) : empty());
     }
 
@@ -74,11 +73,11 @@ public final class Incubator {
      * This is a generic substitute for the {@code new} statement for use with neuron types.
      * Note that the {@code new} statement cannot be used with neuron types because they are abstract.
      * <p>
-     * If the given runtime class is a neuron class or interface, then when {@linkplain Wire#breed() breeding} the
+     * If the given runtime class is a neuron class or interface, then when {@linkplain WireExpression#breed() breeding} the
      * neuron, the binding definitions will be examined eagerly in order to lookup the dependency providers for
      * lazily resolving the return value of the synapse methods.
-     * The dependencies will be resolved using {@linkplain Bind#to(Object) values},
-     * {@linkplain Bind#to(DependencyProvider) providers} or {@linkplain Bind#to(DependencyResolver) resolvers}.
+     * The dependencies will be resolved using {@linkplain BindExpression#to(Object) values},
+     * {@linkplain BindExpression#to(DependencyProvider) providers} or {@linkplain BindExpression#to(DependencyResolver) resolvers}.
      * <p>
      * If the given runtime class is not a neuron class or interface, then adding bindings will have no effect and when
      * breeding, the incubator will just create a new instance of the given class using the public constructor without
@@ -86,8 +85,8 @@ public final class Incubator {
      *
      * @since Neuron DI 5.0 (renamed from {@code stub}, which was introduced in Neuron DI 1.0)
      */
-    public static <T> Wire<T> wire(Class<T> runtimeClass) {
-        return new Wire<T>() {
+    public static <T> WireExpression<T> wire(Class<T> runtimeClass) {
+        return new WireExpression<T>() {
 
             List<Entry<DependencyResolver<T, ?>, DependencyResolver<? super T, ?>>> bindings = new LinkedList<>();
 
@@ -96,13 +95,13 @@ public final class Incubator {
             Object delegate;
 
             @Override
-            public Wire<T> partial(final boolean value) {
+            public WireExpression<T> partial(final boolean value) {
                 this.partial = value;
                 return this;
             }
 
             @Override
-            public <U> Bind<T, U> bind(final DependencyResolver<T, U> methodReference) {
+            public <U> BindExpression<T, U> bind(final DependencyResolver<T, U> methodReference) {
                 return resolver -> {
                     bindings.add(new SimpleImmutableEntry<>(methodReference, resolver));
                     return this;
@@ -154,7 +153,7 @@ public final class Incubator {
     private static boolean isAbstract(Method method ) { return Modifier.isAbstract(method.getModifiers()); }
 
     @SuppressWarnings("WeakerAccess")
-    public interface Wire<T> {
+    public interface WireExpression<T> {
 
         /**
          * Enables or disables partial binding.
@@ -163,10 +162,10 @@ public final class Incubator {
          *
          * @since Neuron DI 1.3
          */
-        Wire<T> partial(boolean value);
+        WireExpression<T> partial(boolean value);
 
         /** Binds the synapse method identified by the given method reference. */
-        <U> Bind<T, U> bind(DependencyResolver<T, U> methodReference);
+        <U> BindExpression<T, U> bind(DependencyResolver<T, U> methodReference);
 
         /**
          * Breeds the wired neuron.
@@ -187,15 +186,15 @@ public final class Incubator {
     }
 
     @SuppressWarnings("WeakerAccess")
-    public interface Bind<T, U> {
+    public interface BindExpression<T, U> {
 
         /** Binds the synapse method to the given value. */
-        default Wire<T> to(U value) { return to(neuron -> value); }
+        default WireExpression<T> to(U value) { return to(neuron -> value); }
 
         /** Binds the synapse method to the given provider. */
-        default Wire<T> to(DependencyProvider<? extends U> provider) { return to(neuron -> provider.get()); }
+        default WireExpression<T> to(DependencyProvider<? extends U> provider) { return to(neuron -> provider.get()); }
 
         /** Binds the synapse method to the given function. */
-        Wire<T> to(DependencyResolver<? super T, ? extends U> resolver);
+        WireExpression<T> to(DependencyResolver<? super T, ? extends U> resolver);
     }
 }
