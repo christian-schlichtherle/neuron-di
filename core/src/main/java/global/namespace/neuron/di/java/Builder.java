@@ -15,16 +15,12 @@
  */
 package global.namespace.neuron.di.java;
 
-import global.namespace.neuron.di.internal.RealIncubator;
-
-/**
- * @author Christian Schlichtherle
- */
+/** @author Christian Schlichtherle */
 public final class Builder {
 
     private Builder() { }
 
     public static <T> T build(Class<T> runtimeClass, MethodBinding binding) {
-        return RealIncubator.breed(runtimeClass, binding);
+        return global.namespace.neuron.di.internal.Builder.build(runtimeClass, binding);
     }
 }

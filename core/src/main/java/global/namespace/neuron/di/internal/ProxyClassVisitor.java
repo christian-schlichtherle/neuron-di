@@ -27,7 +27,7 @@ import static java.lang.Math.max;
 import static org.objectweb.asm.Opcodes.*;
 import static org.objectweb.asm.Type.*;
 
-final class NeuronClassVisitor extends ClassVisitor {
+final class ProxyClassVisitor extends ClassVisitor {
 
     private static final int ACC_ABSTRACT_INTERFACE = ACC_ABSTRACT | ACC_INTERFACE;
     private static final int ACC_ABSTRACT_NATIVE = ACC_ABSTRACT | ACC_NATIVE;
@@ -50,18 +50,18 @@ final class NeuronClassVisitor extends ClassVisitor {
             "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;",
             false);
 
-    private final String neuronProxyName, neuronProxyDesc, superName;
+    private final String proxyName, proxyDesc, superName;
     private final String[] interfaces;
     private final List<Method> bindableMethods;
 
-    NeuronClassVisitor(final ClassVisitor cv,
-                       final String neuronProxyName,
-                       final Class<?> superclass,
-                       final Class<?>[] interfaces,
-                       final List<Method> bindableMethods) {
+    ProxyClassVisitor(final ClassVisitor cv,
+                      final String proxyName,
+                      final Class<?> superclass,
+                      final Class<?>[] interfaces,
+                      final List<Method> bindableMethods) {
         super(ASM5, cv);
-        this.neuronProxyName = neuronProxyName;
-        this.neuronProxyDesc = "L" + neuronProxyName + ";";
+        this.proxyName = proxyName;
+        this.proxyDesc = "L" + proxyName + ";";
         this.superName = getInternalName(superclass);
         int i = interfaces.length;
         this.interfaces = new String[i];
@@ -80,7 +80,7 @@ final class NeuronClassVisitor extends ClassVisitor {
                       String[] interfaces) {
         cv.visit(max(version, V1_8),
                 access & ~ACC_ABSTRACT_INTERFACE | ACC_FINAL_SUPER_SYNTHETIC,
-                this.neuronProxyName,
+                this.proxyName,
                 null,
                 this.superName,
                 this.interfaces);
@@ -124,12 +124,12 @@ final class NeuronClassVisitor extends ClassVisitor {
                 mv.visitVarInsn(ALOAD, 0);
                 mv.visitVarInsn(ALOAD, 0);
                 mv.visitInvokeDynamicInsn("get",
-                        "(" + neuronProxyDesc + ")" + dependencyProviderDesc,
+                        "(" + proxyDesc + ")" + dependencyProviderDesc,
                         metaFactoryHandle,
                         acceptsNothingAndReturnsObjectType,
                         new Handle(H_INVOKESPECIAL, owner, name, desc, 0 != interfaces.length),
                         acceptsNothingAndReturnsObjectType);
-                mv.visitFieldInsn(PUTFIELD, neuronProxyName, name + PROVIDER, dependencyProviderDesc);
+                mv.visitFieldInsn(PUTFIELD, proxyName, name + PROVIDER, dependencyProviderDesc);
             }
         }
         mv.visitInsn(RETURN);
@@ -167,7 +167,7 @@ final class NeuronClassVisitor extends ClassVisitor {
 
                 void generateProxyCallMethod() {
                     final MethodVisitor mv = beginMethod(name);
-                    mv.visitFieldInsn(GETFIELD, neuronProxyName, name + PROVIDER, dependencyProviderDesc);
+                    mv.visitFieldInsn(GETFIELD, proxyName, name + PROVIDER, dependencyProviderDesc);
                     mv.visitMethodInsn(INVOKEINTERFACE, dependencyProviderName, "get", ACCEPTS_NOTHING_AND_RETURNS_OBJECT_DESC, true);
                     if (!boxedReturnType.isAssignableFrom(Object.class)) {
                         mv.visitTypeInsn(CHECKCAST,

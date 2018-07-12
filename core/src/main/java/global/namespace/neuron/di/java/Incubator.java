@@ -15,6 +15,8 @@
  */
 package global.namespace.neuron.di.java;
 
+import global.namespace.neuron.di.internal.Builder;
+
 import java.lang.invoke.MethodHandle;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -25,7 +27,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 
-import static global.namespace.neuron.di.java.Builder.build;
 import static global.namespace.neuron.di.java.Reflection.find;
 import static java.util.Optional.*;
 
@@ -65,7 +66,7 @@ public final class Incubator {
      *                for subsequent calls to the synapse method.
      */
     public static <T> T breed(Class<T> runtimeClass, SynapseBinding binding) {
-        return build(runtimeClass, method -> isAbstract(method) ? of(binding.apply(method)) : empty());
+        return Builder.breed(runtimeClass, method -> isAbstract(method) ? of(binding.apply(method)) : empty());
     }
 
     /**
@@ -119,7 +120,7 @@ public final class Incubator {
             public T breed() {
                 return new Object() {
 
-                    final T neuron = build(runtimeClass, new MethodBinding() {
+                    final T neuron = Builder.breed(runtimeClass, new MethodBinding() {
 
                         final Map<Method, DependencyResolver<? super T, ?>> resolvedBindings =
                                 Resolver.resolve(runtimeClass, bindings);

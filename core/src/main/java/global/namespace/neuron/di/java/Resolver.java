@@ -15,6 +15,8 @@
  */
 package global.namespace.neuron.di.java;
 
+import global.namespace.neuron.di.internal.Builder;
+
 import java.lang.reflect.Method;
 import java.util.*;
 

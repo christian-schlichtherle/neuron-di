@@ -15,64 +15,8 @@
  */
 package global.namespace.neuron.di.internal;
 
-import global.namespace.neuron.di.java.BreedingException;
-import global.namespace.neuron.di.java.CachingStrategy;
-
-import java.lang.reflect.Method;
-import java.util.Optional;
-
-import static global.namespace.neuron.di.java.CachingStrategy.DISABLED;
-
-interface NeuronElement<N> extends ClassElement<N>, HasCachingStrategy {
+interface NeuronElement<N> extends ClassElement<N> {
 
     @Override
     default void accept(Visitor<N> visitor) { visitor.visitNeuron(this); }
-
-    default MethodElement<N> element(final Method method) {
-
-        class MethodBase {
-
-            CachingStrategy cachingStrategy;
-
-            public CachingStrategy cachingStrategy() { return cachingStrategy; }
-
-            public Method method() { return method; }
-        }
-
-        class RealSynapseElement extends MethodBase implements SynapseElement<N> {
-
-            private RealSynapseElement(final CachingStrategy cachingStrategy) {
-                super.cachingStrategy = cachingStrategy;
-            }
-        }
-
-        class RealMethodElement extends MethodBase implements MethodElement<N> {
-
-            private RealMethodElement(final CachingStrategy cachingStrategy) {
-                super.cachingStrategy = cachingStrategy;
-            }
-        }
-
-        final MethodInfo info = () -> method;
-        final Optional<CachingStrategy> declaredCachingStrategy = info.declaredCachingStrategy();
-        if (info.isAbstract()) {
-            if (info.hasParameters()) {
-                throw new BreedingException("A synapse method must not have parameters: " + method);
-            } else if (info.isVoid()) {
-                throw new BreedingException("A synapse method must have a return value: " + method);
-            } else {
-                return new RealSynapseElement(declaredCachingStrategy.orElseGet(this::cachingStrategy));
-            }
-        } else if (declaredCachingStrategy.isPresent()) {
-            if (info.hasParameters()) {
-                throw new BreedingException("A caching method must not have parameters: " + method);
-            } else if (info.isVoid()) {
-                throw new BreedingException("A caching method must have a return value: " + method);
-            } else {
-                return new RealMethodElement(declaredCachingStrategy.get());
-            }
-        } else {
-            return new RealMethodElement(DISABLED);
-        }
-    }
 }

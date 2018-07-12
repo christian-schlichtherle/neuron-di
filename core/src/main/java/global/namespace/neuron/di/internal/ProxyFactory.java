@@ -15,9 +15,9 @@
  */
 package global.namespace.neuron.di.internal;
 
-import global.namespace.neuron.di.java.MethodBinding;
 import global.namespace.neuron.di.java.BreedingException;
 import global.namespace.neuron.di.java.DependencyProvider;
+import global.namespace.neuron.di.java.MethodBinding;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
 import static java.lang.invoke.MethodHandles.publicLookup;
 import static java.lang.invoke.MethodType.methodType;
 
-final class NeuronProxyFactory<N> implements Function<MethodBinding, N>{
+final class ProxyFactory<C> implements Function<MethodBinding, C>{
 
     private static final MethodType dependencyProviderObjectMethodType =
             methodType(DependencyProvider.class, Object.class);
@@ -42,12 +42,12 @@ final class NeuronProxyFactory<N> implements Function<MethodBinding, N>{
     private static final MethodType objectMethodType =
             methodType(Object.class);
 
-    private final Class<? extends N> neuronProxyClass;
+    private final Class<? extends C> neuronProxyClass;
     private final MethodHandle constructorHandle;
     private final List<MethodHandler> methodHandlers;
 
-    NeuronProxyFactory(final Class<? extends N> neuronClass, final List<MethodElement<N>> bindableElements) {
-        this.neuronProxyClass = ASM.neuronProxyClass(neuronClass, map(bindableElements, MethodElement<N>::method));
+    ProxyFactory(final Class<? extends C> neuronClass, final List<MethodElement<C>> bindableElements) {
+        this.neuronProxyClass = ASM.proxyClass(neuronClass, map(bindableElements, MethodElement<C>::method));
         try {
             final Constructor<?> c = neuronProxyClass.getDeclaredConstructor();
             c.setAccessible(true);
@@ -64,16 +64,16 @@ final class NeuronProxyFactory<N> implements Function<MethodBinding, N>{
 
     @SuppressWarnings("unchecked")
     @Override
-    public N apply(final MethodBinding binding) {
-        return new Visitor<N>() {
+    public C apply(final MethodBinding binding) {
+        return new Visitor<C>() {
 
-            final N neuronProxy;
+            final C neuronProxy;
 
             BoundMethodHandler boundMethodHandler;
 
             {
                 try {
-                    neuronProxy = (N) constructorHandle.invokeExact();
+                    neuronProxy = (C) constructorHandle.invokeExact();
                 } catch (Throwable e) {
                     throw new BreedingException(e);
                 }
@@ -84,13 +84,13 @@ final class NeuronProxyFactory<N> implements Function<MethodBinding, N>{
             }
 
             @Override
-            public void visitSynapse(SynapseElement<N> element) {
+            public void visitSynapse(SynapseElement<C> element) {
                 boundMethodHandler.provider(element.decorate(element.apply(binding)
                         .orElseThrow(() -> new BreedingException("No binding defined for synapse method: " + element.method()))));
             }
 
             @Override
-            public void visitMethod(MethodElement<N> element) {
+            public void visitMethod(MethodElement<C> element) {
                 boundMethodHandler.provider(element.decorate(element.apply(binding)
                         .orElseGet(boundMethodHandler::provider)));
             }
@@ -100,12 +100,12 @@ final class NeuronProxyFactory<N> implements Function<MethodBinding, N>{
 
     private final class MethodHandler {
 
-        final MethodElement<N> element;
+        final MethodElement<C> element;
         final MethodHandle getter, setter;
 
-        MethodHandler(final MethodElement<N> element) {
+        MethodHandler(final MethodElement<C> element) {
             this.element = element;
-            final String dependencyProviderName = element.name() + NeuronClassVisitor.PROVIDER;
+            final String dependencyProviderName = element.name() + ProxyClassVisitor.PROVIDER;
             final MethodHandles.Lookup lookup = publicLookup();
             try {
                 final Field field = neuronProxyClass.getDeclaredField(dependencyProviderName);
@@ -117,7 +117,7 @@ final class NeuronProxyFactory<N> implements Function<MethodBinding, N>{
             }
         }
 
-        BoundMethodHandler bind(final N neuronProxy) {
+        BoundMethodHandler bind(final C neuronProxy) {
             return new BoundMethodHandler() {
 
                 @Override
@@ -140,7 +140,7 @@ final class NeuronProxyFactory<N> implements Function<MethodBinding, N>{
             };
         }
 
-        void accept(Visitor<N> visitor) { element.accept(visitor); }
+        void accept(Visitor<C> visitor) { element.accept(visitor); }
     }
 
     private interface BoundMethodHandler {

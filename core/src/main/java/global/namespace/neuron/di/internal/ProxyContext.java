@@ -23,35 +23,35 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
-final class NeuronProxyContext<N> {
+final class ProxyContext<C> {
 
-    private final NeuronElement<N> element;
+    private final ClassElement<C> element;
 
-    NeuronProxyContext(final NeuronElement<N> element) { this.element = element; }
+    ProxyContext(final ClassElement<C> element) { this.element = element; }
 
-    NeuronProxyFactory<N> factory() {
-        final Class<? extends N> adaptedClass = adaptedClass();
-        return new NeuronProxyFactory<>(adaptedClass, bindableElements(adaptedClass));
+    ProxyFactory<C> factory() {
+        final Class<? extends C> adaptedClass = adaptedClass();
+        return new ProxyFactory<>(adaptedClass, bindableElements(adaptedClass));
     }
 
-    private Class<? extends N> adaptedClass() {
-        final Class<N> neuronClass = neuronClass();
+    private Class<? extends C> adaptedClass() {
+        final Class<C> neuronClass = neuronClass();
         return Optional
                 .ofNullable(neuronClass.getDeclaredAnnotation(Shim.class))
-                .<Class<? extends N>>map(this::shimClass)
+                .<Class<? extends C>>map(this::shimClass)
                 .orElse(neuronClass);
     }
 
     @SuppressWarnings("unchecked")
-    private Class<? extends N> shimClass(final Shim annotation) {
-        Class<? extends N> shimClass;
+    private Class<? extends C> shimClass(final Shim annotation) {
+        Class<? extends C> shimClass;
         try {
-            shimClass = (Class<? extends N>) neuronClass().getClassLoader().loadClass(annotation.name());
+            shimClass = (Class<? extends C>) neuronClass().getClassLoader().loadClass(annotation.name());
         } catch (ClassNotFoundException e) {
             throw new BreedingException(e);
         }
         if (shimClass == Object.class) {
-            shimClass = (Class<? extends N>) annotation.value();
+            shimClass = (Class<? extends C>) annotation.value();
         }
         if (shimClass == Object.class) {
             throw new BreedingException("The @Shim annotation must reference a @Neuron class: " + neuronClass());
@@ -59,15 +59,15 @@ final class NeuronProxyContext<N> {
         return shimClass;
     }
 
-    private Class<N> neuronClass() { return element.runtimeClass(); }
+    private Class<C> neuronClass() { return element.runtimeClass(); }
 
-    private List<MethodElement<N>> bindableElements(Class<? extends N> neuronClass) {
-        return new Visitor<N>() {
+    private List<MethodElement<C>> bindableElements(Class<? extends C> neuronClass) {
+        return new Visitor<C>() {
 
             final Collection<Method> methods =
                     new OverridableMethodsCollector(neuronClass.getPackage()).collect(neuronClass);
 
-            final ArrayList<MethodElement<N>> bindableElements = new ArrayList<>(methods.size());
+            final ArrayList<MethodElement<C>> bindableElements = new ArrayList<>(methods.size());
 
             {
                 methods.forEach(method -> element(method).accept(this));
@@ -75,10 +75,10 @@ final class NeuronProxyContext<N> {
             }
 
             @Override
-            public void visitSynapse(SynapseElement<N> element) { bindableElements.add(element); }
+            public void visitSynapse(SynapseElement<C> element) { bindableElements.add(element); }
 
             @Override
-            public void visitMethod(final MethodElement<N> element) {
+            public void visitMethod(final MethodElement<C> element) {
                 if (!element.hasParameters() && !element.isVoid()) {
                     bindableElements.add(element);
                 }
@@ -86,5 +86,5 @@ final class NeuronProxyContext<N> {
         }.bindableElements;
     }
 
-    private MethodElement<N> element(Method method) { return element.element(method); }
+    private MethodElement<C> element(Method method) { return element.element(method); }
 }
