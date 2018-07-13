@@ -23,9 +23,7 @@ import java.util.Optional;
 
 import static global.namespace.neuron.di.java.CachingStrategy.DISABLED;
 
-interface ClassElement<C> extends Element<C> {
-
-    Class<C> runtimeClass();
+interface ClassElement<C> extends ClassInfo<C>, Element<C> {
 
     @Override
     default void accept(Visitor<C> visitor) { visitor.visitClass(this); }

@@ -52,7 +52,7 @@ public final class NeuronProcessor extends CommonProcessor {
         if (modifiers.contains(FINAL)) {
             error("A neuron class must not be final.", type);
         }
-        if (!hasNonPrivateConstructorWithoutParameters(type)) {
+        if (type.getKind().isClass() && !hasNonPrivateConstructorWithoutParameters(type)) {
             error("A neuron class must have a non-private constructor without parameters.", type);
         }
         if (isSerializable(type)) {
@@ -65,7 +65,7 @@ public final class NeuronProcessor extends CommonProcessor {
     }
 
     private static boolean hasNonPrivateConstructorWithoutParameters(TypeElement type) {
-        return !type.getKind().isClass() || type.getEnclosedElements().stream()
+        return type.getEnclosedElements().stream()
                 .filter(elem -> elem.getKind() == CONSTRUCTOR)
                 .anyMatch(elem -> isNonPrivateConstructorWithoutParameters((ExecutableElement) elem));
     }

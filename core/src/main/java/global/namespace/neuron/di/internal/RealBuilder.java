@@ -27,19 +27,19 @@ import java.util.WeakHashMap;
 
 import static global.namespace.neuron.di.java.CachingStrategy.DISABLED;
 
-public final class Builder {
+public final class RealBuilder {
 
     private static final Map<Class<?>, ProxyFactory<?>> factories = Collections.synchronizedMap(new WeakHashMap<>());
 
-    private Builder() { }
+    private RealBuilder() { }
 
-    public static <C> C build(Class<C> runtimeClass, MethodBinding binding) {
+    public static <C> C build(Class<C> clazz, MethodBinding binding) {
         return new Visitor<C>() {
 
             C instance;
 
             {
-                element(runtimeClass).accept(this);
+                element(clazz).accept(this);
             }
 
             @Override
@@ -48,39 +48,39 @@ public final class Builder {
             @SuppressWarnings("unchecked")
             @Override
             public void visitClass(final ClassElement<C> element) {
-                assert runtimeClass == element.runtimeClass();
+                assert clazz == element.clazz();
                 final ProxyFactory<C> factory = (ProxyFactory<C>) factories
-                        .computeIfAbsent(runtimeClass, key -> new ProxyContext<>(element).factory());
+                        .computeIfAbsent(clazz, key -> new ProxyContext<>(element).factory());
                 instance = factory.apply(binding);
             }
         }.instance;
     }
 
-    public static <C> C breed(Class<C> runtimeClass, MethodBinding binding) {
+    public static <C> C breed(Class<C> clazz, MethodBinding binding) {
         return new Visitor<C>() {
 
             C instance;
 
             {
-                element(runtimeClass).accept(this);
+                element(clazz).accept(this);
             }
 
             @SuppressWarnings("unchecked")
             @Override
             public void visitNeuron(final NeuronElement<C> element) {
-                assert runtimeClass == element.runtimeClass();
+                assert clazz == element.clazz();
                 final ProxyFactory<C> factory = (ProxyFactory<C>) factories
-                        .computeIfAbsent(runtimeClass, key -> new ProxyContext<>(element).factory());
+                        .computeIfAbsent(clazz, key -> new ProxyContext<>(element).factory());
                 instance = factory.apply(binding);
             }
 
             @Override
             public void visitClass(final ClassElement<C> element) {
-                assert runtimeClass == element.runtimeClass();
+                assert clazz == element.clazz();
                 try {
-                    instance = runtimeClass.getDeclaredConstructor().newInstance();
+                    instance = clazz.getDeclaredConstructor().newInstance();
                 } catch (NoSuchMethodException e) {
-                    throw new BreedingException("A neuron class must have a non-private constructor without parameters. Do not disable annotation processing to detect this at compile time.", e);
+                    throw new BreedingException("Class must have a non-private constructor without parameters.", e);
                 } catch (InstantiationException e) {
                     throw new BreedingException("Cannot breed an abstract class without a @Neuron annotation.", e);
                 } catch (IllegalAccessException | InvocationTargetException e) {
@@ -92,11 +92,9 @@ public final class Builder {
 
     private static <C> ClassElement<C> element(final Class<C> runtimeClass) {
 
-        // FIXME: There needs to be the same checks as in `NeuronProcessor`:
-
         class Base {
 
-            public Class<C> runtimeClass() { return runtimeClass; }
+            public Class<C> clazz() { return runtimeClass; }
         }
 
         final Neuron neuron = runtimeClass.getAnnotation(Neuron.class);

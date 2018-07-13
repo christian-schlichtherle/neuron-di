@@ -27,7 +27,10 @@ final class ProxyContext<C> {
 
     private final ClassElement<C> element;
 
-    ProxyContext(final ClassElement<C> element) { this.element = element; }
+    ProxyContext(final ClassElement<C> element) {
+        element.assertCanBeProxied();
+        this.element = element;
+    }
 
     ProxyFactory<C> factory() {
         final Class<? extends C> adaptedClass = adaptedClass();
@@ -59,7 +62,7 @@ final class ProxyContext<C> {
         return shimClass;
     }
 
-    private Class<C> neuronClass() { return element.runtimeClass(); }
+    private Class<C> neuronClass() { return element.clazz(); }
 
     private List<MethodElement<C>> bindableElements(Class<? extends C> neuronClass) {
         return new Visitor<C>() {

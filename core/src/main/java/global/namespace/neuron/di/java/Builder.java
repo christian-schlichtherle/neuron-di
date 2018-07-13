@@ -15,12 +15,14 @@
  */
 package global.namespace.neuron.di.java;
 
+import global.namespace.neuron.di.internal.RealBuilder;
+
 /** @author Christian Schlichtherle */
 public final class Builder {
 
     private Builder() { }
 
-    public static <T> T build(Class<T> runtimeClass, MethodBinding binding) {
-        return global.namespace.neuron.di.internal.Builder.build(runtimeClass, binding);
+    public static <T> T build(Class<T> clazz, MethodBinding binding) {
+        return RealBuilder.build(clazz, binding);
     }
 }

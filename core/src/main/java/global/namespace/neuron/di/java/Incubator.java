@@ -15,7 +15,7 @@
  */
 package global.namespace.neuron.di.java;
 
-import global.namespace.neuron.di.internal.Builder;
+import global.namespace.neuron.di.internal.RealBuilder;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.reflect.Method;
@@ -44,8 +44,8 @@ public final class Incubator {
      * Returns a new instance of the given runtime class which will resolve its dependencies lazily by recursively
      * calling this method.
      */
-    public static <T> T breed(Class<T> runtimeClass) {
-        return breed(runtimeClass, synapse -> {
+    public static <T> T breed(Class<T> clazz) {
+        return breed(clazz, synapse -> {
             final Class<?> returnType = synapse.getReturnType();
             return () -> breed(returnType);
         });
@@ -65,8 +65,8 @@ public final class Incubator {
      *                Depending on the caching strategy for the synapse method, the resolved dependency may get cached
      *                for subsequent calls to the synapse method.
      */
-    public static <T> T breed(Class<T> runtimeClass, SynapseBinding binding) {
-        return Builder.breed(runtimeClass, method -> isAbstract(method) ? of(binding.apply(method)) : empty());
+    public static <T> T breed(Class<T> clazz, SynapseBinding binding) {
+        return RealBuilder.breed(clazz, method -> isAbstract(method) ? of(binding.apply(method)) : empty());
     }
 
     /**
@@ -86,7 +86,7 @@ public final class Incubator {
      *
      * @since Neuron DI 5.0 (renamed from {@code stub}, which was introduced in Neuron DI 1.0)
      */
-    public static <T> WireExpression<T> wire(Class<T> runtimeClass) {
+    public static <T> WireExpression<T> wire(Class<T> clazz) {
         return new WireExpression<T>() {
 
             List<Entry<DependencyResolver<T, ?>, DependencyResolver<? super T, ?>>> bindings = new LinkedList<>();
@@ -120,10 +120,10 @@ public final class Incubator {
             public T breed() {
                 return new Object() {
 
-                    final T neuron = Builder.breed(runtimeClass, new MethodBinding() {
+                    final T neuron = RealBuilder.breed(clazz, new MethodBinding() {
 
                         final Map<Method, DependencyResolver<? super T, ?>> resolvedBindings =
-                                Resolver.resolve(runtimeClass, bindings);
+                                Resolver.resolve(clazz, bindings);
 
                         @Override
                         public Optional<DependencyProvider<?>> apply(final Method method) {

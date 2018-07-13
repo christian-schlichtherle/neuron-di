@@ -15,7 +15,7 @@
  */
 package global.namespace.neuron.di.internal;
 
-interface MethodElement<C> extends Element<C>, MethodInfo {
+interface MethodElement<C> extends MethodInfo, Element<C> {
 
     @Override
     default void accept(Visitor<C> visitor) { visitor.visitMethod(this); }
