@@ -19,6 +19,7 @@ import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodType;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Member;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.HashSet;
 import java.util.Optional;
@@ -89,6 +90,8 @@ class Reflection {
             }
         };
     }
+
+    static boolean isAbstract(Method method) { return Modifier.isAbstract(method.getModifiers()); }
 
     private interface Unreflect<M> {
 

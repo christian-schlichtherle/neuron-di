@@ -38,18 +38,18 @@ final class ProxyContext<C> {
     }
 
     private Class<? extends C> adaptedClass() {
-        final Class<C> neuronClass = neuronClass();
+        final Class<C> clazz = clazz();
         return Optional
-                .ofNullable(neuronClass.getDeclaredAnnotation(Shim.class))
+                .ofNullable(clazz.getDeclaredAnnotation(Shim.class))
                 .<Class<? extends C>>map(this::shimClass)
-                .orElse(neuronClass);
+                .orElse(clazz);
     }
 
     @SuppressWarnings("unchecked")
     private Class<? extends C> shimClass(final Shim annotation) {
         Class<? extends C> shimClass;
         try {
-            shimClass = (Class<? extends C>) neuronClass().getClassLoader().loadClass(annotation.name());
+            shimClass = (Class<? extends C>) clazz().getClassLoader().loadClass(annotation.name());
         } catch (ClassNotFoundException e) {
             throw new BreedingException(e);
         }
@@ -57,12 +57,12 @@ final class ProxyContext<C> {
             shimClass = (Class<? extends C>) annotation.value();
         }
         if (shimClass == Object.class) {
-            throw new BreedingException("The @Shim annotation must reference a @Neuron class: " + neuronClass());
+            throw new BreedingException("The @Shim annotation must reference a @Neuron class: " + clazz());
         }
         return shimClass;
     }
 
-    private Class<C> neuronClass() { return element.clazz(); }
+    private Class<C> clazz() { return element.clazz(); }
 
     private List<MethodElement<C>> bindableElements(Class<? extends C> neuronClass) {
         return new Visitor<C>() {

@@ -16,19 +16,19 @@
 package global.namespace.neuron.di.java;
 
 /**
- * Resolves some dependency of a neuron.
+ * Resolves some dependency of an object.
  *
- * @param <N> the type of the neuron.
+ * @param <T> the type of the object.
  * @param <D> the type of the dependency.
  * @author Christian Schlichtherle
  */
 @FunctionalInterface
-public interface DependencyResolver<N, D> {
+public interface DependencyResolver<T, D> {
 
     /**
-     * Returns the dependency of the neuron.
+     * Returns the dependency of the object.
      *
-     * @param neuron the neuron.
+     * @param object the object.
      */
-    D apply(N neuron) throws Throwable;
+    D apply(T object) throws Throwable;
 }

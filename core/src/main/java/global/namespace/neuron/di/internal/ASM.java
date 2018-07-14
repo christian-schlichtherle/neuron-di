@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.Optional;
 
 import static global.namespace.neuron.di.internal.Reflection.defineSubclass;
 import static org.objectweb.asm.ClassReader.SKIP_DEBUG;
@@ -33,7 +34,7 @@ final class ASM implements Opcodes {
 
     private static final Class<?>[] NO_CLASSES = new Class<?>[0];
 
-    /** Returns a class which proxies the given Neuron class or interface. */
+    /** Returns a class which proxies the given class or interface. */
     static <N> Class<? extends N> proxyClass(final Class<? extends N> clazz, final List<Method> bindableMethods) {
         final Class<?> superclass;
         final Class<?>[] interfaces;
@@ -52,11 +53,19 @@ final class ASM implements Opcodes {
     }
 
     private static ClassReader classReader(final Class<?> clazz) {
-        try (InputStream in = clazz.getClassLoader().getResourceAsStream(getInternalName(clazz).concat(".class"))) {
+        try (InputStream in = inputStream(clazz)) {
             return new ClassReader(in);
         } catch (IOException e) {
             throw new AssertionError(e);
         }
+    }
+
+    private static InputStream inputStream(final Class<?> clazz) {
+        final String resourceName = getInternalName(clazz).concat(".class");
+        return Optional
+                .ofNullable(clazz.getClassLoader())
+                .map(cl -> cl.getResourceAsStream(resourceName))
+                .orElseGet(() -> ClassLoader.getSystemResourceAsStream(resourceName));
     }
 
     private static String internalName(String className) { return className.replace('.', '/'); }

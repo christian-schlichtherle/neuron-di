@@ -42,14 +42,14 @@ final class ProxyFactory<C> implements Function<MethodBinding, C>{
     private static final MethodType objectMethodType =
             methodType(Object.class);
 
-    private final Class<? extends C> neuronProxyClass;
+    private final Class<? extends C> proxyClass;
     private final MethodHandle constructorHandle;
     private final List<MethodHandler> methodHandlers;
 
-    ProxyFactory(final Class<? extends C> neuronClass, final List<MethodElement<C>> bindableElements) {
-        this.neuronProxyClass = ASM.proxyClass(neuronClass, map(bindableElements, MethodElement<C>::method));
+    ProxyFactory(final Class<? extends C> clazz, final List<MethodElement<C>> bindableElements) {
+        this.proxyClass = ASM.proxyClass(clazz, map(bindableElements, MethodElement<C>::method));
         try {
-            final Constructor<?> c = neuronProxyClass.getDeclaredConstructor();
+            final Constructor<?> c = proxyClass.getDeclaredConstructor();
             c.setAccessible(true);
             this.constructorHandle = publicLookup().unreflectConstructor(c).asType(objectMethodType);
         } catch (ReflectiveOperationException e) {
@@ -67,18 +67,18 @@ final class ProxyFactory<C> implements Function<MethodBinding, C>{
     public C apply(final MethodBinding binding) {
         return new Visitor<C>() {
 
-            final C neuronProxy;
+            final C proxy;
 
             BoundMethodHandler boundMethodHandler;
 
             {
                 try {
-                    neuronProxy = (C) constructorHandle.invokeExact();
+                    proxy = (C) constructorHandle.invokeExact();
                 } catch (Throwable e) {
                     throw new BreedingException(e);
                 }
                 for (final MethodHandler handler : methodHandlers) {
-                    boundMethodHandler = handler.bind(neuronProxy);
+                    boundMethodHandler = handler.bind(proxy);
                     handler.accept(this);
                 }
             }
@@ -95,7 +95,7 @@ final class ProxyFactory<C> implements Function<MethodBinding, C>{
                         .orElseGet(boundMethodHandler::provider)));
             }
 
-        }.neuronProxy;
+        }.proxy;
     }
 
     private final class MethodHandler {
@@ -108,7 +108,7 @@ final class ProxyFactory<C> implements Function<MethodBinding, C>{
             final String dependencyProviderName = element.name() + ProxyClassVisitor.PROVIDER;
             final MethodHandles.Lookup lookup = publicLookup();
             try {
-                final Field field = neuronProxyClass.getDeclaredField(dependencyProviderName);
+                final Field field = proxyClass.getDeclaredField(dependencyProviderName);
                 field.setAccessible(true);
                 this.getter = lookup.unreflectGetter(field).asType(dependencyProviderObjectMethodType);
                 this.setter = lookup.unreflectSetter(field).asType(voidObjectDependencyProviderMethodType);
