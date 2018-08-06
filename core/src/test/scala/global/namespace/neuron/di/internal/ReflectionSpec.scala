@@ -21,12 +21,11 @@ import org.scalatest.WordSpec
 
 import scala.collection.JavaConverters._
 
-class OverridableMethodsCollectorSpec extends WordSpec {
+class ReflectionSpec extends WordSpec {
 
   "An overridable methods collector" should {
     "collect overridable methods" in {
-      val methods = new OverridableMethodsCollector(classOf[Baz].getPackage)
-        .collect(classOf[Baz])
+      val methods = Reflection.overridableMethods(classOf[Baz])
         .asScala
         .map(_.toString)
         .toSet

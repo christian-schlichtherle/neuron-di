@@ -15,15 +15,20 @@
  */
 package global.namespace.neuron.di.internal;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.lang.reflect.Method;
+import java.util.*;
 import java.util.function.Consumer;
 
 import static java.lang.invoke.MethodHandles.lookup;
 import static java.lang.invoke.MethodHandles.privateLookupIn;
+import static java.lang.reflect.Modifier.*;
+import static org.objectweb.asm.Type.getMethodDescriptor;
 
 /** @author Christian Schlichtherle */
 class Reflection {
+
+    // VOLATILE methods are bridge methods, e.g. for use in generic classes.
+    private static final int PRIVATE_STATIC_VOLATILE = PRIVATE | STATIC | VOLATILE;
 
     private Reflection() { }
 
@@ -96,5 +101,27 @@ class Reflection {
         } else {
             return clazz;
         }
+    }
+
+    static Collection<Method> overridableMethods(final Class<?> clazz) {
+        final Map<String, Method> methods = new LinkedHashMap<>();
+        traverse(t -> {
+            for (final Method method : t.getDeclaredMethods()) {
+                if (0 == (method.getModifiers() & PRIVATE_STATIC_VOLATILE)) {
+                    methods.putIfAbsent(signature(method), method);
+                }
+            }
+        }).accept(clazz);
+        final Collection<Method> values = methods.values();
+        values.removeIf(method -> 0 != (method.getModifiers() & FINAL));
+        return values;
+    }
+
+    private static String signature(Method method) {
+        return method.getName() + methodDescriptorWithoutReturnType(method);
+    }
+
+    private static String methodDescriptorWithoutReturnType(Method method) {
+        return getMethodDescriptor(method).replaceAll("\\).*", ")");
     }
 }

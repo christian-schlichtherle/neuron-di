@@ -18,10 +18,13 @@ package global.namespace.neuron.di.internal;
 import global.namespace.neuron.di.java.BreedingException;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+
+import static global.namespace.neuron.di.internal.Reflection.overridableMethods;
 
 final class ProxyContext<C> {
 
@@ -64,16 +67,21 @@ final class ProxyContext<C> {
 
     private Class<C> clazz() { return element.clazz(); }
 
-    private List<MethodElement<C>> bindableElements(Class<? extends C> neuronClass) {
+    private List<MethodElement<C>> bindableElements(Class<? extends C> clazz) {
         return new Visitor<C>() {
 
-            final Collection<Method> methods =
-                    new OverridableMethodsCollector(neuronClass.getPackage()).collect(neuronClass);
+            final Package pkg = clazz.getPackage();
+            final Collection<Method> methods = overridableMethods(clazz);
 
             final ArrayList<MethodElement<C>> bindableElements = new ArrayList<>(methods.size());
 
             {
-                methods.forEach(method -> element(method).accept(this));
+                methods.forEach(method -> {
+                    if (0 != (method.getModifiers() & (Modifier.PROTECTED | Modifier.PUBLIC))
+                            || method.getDeclaringClass().getPackage() == pkg) {
+                        element.element(method).accept(this);
+                    }
+                });
                 bindableElements.trimToSize();
             }
 
@@ -88,6 +96,4 @@ final class ProxyContext<C> {
             }
         }.bindableElements;
     }
-
-    private MethodElement<C> element(Method method) { return element.element(method); }
 }
