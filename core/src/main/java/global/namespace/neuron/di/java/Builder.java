@@ -98,7 +98,7 @@ public final class Builder {
                                 return empty();
                             } else if (!partial) {
                                 throw new BreedingException(
-                                        "Partial binding is disabled and no binding is defined for synapse method: " + method);
+                                        "Partial binding is disabled and no binding is defined for method: " + method);
                             } else if (null != delegate) {
                                 final String member = method.getName();
                                 final MethodHandle handle = find(member).in(delegate).orElseThrow(() ->
