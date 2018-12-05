@@ -90,14 +90,14 @@ public final class RealBuilder {
         }.instance;
     }
 
-    private static <C> ClassElement<C> element(final Class<C> runtimeClass) {
+    private static <C> ClassElement<C> element(final Class<C> clazz) {
 
         class Base {
 
-            public Class<C> clazz() { return runtimeClass; }
+            public Class<C> clazz() { return clazz; }
         }
 
-        final Neuron neuron = runtimeClass.getAnnotation(Neuron.class);
+        final Neuron neuron = clazz.getAnnotation(Neuron.class);
         if (null != neuron) {
 
             class RealNeuronElement extends Base implements NeuronElement<C> {

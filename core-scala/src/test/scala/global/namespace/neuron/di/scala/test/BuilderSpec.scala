@@ -16,7 +16,8 @@ class BuilderSpec extends FeatureSpec with GivenWhenThen {
       Builder
         .wire[Trait1[String]]
         .bind(_.get).to("Hello world!")
-        .build.get shouldBe "Hello world!"
+        .build
+        .get shouldBe "Hello world!"
     }
 
     scenario("Building an instance of `Supplier`") {
@@ -25,7 +26,8 @@ class BuilderSpec extends FeatureSpec with GivenWhenThen {
       Builder
         .wire[Supplier[String]]
         .bind(_.get).to("Hello world!")
-        .build.get shouldBe "Hello world!"
+        .build
+        .get shouldBe "Hello world!"
     }
   }
 }

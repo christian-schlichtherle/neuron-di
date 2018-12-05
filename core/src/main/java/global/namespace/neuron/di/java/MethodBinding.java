@@ -15,8 +15,6 @@
  */
 package global.namespace.neuron.di.java;
 
-import global.namespace.neuron.di.java.DependencyProvider;
-
 import java.lang.reflect.Method;
 import java.util.Optional;
 import java.util.function.Function;

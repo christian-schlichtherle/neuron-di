@@ -135,9 +135,9 @@ public final class Incubator {
                                 throw new BreedingException(
                                         "Partial binding is disabled and no binding is defined for synapse method: " + method);
                             } else if (null != delegate) {
-                                final String member = method.getName();
-                                final MethodHandle handle = find(member).in(delegate).orElseThrow(() ->
-                                        new BreedingException("Illegal binding: A member named `" + member + "` neither exists in `" + delegate.getClass() + "` nor in any of its interfaces and superclasses."));
+                                final String name = method.getName();
+                                final MethodHandle handle = find(name).in(delegate).orElseThrow(() ->
+                                        new BreedingException("Illegal binding: A method named `" + name + "` neither exists in `" + delegate.getClass() + "` nor in any of its interfaces and superclasses."));
                                 return of(handle::invokeExact);
                             } else {
                                 return of(() -> Incubator.breed(method.getReturnType()));
