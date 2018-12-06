@@ -15,6 +15,9 @@
  */
 package global.namespace.neuron.di.internal;
 
+import global.namespace.neuron.di.internal.proxy.Proxies;
+
+import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.function.Consumer;
@@ -29,6 +32,8 @@ class Reflection {
 
     // VOLATILE methods are bridge methods, e.g. for use in generic classes.
     private static final int PRIVATE_STATIC_VOLATILE = PRIVATE | STATIC | VOLATILE;
+
+    private static final MethodHandles.Lookup lookup = lookup();
 
     private Reflection() { }
 
@@ -68,7 +73,10 @@ class Reflection {
     @SuppressWarnings({"unchecked", "Since15"})
     static <C> Class<? extends C> defineSubclass(final Class<C> clazz, final String name, final byte[] b) {
         try {
-            return (Class<? extends C>) privateLookupIn(clazz, lookup()).defineClass(b);
+            final MethodHandles.Lookup lookup = null != clazz.getClassLoader()
+                    ? privateLookupIn(clazz, Reflection.lookup)
+                    : Proxies.PRIVATE_LOOKUP;
+            return (Class<? extends C>) lookup.defineClass(b);
         } catch (NoSuchMethodError e) {
             return Reflection8.defineSubclass(clazz, name, b);
         } catch (IllegalAccessException e) {

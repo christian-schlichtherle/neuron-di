@@ -15,6 +15,7 @@
  */
 package global.namespace.neuron.di.internal;
 
+import global.namespace.neuron.di.internal.proxy.Proxies;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
@@ -34,6 +35,8 @@ final class ASM implements Opcodes {
 
     private static final Class<?>[] NO_CLASSES = new Class<?>[0];
 
+    private static final String PROXIES_PACKAGE_PREFIX = Proxies.PACKAGE_NAME + ".$";
+
     /** Returns a class which proxies the given class or interface. */
     static <N> Class<? extends N> proxyClass(final Class<? extends N> clazz, final List<Method> bindableMethods) {
         final Class<?> superclass;
@@ -45,7 +48,9 @@ final class ASM implements Opcodes {
             superclass = clazz;
             interfaces = NO_CLASSES;
         }
-        final String proxyName = clazz.getName().concat("$$proxy");
+        final String proxyName = null != clazz.getClassLoader()
+                ? clazz.getName().concat("$$proxy")
+                : PROXIES_PACKAGE_PREFIX.concat(clazz.getName().replace('.', '$'));
         final ClassReader cr = classReader(clazz);
         final ClassWriter cw = new ClassWriter(cr, COMPUTE_MAXS);
         cr.accept(new ProxyClassVisitor(cw, internalName(proxyName), superclass, interfaces, bindableMethods), SKIP_DEBUG);

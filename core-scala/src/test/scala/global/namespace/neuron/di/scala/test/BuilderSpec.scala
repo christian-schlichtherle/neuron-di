@@ -22,7 +22,6 @@ class BuilderSpec extends FeatureSpec with GivenWhenThen {
 
     scenario("Building an instance of `Supplier`") {
 
-      pending
       Builder
         .wire[Supplier[String]]
         .bind(_.get).to("Hello world!")

@@ -70,12 +70,14 @@ final class ProxyContext<C> {
     private List<MethodElement<C>> bindableElements(Class<? extends C> clazz) {
         return new Visitor<C>() {
 
-            final Package pkg = clazz.getPackage();
-            final Collection<Method> methods = overridableMethods(clazz);
-
-            final ArrayList<MethodElement<C>> bindableElements = new ArrayList<>(methods.size());
+            final ArrayList<MethodElement<C>> bindableElements;
 
             {
+                // Package-local methods of bootstrap classes cannot be bound because their packages are sealed, so you
+                // cannot define a subclass in the same package:
+                final Package pkg = null != clazz.getClassLoader() ? clazz.getPackage() : null;
+                final Collection<Method> methods = overridableMethods(clazz);
+                bindableElements = new ArrayList<>(methods.size());
                 methods.forEach(method -> {
                     if (0 != (method.getModifiers() & (Modifier.PROTECTED | Modifier.PUBLIC))
                             || method.getDeclaringClass().getPackage() == pkg) {

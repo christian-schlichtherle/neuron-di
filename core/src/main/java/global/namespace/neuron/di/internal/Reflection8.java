@@ -15,6 +15,7 @@
  */
 package global.namespace.neuron.di.internal;
 
+import global.namespace.neuron.di.internal.proxy.Proxies;
 import global.namespace.neuron.di.java.BreedingException;
 
 import java.lang.reflect.InvocationTargetException;
@@ -43,7 +44,7 @@ class Reflection8 {
 
     @SuppressWarnings("unchecked")
     static <C> Class<? extends C> defineSubclass(final Class<C> clazz, final String name, final byte[] b) {
-        final ClassLoader cl = clazz.getClassLoader();
+        final ClassLoader cl = classLoader(clazz);
         try {
             synchronized (getClassLoadingLock.invoke(cl, name)) {
                 return (Class<? extends C>) defineClass.invoke(cl, name, b, 0, b.length);
@@ -53,5 +54,10 @@ class Reflection8 {
         } catch (IllegalAccessException e) {
             throw new AssertionError(e);
         }
+    }
+
+    private static <C> ClassLoader classLoader(final Class<C> clazz) {
+        final ClassLoader cl = clazz.getClassLoader();
+        return null != cl ? cl : Proxies.CLASS_LOADER;
     }
 }
