@@ -59,7 +59,7 @@ final class ProxyClassVisitor extends ClassVisitor {
                       final Class<?> superclass,
                       final Class<?>[] interfaces,
                       final List<Method> bindableMethods) {
-        super(ASM5, cv);
+        super(ASM7, cv);
         this.proxyName = proxyName;
         this.proxyDesc = "L" + proxyName + ";";
         this.superName = getInternalName(superclass);
@@ -84,6 +84,35 @@ final class ProxyClassVisitor extends ClassVisitor {
                 null,
                 this.superName,
                 this.interfaces);
+    }
+
+    @Override
+    public void visitSource(String source, String debug) {
+    }
+
+    @Override
+    public ModuleVisitor visitModule(String name, int access, String version) {
+        return null;
+    }
+
+    @Override
+    public void visitNestHost(String nestHost) {
+    }
+
+    @Override
+    public void visitOuterClass(String owner, String name, String descriptor) {
+    }
+
+    @Override
+    public void visitAttribute(Attribute attribute) {
+    }
+
+    @Override
+    public void visitNestMember(String nestMember) {
+    }
+
+    @Override
+    public void visitInnerClass(String name, String outerName, String innerName, int access) {
     }
 
     @Override
