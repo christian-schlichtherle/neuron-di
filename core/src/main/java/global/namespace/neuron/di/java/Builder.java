@@ -29,12 +29,15 @@ import static global.namespace.neuron.di.java.Reflection.find;
 import static global.namespace.neuron.di.java.Reflection.isAbstract;
 import static java.util.Optional.*;
 
-/** @author Christian Schlichtherle */
+/**
+ * @author Christian Schlichtherle
+ */
 public final class Builder {
 
-    private Builder() { }
+    private Builder() {
+    }
 
-    public static <T> T build(Class<T> clazz) {
+    public static <T> T build(final Class<T> clazz) {
         return build(clazz, method -> {
             if (isAbstract(method)) {
                 final Class<?> returnType = method.getReturnType();
@@ -52,7 +55,7 @@ public final class Builder {
     public static <T> Wire<T> wire(Class<T> clazz) {
         return new Wire<T>() {
 
-            List<Map.Entry<DependencyResolver<T, ?>, DependencyResolver<? super T, ?>>> bindings = new LinkedList<>();
+            final List<Map.Entry<DependencyResolver<T, ?>, DependencyResolver<? super T, ?>>> bindings = new LinkedList<>();
 
             boolean partial;
 
@@ -127,9 +130,13 @@ public final class Builder {
 
     public interface Bind<T, D> {
 
-        default Wire<T> to(D value) { return to(neuron -> value); }
+        default Wire<T> to(D value) {
+            return to(neuron -> value);
+        }
 
-        default Wire<T> to(DependencyProvider<? extends D> provider) { return to(neuron -> provider.get()); }
+        default Wire<T> to(DependencyProvider<? extends D> provider) {
+            return to(neuron -> provider.get());
+        }
 
         Wire<T> to(DependencyResolver<? super T, ? extends D> resolver);
     }

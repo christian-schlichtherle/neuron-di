@@ -38,7 +38,8 @@ import static java.util.Optional.*;
  */
 public final class Incubator {
 
-    private Incubator() { }
+    private Incubator() {
+    }
 
     /**
      * Returns a new instance of the given runtime class which will resolve its dependencies lazily by recursively
@@ -87,7 +88,7 @@ public final class Incubator {
     public static <T> Wire<T> wire(Class<T> clazz) {
         return new Wire<T>() {
 
-            List<Entry<DependencyResolver<T, ?>, DependencyResolver<? super T, ?>>> bindings = new LinkedList<>();
+            final List<Entry<DependencyResolver<T, ?>, DependencyResolver<? super T, ?>>> bindings = new LinkedList<>();
 
             boolean partial;
 
@@ -158,7 +159,9 @@ public final class Incubator {
          */
         Wire<T> partial(boolean value);
 
-        /** Binds the synapse method identified by the given method reference. */
+        /**
+         * Binds the synapse method identified by the given method reference.
+         */
         <U> Bind<T, U> bind(DependencyResolver<T, U> methodReference);
 
         /**
@@ -179,13 +182,23 @@ public final class Incubator {
 
     public interface Bind<T, D> {
 
-        /** Binds the synapse method to the given value. */
-        default Wire<T> to(D value) { return to(neuron -> value); }
+        /**
+         * Binds the synapse method to the given value.
+         */
+        default Wire<T> to(D value) {
+            return to(neuron -> value);
+        }
 
-        /** Binds the synapse method to the given provider. */
-        default Wire<T> to(DependencyProvider<? extends D> provider) { return to(neuron -> provider.get()); }
+        /**
+         * Binds the synapse method to the given provider.
+         */
+        default Wire<T> to(DependencyProvider<? extends D> provider) {
+            return to(neuron -> provider.get());
+        }
 
-        /** Binds the synapse method to the given function. */
+        /**
+         * Binds the synapse method to the given function.
+         */
         Wire<T> to(DependencyResolver<? super T, ? extends D> resolver);
     }
 }

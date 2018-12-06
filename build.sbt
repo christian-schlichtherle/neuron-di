@@ -15,7 +15,6 @@
  */
 
 import BuildSettings._
-import BuildTools._
 import Dependencies._
 
 lazy val root = project

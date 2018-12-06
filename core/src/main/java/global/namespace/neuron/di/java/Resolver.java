@@ -22,11 +22,12 @@ import java.util.*;
 
 import static java.util.Optional.of;
 
-final class Resolver {
+class Resolver {
 
     private static final Map<Class<?>, Object> fuzes = Collections.synchronizedMap(new WeakHashMap<>());
 
-    private Resolver() { }
+    private Resolver() {
+    }
 
     static <T> Map<Method, DependencyResolver<? super T, ?>> resolve(Class<T> clazz, List<Map.Entry<DependencyResolver<T, ?>, DependencyResolver<? super T, ?>>> bindings) {
         return new Object() {
@@ -64,7 +65,9 @@ final class Resolver {
     }
 
     private static Optional<DependencyProvider<?>> blowUp(Method method) {
-        return of(() -> { throw new IgnitionError(method); });
+        return of(() -> {
+            throw new IgnitionError(method);
+        });
     }
 
     private static final class IgnitionError extends Error {
@@ -78,6 +81,8 @@ final class Resolver {
             this.method = method;
         }
 
-        Method method() { return method; }
+        Method method() {
+            return method;
+        }
     }
 }

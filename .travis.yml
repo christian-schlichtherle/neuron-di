@@ -9,7 +9,7 @@ cache:
 
 env:
 - GUICE_VERSION=3.0
-- GUICE_VERSION=4.2.0
+- GUICE_VERSION=4.2.2
 
 jdk:
 - oraclejdk9
