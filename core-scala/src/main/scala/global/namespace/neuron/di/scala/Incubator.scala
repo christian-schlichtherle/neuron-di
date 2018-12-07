@@ -26,7 +26,7 @@ object Incubator {
 
   def breed[A <: AnyRef : ClassTag](binding: SynapseBinding): A = jIncubator.breed(runtimeClassOf[A], binding)
 
-  case class wire[A <: AnyRef : ClassTag]() {
+  case class wire[A <: AnyRef](implicit tag: ClassTag[A]) {
     self =>
 
     private var jwire = jIncubator wire runtimeClassOf[A]

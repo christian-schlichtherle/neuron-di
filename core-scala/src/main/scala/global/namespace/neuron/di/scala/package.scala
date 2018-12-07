@@ -16,9 +16,8 @@
 package global.namespace.neuron.di
 
 import _root_.java.lang.reflect.Method
-import _root_.java.util.Optional
 
-import global.namespace.neuron.di.java.{DependencyProvider, DependencyResolver, CachingStrategy => jCachingStrategy, MethodBinding => jMethodBinding, SynapseBinding => jSynapseBinding}
+import global.namespace.neuron.di.java.{DependencyProvider, DependencyResolver, CachingStrategy => jCachingStrategy, SynapseBinding => jSynapseBinding}
 
 import _root_.scala.language.experimental.macros
 import _root_.scala.reflect.{ClassTag, classTag}
@@ -72,7 +71,7 @@ package object scala {
     *
     * @since Neuron DI 5.0 (renamed from `neuron`, which was introduced in Neuron DI 4.2)
     */
-  def wire[A >: Null]: A = macro Neuron.wire[A]
+  def wire[A <: AnyRef]: A = macro Neuron.wire[A]
 
   def runtimeClassOf[A](implicit tag: ClassTag[A]): Class[A] = {
     require(tag != classTag[Nothing], "Missing type parameter.")
@@ -87,11 +86,6 @@ package object scala {
   private[scala] implicit class DependencyResolverAdapter[A, B](function: A => B) extends DependencyResolver[A, B] {
 
     def apply(a: A): B = function(a)
-  }
-
-  private[scala] implicit class MethodBindingAdapter(binding: MethodBinding) extends jMethodBinding {
-
-    def apply(method: Method): Optional[DependencyProvider[_]] = Optional.ofNullable(binding.applyOrElse(method, null))
   }
 
   private[scala] implicit class SynapseBindingAdapter(binding: SynapseBinding) extends jSynapseBinding {

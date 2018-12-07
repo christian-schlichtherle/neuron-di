@@ -42,7 +42,7 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
       Then("the incubator should visit all synapse methods of all super classes and implemented interfaces.")
       And("not yet compute their return values.")
 
-      synapsesOf[SomeNeuronClass] shouldHaveNames ("a", "b", "c")
+      methodsOf[ANeuronClass] shouldHaveNames ("a", "b", "c")
     }
 
     scenario("Breeding an instance of another neuron class:") {
@@ -52,7 +52,7 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
       Then("the incubator should visit all synapse methods of all super classes and implemented interfaces.")
       And("not yet compute their return values.")
 
-      synapsesOf[AnotherNeuronClass] shouldHaveNames ("now", "a", "b", "c")
+      methodsOf[AnotherNeuronClass] shouldHaveNames ("now", "a", "b", "c")
     }
 
     scenario("Breeding an instance of a neuron interface:") {
@@ -62,19 +62,17 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
       Then("the incubator should visit all synapse methods of all extended interfaces.")
       And("not yet compute their return values.")
 
-      synapsesOf[SomeNeuronInterface] shouldHaveNames ("a", "b", "c")
+      methodsOf[ANeuronInterface] shouldHaveNames ("a", "b", "c")
     }
 
-    scenario("Breeding an instance of another class:") {
+    scenario("Breeding an instance of a non-neuron class:") {
 
-      Given("a class implementing a neuron interface")
+      Given("a non-neuron class")
       When("breeding an instance")
-      Then("a `BreedingException` should be thrown because the @Neuron annotation is not inherited when applied to interfaces")
-      And("so the class is NOT a neuron.")
+      Then("the incubator should visit all methods of all extended interfaces.")
+      And("not yet compute their return values.")
 
-      intercept[BreedingException] {
-        synapsesOf[AnotherClass]
-      }.getMessage should startWith("Cannot breed an abstract class without a @Neuron annotation.")
+      methodsOf[ANonNeuronClass] shouldHaveNames ("a", "b", "c")
     }
   }
 
@@ -127,19 +125,19 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
       When("breeding two instances wired with different properties of different types")
       Then("the incubator returns two instances of the same proxy class.")
 
-      val string = Incubator
+      val neuron1 = Incubator
         .wire[HasDependency[String]]
         .bind(_.get).to("Hello world!")
         .breed
-      string.get shouldBe "Hello world!"
+      neuron1.get shouldBe "Hello world!"
 
-      val int = Incubator
+      val neuron2 = Incubator
         .wire[HasDependency[Int]]
         .bind(_.get).to(1)
         .breed
-      int.get shouldBe 1
+      neuron2.get shouldBe 1
 
-      string.getClass should be theSameInstanceAs int.getClass
+      neuron1.getClass should be theSameInstanceAs neuron2.getClass
     }
   }
 
@@ -156,12 +154,12 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
       When("calling `.bind(methodReference).to(...)` multiple times for the same synapse reference")
       Then("the incubator persists the effect of the last call only.")
 
-      val string = Incubator
+      Incubator
         .wire[HasDependency[String]]
         .bind(_.get).to("Hello Christian!")
         .bind(_.get).to("Hello world!")
         .breed
-      string.get shouldBe "Hello world!"
+        .get shouldBe "Hello world!"
     }
   }
 
@@ -365,22 +363,46 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
       cachedAgainGreeting2 shouldBe theSameInstanceAs(cachedAgainGreeting1)
     }
   }
+
+  feature("Any accessible, static, non-serializable, non-final class with an accessible constructor without parameters or an interface can be bred.") {
+
+    scenario("Breeding an instance of a non-neuron interface:") {
+
+      val nonNeuron = Incubator
+        .wire[ANonNeuronInterface]
+        .partial(true)
+        .breed
+
+      nonNeuron.a shouldBe theSameInstanceAs(nonNeuron.a)
+      nonNeuron.b shouldBe theSameInstanceAs(nonNeuron.b)
+      nonNeuron.c shouldBe theSameInstanceAs(nonNeuron.c)
+    }
+
+    scenario("Breeding an instance of an interface from the JRE:") {
+
+      Incubator
+        .wire[Supplier[String]]
+        .bind(_.get).to("Hello world!")
+        .breed
+        .get shouldBe "Hello world!"
+    }
+  }
 }
 
 private object IncubatorSpec {
 
-  case class synapsesOf[T <: AnyRef : ClassTag]() {
+  case class methodsOf[T <: AnyRef](implicit tag: ClassTag[T]) {
 
-    private var synapses = List.empty[Method]
+    private var methods = List.empty[Method]
 
     Incubator.breed[T] { method: Method =>
-      synapses ::= method
+      methods ::= method
       () => throw new AssertionError
     }
 
-    private lazy val synapseNames = synapses.reverse.map(_.getName)
+    lazy val names: List[String] = methods.reverse.map(_.getName)
 
-    def shouldHaveNames(names: String*) { synapseNames shouldBe names }
+    def shouldHaveNames(names: String*) { names shouldBe names }
   }
 
   @Neuron
@@ -444,38 +466,46 @@ private object IncubatorSpec {
     def b: B = this
   }
 
-  trait HasA {
-
-    def a: A
-  }
-
-  trait HasB {
-
-    def b: B
-  }
-
   trait C {
 
     def c: C = this
   }
 
+  @Neuron
+  trait HasA {
+
+    @Caching
+    def a: A
+  }
+
+  @Neuron
+  trait HasB {
+
+    @Caching
+    def b: B
+  }
+
+  @Neuron
   trait HasC {
 
+    @Caching
     def c: C
   }
 
   @Neuron
-  trait SomeNeuronInterface extends HasA with HasB with HasC
+  trait ANeuronInterface extends HasA with HasB with HasC
+
+  trait ANonNeuronInterface extends HasA with HasB with HasC
 
   @Neuron
-  abstract class SomeNeuronClass extends SomeNeuronInterface
+  abstract class ANeuronClass extends ANeuronInterface
 
-  abstract class AnotherNeuronClass extends SomeNeuronClass {
+  abstract class ANonNeuronClass extends ANeuronInterface
+
+  abstract class AnotherNeuronClass extends ANeuronClass {
 
     def now: Date
   }
-
-  abstract class AnotherClass extends SomeNeuronInterface
 
   @Neuron
   trait HasDependency[T] extends Supplier[T]

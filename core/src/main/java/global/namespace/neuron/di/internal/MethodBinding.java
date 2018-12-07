@@ -13,7 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package global.namespace.neuron.di.java;
+package global.namespace.neuron.di.internal;
+
+import global.namespace.neuron.di.java.DependencyProvider;
 
 import java.lang.reflect.Method;
 import java.util.Optional;

@@ -17,7 +17,6 @@ package global.namespace.neuron.di.internal;
 
 import global.namespace.neuron.di.java.BreedingException;
 import global.namespace.neuron.di.java.DependencyProvider;
-import global.namespace.neuron.di.java.MethodBinding;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;

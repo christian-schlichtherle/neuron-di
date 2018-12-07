@@ -15,7 +15,8 @@
  */
 package global.namespace.neuron.di.java;
 
-import global.namespace.neuron.di.internal.RealBuilder;
+import global.namespace.neuron.di.internal.MethodBinding;
+import global.namespace.neuron.di.internal.RealIncubator;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.reflect.Method;
@@ -62,12 +63,12 @@ public final class Incubator {
      *                The {@code binding} function is called before the call to {@code breed} returns in order to look
      *                up the dependency provider eagerly.
      *                The returned dependency provider is called later when the synapse method is called in order to
-     *                resolve its return value.
+     *                resolve its return value lazily.
      *                Depending on the caching strategy for the synapse method, the resolved dependency may get cached
      *                for subsequent calls to the synapse method.
      */
     public static <T> T breed(Class<T> clazz, SynapseBinding binding) {
-        return RealBuilder.breed(clazz, method -> isAbstract(method) ? of(binding.apply(method)) : empty());
+        return RealIncubator.breed(clazz, method -> isAbstract(method) ? of(binding.apply(method)) : empty());
     }
 
     /**
@@ -119,7 +120,7 @@ public final class Incubator {
             public T breed() {
                 return new Object() {
 
-                    final T neuron = RealBuilder.breed(clazz, new MethodBinding() {
+                    final T neuron = RealIncubator.breed(clazz, new MethodBinding() {
 
                         final Map<Method, DependencyResolver<? super T, ?>> resolvedBindings =
                                 Resolver.resolve(clazz, bindings);
@@ -134,15 +135,20 @@ public final class Incubator {
                                 return empty();
                             } else if (!partial) {
                                 throw new BreedingException(
-                                        "Partial binding is disabled and no binding is defined for synapse method: " + method);
+                                        "Partial binding is disabled and no binding is defined for " + (isNeuron() ? "synapse " : "") + "method: " + method);
                             } else if (null != delegate) {
                                 final String name = method.getName();
                                 final MethodHandle handle = find(name).in(delegate).orElseThrow(() ->
-                                        new BreedingException("Illegal binding: A method named `" + name + "` neither exists in `" + delegate.getClass() + "` nor in any of its interfaces and superclasses."));
+                                        new BreedingException(
+                                                "Illegal binding: A method named `" + name + "` neither exists in `" + delegate.getClass() + "` nor in any of its interfaces and superclasses."));
                                 return of(handle::invokeExact);
                             } else {
                                 return of(() -> Incubator.breed(method.getReturnType()));
                             }
+                        }
+
+                        boolean isNeuron() {
+                            return clazz.isAnnotationPresent(Neuron.class);
                         }
                     });
                 }.neuron;

@@ -49,12 +49,32 @@ interface ClassInfo<C> {
     }
 
     default boolean hasStaticContext() {
-        return null == clazz().getEnclosingClass() || isInterface() || Modifier.isStatic(clazz().getModifiers());
+        return null == clazz().getEnclosingClass() || isInterface() || isStatic();
     }
 
-    default boolean isFinal() { return Modifier.isFinal(clazz().getModifiers()); }
+    default boolean isAbstract() {
+        final boolean a = Modifier.isAbstract(modifiers());
+        assert !clazz().isInterface() || a;
+        return a;
+    }
 
-    default boolean isInterface() { return clazz().isInterface(); }
+    default boolean isFinal() {
+        return Modifier.isFinal(modifiers());
+    }
 
-    default boolean isSerializable() { return Serializable.class.isAssignableFrom(clazz()); }
+    default boolean isInterface() {
+        return clazz().isInterface();
+    }
+
+    default boolean isSerializable() {
+        return Serializable.class.isAssignableFrom(clazz());
+    }
+
+    default boolean isStatic() {
+        return Modifier.isStatic(modifiers());
+    }
+
+    default int modifiers() {
+        return clazz().getModifiers();
+    }
 }

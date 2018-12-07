@@ -18,5 +18,12 @@ package global.namespace.neuron.di.internal;
 interface NeuronElement<N> extends ClassElement<N> {
 
     @Override
-    default void accept(Visitor<N> visitor) { visitor.visitNeuron(this); }
+    default void accept(Visitor<N> visitor) {
+        visitor.visitNeuron(this);
+    }
+
+    @Override
+    default boolean isAbstract() {
+        return true;
+    }
 }

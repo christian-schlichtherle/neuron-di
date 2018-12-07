@@ -17,6 +17,7 @@ package global.namespace.neuron.di.internal;
 
 import global.namespace.neuron.di.java.BreedingException;
 import global.namespace.neuron.di.java.CachingStrategy;
+import global.namespace.neuron.di.java.Neuron;
 
 import java.lang.reflect.Method;
 import java.util.Optional;
@@ -25,8 +26,47 @@ import static global.namespace.neuron.di.java.CachingStrategy.DISABLED;
 
 interface ClassElement<C> extends ClassInfo<C>, Element<C> {
 
+    static <C> ClassElement<C> of(final Class<C> clazz) {
+
+        class Base {
+
+            public Class<C> clazz() {
+                return clazz;
+            }
+        }
+
+        final Neuron neuron = clazz.getAnnotation(Neuron.class);
+        if (null != neuron) {
+
+            class RealNeuronElement extends Base implements NeuronElement<C> {
+
+                private final CachingStrategy cachingStrategy = neuron.cachingStrategy();
+
+                @Override
+                public CachingStrategy cachingStrategy() {
+                    return cachingStrategy;
+                }
+            }
+
+            return new RealNeuronElement();
+        } else {
+
+            class RealClassElement extends Base implements ClassElement<C> {
+
+                @Override
+                public CachingStrategy cachingStrategy() {
+                    return DISABLED;
+                }
+            }
+
+            return new RealClassElement();
+        }
+    }
+
     @Override
-    default void accept(Visitor<C> visitor) { visitor.visitClass(this); }
+    default void accept(Visitor<C> visitor) {
+        visitor.visitClass(this);
+    }
 
     default MethodElement<C> element(final Method method) {
 
@@ -34,9 +74,13 @@ interface ClassElement<C> extends ClassInfo<C>, Element<C> {
 
             CachingStrategy cachingStrategy;
 
-            public CachingStrategy cachingStrategy() { return cachingStrategy; }
+            public CachingStrategy cachingStrategy() {
+                return cachingStrategy;
+            }
 
-            public Method method() { return method; }
+            public Method method() {
+                return method;
+            }
         }
 
         class RealSynapseElement extends Base implements SynapseElement<C> {
