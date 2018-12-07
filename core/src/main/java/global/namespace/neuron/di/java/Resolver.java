@@ -15,9 +15,9 @@
  */
 package global.namespace.neuron.di.java;
 
+import global.namespace.neuron.di.internal.MethodInfo;
 import global.namespace.neuron.di.internal.RealIncubator;
 
-import java.lang.reflect.Method;
 import java.util.*;
 
 import static java.util.Optional.of;
@@ -29,21 +29,21 @@ class Resolver {
     private Resolver() {
     }
 
-    static <T> Map<Method, DependencyResolver<? super T, ?>> resolve(Class<T> clazz, List<Map.Entry<DependencyResolver<T, ?>, DependencyResolver<? super T, ?>>> bindings) {
+    static <T> Map<MethodInfo, DependencyResolver<? super T, ?>> resolve(Class<T> clazz, List<Map.Entry<DependencyResolver<T, ?>, DependencyResolver<? super T, ?>>> bindings) {
         return new Object() {
 
             final T fuze = fuze(clazz);
             int currentPosition = 0;
 
-            Map<Method, DependencyResolver<? super T, ?>> apply() {
-                final Map<Method, DependencyResolver<? super T, ?>> resolvers = new LinkedHashMap<>();
+            Map<MethodInfo, DependencyResolver<? super T, ?>> apply() {
+                final Map<MethodInfo, DependencyResolver<? super T, ?>> resolvers = new LinkedHashMap<>();
                 for (Map.Entry<DependencyResolver<T, ?>, DependencyResolver<? super T, ?>> binding : bindings) {
                     currentPosition++;
                     try {
                         binding.getKey().apply(fuze);
                         throw breedingException(null);
                     } catch (IgnitionError e) {
-                        resolvers.put(e.method(), binding.getValue());
+                        resolvers.put(e.info(), binding.getValue());
                     } catch (BreedingException e) {
                         throw e;
                     } catch (Throwable e) {
@@ -64,9 +64,9 @@ class Resolver {
         return (T) fuzes.computeIfAbsent(clazz, c -> RealIncubator.breed(c, Resolver::ignition));
     }
 
-    private static Optional<DependencyProvider<?>> ignition(Method method) {
+    private static Optional<DependencyProvider<?>> ignition(MethodInfo info) {
         return of(() -> {
-            throw new IgnitionError(method);
+            throw new IgnitionError(info);
         });
     }
 
@@ -74,15 +74,15 @@ class Resolver {
 
         private static final long serialVersionUID = 0L;
 
-        private final Method method;
+        private final MethodInfo info;
 
-        IgnitionError(final Method method) {
+        IgnitionError(final MethodInfo info) {
             super(null, null, false, false);
-            this.method = method;
+            this.info = info;
         }
 
-        Method method() {
-            return method;
+        MethodInfo info() {
+            return info;
         }
     }
 }

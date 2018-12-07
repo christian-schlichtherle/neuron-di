@@ -16,10 +16,10 @@
 package global.namespace.neuron.di.java;
 
 import global.namespace.neuron.di.internal.MethodBinding;
+import global.namespace.neuron.di.internal.MethodInfo;
 import global.namespace.neuron.di.internal.RealIncubator;
 
 import java.lang.invoke.MethodHandle;
-import java.lang.reflect.Method;
 import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.LinkedList;
 import java.util.List;
@@ -28,7 +28,6 @@ import java.util.Map.Entry;
 import java.util.Optional;
 
 import static global.namespace.neuron.di.java.Reflection.find;
-import static global.namespace.neuron.di.java.Reflection.isAbstract;
 import static java.util.Optional.*;
 
 /**
@@ -68,7 +67,7 @@ public final class Incubator {
      *                for subsequent calls to the synapse method.
      */
     public static <T> T breed(Class<T> clazz, SynapseBinding binding) {
-        return RealIncubator.breed(clazz, method -> isAbstract(method) ? of(binding.apply(method)) : empty());
+        return RealIncubator.breed(clazz, info -> info.isAbstract() ? of(binding.apply(info.method())) : empty());
     }
 
     /**
@@ -122,28 +121,27 @@ public final class Incubator {
 
                     final T neuron = RealIncubator.breed(clazz, new MethodBinding() {
 
-                        final Map<Method, DependencyResolver<? super T, ?>> resolvedBindings =
+                        final Map<MethodInfo, DependencyResolver<? super T, ?>> resolvedBindings =
                                 Resolver.resolve(clazz, bindings);
 
                         @Override
-                        public Optional<DependencyProvider<?>> apply(final Method method) {
-                            final Optional<DependencyProvider<?>> optionalDependencyProvider =
-                                    ofNullable(resolvedBindings.get(method)).map(resolver -> () -> resolver.apply(neuron));
-                            if (optionalDependencyProvider.isPresent()) {
-                                return optionalDependencyProvider;
-                            } else if (!isAbstract(method)) {
-                                return empty();
+                        public Optional<DependencyProvider<?>> apply(final MethodInfo info) {
+                            final Optional<DependencyProvider<?>> odp = ofNullable(resolvedBindings.get(info))
+                                    .map(resolver -> () -> resolver.apply(neuron));
+                            if (odp.isPresent() || !info.isAbstract()) {
+                                return odp;
                             } else if (!partial) {
                                 throw new BreedingException(
-                                        "Partial binding is disabled and no binding is defined for " + (isNeuron() ? "synapse " : "") + "method: " + method);
+                                        "Partial binding is disabled and no binding is defined for " + (isNeuron() ? "synapse " : "") + "method: " + info.method());
                             } else if (null != delegate) {
-                                final String name = method.getName();
-                                final MethodHandle handle = find(name).in(delegate).orElseThrow(() ->
-                                        new BreedingException(
+                                final String name = info.name();
+                                final MethodHandle handle = find(name)
+                                        .in(delegate)
+                                        .orElseThrow(() -> new BreedingException(
                                                 "Illegal binding: A method named `" + name + "` neither exists in `" + delegate.getClass() + "` nor in any of its interfaces and superclasses."));
                                 return of(handle::invokeExact);
                             } else {
-                                return of(() -> Incubator.breed(method.getReturnType()));
+                                return of(() -> Incubator.breed(info.returnType()));
                             }
                         }
 

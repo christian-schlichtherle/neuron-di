@@ -91,8 +91,6 @@ class Reflection {
         };
     }
 
-    static boolean isAbstract(Method method) { return Modifier.isAbstract(method.getModifiers()); }
-
     private interface Unreflect<M> {
 
         MethodHandle apply(M member) throws IllegalAccessException;

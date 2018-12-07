@@ -27,24 +27,36 @@ import java.util.function.Function;
 import static java.util.Optional.ofNullable;
 
 @FunctionalInterface
-interface MethodInfo extends Function<MethodBinding, Optional<DependencyProvider<?>>> {
+public interface MethodInfo extends Function<MethodBinding, Optional<DependencyProvider<?>>> {
 
     Method method();
 
-    default Optional<DependencyProvider<?>> apply(MethodBinding binding) { return binding.apply(method()); }
+    default Optional<DependencyProvider<?>> apply(MethodBinding binding) {
+        return binding.apply(this);
+    }
 
     default Optional<CachingStrategy> declaredCachingStrategy() {
         return ofNullable(method().getDeclaredAnnotation(Caching.class)).map(Caching::value);
     }
 
-    default String name() { return method().getName(); }
+    default boolean hasParameters() {
+        return 0 != method().getParameterCount();
+    }
 
-    default boolean isAbstract() { return Modifier.isAbstract(method().getModifiers()); }
-
-    default boolean hasParameters() { return 0 != method().getParameterCount(); }
+    default boolean isAbstract() {
+        return Modifier.isAbstract(method().getModifiers());
+    }
 
     default boolean isVoid() {
         final Class<?> returnType = method().getReturnType();
         return Void.TYPE == returnType || Void.class == returnType;
+    }
+
+    default String name() {
+        return method().getName();
+    }
+
+    default Class<?> returnType() {
+        return method().getReturnType();
     }
 }
