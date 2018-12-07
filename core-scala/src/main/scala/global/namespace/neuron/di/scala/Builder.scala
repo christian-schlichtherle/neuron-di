@@ -15,11 +15,7 @@
  */
 package global.namespace.neuron.di.scala
 
-import java.lang.reflect.Method
-import java.util.Optional
-
-import global.namespace.neuron.di.internal.scala.runtimeClassOf
-import global.namespace.neuron.di.java.{DependencyProvider, DependencyResolver, Builder => jBuilder, MethodBinding => jMethodBinding}
+import global.namespace.neuron.di.java.{Builder => jBuilder}
 
 import scala.languageFeature.implicitConversions
 import scala.reflect.ClassTag
@@ -27,16 +23,12 @@ import scala.reflect.ClassTag
 /** @author Christian Schlichtherle */
 object Builder {
 
-  def build[A >: Null : ClassTag]: A = jBuilder build runtimeClassOf[A]
+  def build[A <: AnyRef : ClassTag]: A = jBuilder build runtimeClassOf[A]
 
-  def build[A >: Null : ClassTag](binding: MethodBinding): A = {
-    jBuilder.build(runtimeClassOf[A], new jMethodBinding {
+  def build[A <: AnyRef : ClassTag](binding: MethodBinding): A = jBuilder.build(runtimeClassOf[A], binding)
 
-      def apply(method: Method): Optional[DependencyProvider[_]] = Optional.ofNullable(binding.applyOrElse(method, null))
-    })
-  }
-
-  case class wire[A >: Null](implicit tag: ClassTag[A]) { self =>
+  case class wire[A <: AnyRef : ClassTag]() {
+    self =>
 
     private var jwire = jBuilder wire runtimeClassOf[A]
 
@@ -65,13 +57,4 @@ object Builder {
     def build: A = jwire.build
   }
 
-  private implicit class DependencyProviderAdapter[A](supplier: () => A) extends DependencyProvider[A] {
-
-    def get(): A = supplier()
-  }
-
-  private implicit class DependencyResolverAdapter[A, B](fun: A => B) extends DependencyResolver[A, B] {
-
-    def apply(a: A): B = fun(a)
-  }
 }

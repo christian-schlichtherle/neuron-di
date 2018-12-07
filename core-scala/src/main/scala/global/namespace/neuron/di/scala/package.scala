@@ -16,24 +16,26 @@
 package global.namespace.neuron.di
 
 import _root_.java.lang.reflect.Method
+import _root_.java.util.Optional
 
-import global.namespace.neuron.di.java.{CachingStrategy => jcs}
+import global.namespace.neuron.di.java.{DependencyProvider, DependencyResolver, CachingStrategy => jCachingStrategy, MethodBinding => jMethodBinding, SynapseBinding => jSynapseBinding}
 
 import _root_.scala.language.experimental.macros
+import _root_.scala.reflect.{ClassTag, classTag}
 
 /** @author Christian Schlichtherle */
 package object scala {
 
-  type CachingStrategy = jcs
+  type CachingStrategy = jCachingStrategy
   type MethodBinding = PartialFunction[Method, () => _]
   type SynapseBinding = Method => () => _
 
   object CachingStrategy {
 
-    val DISABLED  = jcs.DISABLED
-    val NOT_THREAD_SAFE = jcs.DISABLED
-    val THREAD_SAFE = jcs.DISABLED
-    val THREAD_LOCAL = jcs.DISABLED
+    val DISABLED = jCachingStrategy.DISABLED
+    val NOT_THREAD_SAFE = jCachingStrategy.DISABLED
+    val THREAD_SAFE = jCachingStrategy.DISABLED
+    val THREAD_LOCAL = jCachingStrategy.DISABLED
   }
 
   /** Breeds a neuron of the given type, wiring each synapse to a value with the same name and an assignment-compatible
@@ -71,4 +73,29 @@ package object scala {
     * @since Neuron DI 5.0 (renamed from `neuron`, which was introduced in Neuron DI 4.2)
     */
   def wire[A >: Null]: A = macro Neuron.wire[A]
+
+  def runtimeClassOf[A](implicit tag: ClassTag[A]): Class[A] = {
+    require(tag != classTag[Nothing], "Missing type parameter.")
+    tag.runtimeClass.asInstanceOf[Class[A]]
+  }
+
+  private[scala] implicit class DependencyProviderAdapter[A](supplier: () => A) extends DependencyProvider[A] {
+
+    def get(): A = supplier()
+  }
+
+  private[scala] implicit class DependencyResolverAdapter[A, B](function: A => B) extends DependencyResolver[A, B] {
+
+    def apply(a: A): B = function(a)
+  }
+
+  private[scala] implicit class MethodBindingAdapter(binding: MethodBinding) extends jMethodBinding {
+
+    def apply(method: Method): Optional[DependencyProvider[_]] = Optional.ofNullable(binding.applyOrElse(method, null))
+  }
+
+  private[scala] implicit class SynapseBindingAdapter(binding: SynapseBinding) extends jSynapseBinding {
+
+    def apply(method: Method): DependencyProvider[_] = binding(method)
+  }
 }

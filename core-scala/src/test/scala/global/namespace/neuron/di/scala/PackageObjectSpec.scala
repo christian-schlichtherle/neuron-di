@@ -13,14 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package global.namespace.neuron.di.internal
+package global.namespace.neuron.di.scala
 
-import _root_.scala.reflect.{ClassTag, classTag}
+import java.util.function.Supplier
 
-package object scala {
+import org.scalatest.Matchers._
+import org.scalatest.WordSpec
 
-  def runtimeClassOf[A](implicit tag: ClassTag[A]): Class[A] = {
-    require(tag != classTag[Nothing], "Missing type parameter.")
-    tag.runtimeClass.asInstanceOf[Class[A]]
+class PackageObjectSpec extends WordSpec {
+
+  "The runtimeClassOf function" should {
+    "return the runtime class of a string supplier" in {
+      runtimeClassOf[Supplier[String]] shouldBe classOf[Supplier[_]]
+    }
+
+    "throw an illegal argument exception if no type parameter was provided" in {
+      intercept[IllegalArgumentException] {
+        runtimeClassOf
+      }.getMessage shouldBe "requirement failed: Missing type parameter."
+    }
   }
 }

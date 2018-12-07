@@ -15,23 +15,19 @@
  */
 package global.namespace.neuron.di.scala
 
-import java.lang.reflect.Method
-
-import global.namespace.neuron.di.internal.scala.runtimeClassOf
-import global.namespace.neuron.di.java.{DependencyProvider, DependencyResolver, Incubator => jIncubator, SynapseBinding => jSynapseBinding}
+import global.namespace.neuron.di.java.{Incubator => jIncubator}
 
 import scala.reflect._
 
 /** @author Christian Schlichtherle */
 object Incubator {
 
-  def breed[A >: Null : ClassTag]: A = jIncubator breed runtimeClassOf[A]
+  def breed[A <: AnyRef : ClassTag]: A = jIncubator breed runtimeClassOf[A]
 
-  def breed[A >: Null : ClassTag](binding: SynapseBinding): A = {
-    jIncubator.breed(runtimeClassOf[A], (method: Method) => binding(method): DependencyProvider[_])
-  }
+  def breed[A <: AnyRef : ClassTag](binding: SynapseBinding): A = jIncubator.breed(runtimeClassOf[A], binding)
 
-  case class wire[A >: Null](implicit tag: ClassTag[A]) { self =>
+  case class wire[A <: AnyRef : ClassTag]() {
+    self =>
 
     private var jwire = jIncubator wire runtimeClassOf[A]
 
@@ -60,18 +56,4 @@ object Incubator {
     def breed: A = jwire.breed
   }
 
-  private implicit class DependencyProviderAdapter[A](supplier: () => A) extends DependencyProvider[A] {
-
-    def get(): A = supplier()
-  }
-
-  private implicit class DependencyResolverAdapter[A, B](fun: A => B) extends DependencyResolver[A, B] {
-
-    def apply(a: A): B = fun(a)
-  }
-
-  private implicit class SynapseBindingAdapter(fun: Method => DependencyProvider[_]) extends jSynapseBinding {
-
-    def apply(method: Method): DependencyProvider[_] = fun(method)
-  }
 }
