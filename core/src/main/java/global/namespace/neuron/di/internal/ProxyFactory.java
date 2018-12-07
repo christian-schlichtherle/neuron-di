@@ -84,13 +84,13 @@ final class ProxyFactory<C> implements Function<MethodBinding, C>{
 
             @Override
             public void visitSynapse(SynapseElement<C> element) {
-                boundMethodHandler.provider(element.decorate(element.apply(binding)
+                boundMethodHandler.provider(element.decorate(binding.apply(element)
                         .orElseThrow(() -> new BreedingException("No binding defined for synapse method: " + element.method()))));
             }
 
             @Override
             public void visitMethod(MethodElement<C> element) {
-                boundMethodHandler.provider(element.decorate(element.apply(binding)
+                boundMethodHandler.provider(element.decorate(binding.apply(element)
                         .orElseGet(boundMethodHandler::provider)));
             }
 
