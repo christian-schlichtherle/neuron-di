@@ -37,7 +37,7 @@ public final class Builder {
     private Builder() {
     }
 
-    public static <T> T build(final Class<T> clazz) {
+    public static <T> T build(Class<T> clazz) {
         return build(clazz, method -> {
             if (isAbstract(method)) {
                 final Class<?> returnType = method.getReturnType();
@@ -108,7 +108,7 @@ public final class Builder {
                                         new BreedingException("Illegal binding: A method named `" + name + "` neither exists in `" + delegate.getClass() + "` nor in any of its interfaces and superclasses."));
                                 return of(handle::invokeExact);
                             } else {
-                                return of(() -> Incubator.breed(method.getReturnType()));
+                                return of(() -> Builder.build(method.getReturnType()));
                             }
                         }
                     });
