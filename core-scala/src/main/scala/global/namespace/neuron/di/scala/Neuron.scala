@@ -67,12 +67,8 @@ private object Neuron {
       lazy val functionType: Type = c.typecheck(tree = tq"$targetType => $returnType", mode = c.TYPEmode).tpe
 
       override def toString: String = {
-        val (methodPrefix, typePrefix) = if (isNeuronType) {
-          ("synapse ", "neuron")
-        } else {
-          ("", "non-neuron")
-        }
-        s"${methodPrefix}method `$name: $returnType` as seen from $typePrefix `$targetTypeSymbol`"
+        val typePrefix = if (isNeuronType) "neuron" else "non-neuron"
+        s"synapse method `$name: $returnType` as seen from $typePrefix `$targetTypeSymbol`"
       }
     }
 

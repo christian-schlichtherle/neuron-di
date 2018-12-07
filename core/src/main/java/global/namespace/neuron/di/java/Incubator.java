@@ -132,21 +132,17 @@ public final class Incubator {
                                 return odp;
                             } else if (!partial) {
                                 throw new BreedingException(
-                                        "Partial binding is disabled and no binding is defined for " + (isNeuron() ? "synapse " : "") + "method: " + info.method());
+                                        "Partial binding is disabled and no binding is defined for synapse method: " + info.method());
                             } else if (null != delegate) {
                                 final String name = info.name();
                                 final MethodHandle handle = find(name)
                                         .in(delegate)
                                         .orElseThrow(() -> new BreedingException(
-                                                "Illegal binding: A method named `" + name + "` neither exists in `" + delegate.getClass() + "` nor in any of its interfaces and superclasses."));
+                                                "Illegal binding: A method or field named `" + name + "` neither exists in `" + delegate.getClass() + "` nor in any of its interfaces and superclasses."));
                                 return of(handle::invokeExact);
                             } else {
                                 return of(() -> Incubator.breed(info.returnType()));
                             }
-                        }
-
-                        boolean isNeuron() {
-                            return clazz.isAnnotationPresent(Neuron.class);
                         }
                     });
                 }.neuron;
