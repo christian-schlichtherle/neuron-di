@@ -32,7 +32,9 @@ class Neuron(cachingStrategy: CachingStrategy = CachingStrategy.DISABLED) extend
 private object Neuron {
 
   def transform(x: blackbox.Context)(annottees: x.Tree*): x.Tree = {
-    new { val c: x.type = x } with NeuronAnnotation apply annottees.toList
+    new {
+      val c: x.type = x
+    } with NeuronAnnotation apply annottees.toList
   }
 
   def wire[A >: Null : c.WeakTypeTag](c: blackbox.Context): c.Tree = {
@@ -54,7 +56,7 @@ private object Neuron {
       targetType.baseClasses exists isTargetTypeOrSuperClassWithNeuronAnnotation
     }
 
-    class SynapseInfo(symbol: MethodSymbol) {
+    class MethodInfo(symbol: MethodSymbol) {
 
       lazy val isStable: Boolean = symbol.isStable
 
@@ -65,12 +67,16 @@ private object Neuron {
       lazy val functionType: Type = c.typecheck(tree = tq"$targetType => $returnType", mode = c.TYPEmode).tpe
 
       override def toString: String = {
-        val prefix = if (isNeuronType) "neuron" else "non-neuron"
-        s"synapse method `$name: $returnType` as seen from $prefix `$targetTypeSymbol`"
+        val (methodPrefix, typePrefix) = if (isNeuronType) {
+          ("synapse ", "neuron")
+        } else {
+          ("", "non-neuron")
+        }
+        s"${methodPrefix}method `$name: $returnType` as seen from $typePrefix `$targetTypeSymbol`"
       }
     }
 
-    abstract class SynapseBinder(info: SynapseInfo) {
+    abstract class BaseBinding(info: MethodInfo) {
 
       import info._
 
@@ -106,7 +112,7 @@ private object Neuron {
       private lazy val dependency: Tree = q"$name"
     }
 
-    class NeuronSynapseBinder(info: SynapseInfo) extends SynapseBinder(info) {
+    class SynapseBinding(info: MethodInfo) extends BaseBinding(info) {
 
       import info._
 
@@ -117,7 +123,7 @@ private object Neuron {
       def functionBinding(dependency: Tree): Tree = returnValueBinding(dependency)
     }
 
-    class NonNeuronSynapseBinder(info: SynapseInfo) extends SynapseBinder(info) {
+    class MethodBinding(info: MethodInfo) extends BaseBinding(info) {
 
       import info._
 
@@ -139,7 +145,7 @@ private object Neuron {
       }
     }
 
-    val synapseInfos = {
+    val methodInfos: Iterable[MethodInfo] = {
 
       def ifAbstractMethod: PartialFunction[Any, MethodSymbol] = {
         case member: Symbol if member.isAbstract && member.isMethod => member.asMethod
@@ -147,17 +153,17 @@ private object Neuron {
 
       def isParameterless(method: MethodSymbol) = method.paramLists.flatten.isEmpty
 
-      targetType.members collect ifAbstractMethod filter isParameterless map (new SynapseInfo(_))
+      targetType.members collect ifAbstractMethod filter isParameterless map (new MethodInfo(_))
     }
 
     if (isNeuronType) {
       var tree = q"_root_.global.namespace.neuron.di.scala.Incubator.wire[$targetType]"
-      tree = (tree /: (synapseInfos map (new NeuronSynapseBinder(_).bind))) {
-        case (prefix, q"bind($synapseRef).to($dependency)") => q"$prefix.bind($synapseRef).to($dependency)"
+      tree = (tree /: (methodInfos map (new SynapseBinding(_).bind))) {
+        case (prefix, q"bind($methodRef).to($dependency)") => q"$prefix.bind($methodRef).to($dependency)"
       }
       q"$tree.breed"
     } else {
-      q"new $targetType { ..${synapseInfos map (new NonNeuronSynapseBinder(_).bind)} }"
+      q"new $targetType { ..${methodInfos map (new MethodBinding(_).bind)} }"
     }
   }
 }
