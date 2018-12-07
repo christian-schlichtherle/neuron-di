@@ -53,4 +53,8 @@ public interface MethodInfo {
     default Class<?> returnType() {
         return method().getReturnType();
     }
+
+    default boolean canEqual(Object other) {
+        return other instanceof MethodInfo;
+    }
 }

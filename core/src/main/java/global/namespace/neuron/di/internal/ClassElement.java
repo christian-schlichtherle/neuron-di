@@ -81,19 +81,21 @@ interface ClassElement<C> extends ClassInfo<C>, Element<C> {
             public Method method() {
                 return method;
             }
-        }
 
-        class RealSynapseElement extends Base implements SynapseElement<C> {
-
-            private RealSynapseElement(final CachingStrategy cachingStrategy) {
-                super.cachingStrategy = cachingStrategy;
+            public boolean equals(final Object o) {
+                if (this == o) {
+                    return true;
+                }
+                if (!(o instanceof MethodInfo)) {
+                    return false;
+                }
+                final MethodInfo that = (MethodInfo) o;
+                return that.canEqual(this) && this.method().equals(that.method());
             }
-        }
 
-        class RealMethodElement extends Base implements MethodElement<C> {
-
-            private RealMethodElement(final CachingStrategy cachingStrategy) {
-                super.cachingStrategy = cachingStrategy;
+            @Override
+            public int hashCode() {
+                return method().hashCode();
             }
         }
 
@@ -104,19 +106,33 @@ interface ClassElement<C> extends ClassInfo<C>, Element<C> {
                 throw new BreedingException("A synapse method must not have parameters: " + method);
             } else if (info.isVoid()) {
                 throw new BreedingException("A synapse method must have a return value: " + method);
-            } else {
-                return new RealSynapseElement(declaredCachingStrategy.orElseGet(this::cachingStrategy));
             }
-        } else if (declaredCachingStrategy.isPresent()) {
-            if (info.hasParameters()) {
-                throw new BreedingException("A caching method must not have parameters: " + method);
-            } else if (info.isVoid()) {
-                throw new BreedingException("A caching method must have a return value: " + method);
-            } else {
-                return new RealMethodElement(declaredCachingStrategy.get());
+
+            class RealSynapseElement extends Base implements SynapseElement<C> {
+
+                {
+                    this.cachingStrategy = declaredCachingStrategy.orElseGet(ClassElement.this::cachingStrategy);
+                }
             }
+
+            return new RealSynapseElement();
         } else {
-            return new RealMethodElement(DISABLED);
+            if (declaredCachingStrategy.isPresent()) {
+                if (info.hasParameters()) {
+                    throw new BreedingException("A caching method must not have parameters: " + method);
+                } else if (info.isVoid()) {
+                    throw new BreedingException("A caching method must have a return value: " + method);
+                }
+            }
+
+            class RealMethodElement extends Base implements MethodElement<C> {
+
+                {
+                    this.cachingStrategy = declaredCachingStrategy.orElse(DISABLED);
+                }
+            }
+
+            return new RealMethodElement();
         }
     }
 }
