@@ -79,7 +79,7 @@ private trait NeuronAnnotation extends MacroAnnotation {
                 case ModuleDef(moduleMods, moduleName, Template(parents, self, body)) :: moduleRest =>
                   ModuleDef(moduleMods, moduleName, Template(parents, self, shimDef :: body)) :: moduleRest
                 case _ =>
-                  // This should be SYNTHETIC, however this would break SBT 1.1.2, 1.1.4 et al.
+                  // This should be SYNTHETIC, however this would break SBT 1.1.2, 1.1.4, 1.2.7 et al.
                   val moduleMods = Modifiers(flags &~ (ABSTRACT | TRAIT | DEFAULTPARAM), privateWithin, annotations)
                   q"$moduleMods object ${TermName(name)} { $shimDef }" :: rest
               }

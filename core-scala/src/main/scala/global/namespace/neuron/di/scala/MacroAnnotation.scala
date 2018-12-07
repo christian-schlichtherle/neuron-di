@@ -46,7 +46,7 @@ private trait MacroAnnotation {
 
   protected implicit class FlagOps(left: FlagSet) {
 
-    // As of Scala 2.11.8:
+    // Matching Scala 2.11.12 and 2.12.8:
     private val allFlags = Set(
       ABSOVERRIDE,
       ABSTRACT,
@@ -82,7 +82,7 @@ private trait MacroAnnotation {
     def &~(right: FlagSet): FlagSet = {
       var result = NoFlags
       for (flag <- allFlags) {
-        if (flag == (left | flag) && flag != (right | flag)) {
+        if (left == (left | flag) && right != (right | flag)) {
           result |= flag
         }
       }
