@@ -16,6 +16,7 @@
 package global.namespace.neuron.di.java;
 
 import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Member;
@@ -46,11 +47,12 @@ class Reflection {
                 return new Function<Class<?>, Optional<MethodHandle>>() {
                     @Override
                     public Optional<MethodHandle> apply(final Class<?> c) {
+                        final MethodHandles.Lookup lookup = publicLookup();
                         try {
-                            return methodHandle(c.getDeclaredMethod(member), publicLookup()::unreflect);
+                            return methodHandle(c.getDeclaredMethod(member), lookup::unreflect);
                         } catch (final NoSuchMethodException ignored) {
                             try {
-                                return methodHandle(c.getDeclaredField(member), publicLookup()::unreflectGetter);
+                                return methodHandle(c.getDeclaredField(member), lookup::unreflectGetter);
                             } catch (final NoSuchFieldException ignoredAgain) {
                                 Optional<MethodHandle> result;
                                 for (final Class<?> iface : c.getInterfaces()) {

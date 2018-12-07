@@ -18,13 +18,14 @@ package global.namespace.neuron.di.internal;
 import global.namespace.neuron.di.java.BreedingException;
 
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
 import static global.namespace.neuron.di.internal.Reflection.overridableMethods;
+import static java.lang.reflect.Modifier.PROTECTED;
+import static java.lang.reflect.Modifier.PUBLIC;
 
 final class ProxyContext<C> {
 
@@ -65,7 +66,9 @@ final class ProxyContext<C> {
         return shimClass;
     }
 
-    private Class<C> clazz() { return element.clazz(); }
+    private Class<C> clazz() {
+        return element.clazz();
+    }
 
     private List<MethodElement<C>> bindableElements(Class<? extends C> clazz) {
         return new Visitor<C>() {
@@ -79,7 +82,7 @@ final class ProxyContext<C> {
                 final Collection<Method> methods = overridableMethods(clazz);
                 bindableElements = new ArrayList<>(methods.size());
                 methods.forEach(method -> {
-                    if (0 != (method.getModifiers() & (Modifier.PROTECTED | Modifier.PUBLIC))
+                    if (0 != (method.getModifiers() & (PROTECTED | PUBLIC))
                             || method.getDeclaringClass().getPackage() == pkg) {
                         element.element(method).accept(this);
                     }
@@ -88,7 +91,9 @@ final class ProxyContext<C> {
             }
 
             @Override
-            public void visitSynapse(SynapseElement<C> element) { bindableElements.add(element); }
+            public void visitSynapse(SynapseElement<C> element) {
+                bindableElements.add(element);
+            }
 
             @Override
             public void visitMethod(final MethodElement<C> element) {
