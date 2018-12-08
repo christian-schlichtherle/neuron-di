@@ -21,9 +21,4 @@ interface NeuronElement<N> extends ClassElement<N> {
     default void accept(Visitor<N> visitor) {
         visitor.visitNeuron(this);
     }
-
-    @Override
-    default boolean isAbstract() {
-        return true;
-    }
 }

@@ -21,11 +21,8 @@ import global.namespace.neuron.di.internal.RealIncubator;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.reflect.Method;
-import java.util.AbstractMap.SimpleImmutableEntry;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.function.Function;
 
@@ -90,7 +87,7 @@ public final class Incubator {
     public static <T> Wire<T> wire(Class<T> clazz) {
         return new Wire<T>() {
 
-            final List<Entry<DependencyResolver<T, ?>, DependencyResolver<? super T, ?>>> bindings = new LinkedList<>();
+            final Map<DependencyResolver<T, ?>, Object> bindings = new LinkedHashMap<>();
 
             boolean partial;
 
@@ -104,10 +101,29 @@ public final class Incubator {
 
             @Override
             public <U> Bind<T, U> bind(final DependencyResolver<T, U> methodReference) {
-                return resolver -> {
-                    bindings.add(new SimpleImmutableEntry<>(methodReference, resolver));
-                    return this;
+                return new Bind<T, U>() {
+
+                    @Override
+                    public Wire<T> to(U value) {
+                        return to(() -> value);
+                    }
+
+                    @Override
+                    public Wire<T> to(DependencyProvider<? extends U> provider) {
+                        bindings.put(methodReference, provider);
+                        return wire();
+                    }
+
+                    @Override
+                    public Wire<T> to(DependencyResolver<? super T, ? extends U> resolver) {
+                        bindings.put(methodReference, resolver);
+                        return wire();
+                    }
                 };
+            }
+
+            Wire<T> wire() {
+                return this;
             }
 
             @Override
@@ -117,30 +133,30 @@ public final class Incubator {
                 return breed();
             }
 
+            @SuppressWarnings("unchecked")
             @Override
             public T breed() {
                 return new Object() {
 
                     final T neuron = RealIncubator.breed(clazz, new MethodBinding() {
 
-                        final Map<MethodInfo, DependencyResolver<? super T, ?>> resolvedBindings =
-                                Resolver.resolve(clazz, bindings);
+                        final Map<MethodInfo, Object> resolvedBindings = new Resolver<>(clazz).resolve(bindings);
 
                         @Override
                         public Optional<DependencyProvider<?>> apply(final MethodInfo info) {
                             final Optional<DependencyProvider<?>> odp = ofNullable(resolvedBindings.get(info))
-                                    .map(resolver -> () -> resolver.apply(neuron));
+                                    .map(o -> (o instanceof DependencyProvider)
+                                            ? (DependencyProvider<?>) o
+                                            : () -> ((DependencyResolver<? super T, ?>) o).apply(neuron));
                             if (odp.isPresent() || !info.isAbstract()) {
                                 return odp;
                             } else if (!partial) {
                                 throw new BreedingException(
                                         "Partial binding is disabled and no binding is defined for synapse method: " + info.method());
                             } else if (null != delegate) {
-                                final String name = info.name();
-                                final MethodHandle handle = find(name)
-                                        .in(delegate)
-                                        .orElseThrow(() -> new BreedingException(
-                                                "Illegal binding: A method or field named `" + name + "` neither exists in `" + delegate.getClass() + "` nor in any of its interfaces and superclasses."));
+                                final String member = info.name();
+                                final MethodHandle handle = find(member).in(delegate).orElseThrow(() ->
+                                        new BreedingException("Illegal binding: A member named `" + member + "` neither exists in `" + delegate.getClass() + "` nor in any of its interfaces and superclasses."));
                                 return of(handle::invokeExact);
                             } else {
                                 return of(() -> Incubator.breed(info.returnType()));
@@ -182,25 +198,21 @@ public final class Incubator {
         T breed();
     }
 
-    public interface Bind<T, D> {
+    public interface Bind<T, U> {
 
         /**
          * Binds the synapse method to the given value.
          */
-        default Wire<T> to(D value) {
-            return to(neuron -> value);
-        }
+        Wire<T> to(U value);
 
         /**
          * Binds the synapse method to the given provider.
          */
-        default Wire<T> to(DependencyProvider<? extends D> provider) {
-            return to(neuron -> provider.get());
-        }
+        Wire<T> to(DependencyProvider<? extends U> provider);
 
         /**
          * Binds the synapse method to the given function.
          */
-        Wire<T> to(DependencyResolver<? super T, ? extends D> resolver);
+        Wire<T> to(DependencyResolver<? super T, ? extends U> resolver);
     }
 }

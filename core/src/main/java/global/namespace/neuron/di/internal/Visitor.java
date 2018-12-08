@@ -17,11 +17,15 @@ package global.namespace.neuron.di.internal;
 
 interface Visitor<C> {
 
-    default void visitNeuron(NeuronElement<C> element) { }
+    default void visitNeuron(NeuronElement<C> element) {
+    }
 
-    default void visitClass(ClassElement<C> element) { }
+    default void visitClass(ClassElement<C> element) {
+    }
 
-    default void visitSynapse(SynapseElement<C> element) { }
+    default void visitSynapse(SynapseElement<C> element) {
+    }
 
-    default void visitMethod(MethodElement<C> element) { }
+    default void visitMethod(MethodElement<C> element) {
+    }
 }

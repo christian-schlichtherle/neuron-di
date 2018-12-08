@@ -29,7 +29,7 @@ public interface MethodInfo {
 
     Method method();
 
-    default Optional<CachingStrategy> declaredCachingStrategy() {
+    default Optional<CachingStrategy> methodCachingStrategy() {
         return ofNullable(method().getDeclaredAnnotation(Caching.class)).map(Caching::value);
     }
 

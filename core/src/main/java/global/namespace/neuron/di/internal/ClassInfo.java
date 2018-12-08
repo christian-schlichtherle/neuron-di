@@ -16,9 +16,14 @@
 package global.namespace.neuron.di.internal;
 
 import global.namespace.neuron.di.java.BreedingException;
+import global.namespace.neuron.di.java.CachingStrategy;
+import global.namespace.neuron.di.java.Neuron;
 
 import java.io.Serializable;
 import java.lang.reflect.Modifier;
+import java.util.Optional;
+
+import static java.util.Optional.ofNullable;
 
 @FunctionalInterface
 interface ClassInfo<C> {
@@ -38,6 +43,10 @@ interface ClassInfo<C> {
         if (isSerializable()) {
             throw new BreedingException("Class must not be serializable: " + clazz());
         }
+    }
+
+    default Optional<CachingStrategy> classCachingStrategy() {
+        return ofNullable(clazz().getAnnotation(Neuron.class)).map(Neuron::cachingStrategy);
     }
 
     default boolean hasNonPrivateConstructorWithoutParameters() {
@@ -64,6 +73,10 @@ interface ClassInfo<C> {
 
     default boolean isInterface() {
         return clazz().isInterface();
+    }
+
+    default boolean isNeuron() {
+        return clazz().isAnnotationPresent(Neuron.class);
     }
 
     default boolean isSerializable() {

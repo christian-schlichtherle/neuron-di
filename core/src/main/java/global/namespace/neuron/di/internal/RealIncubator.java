@@ -38,29 +38,26 @@ public final class RealIncubator {
                 ClassElement.of(clazz).accept(this);
             }
 
+            @SuppressWarnings("unchecked")
             @Override
             public void visitNeuron(NeuronElement<C> element) {
-                visitClass(element);
+                assert clazz == element.clazz();
+                final ProxyFactory<C> factory = (ProxyFactory<C>) factories
+                        .computeIfAbsent(clazz, key -> new ProxyContext<>(element).factory());
+                instance = factory.apply(binding);
             }
 
-            @SuppressWarnings("unchecked")
             @Override
             public void visitClass(final ClassElement<C> element) {
                 assert clazz == element.clazz();
-                if (element.isAbstract()) {
-                    final ProxyFactory<C> factory = (ProxyFactory<C>) factories
-                            .computeIfAbsent(clazz, key -> new ProxyContext<>(element).factory());
-                    instance = factory.apply(binding);
-                } else {
-                    try {
-                        instance = clazz.getDeclaredConstructor().newInstance();
-                    } catch (NoSuchMethodException e) {
-                        throw new BreedingException("Class must have a non-private constructor without parameters.", e);
-                    } catch (InstantiationException e) {
-                        throw new AssertionError(e);
-                    } catch (IllegalAccessException | InvocationTargetException e) {
-                        throw new BreedingException(e);
-                    }
+                try {
+                    instance = clazz.getDeclaredConstructor().newInstance();
+                } catch (NoSuchMethodException e) {
+                    throw new BreedingException("Class must have a non-private constructor without parameters.", e);
+                } catch (InstantiationException e) {
+                    throw new AssertionError(e);
+                } catch (IllegalAccessException | InvocationTargetException e) {
+                    throw new BreedingException(e);
                 }
             }
         }.instance;

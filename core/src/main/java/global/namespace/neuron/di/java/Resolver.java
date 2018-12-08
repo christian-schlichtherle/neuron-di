@@ -22,45 +22,47 @@ import java.util.*;
 
 import static java.util.Optional.of;
 
-class Resolver {
+class Resolver<T> {
 
     private static final Map<Class<?>, Object> fuzes = Collections.synchronizedMap(new WeakHashMap<>());
 
-    private Resolver() {
+    private final Class<T> clazz;
+
+    Resolver(final Class<T> clazz) {
+        this.clazz = clazz;
     }
 
-    static <T> Map<MethodInfo, DependencyResolver<? super T, ?>> resolve(Class<T> clazz, List<Map.Entry<DependencyResolver<T, ?>, DependencyResolver<? super T, ?>>> bindings) {
+    <U> LinkedHashMap<MethodInfo, U> resolve(Map<DependencyResolver<T, ?>, U> bindings) {
         return new Object() {
 
-            final T fuze = fuze(clazz);
-            int currentPosition = 0;
+            final LinkedHashMap<MethodInfo, U> resolved = new LinkedHashMap<>();
+            int count = 0;
 
-            Map<MethodInfo, DependencyResolver<? super T, ?>> apply() {
-                final Map<MethodInfo, DependencyResolver<? super T, ?>> resolvers = new LinkedHashMap<>();
-                for (Map.Entry<DependencyResolver<T, ?>, DependencyResolver<? super T, ?>> binding : bindings) {
-                    currentPosition++;
+            {
+                final T fuze = fuze();
+                for (Map.Entry<DependencyResolver<T, ?>, U> binding : bindings.entrySet()) {
+                    count++;
                     try {
                         binding.getKey().apply(fuze);
                         throw breedingException(null);
                     } catch (IgnitionError e) {
-                        resolvers.put(e.info(), binding.getValue());
+                        resolved.put(e.info(), binding.getValue());
                     } catch (BreedingException e) {
                         throw e;
                     } catch (Throwable e) {
                         throw breedingException(e);
                     }
                 }
-                return resolvers;
             }
 
             BreedingException breedingException(Throwable cause) {
-                return new BreedingException("Illegal binding: The parameter provided to the `bind` call at position " + currentPosition + " does not reference a synapse method.", cause);
+                return new BreedingException("Illegal binding: The parameter provided to the `bind` call at position " + count + " does not reference a synapse method.", cause);
             }
-        }.apply();
+        }.resolved;
     }
 
     @SuppressWarnings("unchecked")
-    private static <T> T fuze(Class<T> clazz) {
+    private T fuze() {
         return (T) fuzes.computeIfAbsent(clazz, c -> RealIncubator.breed(c, Resolver::ignition));
     }
 

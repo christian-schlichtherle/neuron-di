@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 import static java.lang.invoke.MethodHandles.publicLookup;
 import static java.lang.invoke.MethodType.methodType;
 
-final class ProxyFactory<C> implements Function<MethodBinding, C>{
+final class ProxyFactory<C> implements Function<MethodBinding, C> {
 
     private static final MethodType dependencyProviderObjectMethodType =
             methodType(DependencyProvider.class, Object.class);
@@ -116,13 +116,13 @@ final class ProxyFactory<C> implements Function<MethodBinding, C>{
             }
         }
 
-        BoundMethodHandler bind(final C neuronProxy) {
+        BoundMethodHandler bind(final C proxy) {
             return new BoundMethodHandler() {
 
                 @Override
                 public DependencyProvider<?> provider() {
                     try {
-                        return (DependencyProvider<?>) getter.invokeExact(neuronProxy);
+                        return (DependencyProvider<?>) getter.invokeExact(proxy);
                     } catch (Throwable e) {
                         throw new AssertionError(e);
                     }
@@ -131,7 +131,7 @@ final class ProxyFactory<C> implements Function<MethodBinding, C>{
                 @Override
                 public void provider(final DependencyProvider<?> provider) {
                     try {
-                        setter.invokeExact(neuronProxy, provider);
+                        setter.invokeExact(proxy, provider);
                     } catch (Throwable e) {
                         throw new AssertionError(e);
                     }
@@ -139,7 +139,9 @@ final class ProxyFactory<C> implements Function<MethodBinding, C>{
             };
         }
 
-        void accept(Visitor<C> visitor) { element.accept(visitor); }
+        void accept(Visitor<C> visitor) {
+            element.accept(visitor);
+        }
     }
 
     private interface BoundMethodHandler {

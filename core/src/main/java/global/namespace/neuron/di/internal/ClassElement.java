@@ -17,7 +17,6 @@ package global.namespace.neuron.di.internal;
 
 import global.namespace.neuron.di.java.BreedingException;
 import global.namespace.neuron.di.java.CachingStrategy;
-import global.namespace.neuron.di.java.Neuron;
 
 import java.lang.reflect.Method;
 import java.util.Optional;
@@ -27,40 +26,16 @@ import static global.namespace.neuron.di.java.CachingStrategy.DISABLED;
 interface ClassElement<C> extends ClassInfo<C>, Element<C> {
 
     static <C> ClassElement<C> of(final Class<C> clazz) {
-
-        class Base {
-
-            public Class<C> clazz() {
-                return clazz;
-            }
-        }
-
-        final Neuron neuron = clazz.getAnnotation(Neuron.class);
-        if (null != neuron) {
-
-            class RealNeuronElement extends Base implements NeuronElement<C> {
-
-                private final CachingStrategy cachingStrategy = neuron.cachingStrategy();
-
-                @Override
-                public CachingStrategy cachingStrategy() {
-                    return cachingStrategy;
-                }
-            }
-
-            return new RealNeuronElement();
+        final ClassInfo<C> info = () -> clazz;
+        if (info.isAbstract() || info.isNeuron()) {
+            return (NeuronElement<C>) () -> clazz;
         } else {
-
-            class RealClassElement extends Base implements ClassElement<C> {
-
-                @Override
-                public CachingStrategy cachingStrategy() {
-                    return DISABLED;
-                }
-            }
-
-            return new RealClassElement();
+            return () -> clazz;
         }
+    }
+
+    default CachingStrategy cachingStrategy() {
+        return classCachingStrategy().orElse(DISABLED);
     }
 
     @Override
@@ -70,13 +45,7 @@ interface ClassElement<C> extends ClassInfo<C>, Element<C> {
 
     default MethodElement<C> element(final Method method) {
 
-        class Base {
-
-            CachingStrategy cachingStrategy;
-
-            public CachingStrategy cachingStrategy() {
-                return cachingStrategy;
-            }
+        abstract class Base {
 
             public Method method() {
                 return method;
@@ -100,7 +69,7 @@ interface ClassElement<C> extends ClassInfo<C>, Element<C> {
         }
 
         final MethodInfo info = () -> method;
-        final Optional<CachingStrategy> declaredCachingStrategy = info.declaredCachingStrategy();
+        final Optional<CachingStrategy> methodCachingStrategy = info.methodCachingStrategy();
         if (info.isAbstract()) {
             if (info.hasParameters()) {
                 throw new BreedingException("A synapse method must not have parameters: " + method);
@@ -110,14 +79,18 @@ interface ClassElement<C> extends ClassInfo<C>, Element<C> {
 
             class RealSynapseElement extends Base implements SynapseElement<C> {
 
-                {
-                    this.cachingStrategy = declaredCachingStrategy.orElseGet(ClassElement.this::cachingStrategy);
+                private final CachingStrategy cachingStrategy =
+                        methodCachingStrategy.orElseGet(ClassElement.this::cachingStrategy);
+
+                @Override
+                public CachingStrategy cachingStrategy() {
+                    return cachingStrategy;
                 }
             }
 
             return new RealSynapseElement();
         } else {
-            if (declaredCachingStrategy.isPresent()) {
+            if (methodCachingStrategy.isPresent()) {
                 if (info.hasParameters()) {
                     throw new BreedingException("A caching method must not have parameters: " + method);
                 } else if (info.isVoid()) {
@@ -127,8 +100,11 @@ interface ClassElement<C> extends ClassInfo<C>, Element<C> {
 
             class RealMethodElement extends Base implements MethodElement<C> {
 
-                {
-                    this.cachingStrategy = declaredCachingStrategy.orElse(DISABLED);
+                private final CachingStrategy cachingStrategy = methodCachingStrategy.orElse(DISABLED);
+
+                @Override
+                public CachingStrategy cachingStrategy() {
+                    return cachingStrategy;
                 }
             }
 
