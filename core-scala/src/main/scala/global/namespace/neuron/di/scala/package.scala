@@ -16,8 +16,9 @@
 package global.namespace.neuron.di
 
 import _root_.java.lang.reflect.Method
+import _root_.java.util.function.{Function => jFunction}
 
-import global.namespace.neuron.di.java.{DependencyProvider, DependencyResolver, CachingStrategy => jCachingStrategy, SynapseBinding => jSynapseBinding}
+import global.namespace.neuron.di.java.{DependencyProvider, DependencyResolver, CachingStrategy => jCachingStrategy}
 
 import _root_.scala.language.experimental.macros
 import _root_.scala.reflect.{ClassTag, classTag}
@@ -88,7 +89,7 @@ package object scala {
     def apply(a: A): B = function(a)
   }
 
-  private[scala] implicit class SynapseBindingAdapter(binding: SynapseBinding) extends jSynapseBinding {
+  private[scala] implicit class SynapseBindingAdapter(binding: SynapseBinding) extends jFunction[Method, DependencyProvider[_]] {
 
     def apply(method: Method): DependencyProvider[_] = binding(method)
   }

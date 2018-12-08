@@ -20,12 +20,14 @@ import global.namespace.neuron.di.internal.MethodInfo;
 import global.namespace.neuron.di.internal.RealIncubator;
 
 import java.lang.invoke.MethodHandle;
+import java.lang.reflect.Method;
 import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.function.Function;
 
 import static global.namespace.neuron.di.java.Reflection.find;
 import static java.util.Optional.*;
@@ -66,7 +68,7 @@ public final class Incubator {
      *                Depending on the caching strategy for the synapse method, the resolved dependency may get cached
      *                for subsequent calls to the synapse method.
      */
-    public static <T> T breed(Class<T> clazz, SynapseBinding binding) {
+    public static <T> T breed(Class<T> clazz, Function<Method, DependencyProvider<?>> binding) {
         return RealIncubator.breed(clazz, info -> info.isAbstract() ? of(binding.apply(info.method())) : empty());
     }
 
