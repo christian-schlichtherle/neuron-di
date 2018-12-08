@@ -15,11 +15,6 @@
  */
 package global.namespace.neuron.di.internal.proxy;
 
-import java.lang.invoke.MethodHandles;
-
-import static java.lang.invoke.MethodHandles.lookup;
-import static java.lang.invoke.MethodHandles.privateLookupIn;
-
 /**
  * Provides utilities for reflective lookup operations for generated proxy classes in this package.
  */
@@ -27,18 +22,11 @@ public class Proxies {
 
     public static final ClassLoader CLASS_LOADER;
     public static final String PACKAGE_NAME;
-    public static final MethodHandles.Lookup PRIVATE_LOOKUP;
 
     static {
         final Class<Proxies> clazz = Proxies.class;
         CLASS_LOADER = clazz.getClassLoader();
         PACKAGE_NAME = clazz.getPackage().getName();
-        try {
-            //noinspection Since15
-            PRIVATE_LOOKUP = privateLookupIn(clazz, lookup());
-        } catch (IllegalAccessException e) {
-            throw new AssertionError(e);
-        }
     }
 
     private Proxies() {

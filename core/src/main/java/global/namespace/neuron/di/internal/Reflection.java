@@ -73,9 +73,8 @@ class Reflection {
     @SuppressWarnings({"unchecked", "Since15"})
     static <C> Class<? extends C> defineSubclass(final Class<C> clazz, final String name, final byte[] b) {
         try {
-            final MethodHandles.Lookup lookup = null != clazz.getClassLoader()
-                    ? privateLookupIn(clazz, Reflection.lookup)
-                    : Proxies.PRIVATE_LOOKUP;
+            final MethodHandles.Lookup lookup = privateLookupIn(null != clazz.getClassLoader() ? clazz : Proxies.class,
+                    Reflection.lookup);
             return (Class<? extends C>) lookup.defineClass(b);
         } catch (NoSuchMethodError e) {
             return Reflection8.defineSubclass(clazz, name, b);
