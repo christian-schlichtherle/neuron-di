@@ -46,7 +46,7 @@ public final class Incubator {
      */
     public static <T> T breed(Class<T> clazz) {
         return breed(clazz, synapse -> {
-            final Class<?> returnType = synapse.getReturnType();
+            final Class<?> returnType = ((MethodInfo) () -> synapse).inferReturnTypeIn(clazz);
             return () -> breed(returnType);
         });
     }
@@ -159,7 +159,8 @@ public final class Incubator {
                                         new BreedingException("Illegal binding: A member named `" + member + "` neither exists in `" + delegate.getClass() + "` nor in any of its interfaces and superclasses."));
                                 return of(handle::invokeExact);
                             } else {
-                                return of(() -> Incubator.breed(info.returnType()));
+                                final Class<?> returnType = info.inferReturnTypeIn(clazz);
+                                return of(() -> Incubator.breed(returnType));
                             }
                         }
                     });
