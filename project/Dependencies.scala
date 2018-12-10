@@ -20,6 +20,7 @@ import sbt._
 object Dependencies {
 
   val ASM: ModuleID = "org.ow2.asm" % "asm" % "7.0"
+  val GeAnTyRef: ModuleID = "io.leangen.geantyref" % "geantyref" % "1.3.6"
   val Guice: ModuleID = {
     val version = sys.env.getOrElse("GUICE_VERSION", "4.2.2")
     val moduleID = "com.google.inject" % "guice" % version

@@ -45,6 +45,7 @@ lazy val core = project
     javacOptions += "-proc:none",
     libraryDependencies ++= Seq(
       ASM,
+      GeAnTyRef,
       HamcrestLibrary % Test,
       JUnitInterface % Test,
       Scalatest % Test
