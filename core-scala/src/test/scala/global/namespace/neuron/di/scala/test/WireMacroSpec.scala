@@ -115,7 +115,7 @@ private object WireMacroSpec {
 
   trait A[T] {
 
-    def foo(): T
+    def foo: T
   }
 
   trait A1 extends A[String] {
@@ -127,7 +127,7 @@ private object WireMacroSpec {
   trait A2 extends A[String] {
 
     @Caching
-    override def foo(): String
+    override def foo: String
   }
 
   trait B[T] {
@@ -153,7 +153,7 @@ private object WireMacroSpec {
   trait ABC2[T] extends ABC[T] {
 
     @Caching(NOT_THREAD_SAFE)
-    override def foo(): T
+    override def foo: T
 
     @Caching(THREAD_LOCAL)
     override def bar: T
