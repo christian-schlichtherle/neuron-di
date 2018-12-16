@@ -15,6 +15,8 @@
  */
 package global.namespace.neuron.di.scala.test
 
+import java.util.function.Supplier
+
 import global.namespace.neuron.di.scala.CachingStrategy._
 import global.namespace.neuron.di.scala.test.WireMacroSpec._
 import global.namespace.neuron.di.scala.{Caching, Neuron, wire}
@@ -99,6 +101,12 @@ class WireMacroSpec extends FeatureSpec {
       abc2.bar should be theSameInstanceAs abc2.bar
       abc2.baz shouldBe baz(abc2)
       abc2.baz should be theSameInstanceAs abc2.baz
+    }
+
+    scenario("Supplier[String]") {
+      def get = "Hello world!"
+      val supplier = wire[Supplier[String]]
+      supplier.get shouldBe "Hello world!"
     }
   }
 }
