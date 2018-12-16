@@ -23,36 +23,36 @@ import org.scalatest.Matchers._
 
 class WireMacroSpec extends FeatureSpec {
 
-  feature("Synapse methods in neuron and non-neuron types can be auto-wired using the `wire` macro.") {
+  feature("Synapse methods in neuron and non-neuron types can be auto-wired using the `wire` macro") {
 
-    scenario("A[Int]:") {
+    scenario("A[Int]") {
       val foo = 1
       val a = wire[A[Int]]
       a.foo shouldBe foo
     }
 
-    scenario("A[String]:") {
+    scenario("A[String]") {
       def foo = new String("foo")
       val a = wire[A[String]]
       a.foo shouldBe foo
       a.foo shouldNot be theSameInstanceAs a.foo
     }
 
-    scenario("A1:") {
+    scenario("A1") {
       def foo = new String("foo")
       val a1 = wire[A1]
       a1.foo shouldBe foo
       a1.foo should be theSameInstanceAs a1.foo
     }
 
-    scenario("A2:") {
+    scenario("A2") {
       def foo = new String("foo")
       val a2 = wire[A2]
       a2.foo shouldBe foo
       a2.foo should be theSameInstanceAs a2.foo
     }
 
-    scenario("ABC[Int]:") {
+    scenario("ABC[Int]") {
       val foo = 1
       val bar = 2
       def baz(abc: ABC[Int]) = abc.foo + abc.bar
@@ -62,7 +62,7 @@ class WireMacroSpec extends FeatureSpec {
       abc.baz shouldBe baz(abc)
     }
 
-    scenario("ABC[String]:") {
+    scenario("ABC[String]") {
       def foo = new String("foo")
       def bar = new String("bar")
       def baz(abc: ABC[String]) = abc.foo + abc.bar
@@ -75,7 +75,7 @@ class WireMacroSpec extends FeatureSpec {
       abc.baz shouldNot be theSameInstanceAs abc.baz
     }
 
-    scenario("ABC1[String]:") {
+    scenario("ABC1[String]") {
       def foo = new String("foo")
       def bar = new String("bar")
       val baz = (abc: ABC1[String]) => abc.foo + abc.bar
@@ -88,7 +88,7 @@ class WireMacroSpec extends FeatureSpec {
       abc1.baz should be theSameInstanceAs abc1.baz
     }
 
-    scenario("ABC2[String]:") {
+    scenario("ABC2[String]") {
       def foo = new String("foo")
       def bar = new String("bar")
       val baz = (abc: ABC2[String]) => abc.foo + abc.bar
