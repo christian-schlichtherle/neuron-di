@@ -18,10 +18,10 @@ package global.namespace.neuron.di.internal;
 import global.namespace.neuron.di.java.Caching;
 import global.namespace.neuron.di.java.CachingStrategy;
 
-import java.lang.reflect.*;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.Optional;
 
-import static io.leangen.geantyref.GenericTypeReflector.getExactReturnType;
 import static java.util.Optional.ofNullable;
 
 @FunctionalInterface
@@ -50,18 +50,8 @@ public interface MethodInfo {
         return method().getName();
     }
 
-    default Class<?> inferReturnTypeIn(Class<?> clazz) {
-        Type type = getExactReturnType(method(), clazz);
-        while (!(type instanceof Class<?>)) {
-            if (type instanceof ParameterizedType) {
-                type = ((ParameterizedType) type).getRawType();
-            } else if (type instanceof WildcardType) {
-                type = ((WildcardType) type).getUpperBounds()[0];
-            } else {
-                type = method().getReturnType();
-            }
-        }
-        return (Class<?>) type;
+    default Class<?> returnType() {
+        return method().getReturnType();
     }
 
     default boolean canEqual(Object other) {
