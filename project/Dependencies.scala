@@ -33,8 +33,8 @@ object Dependencies {
   val HamcrestLibrary: ModuleID = "org.hamcrest" % "hamcrest-library" % "1.3"
   val JUnit: ModuleID = "junit" % "junit" % "4.12"
   val JUnitInterface: ModuleID = "com.novocode" % "junit-interface" % "0.11"
-  val MockitoCore: ModuleID = "org.mockito" % "mockito-core" % "2.23.4"
-  val MacroParadise: ModuleID = "org.scalamacros" % "paradise" % "2.1.+" cross CrossVersion.full
+  val MockitoCore: ModuleID = "org.mockito" % "mockito-core" % "2.24.0"
+  val MacroParadise: ModuleID = "org.scalamacros" % "paradise" % "2.1.1" cross CrossVersion.full
   def scalaReflect(scalaVersion: String): ModuleID = "org.scala-lang" % "scala-reflect" % scalaVersion
   val Scalatest: ModuleID = "org.scalatest" %% "scalatest" % "3.0.5"
 
