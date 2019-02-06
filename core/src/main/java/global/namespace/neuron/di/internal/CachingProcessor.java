@@ -66,9 +66,6 @@ public final class CachingProcessor extends CommonProcessor {
         if (isVoid(method.getReturnType())) {
             error("A caching method must have a return value.", method);
         }
-        if (isPackagePrivate(method) && !isPackagePrivate(type) && !type.getModifiers().contains(PRIVATE)) {
-            error("A package-private caching method must be a member of a package-private or private neuron type.", method);
-        }
     }
 
     private static boolean isVoid(TypeMirror type) {
