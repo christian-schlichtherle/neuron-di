@@ -15,6 +15,7 @@
  */
 package global.namespace.neuron.di.internal;
 
+@FunctionalInterface
 interface NeuronElement<N> extends ClassElement<N> {
 
     @Override
