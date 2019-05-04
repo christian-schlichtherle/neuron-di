@@ -31,7 +31,7 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
 
   feature("In neuron types, synapse methods get bound eagerly, but dependencies get resolved lazily") {
 
-    info("As a user of Neuron DI")
+    info("As a developer")
     info("I want to be able to visit synapse methods when breeding the neuron")
     info("and compute their return value just in time.")
 
@@ -78,7 +78,7 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
 
   feature("Neurons can get partially bound if and only if explicitly requested") {
 
-    info("As a user of Neuron DI")
+    info("As a developer")
     info("either I want to explicitly enable partial wiring")
     info("or rest assured that I would get an exception otherwise.")
 
@@ -114,7 +114,7 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
 
   feature("There is at most one proxy class for any neuron type and class loader") {
 
-    info("As an application architect")
+    info("As a solution architect")
     info("I want to rest assured that Neuron DI scales nicely")
     info("because it will create at most one proxy class per neuron type (and class loader)")
     info("no matter how many instances of them are created.")
@@ -143,7 +143,7 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
 
   feature("`.bind(methodReference).to(...)` can be called multiple times for the same method reference") {
 
-    info("As a user of Neuron DI")
+    info("As a developer")
     info("I want to be able to call `.bind(methodReference).to(...)` multiple times")
     info("for the same synapse reference")
     info("so that the effect of only the last call persists.")
@@ -165,7 +165,7 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
 
   feature("`.breed` can be called multiple times") {
 
-    info("As a user of Neuron DI")
+    info("As a developer")
     info("I want to be able to call `.breed` multiple times")
     info("so that different neurons with different bindings can be created in one go.")
 
@@ -187,7 +187,7 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
 
   feature("Any Scala trait with a static context can be a neuron trait") {
 
-    info("As a user of Neuron DI")
+    info("As a developer")
     info("I want to be able to annotate any Scala trait with the @Neuron annotation")
     info("so that I can take advantage of the binding DSL")
     info("and eventually apply caching, too.")
