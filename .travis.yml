@@ -12,7 +12,8 @@ env:
 - GUICE_VERSION=4.2.2
 
 jdk:
-- oraclejdk9
+- openjdk9
+- openjdk11
 
 language: scala
 
