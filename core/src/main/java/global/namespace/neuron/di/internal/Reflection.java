@@ -37,39 +37,6 @@ class Reflection {
 
     private Reflection() { }
 
-    /**
-     * Returns a consumer which applies the given consumer to all elements of the type hierarchy represented by its
-     * class parameter.
-     * The traversal starts with calling the given consumer for the given type, then applies itself recursively to all
-     * of the interfaces implemented by the given type (if any) and finally to the superclass of the given type (if
-     * existing).
-     * Note that due to interfaces, the type hierarchy can be a graph.
-     * The returned function will visit any interface at most once, however.
-     */
-    static Consumer<Class<?>> traverse(final Consumer<Class<?>> consumer) {
-        return clazz -> {
-            new Consumer<Class<?>>() {
-
-                final Set<Class<?>> interfaces = new HashSet<>();
-
-                @Override
-                public void accept(final Class<?> visitor) {
-                    consumer.accept(visitor);
-                    for (final Class<?> iface : visitor.getInterfaces()) {
-                        if (!interfaces.contains(iface)) {
-                            accept(iface);
-                            interfaces.add(iface);
-                        }
-                    }
-                    final Class<?> zuper = visitor.getSuperclass();
-                    if (null != zuper) {
-                        accept(zuper);
-                    }
-                }
-            }.accept(clazz);
-        };
-    }
-
     @SuppressWarnings({"unchecked", "Since15"})
     static <C> Class<? extends C> defineSubclass(final Class<C> clazz, final String name, final byte[] b) {
         try {
@@ -122,6 +89,37 @@ class Reflection {
         final Collection<Method> values = methods.values();
         values.removeIf(method -> 0 != (method.getModifiers() & FINAL));
         return values;
+    }
+
+    /**
+     * Returns a consumer which applies the given consumer to all elements of the type hierarchy represented by its
+     * class parameter.
+     * The traversal starts with calling the given consumer for the given type, then applies itself recursively to all
+     * of the interfaces implemented by the given type (if any) and finally to the superclass of the given type (if
+     * existing).
+     * Note that due to interfaces, the type hierarchy can be a graph.
+     * The returned function will visit any interface at most once, however.
+     */
+    private static Consumer<Class<?>> traverse(final Consumer<Class<?>> consumer) {
+        return clazz -> new Consumer<Class<?>>() {
+
+            final Set<Class<?>> interfaces = new HashSet<>();
+
+            @Override
+            public void accept(final Class<?> visitor) {
+                consumer.accept(visitor);
+                for (final Class<?> iface : visitor.getInterfaces()) {
+                    if (!interfaces.contains(iface)) {
+                        accept(iface);
+                        interfaces.add(iface);
+                    }
+                }
+                final Class<?> zuper = visitor.getSuperclass();
+                if (null != zuper) {
+                    accept(zuper);
+                }
+            }
+        }.accept(clazz);
     }
 
     private static String signature(Method method) {
