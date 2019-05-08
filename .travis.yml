@@ -13,7 +13,7 @@ env:
 
 jdk:
 - openjdk9
-- openjdk11
+- openjdk12
 
 language: scala
 
