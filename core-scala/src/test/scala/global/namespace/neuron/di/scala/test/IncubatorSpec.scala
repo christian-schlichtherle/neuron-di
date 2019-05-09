@@ -17,6 +17,7 @@ package global.namespace.neuron.di.scala.test
 
 import java.lang.reflect.Method
 import java.util.Date
+import java.util.concurrent.ThreadLocalRandom
 import java.util.function.Supplier
 
 import global.namespace.neuron.di.java.BreedingException
@@ -387,6 +388,16 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
         .get shouldBe "Hello world!"
     }
   }
+
+  feature("A synapse method may be implemented in a super class") {
+
+    scenario("Breeding an instance of an abstract class with a super class which implements a method defined in an interface") {
+
+      Incubator
+        .breed[ThisGuyDependsOnThem]
+        .yo should not be empty
+    }
+  }
 }
 
 private object IncubatorSpec {
@@ -519,5 +530,20 @@ private object IncubatorSpec {
     def cached: String = get
 
     lazy val cachedAgain: String = get
+  }
+
+  abstract class ThisGuyHasIt {
+
+    def it: Int = ThreadLocalRandom.current.nextInt
+  }
+
+  trait ThisGuyNeedsIt {
+
+    def it: Int
+
+    def yo: String = "" + it
+  }
+
+  abstract class ThisGuyDependsOnThem extends ThisGuyHasIt with ThisGuyNeedsIt {
   }
 }
