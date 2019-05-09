@@ -16,6 +16,7 @@
 package global.namespace.neuron.di.internal;
 
 import global.namespace.neuron.di.internal.proxy.Proxies;
+import global.namespace.neuron.di.java.BreedingException;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
@@ -24,9 +25,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.util.List;
-import java.util.Optional;
 
 import static global.namespace.neuron.di.internal.Reflection.defineSubclass;
+import static java.util.Optional.ofNullable;
 import static org.objectweb.asm.ClassReader.SKIP_DEBUG;
 import static org.objectweb.asm.ClassWriter.COMPUTE_MAXS;
 import static org.objectweb.asm.Type.getInternalName;
@@ -67,10 +68,10 @@ final class ASM implements Opcodes {
 
     private static InputStream inputStream(final Class<?> clazz) {
         final String resourceName = getInternalName(clazz).concat(".class");
-        return Optional
-                .ofNullable(clazz.getClassLoader())
+        return ofNullable(clazz.getClassLoader())
                 .map(cl -> cl.getResourceAsStream(resourceName))
-                .orElseGet(() -> ClassLoader.getSystemResourceAsStream(resourceName));
+                .orElseGet(() -> ofNullable(ClassLoader.getSystemResourceAsStream(resourceName))
+                        .orElseThrow(() -> new BreedingException("Class not found: " + clazz.getName())));
     }
 
     private static String internalName(String className) { return className.replace('.', '/'); }
