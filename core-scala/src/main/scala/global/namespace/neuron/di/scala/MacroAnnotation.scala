@@ -44,40 +44,40 @@ private trait MacroAnnotation {
   protected lazy val newNeuronAnnotationTerm =
     q"new _root_.global.namespace.neuron.di.java.Neuron"
 
-  protected implicit class FlagOps(left: FlagSet) {
+  // Matching Scala 2.11.12 and 2.12.8:
+  private lazy val allFlags = Set(
+    ABSOVERRIDE,
+    ABSTRACT,
+    ARTIFACT,
+    BYNAMEPARAM,
+    CASE,
+    CASEACCESSOR,
+    CONTRAVARIANT,
+    COVARIANT,
+    DEFAULTINIT,
+    DEFAULTPARAM,
+    DEFERRED,
+    ENUM,
+    FINAL,
+    IMPLICIT,
+    INTERFACE,
+    LAZY,
+    LOCAL,
+    MACRO,
+    MUTABLE,
+    OVERRIDE,
+    PARAM,
+    PARAMACCESSOR,
+    PRESUPER,
+    PRIVATE,
+    PROTECTED,
+    SEALED,
+    STABLE,
+    SYNTHETIC,
+    TRAIT
+  )
 
-    // Matching Scala 2.11.12 and 2.12.8:
-    private val allFlags = Set(
-      ABSOVERRIDE,
-      ABSTRACT,
-      ARTIFACT,
-      BYNAMEPARAM,
-      CASE,
-      CASEACCESSOR,
-      CONTRAVARIANT,
-      COVARIANT,
-      DEFAULTINIT,
-      DEFAULTPARAM,
-      DEFERRED,
-      ENUM,
-      FINAL,
-      IMPLICIT,
-      INTERFACE,
-      LAZY,
-      LOCAL,
-      MACRO,
-      MUTABLE,
-      OVERRIDE,
-      PARAM,
-      PARAMACCESSOR,
-      PRESUPER,
-      PRIVATE,
-      PROTECTED,
-      SEALED,
-      STABLE,
-      SYNTHETIC,
-      TRAIT
-    )
+  protected implicit class FlagOps(left: FlagSet) {
 
     def &~(right: FlagSet): FlagSet = {
       var result = NoFlags
