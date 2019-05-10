@@ -24,7 +24,10 @@ import org.objectweb.asm.Opcodes;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static global.namespace.neuron.di.internal.Reflection.defineSubclass;
 import static java.util.Optional.ofNullable;
@@ -34,20 +37,22 @@ import static org.objectweb.asm.Type.getInternalName;
 
 final class ASM implements Opcodes {
 
-    private static final Class<?>[] NO_CLASSES = new Class<?>[0];
-
     private static final String PROXIES_PACKAGE_PREFIX = Proxies.PACKAGE_NAME + ".$";
 
-    /** Returns a class which proxies the given class or interface. */
+    /**
+     * Returns a class which proxies the given class or interface.
+     */
     static <N> Class<? extends N> proxyClass(final Class<? extends N> clazz, final List<Method> bindableMethods) {
         final Class<?> superclass;
         final Class<?>[] interfaces;
         if (clazz.isInterface()) {
             superclass = Object.class;
-            interfaces = new Class<?>[] { clazz };
+            interfaces = Stream.concat(Stream.of(clazz), streamOfInterfaces(bindableMethods))
+                    .collect(Collectors.toCollection(LinkedHashSet::new))
+                    .toArray(new Class<?>[0]);
         } else {
             superclass = clazz;
-            interfaces = NO_CLASSES;
+            interfaces = streamOfInterfaces(bindableMethods).toArray(Class<?>[]::new);
         }
         final String proxyName = null != clazz.getClassLoader()
                 ? clazz.getName().concat("$$proxy")
@@ -56,6 +61,10 @@ final class ASM implements Opcodes {
         final ClassWriter cw = new ClassWriter(cr, COMPUTE_MAXS);
         cr.accept(new ProxyClassVisitor(cw, internalName(proxyName), superclass, interfaces, bindableMethods), SKIP_DEBUG);
         return defineSubclass(clazz, proxyName, cw.toByteArray());
+    }
+
+    private static Stream<Class<?>> streamOfInterfaces(List<Method> bindableMethods) {
+        return bindableMethods.stream().map(Method::getDeclaringClass).filter(Class::isInterface);
     }
 
     private static ClassReader classReader(final Class<?> clazz) {
@@ -74,5 +83,7 @@ final class ASM implements Opcodes {
                         .orElseThrow(() -> new BreedingException("Class not found: " + clazz.getName())));
     }
 
-    private static String internalName(String className) { return className.replace('.', '/'); }
+    private static String internalName(String className) {
+        return className.replace('.', '/');
+    }
 }

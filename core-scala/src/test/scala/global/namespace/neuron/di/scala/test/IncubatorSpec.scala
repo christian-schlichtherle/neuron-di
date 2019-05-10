@@ -22,6 +22,7 @@ import java.util.function.Supplier
 
 import global.namespace.neuron.di.java.BreedingException
 import global.namespace.neuron.di.scala._
+import global.namespace.neuron.di.scala.sample.{MyClass, MyInterface}
 import global.namespace.neuron.di.scala.test.IncubatorSpec._
 import org.scalatest.Matchers._
 import org.scalatest.{FeatureSpec, GivenWhenThen}
@@ -396,6 +397,24 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
       Incubator
         .breed[ThisGuyDependsOnThem]
         .yo should not be empty
+    }
+  }
+
+  feature("Support for methods in indirect superinterfaces") {
+
+    scenario("An interface with a superinterface") {
+
+      val v = Incubator.breed[MyInterface]
+      v.foo shouldBe "foo"
+      v.bar shouldBe "bar"
+    }
+
+    scenario("A class with an interface and its superinterface") {
+
+      val v = Incubator.breed[MyClass]
+      v.foo shouldBe "foo"
+      v.bar shouldBe "bar"
+      v.fooBar shouldBe "foo, bar"
     }
   }
 }

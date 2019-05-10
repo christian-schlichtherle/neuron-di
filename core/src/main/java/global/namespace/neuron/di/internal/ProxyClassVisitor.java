@@ -147,7 +147,9 @@ final class ProxyClassVisitor extends ClassVisitor {
                 false);
         for (final Method method : bindableMethods) {
             if (0 == (method.getModifiers() & ACC_ABSTRACT)) {
-                final String owner = 0 == interfaces.length ? superName : getInternalName(method.getDeclaringClass());
+                final Class<?> declaringClass = method.getDeclaringClass();
+                final boolean isInterface = declaringClass.isInterface();
+                final String owner = getInternalName(declaringClass);
                 final String name = method.getName();
                 final String desc = getMethodDescriptor(method);
                 mv.visitVarInsn(ALOAD, 0);
@@ -156,7 +158,7 @@ final class ProxyClassVisitor extends ClassVisitor {
                         "(" + proxyDesc + ")" + dependencyProviderDesc,
                         metaFactoryHandle,
                         acceptsNothingAndReturnsObjectType,
-                        new Handle(H_INVOKESPECIAL, owner, name, desc, 0 != interfaces.length),
+                        new Handle(H_INVOKESPECIAL, owner, name, desc, isInterface),
                         acceptsNothingAndReturnsObjectType);
                 mv.visitFieldInsn(PUTFIELD, proxyName, name + PROVIDER, dependencyProviderDesc);
             }

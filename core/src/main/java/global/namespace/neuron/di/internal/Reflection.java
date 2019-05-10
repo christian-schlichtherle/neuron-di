@@ -79,8 +79,8 @@ class Reflection {
 
     static Collection<Method> overridableMethods(final Class<?> clazz) {
         final Map<String, Method> methods = new LinkedHashMap<>();
-        traverse(t -> {
-            for (final Method method : t.getDeclaredMethods()) {
+        traverse(c -> {
+            for (final Method method : c.getDeclaredMethods()) {
                 if (0 == (method.getModifiers() & PRIVATE_STATIC_VOLATILE)) {
                     methods.putIfAbsent(signature(method), method);
                 }
@@ -100,7 +100,7 @@ class Reflection {
      * Note that due to interfaces, the type hierarchy can be a graph.
      * The returned function will visit any interface at most once, however.
      */
-    private static Consumer<Class<?>> traverse(final Consumer<Class<?>> consumer) {
+    static Consumer<Class<?>> traverse(final Consumer<Class<?>> consumer) {
         return clazz -> new Consumer<Class<?>>() {
 
             final Set<Class<?>> interfaces = new HashSet<>();
