@@ -407,6 +407,8 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
       val v = Incubator.breed[MyInterface]
       v.foo shouldBe "foo"
       v.bar shouldBe "bar"
+      v.baz shouldBe "baz"
+      v.fooBar shouldBe "foo, bar"
     }
 
     scenario("A class with an interface and its superinterface") {
@@ -414,7 +416,9 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
       val v = Incubator.breed[MyClass]
       v.foo shouldBe "foo"
       v.bar shouldBe "bar"
+      v.baz shouldBe "baz"
       v.fooBar shouldBe "foo, bar"
+      v.fooBarBaz shouldBe "foo, bar, baz"
     }
   }
 }

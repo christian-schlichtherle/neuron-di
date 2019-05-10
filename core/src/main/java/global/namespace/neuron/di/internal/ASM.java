@@ -44,22 +44,23 @@ final class ASM implements Opcodes {
      */
     static <N> Class<? extends N> proxyClass(final Class<? extends N> clazz, final List<Method> bindableMethods) {
         final Class<?> superclass;
-        final Class<?>[] interfaces;
+        final Stream<Class<?>> streamOfInterfaces;
         if (clazz.isInterface()) {
             superclass = Object.class;
-            interfaces = Stream.concat(Stream.of(clazz), streamOfInterfaces(bindableMethods))
-                    .collect(Collectors.toCollection(LinkedHashSet::new))
-                    .toArray(new Class<?>[0]);
+            streamOfInterfaces = Stream.concat(Stream.of(clazz), streamOfInterfaces(bindableMethods));
         } else {
             superclass = clazz;
-            interfaces = streamOfInterfaces(bindableMethods).toArray(Class<?>[]::new);
+            streamOfInterfaces = streamOfInterfaces(bindableMethods);
         }
+        final Class<?>[] arrayOfInterfaces = streamOfInterfaces
+                .collect(Collectors.toCollection(LinkedHashSet::new))
+                .toArray(new Class<?>[0]);
         final String proxyName = null != clazz.getClassLoader()
                 ? clazz.getName().concat("$$proxy")
                 : PROXIES_PACKAGE_PREFIX.concat(clazz.getName().replace('.', '$'));
         final ClassReader cr = classReader(clazz);
         final ClassWriter cw = new ClassWriter(cr, COMPUTE_MAXS);
-        cr.accept(new ProxyClassVisitor(cw, internalName(proxyName), superclass, interfaces, bindableMethods), SKIP_DEBUG);
+        cr.accept(new ProxyClassVisitor(cw, internalName(proxyName), superclass, arrayOfInterfaces, bindableMethods), SKIP_DEBUG);
         return defineSubclass(clazz, proxyName, cw.toByteArray());
     }
 

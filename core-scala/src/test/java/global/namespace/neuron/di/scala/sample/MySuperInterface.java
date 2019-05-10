@@ -5,4 +5,8 @@ public interface MySuperInterface {
     default String foo() {
         return "foo";
     }
+
+    default String bar() {
+        return "bar";
+    }
 }
