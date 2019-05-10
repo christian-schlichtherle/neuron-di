@@ -25,7 +25,7 @@ import global.namespace.neuron.di.java.{DependencyProvider, Incubator}
 import org.mockito.Mockito._
 import org.scalatest.Matchers._
 import org.scalatest.WordSpec
-import org.scalatest.mockito.MockitoSugar.mock
+import org.scalatestplus.mockito.MockitoSugar.mock
 
 /** @author Christian Schlichtherle */
 class NeuronProviderSpec extends WordSpec {
