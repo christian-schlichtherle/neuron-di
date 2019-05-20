@@ -366,7 +366,7 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
     }
   }
 
-  feature("You can breed any accessible, static, non-serializable, non-final class with an accessible constructor without parameters or an interface") {
+  feature("You can breed any accessible, static, non-final class with an accessible constructor without parameters or an interface") {
 
     scenario("Breeding an instance of a non-neuron interface") {
 

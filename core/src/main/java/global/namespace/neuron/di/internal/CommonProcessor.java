@@ -17,15 +17,9 @@ package global.namespace.neuron.di.internal;
 
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Messager;
-import javax.lang.model.element.AnnotationMirror;
-import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
-import javax.lang.model.util.Elements;
 import java.util.EnumSet;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Stream;
 
 import static javax.lang.model.element.Modifier.*;
 import static javax.tools.Diagnostic.Kind.ERROR;
@@ -35,13 +29,13 @@ abstract class CommonProcessor extends AbstractProcessor {
 
     private static final EnumSet<Modifier> privateProtectedOrPublic = EnumSet.of(PRIVATE, PROTECTED, PUBLIC);
 
-    void error(CharSequence message, javax.lang.model.element.Element e) {
+    void warn(CharSequence message, Element e) {
+        messager().printMessage(WARNING, message , e);
+    }
+
+    void error(CharSequence message, Element e) {
         messager().printMessage(ERROR, message , e);
     }
 
     private Messager messager() { return processingEnv.getMessager(); }
-
-    static boolean isPackagePrivate(Element element) {
-        return !privateProtectedOrPublic.clone().removeAll(element.getModifiers());
-    }
 }

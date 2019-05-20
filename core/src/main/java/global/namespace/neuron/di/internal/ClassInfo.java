@@ -40,9 +40,6 @@ interface ClassInfo<C> {
         if (!isInterface() && !hasNonPrivateConstructorWithoutParameters()) {
             throw new BreedingException("Class must have a non-private constructor without parameters: " + clazz());
         }
-        if (isSerializable()) {
-            throw new BreedingException("Class must not be serializable: " + clazz());
-        }
     }
 
     default Optional<CachingStrategy> classCachingStrategy() {
@@ -77,10 +74,6 @@ interface ClassInfo<C> {
 
     default boolean isNeuron() {
         return clazz().isAnnotationPresent(Neuron.class);
-    }
-
-    default boolean isSerializable() {
-        return Serializable.class.isAssignableFrom(clazz());
     }
 
     default boolean isStatic() {

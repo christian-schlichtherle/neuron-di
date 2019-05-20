@@ -56,7 +56,7 @@ public final class NeuronProcessor extends CommonProcessor {
             error("A neuron class must have a non-private constructor without parameters.", type);
         }
         if (isSerializable(type)) {
-            error("A neuron type must not be serializable.", type);
+            warn("A neuron type should not be serializable.", type);
         }
     }
 

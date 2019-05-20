@@ -94,7 +94,7 @@ private trait MacroAnnotation {
 
   protected def info(msg: String, force: Boolean = false)(implicit pos: Position): Unit = c.info(pos, msg, force)
 
-  protected def warning(msg: String)(implicit pos: Position): Unit = c.warning(pos, msg)
+  protected def warn(msg: String)(implicit pos: Position): Unit = c.warning(pos, msg)
 
   protected def error(msg: String)(implicit pos: Position): Unit = c.error(pos, msg)
 

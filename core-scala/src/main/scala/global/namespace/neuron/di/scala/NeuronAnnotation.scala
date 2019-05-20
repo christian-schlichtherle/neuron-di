@@ -36,7 +36,7 @@ private trait NeuronAnnotation extends MacroAnnotation {
           error("A neuron class must have a non-private constructor without parameters.")
         }
         if (isSerializable(impl)) {
-          error("A neuron class or interface must not be serializable.")
+          warn("A neuron class or interface should not be serializable.")
         }
         if (c.hasErrors) {
           inputs
