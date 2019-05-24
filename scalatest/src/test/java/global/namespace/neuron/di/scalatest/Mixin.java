@@ -22,7 +22,7 @@ import global.namespace.neuron.di.java.Neuron;
 public interface Mixin {
 
     @Caching
-    default Object newObject() {
+    default Object someObject() {
         return new Object();
     }
 }

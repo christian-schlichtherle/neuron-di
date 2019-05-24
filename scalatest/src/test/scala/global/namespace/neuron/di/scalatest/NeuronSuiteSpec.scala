@@ -25,7 +25,7 @@ abstract class NeuronSuiteSpec extends WordSpec with Mixin {
 
   "a NeuronSuite" should {
     "breed a test Neuron" in {
-      newObject shouldBe theSameInstanceAs(newObject)
+      someObject shouldBe theSameInstanceAs(someObject)
     }
   }
 }
