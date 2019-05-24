@@ -1,5 +1,5 @@
 /*
- * Copyright © 2016 Schlichtherle IT Services
+ * Copyright © 2016 - 2019 Schlichtherle IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 import BuildSettings._
 import Dependencies._
 
@@ -47,7 +46,7 @@ lazy val core = project
       ASM,
       HamcrestLibrary % Test,
       JUnitInterface % Test,
-      Scalatest % Test
+      ScalaTest % Test
     ),
     name := "Neuron DI for Java",
     normalizedName := "neuron-di"
@@ -60,7 +59,7 @@ lazy val coreScala = project
   .settings(
     libraryDependencies ++= Seq(
       scalaReflect(scalaVersion.value),
-      Scalatest % Test
+      ScalaTest % Test
     ),
     name := "Neuron DI for Scala " + scalaBinaryVersion.value,
     normalizedName := "neuron-di-scala"
@@ -76,7 +75,7 @@ lazy val guice = project
       HamcrestLibrary % Test,
       JUnitInterface % Test,
       MockitoCore % Test,
-      Scalatest % Test
+      ScalaTest % Test
     ),
     name := "Neuron DI @ Guice for Java",
     normalizedName := "neuron-di-guice"
@@ -87,7 +86,7 @@ lazy val guiceScala = project
   .dependsOn(guice, coreScala)
   .settings(scalaLibrarySettings)
   .settings(
-    libraryDependencies += Scalatest % Test,
+    libraryDependencies += ScalaTest % Test,
     name := "Neuron DI @ Guice for Scala " + scalaBinaryVersion.value,
     normalizedName := "neuron-di-guice-scala"
   )
@@ -98,6 +97,6 @@ lazy val junit = project
   .settings(javaLibrarySettings)
   .settings(
     libraryDependencies += JUnit,
-    name := "Neuron DI JUnit",
+    name := "Neuron DI @ JUnit",
     normalizedName := "neuron-di-junit"
   )

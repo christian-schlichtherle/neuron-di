@@ -1,5 +1,5 @@
 /*
- * Copyright © 2016 Schlichtherle IT Services
+ * Copyright © 2016 - 2019 Schlichtherle IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 import Dependencies._
 import sbt.Keys._
 import sbt._
@@ -108,7 +107,7 @@ object BuildSettings {
 
   def librarySettings: Seq[Setting[_]] = {
     artifactSettings ++ Seq(
-      // Support testing Java projects with Scalatest et al:
+      // Support testing Java projects with ScalaTest et al:
       compileOrder := CompileOrder.JavaThenScala,
       javacOptions := DefaultOptions.javac ++ Seq(Opts.compile.deprecation, "-Xlint", "-source", "1.8", "-target", "1.8", "-g"),
       javacOptions in doc := DefaultOptions.javac ++ Seq("-source", "1.8"),

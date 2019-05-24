@@ -1,5 +1,5 @@
 /*
- * Copyright © 2016 Schlichtherle IT Services
+ * Copyright © 2016 - 2019 Schlichtherle IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 import sbt._
 
 /** @author Christian Schlichtherle */
@@ -36,7 +35,7 @@ object Dependencies {
   val MockitoCore: ModuleID = "org.mockito" % "mockito-core" % "2.27.0"
   val MacroParadise: ModuleID = "org.scalamacros" % "paradise" % "2.1.1" cross CrossVersion.full
   def scalaReflect(scalaVersion: String): ModuleID = "org.scala-lang" % "scala-reflect" % scalaVersion
-  val Scalatest: ModuleID = "org.scalatest" %% "scalatest" % "3.0.7"
+  val ScalaTest: ModuleID = "org.scalatest" %% "scalatest" % "3.0.7"
 
   val ScalaVersion_2_11: String = sys.env.getOrElse("SCALA_VERSION_2_11", "2.11.12")
   val ScalaVersion_2_12: String = sys.env.getOrElse("SCALA_VERSION_2_12", "2.12.8")
