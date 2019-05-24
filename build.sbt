@@ -18,7 +18,7 @@ import Dependencies._
 
 lazy val root = project
   .in(file("."))
-  .aggregate(core, coreScala, guice, guiceScala, junit)
+  .aggregate(core, coreScala, guice, guiceScala, junit, scalatest)
   .settings(releaseSettings)
   .settings(aggregateSettings)
   .settings(name := "Neuron DI")
@@ -105,4 +105,14 @@ lazy val junit = project
     libraryDependencies += JUnit,
     name := "Neuron DI @ JUnit",
     normalizedName := "neuron-di-junit"
+  )
+
+lazy val scalatest = project
+  .in(file("scalatest"))
+  .dependsOn(core)
+  .settings(scalaLibrarySettings)
+  .settings(
+    libraryDependencies += ScalaTest,
+    name := "Neuron DI @ ScalaTest",
+    normalizedName := "neuron-di-scalatest"
   )
