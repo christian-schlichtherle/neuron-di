@@ -18,16 +18,11 @@ package global.namespace.neuron.di.internal;
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Messager;
 import javax.lang.model.element.Element;
-import javax.lang.model.element.Modifier;
-import java.util.EnumSet;
 
-import static javax.lang.model.element.Modifier.*;
 import static javax.tools.Diagnostic.Kind.ERROR;
 import static javax.tools.Diagnostic.Kind.WARNING;
 
 abstract class CommonProcessor extends AbstractProcessor {
-
-    private static final EnumSet<Modifier> privateProtectedOrPublic = EnumSet.of(PRIVATE, PROTECTED, PUBLIC);
 
     void warn(CharSequence message, Element e) {
         messager().printMessage(WARNING, message, e);
