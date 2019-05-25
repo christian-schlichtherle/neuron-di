@@ -25,6 +25,7 @@ import java.util.function.Consumer;
 import static java.lang.invoke.MethodHandles.lookup;
 import static java.lang.invoke.MethodHandles.privateLookupIn;
 import static java.lang.reflect.Modifier.*;
+import static java.util.Optional.ofNullable;
 import static org.objectweb.asm.Type.getMethodDescriptor;
 
 class Reflection {
@@ -96,25 +97,21 @@ class Reflection {
      * The traversal starts with calling the given consumer for the given type, then applies itself recursively to the
      * superclass of the given type (if existing) and finally to all of the interfaces implemented by the given type
      * (if any).
-     * Note that due to interfaces, the type hierarchy can be a graph.
-     * The returned function will visit any interface at most once, however.
+     * Note that due to interfaces, the type hierarchy can be a graph;
+     * the returned consumer will visit any interface at most once, however.
      */
     private static Consumer<Class<?>> traverse(Consumer<Class<?>> consumer) {
         return new Consumer<Class<?>>() {
 
-            final Set<Class<?>> interfaces = new HashSet<>();
+            final Set<Class<?>> visited = new HashSet<>();
 
             @Override
-            public void accept(final Class<?> visitor) {
-                consumer.accept(visitor);
-                final Class<?> zuper = visitor.getSuperclass();
-                if (null != zuper) {
-                    accept(zuper);
-                }
-                for (final Class<?> iface : visitor.getInterfaces()) {
-                    if (!interfaces.contains(iface)) {
+            public void accept(final Class<?> clazz) {
+                if (visited.add(clazz)) {
+                    consumer.accept(clazz);
+                    ofNullable(clazz.getSuperclass()).ifPresent(this);
+                    for (Class<?> iface : clazz.getInterfaces()) {
                         accept(iface);
-                        interfaces.add(iface);
                     }
                 }
             }
