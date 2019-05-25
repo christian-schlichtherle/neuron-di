@@ -1,5 +1,5 @@
 /*
- * Copyright © 2016 Schlichtherle IT Services
+ * Copyright © 2016 - 2019 Schlichtherle IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,8 +24,6 @@ import java.lang.annotation.*;
  * with this annotation and you want to apply a caching strategy to the overriding method, you have to add this
  * annotation again.
  * In other words, if this annotation is not present on a synapse method, no caching strategy is applied to it.
- *
- * @author Christian Schlichtherle
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)

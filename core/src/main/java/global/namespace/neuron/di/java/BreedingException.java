@@ -1,5 +1,5 @@
 /*
- * Copyright © 2016 Schlichtherle IT Services
+ * Copyright © 2016 - 2019 Schlichtherle IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,15 +19,20 @@ package global.namespace.neuron.di.java;
  * Indicates an error when breeding a neuron.
  *
  * @see Incubator
- * @author Christian Schlichtherle
  */
 public class BreedingException extends RuntimeException {
 
     private static final long serialVersionUID = 0L;
 
-    public BreedingException(String message) { super(message); }
+    public BreedingException(String message) {
+        super(message);
+    }
 
-    public BreedingException(String message, Throwable cause) { super(message, cause); }
+    public BreedingException(String message, Throwable cause) {
+        super(message, cause);
+    }
 
-    public BreedingException(Throwable cause) { super(cause); }
+    public BreedingException(Throwable cause) {
+        super(cause);
+    }
 }

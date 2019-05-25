@@ -1,5 +1,5 @@
 /*
- * Copyright © 2016 Schlichtherle IT Services
+ * Copyright © 2016 - 2019 Schlichtherle IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,6 @@ package global.namespace.neuron.di.java;
 
 /**
  * Enumerates strategies for caching the return values of synapse methods.
- *
- * @author Christian Schlichtherle
  */
 public enum CachingStrategy {
 
@@ -31,9 +29,10 @@ public enum CachingStrategy {
      * then exactly {@code n * m} different instances are returned.
      */
     DISABLED {
-
         @Override
-        public boolean isEnabled() { return false; }
+        public boolean isEnabled() {
+            return false;
+        }
     },
 
     /**
@@ -66,6 +65,10 @@ public enum CachingStrategy {
      */
     THREAD_LOCAL;
 
-    /** Returns true iff the caching strategy is not {@link #DISABLED}. */
-    public boolean isEnabled() { return true; }
+    /**
+     * Returns true iff the caching strategy is not {@link #DISABLED}.
+     */
+    public boolean isEnabled() {
+        return true;
+    }
 }

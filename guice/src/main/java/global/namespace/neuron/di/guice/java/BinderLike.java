@@ -1,5 +1,5 @@
 /*
- * Copyright © 2016 Schlichtherle IT Services
+ * Copyright © 2016 - 2019 Schlichtherle IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,10 +22,11 @@ import global.namespace.neuron.di.java.Incubator;
 
 import static com.google.inject.name.Names.named;
 
-/** @author Christian Schlichtherle */
 public interface BinderLike {
 
-    /** Returns the underlying binder. */
+    /**
+     * Returns the underlying binder.
+     */
     Binder binder();
 
     /**
@@ -99,12 +100,20 @@ public interface BinderLike {
      * Binds a neuron class or interface using the given key.
      * This is an abbreviation for {@code bind(key).toProvider(neuronProvider(key.getTypeLiteral())}.
      */
-    default <T> ScopedBindingBuilder bindNeuron(Key<T> key) { return bindNeuron(key.getTypeLiteral()); }
+    default <T> ScopedBindingBuilder bindNeuron(Key<T> key) {
+        return bindNeuron(key.getTypeLiteral());
+    }
 
-    /** Returns a provider for neurons of the given class. */
-    default <T> Provider<T> neuronProvider(Class<T> type) { return neuronProvider(TypeLiteral.get(type)); }
+    /**
+     * Returns a provider for neurons of the given class.
+     */
+    default <T> Provider<T> neuronProvider(Class<T> type) {
+        return neuronProvider(TypeLiteral.get(type));
+    }
 
-    /** Returns a provider for neurons of the given type literal. */
+    /**
+     * Returns a provider for neurons of the given type literal.
+     */
     @SuppressWarnings("unchecked")
     default <T> Provider<T> neuronProvider(final TypeLiteral<T> typeLiteral) {
         final Provider<Injector> injectorProvider = binder().getProvider(Injector.class);

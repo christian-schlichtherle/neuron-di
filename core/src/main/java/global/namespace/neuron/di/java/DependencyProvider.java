@@ -1,5 +1,5 @@
 /*
- * Copyright © 2016 Schlichtherle IT Services
+ * Copyright © 2016 - 2019 Schlichtherle IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,11 +19,12 @@ package global.namespace.neuron.di.java;
  * Provides some dependency of an object.
  *
  * @param <D> the type of the dependency.
- * @author Christian Schlichtherle
  */
 @FunctionalInterface
 public interface DependencyProvider<D> {
 
-    /** Returns the dependency of the object. */
+    /**
+     * Returns the dependency of the object.
+     */
     D get() throws Throwable;
 }

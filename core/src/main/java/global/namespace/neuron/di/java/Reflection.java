@@ -1,5 +1,5 @@
 /*
- * Copyright © 2016 Schlichtherle IT Services
+ * Copyright © 2016 - 2019 Schlichtherle IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,12 +29,12 @@ import java.util.function.Function;
 import static java.lang.invoke.MethodHandles.publicLookup;
 import static java.lang.invoke.MethodType.methodType;
 
-/** @author Christian Schlichtherle */
 class Reflection {
 
     private static final MethodType objectMethodType = methodType(Object.class);
 
-    private Reflection() { }
+    private Reflection() {
+    }
 
     static Find find(final String member) {
         return new Find() {

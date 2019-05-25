@@ -1,5 +1,5 @@
 /*
- * Copyright © 2016 Schlichtherle IT Services
+ * Copyright © 2016 - 2019 Schlichtherle IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,8 +32,6 @@ import static java.util.Optional.*;
 /**
  * An incubator breeds neuron types.
  * A neuron type is a class or interface with the {@link Neuron} annotation.
- *
- * @author Christian Schlichtherle
  */
 public final class Incubator {
 
