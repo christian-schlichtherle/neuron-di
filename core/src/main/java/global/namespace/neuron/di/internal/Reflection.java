@@ -99,8 +99,8 @@ class Reflection {
      * Note that due to interfaces, the type hierarchy can be a graph.
      * The returned function will visit any interface at most once, however.
      */
-    private static Consumer<Class<?>> traverse(final Consumer<Class<?>> consumer) {
-        return clazz -> new Consumer<Class<?>>() {
+    private static Consumer<Class<?>> traverse(Consumer<Class<?>> consumer) {
+        return new Consumer<Class<?>>() {
 
             final Set<Class<?>> interfaces = new HashSet<>();
 
@@ -118,7 +118,7 @@ class Reflection {
                     }
                 }
             }
-        }.accept(clazz);
+        };
     }
 
     private static String signature(Method method) {
