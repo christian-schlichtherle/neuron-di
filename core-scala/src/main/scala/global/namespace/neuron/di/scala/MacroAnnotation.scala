@@ -1,5 +1,5 @@
 /*
- * Copyright © 2016 Schlichtherle IT Services
+ * Copyright © 2016 - 2019 Schlichtherle IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@ import global.namespace.neuron.di.scala.MacroAnnotation._
 
 import scala.reflect.macros.blackbox
 
-/** @author Christian Schlichtherle */
 private trait MacroAnnotation {
 
   protected val c: blackbox.Context
@@ -109,7 +108,6 @@ private trait MacroAnnotation {
   protected def tpeName(tree: Tree): Option[String] = Option(tree.tpe).map(_.toString)
 }
 
-/** @author Christian Schlichtherle */
 private object MacroAnnotation {
 
   import global.namespace.neuron.di._

@@ -1,5 +1,5 @@
 /*
- * Copyright © 2016 Schlichtherle IT Services
+ * Copyright © 2016 - 2019 Schlichtherle IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,10 +21,10 @@ import global.namespace.neuron.di.java.BreedingException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-/** @author Christian Schlichtherle */
 class Reflection8 {
 
-    private Reflection8() { }
+    private Reflection8() {
+    }
 
     private static final Method getClassLoadingLock, defineClass;
 

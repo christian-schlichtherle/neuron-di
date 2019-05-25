@@ -1,5 +1,5 @@
 /*
- * Copyright © 2016 Schlichtherle IT Services
+ * Copyright © 2016 - 2019 Schlichtherle IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@ import global.namespace.neuron.di.java.{Incubator => jIncubator}
 
 import scala.reflect._
 
-/** @author Christian Schlichtherle */
 object Incubator {
 
   def breed[A <: AnyRef : ClassTag]: A = jIncubator breed runtimeClassOf[A]

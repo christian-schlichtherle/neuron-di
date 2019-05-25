@@ -1,5 +1,5 @@
 /*
- * Copyright © 2016 Schlichtherle IT Services
+ * Copyright © 2016 - 2019 Schlichtherle IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@ package global.namespace.neuron.di.scala
 
 import scala.annotation.tailrec
 
-/** @author Christian Schlichtherle */
 private trait NeuronAnnotation extends MacroAnnotation {
 
   import c.universe._
@@ -25,7 +24,7 @@ private trait NeuronAnnotation extends MacroAnnotation {
 
   def apply(inputs: List[Tree]): Tree = {
     val outputs = inputs match {
-      case ClassDef(mods @ Modifiers(flags, privateWithin, annotations), tname @ TypeName(name), tparams, impl) :: rest =>
+      case ClassDef(mods@Modifiers(flags, privateWithin, annotations), tname@TypeName(name), tparams, impl) :: rest =>
         if (!hasStaticContext) {
           error("A neuron type must have a static context.")
         }
@@ -144,7 +143,7 @@ private trait NeuronAnnotation extends MacroAnnotation {
   private def applyCachingAnnotation(template: Template) = {
     val Template(parents, self, body) = template
     Template(parents, self, body map {
-      case ValDef(mods @ Modifiers(_, _, annotations), name, tpt, EmptyTree)
+      case ValDef(mods@Modifiers(_, _, annotations), name, tpt, EmptyTree)
         if !annotations.exists(isCachingAnnotation) && !mods.hasFlag(PRIVATE) =>
         ValDef(mods.mapAnnotations(newCachingAnnotationTerm :: _), name, tpt, EmptyTree)
       case other =>

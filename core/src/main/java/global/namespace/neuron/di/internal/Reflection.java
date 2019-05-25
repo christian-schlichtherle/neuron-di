@@ -1,5 +1,5 @@
 /*
- * Copyright © 2016 Schlichtherle IT Services
+ * Copyright © 2016 - 2019 Schlichtherle IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,6 @@ import static java.lang.invoke.MethodHandles.privateLookupIn;
 import static java.lang.reflect.Modifier.*;
 import static org.objectweb.asm.Type.getMethodDescriptor;
 
-/** @author Christian Schlichtherle */
 class Reflection {
 
     // VOLATILE methods are bridge methods, e.g. for use in generic classes.
@@ -100,7 +99,7 @@ class Reflection {
      * Note that due to interfaces, the type hierarchy can be a graph.
      * The returned function will visit any interface at most once, however.
      */
-    static Consumer<Class<?>> traverse(final Consumer<Class<?>> consumer) {
+    private static Consumer<Class<?>> traverse(final Consumer<Class<?>> consumer) {
         return clazz -> new Consumer<Class<?>>() {
 
             final Set<Class<?>> interfaces = new HashSet<>();

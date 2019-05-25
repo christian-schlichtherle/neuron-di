@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 import sbt._
 
-/** @author Christian Schlichtherle */
 object Dependencies {
 
   val ASM: ModuleID = "org.ow2.asm" % "asm" % "7.1"
@@ -34,7 +34,9 @@ object Dependencies {
   val JUnitInterface: ModuleID = "com.novocode" % "junit-interface" % "0.11"
   val MockitoCore: ModuleID = "org.mockito" % "mockito-core" % "2.27.0"
   val MacroParadise: ModuleID = "org.scalamacros" % "paradise" % "2.1.1" cross CrossVersion.full
+
   def scalaReflect(scalaVersion: String): ModuleID = "org.scala-lang" % "scala-reflect" % scalaVersion
+
   val ScalaTest: ModuleID = "org.scalatest" %% "scalatest" % "3.0.7"
 
   val ScalaVersion_2_11: String = sys.env.getOrElse("SCALA_VERSION_2_11", "2.11.12")

@@ -1,5 +1,5 @@
 /*
- * Copyright © 2016 Schlichtherle IT Services
+ * Copyright © 2016 - 2019 Schlichtherle IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,6 @@ import org.scalatest.Matchers._
 import org.scalatest.WordSpec
 import org.scalatestplus.mockito.MockitoSugar.mock
 
-/** @author Christian Schlichtherle */
 class NeuronProviderSpec extends WordSpec {
 
   "A neuron provider" should {
@@ -51,7 +50,7 @@ class NeuronProviderSpec extends WordSpec {
       val bangKey = Key.get(classOf[String], classOf[TestBindingAnnotation])
 
       when(injector getProvider fooKey) thenReturn mock[Provider[String]]
-      when(injector getProvider barKey)  thenReturn mock[Provider[String]]
+      when(injector getProvider barKey) thenReturn mock[Provider[String]]
       when(injector getProvider boomKey) thenReturn mock[Provider[String]]
       when(injector getProvider bangKey) thenReturn mock[Provider[String]]
 
@@ -70,6 +69,7 @@ private object NeuronProviderSpec {
 
   object noOpMembersInjector extends MembersInjector[NeuronWithQualifiedSynapses] {
 
-    def injectMembers(instance: NeuronWithQualifiedSynapses) { }
+    def injectMembers(instance: NeuronWithQualifiedSynapses) {}
   }
+
 }

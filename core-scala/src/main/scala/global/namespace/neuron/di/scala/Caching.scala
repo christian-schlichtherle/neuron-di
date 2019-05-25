@@ -1,5 +1,5 @@
 /*
- * Copyright © 2016 Schlichtherle IT Services
+ * Copyright © 2016 - 2019 Schlichtherle IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@ import scala.annotation.{StaticAnnotation, compileTimeOnly}
 import scala.language.experimental.macros
 import scala.reflect.macros.blackbox
 
-/** @author Christian Schlichtherle */
 @compileTimeOnly("Please add the Macro Paradise plugin to the Scala compiler to enable this macro annotation. See https://docs.scala-lang.org/overviews/macros/paradise.html .")
 class Caching(value: CachingStrategy = CachingStrategy.THREAD_SAFE) extends StaticAnnotation {
 
@@ -29,6 +28,8 @@ class Caching(value: CachingStrategy = CachingStrategy.THREAD_SAFE) extends Stat
 private object Caching {
 
   def transform(x: blackbox.Context)(annottees: x.Tree*): x.Tree = {
-    new { val c: x.type = x } with CachingAnnotation apply annottees.toList
+    new {
+      val c: x.type = x
+    } with CachingAnnotation apply annottees.toList
   }
 }

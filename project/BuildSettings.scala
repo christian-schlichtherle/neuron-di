@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 import Dependencies._
 import sbt.Keys._
 import sbt._
 import sbtrelease.ReleasePlugin.autoImport._
 import sbtrelease.ReleaseStateTransformations._
 
-/** @author Christian Schlichtherle */
 object BuildSettings {
 
   def releaseSettings: Seq[Setting[_]] = {
@@ -63,10 +63,10 @@ object BuildSettings {
             </properties>
           </developer>
         </developers>
-        <issueManagement>
-          <system>Github</system>
-          <url>https://github.com/christian-schlichtherle/neuron-di/issues</url>
-        </issueManagement>
+          <issueManagement>
+            <system>Github</system>
+            <url>https://github.com/christian-schlichtherle/neuron-di/issues</url>
+          </issueManagement>
       },
       pomIncludeRepository := (_ => false),
       publishTo := {

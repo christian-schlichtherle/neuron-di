@@ -1,5 +1,5 @@
 /*
- * Copyright © 2016 Schlichtherle IT Services
+ * Copyright © 2016 - 2019 Schlichtherle IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,5 +18,7 @@ package global.namespace.neuron.di.internal;
 interface MethodElement<C> extends MethodInfo, Element<C> {
 
     @Override
-    default void accept(Visitor<C> visitor) { visitor.visitMethod(this); }
+    default void accept(Visitor<C> visitor) {
+        visitor.visitMethod(this);
+    }
 }

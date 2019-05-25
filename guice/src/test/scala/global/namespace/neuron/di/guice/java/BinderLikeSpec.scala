@@ -1,5 +1,5 @@
 /*
- * Copyright © 2016 Schlichtherle IT Services
+ * Copyright © 2016 - 2019 Schlichtherle IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,6 @@ import org.scalatestplus.mockito.MockitoSugar.mock
 
 import scala.reflect._
 
-/** @author Christian Schlichtherle */
 class BinderLikeSpec extends WordSpec {
 
   val binderLike: BinderLike = new BinderLike {
@@ -38,6 +37,7 @@ class BinderLikeSpec extends WordSpec {
 
     when(binder skipSources any[Class[_]]) thenReturn binder
   }
+
   import binderLike.binder
 
   "A BinderLike" should afterWord("bind a") {
@@ -90,18 +90,24 @@ class BinderLikeSpec extends WordSpec {
   }
 
   private def testBindNeuronUsingClass[A](implicit classTag: ClassTag[A]) {
-    testBindNeuron[A] { binderLike bindNeuron runtimeClassOf[A] }
+    testBindNeuron[A] {
+      binderLike bindNeuron runtimeClassOf[A]
+    }
   }
 
   private def testBindNeuronUsingTypeLiteral[A](implicit classTag: ClassTag[A]) {
-    testBindNeuron[A] { binderLike bindNeuron (TypeLiteral get runtimeClassOf[A]) }
+    testBindNeuron[A] {
+      binderLike bindNeuron (TypeLiteral get runtimeClassOf[A])
+    }
   }
 
   private def testBindNeuronUsingKey[A](implicit classTag: ClassTag[A]) {
-    testBindNeuron[A] { binderLike bindNeuron (Key get runtimeClassOf[A]) }
+    testBindNeuron[A] {
+      binderLike bindNeuron (Key get runtimeClassOf[A])
+    }
   }
 
-  private def testBindNeuron[A : ClassTag](bindingCall: => ScopedBindingBuilder) {
+  private def testBindNeuron[A: ClassTag](bindingCall: => ScopedBindingBuilder) {
     val injectorProvider = mock[Provider[Injector]]
     val injector = mock[Injector]
 
@@ -138,7 +144,9 @@ class BinderLikeSpec extends WordSpec {
   }
 
   private def testBindNeuronsUsingClasses(classes: Class[_]*) {
-    testBindNeurons(classes: _*) { binderLike.bindNeurons(classes.head, classes.tail: _*) }
+    testBindNeurons(classes: _*) {
+      binderLike.bindNeurons(classes.head, classes.tail: _*)
+    }
   }
 
   private def testBindNeuronsUsingTypeLiterals(classes: Class[_]*) {
@@ -160,7 +168,7 @@ class BinderLikeSpec extends WordSpec {
     when(binder getProvider classOf[Injector]) thenReturn injectorProvider
     when(injectorProvider.get) thenReturn injector
 
-    def wiring[A](clazz : Class[A]) = {
+    def wiring[A](clazz: Class[A]) = {
       val typeLiteral = TypeLiteral get clazz
       val key = Key get clazz
 

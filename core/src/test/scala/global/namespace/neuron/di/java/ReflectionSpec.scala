@@ -1,5 +1,5 @@
 /*
- * Copyright © 2016 Schlichtherle IT Services
+ * Copyright © 2016 - 2019 Schlichtherle IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,6 @@ import global.namespace.neuron.di.java.sample.{A, HasPrivateMembers}
 import org.scalatest.Matchers._
 import org.scalatest.WordSpec
 
-/** @author Christian Schlichtherle */
 class ReflectionSpec extends WordSpec {
 
   implicit class WithOptionalMethodHandle(omh: Optional[MethodHandle]) {

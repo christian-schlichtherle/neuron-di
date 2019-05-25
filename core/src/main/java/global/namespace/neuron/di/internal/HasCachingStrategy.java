@@ -1,5 +1,5 @@
 /*
- * Copyright © 2016 Schlichtherle IT Services
+ * Copyright © 2016 - 2019 Schlichtherle IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,9 @@ interface HasCachingStrategy {
         return realCachingStrategy().decorate(provider);
     }
 
-    default RealCachingStrategy realCachingStrategy() { return RealCachingStrategy.valueOf(cachingStrategy()); }
+    default RealCachingStrategy realCachingStrategy() {
+        return RealCachingStrategy.valueOf(cachingStrategy());
+    }
 
     CachingStrategy cachingStrategy();
 }

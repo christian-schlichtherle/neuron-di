@@ -1,5 +1,5 @@
 /*
- * Copyright © 2016 Schlichtherle IT Services
+ * Copyright © 2016 - 2019 Schlichtherle IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -192,7 +192,7 @@ final class ProxyClassVisitor extends ClassVisitor {
                 }
 
                 void generateProxyField() {
-                    cv      .visitField(ACC_PRIVATE_SYNTHETIC, name + PROVIDER, dependencyProviderDesc, null, null)
+                    cv.visitField(ACC_PRIVATE_SYNTHETIC, name + PROVIDER, dependencyProviderDesc, null, null)
                             .visitEnd();
                 }
 

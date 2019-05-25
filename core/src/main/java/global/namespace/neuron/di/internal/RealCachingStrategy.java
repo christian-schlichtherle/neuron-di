@@ -1,5 +1,5 @@
 /*
- * Copyright © 2016 Schlichtherle IT Services
+ * Copyright © 2016 - 2019 Schlichtherle IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,21 +18,27 @@ package global.namespace.neuron.di.internal;
 import global.namespace.neuron.di.java.CachingStrategy;
 import global.namespace.neuron.di.java.DependencyProvider;
 
-/** Mirrors {@link CachingStrategy}. */
+/**
+ * Mirrors {@link CachingStrategy}.
+ */
 enum RealCachingStrategy {
 
-    /** @see #valueOf(CachingStrategy) */
+    /**
+     * @see #valueOf(CachingStrategy)
+     */
     @SuppressWarnings("unused")
     DISABLED {
-
         @Override
-        <D> DependencyProvider<D> decorate(DependencyProvider<D> provider) { return provider; }
+        <D> DependencyProvider<D> decorate(DependencyProvider<D> provider) {
+            return provider;
+        }
     },
 
-    /** @see #valueOf(CachingStrategy) */
+    /**
+     * @see #valueOf(CachingStrategy)
+     */
     @SuppressWarnings("unused")
     NOT_THREAD_SAFE {
-
         @Override
         <D> DependencyProvider<D> decorate(final DependencyProvider<D> provider) {
             return new DependencyProvider<D>() {
@@ -48,10 +54,11 @@ enum RealCachingStrategy {
         }
     },
 
-    /** @see #valueOf(CachingStrategy) */
+    /**
+     * @see #valueOf(CachingStrategy)
+     */
     @SuppressWarnings("unused")
     THREAD_SAFE {
-
         @Override
         <D> DependencyProvider<D> decorate(final DependencyProvider<D> provider) {
             return new DependencyProvider<D>() {
@@ -74,10 +81,11 @@ enum RealCachingStrategy {
         }
     },
 
-    /** @see #valueOf(CachingStrategy) */
+    /**
+     * @see #valueOf(CachingStrategy)
+     */
     @SuppressWarnings("unused")
     THREAD_LOCAL {
-
         @Override
         <D> DependencyProvider<D> decorate(final DependencyProvider<D> provider) {
             return new DependencyProvider<D>() {
@@ -96,7 +104,9 @@ enum RealCachingStrategy {
         }
     };
 
-    static RealCachingStrategy valueOf(CachingStrategy strategy) { return valueOf(strategy.name()); }
+    static RealCachingStrategy valueOf(CachingStrategy strategy) {
+        return valueOf(strategy.name());
+    }
 
     abstract <D> DependencyProvider<D> decorate(DependencyProvider<D> provider);
 }

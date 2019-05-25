@@ -1,5 +1,5 @@
 /*
- * Copyright © 2016 Schlichtherle IT Services
+ * Copyright © 2016 - 2019 Schlichtherle IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,12 +30,14 @@ abstract class CommonProcessor extends AbstractProcessor {
     private static final EnumSet<Modifier> privateProtectedOrPublic = EnumSet.of(PRIVATE, PROTECTED, PUBLIC);
 
     void warn(CharSequence message, Element e) {
-        messager().printMessage(WARNING, message , e);
+        messager().printMessage(WARNING, message, e);
     }
 
     void error(CharSequence message, Element e) {
-        messager().printMessage(ERROR, message , e);
+        messager().printMessage(ERROR, message, e);
     }
 
-    private Messager messager() { return processingEnv.getMessager(); }
+    private Messager messager() {
+        return processingEnv.getMessager();
+    }
 }

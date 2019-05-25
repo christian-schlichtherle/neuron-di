@@ -24,9 +24,7 @@ import org.objectweb.asm.Opcodes;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static global.namespace.neuron.di.internal.Reflection.defineSubclass;
@@ -52,9 +50,7 @@ final class ASM implements Opcodes {
             superclass = clazz;
             streamOfInterfaces = streamOfInterfaces(bindableMethods);
         }
-        final Class<?>[] arrayOfInterfaces = streamOfInterfaces
-                .collect(Collectors.toCollection(LinkedHashSet::new))
-                .toArray(new Class<?>[0]);
+        final Class<?>[] arrayOfInterfaces = streamOfInterfaces.distinct().toArray(Class<?>[]::new);
         final String proxyName = null != clazz.getClassLoader()
                 ? clazz.getName().concat("$$proxy")
                 : PROXIES_PACKAGE_PREFIX.concat(clazz.getName().replace('.', '$'));
@@ -65,7 +61,7 @@ final class ASM implements Opcodes {
     }
 
     private static Stream<Class<?>> streamOfInterfaces(List<Method> bindableMethods) {
-        return bindableMethods.stream().map(Method::getDeclaringClass).filter(Class::isInterface);
+        return bindableMethods.stream().<Class<?>>map(Method::getDeclaringClass).filter(Class::isInterface);
     }
 
     private static ClassReader classReader(final Class<?> clazz) {
