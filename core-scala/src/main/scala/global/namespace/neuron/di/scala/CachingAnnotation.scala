@@ -25,7 +25,7 @@ private trait CachingAnnotation extends MacroAnnotation {
       case DefDef(mods, name, tparams, vparamss, tpt, rhs) :: rest =>
         val owner = c.internal.enclosingOwner
         if (!owner.annotations.exists(a => isNeuronAnnotation(a.tree))) {
-          error("A method with a caching annotation must be a member of a neuron type...")
+          error("A caching method must be a member of a neuron type...")
           error("... but there is no @Neuron annotation here.")(owner.pos)
         }
         if (mods hasFlag MACRO) {
@@ -64,8 +64,7 @@ private trait CachingAnnotation extends MacroAnnotation {
           })
         }
         DefDef(mods.mapAnnotations(caching :: _), name, tparams, vparamss, tpt, rhs) :: rest
-      case _ =>
-        abort("A caching annotation can only be applied to methods.")
+      case other => other
     }
     q"..$outputs"
   }

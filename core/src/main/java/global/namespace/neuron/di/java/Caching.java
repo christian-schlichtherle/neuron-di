@@ -15,7 +15,13 @@
  */
 package global.namespace.neuron.di.java;
 
-import java.lang.annotation.*;
+import java.lang.annotation.Documented;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+import static java.lang.annotation.ElementType.ANNOTATION_TYPE;
+import static java.lang.annotation.ElementType.METHOD;
 
 /**
  * Indicates that a caching strategy should be applied to the return value of the annotated synapse method.
@@ -24,10 +30,25 @@ import java.lang.annotation.*;
  * with this annotation and you want to apply a caching strategy to the overriding method, you have to add this
  * annotation again.
  * In other words, if this annotation is not present on a synapse method, no caching strategy is applied to it.
+ * <p>
+ * This annotation can also be applied to custom annotation types, in which case any method annotated with these is
+ * treated as if it's directly annotated with this annotation.
+ * For example:
+ * <pre>{@code
+ *     import global.namespace.neuron.di.java.*;
+ *     import java.lang.annotation.*;
+ *
+ *     @Caching(CachingStrategy.THREAD_LOCAL)
+ *     @Documented
+ *     @Retention(RetentionPolicy.RUNTIME)
+ *     @Target(ElementType.METHOD)
+ *     public @interface ThreadLocalCaching {
+ *     }
+ * }</pre>
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.METHOD)
+@Target({ANNOTATION_TYPE, METHOD})
 public @interface Caching {
 
     /**

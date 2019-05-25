@@ -28,11 +28,27 @@ import java.lang.annotation.*;
  * <p>
  * If this annotation is present on a class, it gets inherited by any subclass.
  * In compliance with the Java Language Specification, this does not apply to interfaces.
+ * <p>
+ * This annotation can also be applied to custom annotation types, in which case any class or interface annotated with
+ * these is treated as if it's directly annotated with this annotation.
+ * For example, the following annotation caches all synapse values using a thread-safe strategy:
+ * <pre>{@code
+ *     import global.namespace.neuron.di.java.*;
+ *     import java.lang.annotation.*;
+ *
+ *     @Neuron(cachingStrategy = CachingStrategy.THREAD_SAFE)
+ *     @Inherited
+ *     @Documented
+ *     @Retention(RetentionPolicy.RUNTIME)
+ *     @Target(ElementType.TYPE)
+ *     public @interface ThreadSafeCachingNeuron {
+ *     }
+ * }</pre>
  *
  * @see <a href="https://en.wikipedia.org/wiki/Neuron">Neuron on the English Wikipedia</a>
  */
-@Documented
 @Inherited
+@Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface Neuron {

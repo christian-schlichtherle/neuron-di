@@ -17,15 +17,18 @@ package global.namespace.neuron.di.internal;
 
 import global.namespace.neuron.di.internal.proxy.Proxies;
 
+import java.lang.annotation.Annotation;
 import java.lang.invoke.MethodHandles;
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 import static java.lang.invoke.MethodHandles.lookup;
 import static java.lang.invoke.MethodHandles.privateLookupIn;
 import static java.lang.reflect.Modifier.*;
-import static java.util.Optional.ofNullable;
+import static java.util.Optional.*;
 import static org.objectweb.asm.Type.getMethodDescriptor;
 
 class Reflection {
@@ -35,7 +38,8 @@ class Reflection {
 
     private static final MethodHandles.Lookup lookup = lookup();
 
-    private Reflection() { }
+    private Reflection() {
+    }
 
     @SuppressWarnings({"unchecked", "Since15"})
     static <C> Class<? extends C> defineSubclass(final Class<C> clazz, final String name, final byte[] b) {
@@ -124,5 +128,29 @@ class Reflection {
 
     private static String methodDescriptorWithoutReturnType(Method method) {
         return getMethodDescriptor(method).replaceAll("\\).*", ")");
+    }
+
+    static <T extends Annotation> Function<AnnotatedElement, Optional<T>> findAnnotation(Class<T> what) {
+        return new Function<AnnotatedElement, Optional<T>>() {
+
+            final Set<AnnotatedElement> visited = new HashSet<>();
+
+            @SuppressWarnings("unchecked")
+            @Override
+            public Optional<T> apply(final AnnotatedElement where) {
+                if (visited.add(where)) {
+                    for (final Annotation a : where.getAnnotations()) {
+                        if (what.isInstance(a)) {
+                            return of((T) a);
+                        }
+                        final Optional<T> here = apply(a.annotationType());
+                        if (here.isPresent()) {
+                            return here;
+                        }
+                    }
+                }
+                return empty();
+            }
+        };
     }
 }

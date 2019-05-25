@@ -1,5 +1,5 @@
 /*
- * Copyright © 2016 Schlichtherle IT Services
+ * Copyright © 2016 - 2019 Schlichtherle IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,15 +22,17 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Optional;
 
-import static java.util.Optional.ofNullable;
+import static global.namespace.neuron.di.internal.Reflection.findAnnotation;
 
 @FunctionalInterface
 public interface MethodInfo {
 
-    Method method();
+    default boolean canEqual(Object other) {
+        return other instanceof MethodInfo;
+    }
 
-    default Optional<CachingStrategy> methodCachingStrategy() {
-        return ofNullable(method().getDeclaredAnnotation(Caching.class)).map(Caching::value);
+    default Optional<Caching> findCachingAnnotation() {
+        return findAnnotation(Caching.class).apply(method());
     }
 
     default boolean hasParameters() {
@@ -46,15 +48,17 @@ public interface MethodInfo {
         return Void.TYPE == returnType || Void.class == returnType;
     }
 
+    Method method();
+
+    default Optional<CachingStrategy> methodCachingStrategy() {
+        return findCachingAnnotation().map(Caching::value);
+    }
+
     default String name() {
         return method().getName();
     }
 
     default Class<?> returnType() {
         return method().getReturnType();
-    }
-
-    default boolean canEqual(Object other) {
-        return other instanceof MethodInfo;
     }
 }

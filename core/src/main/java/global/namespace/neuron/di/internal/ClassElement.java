@@ -27,12 +27,8 @@ import static global.namespace.neuron.di.java.CachingStrategy.DISABLED;
 interface ClassElement<C> extends ClassInfo<C>, Element<C> {
 
     static <C> ClassElement<C> of(final Class<C> clazz) {
-        final NeuronElement<C> neuronElement = () -> clazz;
-        if (neuronElement.isAbstract() || neuronElement.isNeuron()) {
-            return neuronElement;
-        } else {
-            return () -> clazz;
-        }
+        final NeuronElement<C> element = () -> clazz;
+        return element.isNeuron() ? element : () -> clazz;
     }
 
     default CachingStrategy cachingStrategy() {

@@ -22,12 +22,10 @@ import global.namespace.neuron.di.java.Neuron;
 import java.lang.reflect.Modifier;
 import java.util.Optional;
 
-import static java.util.Optional.ofNullable;
+import static global.namespace.neuron.di.internal.Reflection.findAnnotation;
 
 @FunctionalInterface
 interface ClassInfo<C> {
-
-    Class<C> clazz();
 
     default void assertCanBeProxied() {
         if (!hasStaticContext()) {
@@ -41,8 +39,18 @@ interface ClassInfo<C> {
         }
     }
 
+    Class<C> clazz();
+
     default Optional<CachingStrategy> classCachingStrategy() {
-        return ofNullable(clazz().getAnnotation(Neuron.class)).map(Neuron::cachingStrategy);
+        return findNeuronAnnotation().map(Neuron::cachingStrategy);
+    }
+
+    default Optional<Neuron> findNeuronAnnotation() {
+        return findAnnotation(Neuron.class).apply(clazz());
+    }
+
+    default boolean hasNeuronAnnotation() {
+        return findNeuronAnnotation().isPresent();
     }
 
     default boolean hasNonPrivateConstructorWithoutParameters() {
@@ -72,7 +80,7 @@ interface ClassInfo<C> {
     }
 
     default boolean isNeuron() {
-        return clazz().isAnnotationPresent(Neuron.class);
+        return isAbstract() || hasNeuronAnnotation();
     }
 
     default boolean isStatic() {

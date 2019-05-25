@@ -87,8 +87,7 @@ private trait NeuronAnnotation extends MacroAnnotation {
             }
           }
         }
-      case _ =>
-        abort("A neuron annotation can only be applied to classes or traits.")
+      case other => other
     }
     q"..$outputs"
   }
