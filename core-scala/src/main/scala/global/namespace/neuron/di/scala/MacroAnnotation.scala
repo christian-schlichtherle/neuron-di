@@ -31,7 +31,7 @@ private trait MacroAnnotation {
   protected def scala2javaCachingStrategy(arg: Tree): Tree = {
     q"_root_.global.namespace.neuron.di.java.CachingStrategy.${
       arg match {
-        case q"$prefix.$name" => name
+        case q"$_.$name" => name
         case other => TermName(other.toString)
       }
     }"
@@ -99,13 +99,17 @@ private trait MacroAnnotation {
 
   protected def abort(msg: String)(implicit pos: Position): Nothing = c.abort(pos, msg)
 
-  protected def isCachingAnnotation(tree: Tree): Boolean =
-    tpeName(tree).exists(name => name == javaCachingAnnotationName || name == scalaCachingAnnotationName)
+  protected def isCachingAnnotation(tree: Tree): Boolean = {
+    val name = typeName(tree)
+    name == javaCachingAnnotationName || name == scalaCachingAnnotationName
+  }
 
-  protected def isNeuronAnnotation(tree: Tree): Boolean =
-    tpeName(tree).exists(name => name == javaNeuronAnnotationName || name == scalaNeuronAnnotationName)
+  protected def isNeuronAnnotation(tree: Tree): Boolean = {
+    val name = typeName(tree)
+    name == javaNeuronAnnotationName || name == scalaNeuronAnnotationName
+  }
 
-  protected def tpeName(tree: Tree): Option[String] = Option(tree.tpe).map(_.toString)
+  private def typeName(tree: Tree): String = c.typecheck(tree, mode = c.TYPEmode, silent = true).tpe.toString
 }
 
 private object MacroAnnotation {
