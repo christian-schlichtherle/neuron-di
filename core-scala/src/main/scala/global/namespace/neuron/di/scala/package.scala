@@ -15,12 +15,14 @@
  */
 package global.namespace.neuron.di
 
+import _root_.java.lang.annotation.Annotation
 import _root_.java.lang.reflect.Method
 import _root_.java.util.function.{Function => jFunction}
 
 import global.namespace.neuron.di.java.{DependencyProvider, DependencyResolver, CachingStrategy => jCachingStrategy}
 
 import _root_.scala.language.experimental.macros
+import _root_.scala.reflect.macros.blackbox
 import _root_.scala.reflect.{ClassTag, classTag}
 
 package object scala {
@@ -93,4 +95,29 @@ package object scala {
     def apply(method: Method): DependencyProvider[_] = binding(method)
   }
 
+  private[scala] def isCachingAnnotation(c: blackbox.Context)(annotation: c.Tree): Boolean = {
+    isAnnotationType[global.namespace.neuron.di.java.Caching](c)(annotation)
+  }
+
+  private[scala] def isNeuronAnnotation(c: blackbox.Context)(annotation: c.Tree): Boolean = {
+    isAnnotationType[global.namespace.neuron.di.java.Neuron](c)(annotation)
+  }
+
+  private[scala] def isAnnotationType[T <: Annotation : c.TypeTag](c: blackbox.Context)(annotation: c.Tree): Boolean = {
+
+    import c.universe._
+
+    val visited = collection.mutable.Set.empty[Symbol]
+
+    def _isAnnotation(annotation: Tree): Boolean = {
+      val tpe = c.typecheck(tree = annotation, mode = c.TYPEmode, silent = true).tpe
+      tpe == typeOf[T] || _hasAnnotation(tpe.typeSymbol)
+    }
+
+    def _hasAnnotation(symbol: Symbol): Boolean = {
+      (visited add symbol) && (symbol.annotations exists (a => _isAnnotation(a.tree)))
+    }
+
+    _isAnnotation(annotation)
+  }
 }

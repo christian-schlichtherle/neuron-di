@@ -19,14 +19,14 @@ import scala.reflect.macros.blackbox
 
 private trait MacroAnnotation {
 
-  protected val c: blackbox.Context
+  val c: blackbox.Context
 
   import c.universe._
   import Flag._
 
   def apply(inputs: List[Tree]): Tree
 
-  protected def scala2javaCachingStrategy(arg: Tree): Tree = {
+  def scala2javaCachingStrategy(arg: Tree): Tree = {
     q"_root_.global.namespace.neuron.di.java.CachingStrategy.${
       arg match {
         case q"$_.$name" => name
@@ -35,10 +35,10 @@ private trait MacroAnnotation {
     }"
   }
 
-  protected lazy val newCachingAnnotationTerm: Tree =
+  lazy val newCachingAnnotationTerm: Tree =
     q"new _root_.global.namespace.neuron.di.java.Caching @_root_.scala.annotation.meta.getter"
 
-  protected lazy val newNeuronAnnotationTerm =
+  lazy val newNeuronAnnotationTerm =
     q"new _root_.global.namespace.neuron.di.java.Neuron"
 
   // Matching Scala 2.11.12 and 2.12.8:
@@ -74,7 +74,7 @@ private trait MacroAnnotation {
     TRAIT
   )
 
-  protected implicit class FlagOps(left: FlagSet) {
+  implicit class FlagOps(left: FlagSet) {
 
     def &~(right: FlagSet): FlagSet = {
       var result = NoFlags
@@ -87,23 +87,21 @@ private trait MacroAnnotation {
     }
   }
 
-  protected implicit def position: Position = c.enclosingPosition
+  implicit def position: Position = c.enclosingPosition
 
-  protected def info(msg: String, force: Boolean = false)(implicit pos: Position): Unit = c.info(pos, msg, force)
+  def info(msg: String, force: Boolean = false)(implicit pos: Position): Unit = c.info(pos, msg, force)
 
-  protected def warn(msg: String)(implicit pos: Position): Unit = c.warning(pos, msg)
+  def warn(msg: String)(implicit pos: Position): Unit = c.warning(pos, msg)
 
-  protected def error(msg: String)(implicit pos: Position): Unit = c.error(pos, msg)
+  def error(msg: String)(implicit pos: Position): Unit = c.error(pos, msg)
 
-  protected def abort(msg: String)(implicit pos: Position): Nothing = c.abort(pos, msg)
+  def abort(msg: String)(implicit pos: Position): Nothing = c.abort(pos, msg)
 
-  protected def isCachingAnnotation(tree: Tree): Boolean = {
-    checkedTypeOf(tree) == typeOf[global.namespace.neuron.di.java.Caching]
+  def isCachingAnnotation(annotation: Tree): Boolean = {
+    global.namespace.neuron.di.scala.isCachingAnnotation(c)(annotation)
   }
 
-  protected def isNeuronAnnotation(tree: Tree): Boolean = {
-    checkedTypeOf(tree) == typeOf[global.namespace.neuron.di.java.Neuron]
+  def isNeuronAnnotation(annotation: Tree): Boolean = {
+    global.namespace.neuron.di.scala.isNeuronAnnotation(c)(annotation)
   }
-
-  protected def checkedTypeOf(tree: Tree): Type = c.typecheck(tree = tree, mode = c.TYPEmode, silent = true).tpe
 }

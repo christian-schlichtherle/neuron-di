@@ -42,26 +42,10 @@ private object Neuron {
     val targetTypeSymbol = targetType.typeSymbol
 
     val isNeuronType = {
-
-      val visited = collection.mutable.Set.empty[Symbol]
-
-      def isTargetTypeOrSuperClassWithNeuronAnnotation(symbol: Symbol) = {
-        (symbol == targetTypeSymbol || !symbol.asClass.isTrait) && hasNeuronAnnotation(symbol)
+      targetType.baseClasses exists { symbol =>
+        (symbol == targetTypeSymbol || !symbol.asClass.isTrait) &&
+          (symbol.annotations exists (a => isNeuronAnnotation(c)(a.tree)))
       }
-
-      def hasNeuronAnnotation(symbol: Symbol): Boolean = {
-        (visited add symbol) && (symbol.annotations exists isNeuronAnnotation)
-      }
-
-      def isNeuronAnnotation(annotation: Annotation): Boolean = {
-        val tpe = c.typecheck(tree = annotation.tree, mode = c.TYPEmode, silent = true).tpe
-        tpe == typeOf[jNeuron] || hasNeuronAnnotation {
-          tpe.toString // FIXME: this has a required side effect!
-          tpe.typeSymbol
-        }
-      }
-
-      targetType.baseClasses exists isTargetTypeOrSuperClassWithNeuronAnnotation
     }
 
     class MethodInfo(symbol: MethodSymbol) {

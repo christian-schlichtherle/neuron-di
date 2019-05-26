@@ -26,7 +26,7 @@ class CachingApplicationSpec extends WordSpec {
 
   "A `CachingApplication` object" when {
     //noinspection ScalaUnusedSymbol
-    def threadSafeCachedObject = new Object
+    def threadSafeCachedObject = new AnyRef
     val app = wire[CachingApplication]
 
     "calling its `threadSafeCachedObject` method" should {
