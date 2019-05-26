@@ -98,12 +98,12 @@ private trait MacroAnnotation {
   protected def abort(msg: String)(implicit pos: Position): Nothing = c.abort(pos, msg)
 
   protected def isCachingAnnotation(tree: Tree): Boolean = {
-    _typeOf(tree) == typeOf[global.namespace.neuron.di.java.Caching]
+    checkedTypeOf(tree) == typeOf[global.namespace.neuron.di.java.Caching]
   }
 
   protected def isNeuronAnnotation(tree: Tree): Boolean = {
-    _typeOf(tree) == typeOf[global.namespace.neuron.di.java.Neuron]
+    checkedTypeOf(tree) == typeOf[global.namespace.neuron.di.java.Neuron]
   }
 
-  private def _typeOf(tree: Tree): Type = c.typecheck(tree, mode = c.TYPEmode, silent = true).tpe
+  protected def checkedTypeOf(tree: Tree): Type = c.typecheck(tree = tree, mode = c.TYPEmode, silent = true).tpe
 }

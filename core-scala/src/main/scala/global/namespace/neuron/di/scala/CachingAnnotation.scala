@@ -42,7 +42,7 @@ private trait CachingAnnotation extends MacroAnnotation {
           case _ =>
             error("A caching method must not have parameters.")
         }
-        typeOf(rhs) match {
+        checkedTypeOf(rhs) match {
           case TypeRef(_, sym, _)
             if sym == c.symbolOf[Unit] || sym == c.symbolOf[Nothing] =>
             error("A caching method must have a return value.")(tpt.pos)
@@ -68,7 +68,4 @@ private trait CachingAnnotation extends MacroAnnotation {
     }
     q"..$outputs"
   }
-
-  private def typeOf(tree: Tree): Type =
-    c.typecheck(tree.duplicate.asInstanceOf[Tree], mode = c.TYPEmode, silent = true).tpe
 }

@@ -54,7 +54,7 @@ private object Neuron {
       }
 
       def isNeuronAnnotation(annotation: Annotation): Boolean = {
-        val tpe = c.typecheck(tree = annotation.tree.duplicate, mode = c.TYPEmode, silent = true).tpe
+        val tpe = c.typecheck(tree = annotation.tree, mode = c.TYPEmode, silent = true).tpe
         tpe == typeOf[jNeuron] || hasNeuronAnnotation {
           tpe.toString // FIXME: this has a required side effect!
           tpe.typeSymbol
@@ -87,12 +87,12 @@ private object Neuron {
       def bind: Tree = {
         {
           //noinspection ConvertibleToMethodValue
-          typecheckDependencyAs(returnType) map (returnValueBinding(_))
+          typeCheckDependencyAs(returnType) map (returnValueBinding(_))
         } orElse {
           //noinspection ConvertibleToMethodValue
-          typecheckDependencyAs(functionType) map (functionBinding(_))
+          typeCheckDependencyAs(functionType) map (functionBinding(_))
         } getOrElse {
-          typecheckDependencyAs(WildcardType) map { dependency =>
+          typeCheckDependencyAs(WildcardType) map { dependency =>
             abort(s"Dependency `$dependency` must be assignable to type `$returnType` or `$functionType`, but has type `${dependency.tpe}`:")
           } getOrElse {
             abort(s"No dependency available to bind $info:")
@@ -100,10 +100,10 @@ private object Neuron {
         }
       }
 
-      private def typecheckDependencyAs(dependencyType: Type): Option[c.Tree] = {
+      private def typeCheckDependencyAs(dependencyType: Type): Option[c.Tree] = {
         c.typecheck(tree = dependency, pt = dependencyType, silent = true) match {
           case `EmptyTree` => None
-          case typecheckedDependency => Some(typecheckedDependency)
+          case typeCheckedDependency => Some(typeCheckedDependency)
         }
       }
 
