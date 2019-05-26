@@ -54,8 +54,11 @@ private object Neuron {
       }
 
       def isNeuronAnnotation(annotation: Annotation): Boolean = {
-        val tpe = c.typecheck(annotation.tree).tpe
-        tpe == typeOf[jNeuron] || hasNeuronAnnotation(tpe.typeSymbol)
+        val tpe = c.typecheck(tree = annotation.tree.duplicate, mode = c.TYPEmode, silent = true).tpe
+        tpe == typeOf[jNeuron] || hasNeuronAnnotation {
+          tpe.toString // FIXME: this has a required side effect!
+          tpe.typeSymbol
+        }
       }
 
       targetType.baseClasses exists isTargetTypeOrSuperClassWithNeuronAnnotation
