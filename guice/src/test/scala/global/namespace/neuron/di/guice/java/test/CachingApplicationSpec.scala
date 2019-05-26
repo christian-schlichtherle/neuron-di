@@ -25,10 +25,10 @@ import scala.util.control.NonFatal
 class CachingApplicationSpec extends WordSpec {
 
   "A `CachingApplication` object" when {
-    val app = Incubator.breed(classOf[CachingApplication])
+    lazy val app = Incubator.breed(classOf[CachingApplication])
 
     "calling its `threadSafeCachedObject` method" should {
-      val o = app.threadSafeCachedObject
+      lazy val o = app.threadSafeCachedObject
 
       "return the same object on the same thread" in {
         app.threadSafeCachedObject should be theSameInstanceAs o
@@ -42,7 +42,7 @@ class CachingApplicationSpec extends WordSpec {
     }
 
     "calling its `threadLocalCachedObject` method" should {
-      val o = app.threadLocalCachedObject
+      lazy val o = app.threadLocalCachedObject
 
       "return the same object on the same thread" in {
         app.threadLocalCachedObject should be theSameInstanceAs o
