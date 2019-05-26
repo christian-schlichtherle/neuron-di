@@ -15,8 +15,6 @@
  */
 package global.namespace.neuron.di.scala
 
-import global.namespace.neuron.di.scala.MacroAnnotation._
-
 import scala.reflect.macros.blackbox
 
 private trait MacroAnnotation {
@@ -100,24 +98,12 @@ private trait MacroAnnotation {
   protected def abort(msg: String)(implicit pos: Position): Nothing = c.abort(pos, msg)
 
   protected def isCachingAnnotation(tree: Tree): Boolean = {
-    val name = typeName(tree)
-    name == javaCachingAnnotationName || name == scalaCachingAnnotationName
+    _typeOf(tree) == typeOf[global.namespace.neuron.di.java.Caching]
   }
 
   protected def isNeuronAnnotation(tree: Tree): Boolean = {
-    val name = typeName(tree)
-    name == javaNeuronAnnotationName || name == scalaNeuronAnnotationName
+    _typeOf(tree) == typeOf[global.namespace.neuron.di.java.Neuron]
   }
 
-  private def typeName(tree: Tree): String = c.typecheck(tree, mode = c.TYPEmode, silent = true).tpe.toString
-}
-
-private object MacroAnnotation {
-
-  import global.namespace.neuron.di._
-
-  private val javaCachingAnnotationName = classOf[java.Caching].getName
-  private val javaNeuronAnnotationName = classOf[java.Neuron].getName
-  private val scalaCachingAnnotationName = classOf[scala.Caching].getName
-  private val scalaNeuronAnnotationName = classOf[scala.Neuron].getName
+  private def _typeOf(tree: Tree): Type = c.typecheck(tree, mode = c.TYPEmode, silent = true).tpe
 }
