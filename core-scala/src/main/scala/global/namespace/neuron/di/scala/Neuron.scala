@@ -31,7 +31,7 @@ private object Neuron {
 
   def transform(x: blackbox.Context)(annottees: x.Tree*): x.Tree = {
     new {
-      val c: x.type = x
+      override val c: x.type = x
     } with NeuronAnnotation apply annottees.toList
   }
 

@@ -29,7 +29,7 @@ private object Caching {
 
   def transform(x: blackbox.Context)(annottees: x.Tree*): x.Tree = {
     new {
-      val c: x.type = x
+      override val c: x.type = x
     } with CachingAnnotation apply annottees.toList
   }
 }

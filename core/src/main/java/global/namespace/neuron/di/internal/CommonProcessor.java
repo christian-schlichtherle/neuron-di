@@ -18,16 +18,11 @@ package global.namespace.neuron.di.internal;
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Messager;
 import javax.lang.model.element.Element;
-import javax.lang.model.util.Elements;
 
 import static javax.tools.Diagnostic.Kind.ERROR;
 import static javax.tools.Diagnostic.Kind.WARNING;
 
 abstract class CommonProcessor extends AbstractProcessor {
-
-    Elements elements() {
-        return processingEnv.getElementUtils();
-    }
 
     private Messager messager() {
         return processingEnv.getMessager();

@@ -25,7 +25,9 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.*;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
+import javax.lang.model.util.Elements;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import static javax.lang.model.element.Modifier.*;
@@ -81,7 +83,7 @@ public final class CachingProcessor extends CommonProcessor {
 
             boolean check(final Element e) {
                 if (visited.add(e)) {
-                    for (final AnnotationMirror m : elements().getAllAnnotationMirrors(e)) {
+                    for (final AnnotationMirror m : getAllAnnotationMirrors(e)) {
                         final DeclaredType t = m.getAnnotationType();
                         if (t.toString().equals(GLOBAL_NAMESPACE_NEURON_DI_JAVA_NEURON) || check(t.asElement())) {
                             return true;
@@ -91,6 +93,14 @@ public final class CachingProcessor extends CommonProcessor {
                 return false;
             }
         }.check(element);
+    }
+
+    private List<? extends AnnotationMirror> getAllAnnotationMirrors(Element e) {
+        return elements().getAllAnnotationMirrors(e);
+    }
+
+    private Elements elements() {
+        return processingEnv.getElementUtils();
     }
 
     private static boolean isVoid(TypeMirror type) {
