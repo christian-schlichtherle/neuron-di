@@ -95,14 +95,14 @@ package object scala {
   }
 
   private[scala] def isCachingAnnotation(c: blackbox.Context)(annotation: c.Tree): Boolean = {
-    isAnnotationType(c)(annotation)(javaCachingAnnotationName/*, scalaCachingAnnotationName*/)
+    isAnnotationType(c)(annotation)(JavaCachingAnnotationName)
   }
 
   private[scala] def isNeuronAnnotation(c: blackbox.Context)(annotation: c.Tree): Boolean = {
-    isAnnotationType(c)(annotation)(javaNeuronAnnotationName/*, scalaNeuronAnnotationName*/)
+    isAnnotationType(c)(annotation)(JavaNeuronAnnotationName)
   }
 
-  private[this] def isAnnotationType(c: blackbox.Context)(where: c.Tree)(what: String*): Boolean = {
+  private[this] def isAnnotationType(c: blackbox.Context)(where: c.Tree)(what: String): Boolean = {
 
     import c.universe._
 
@@ -110,7 +110,7 @@ package object scala {
 
     def _isAnnotation(annotation: Tree): Boolean = {
       val tpe = c.typecheck(tree = annotation, mode = c.TYPEmode, silent = true).tpe
-      (what contains tpe.toString) || _hasAnnotation(tpe.typeSymbol)
+      what == tpe.toString || _hasAnnotation(tpe.typeSymbol)
     }
 
     def _hasAnnotation(symbol: Symbol): Boolean = {
@@ -120,8 +120,6 @@ package object scala {
     _isAnnotation(where)
   }
 
-  private[scala] val javaCachingAnnotationName = classOf[global.namespace.neuron.di.java.Caching].getName
-  private[scala] val javaNeuronAnnotationName = classOf[global.namespace.neuron.di.java.Neuron].getName
-  private[scala] val scalaCachingAnnotationName = classOf[global.namespace.neuron.di.scala.Caching].getName
-  private[scala] val scalaNeuronAnnotationName = classOf[global.namespace.neuron.di.scala.Neuron].getName
+  private[this] val JavaCachingAnnotationName = classOf[global.namespace.neuron.di.java.Caching].getName
+  private[this] val JavaNeuronAnnotationName = classOf[global.namespace.neuron.di.java.Neuron].getName
 }
