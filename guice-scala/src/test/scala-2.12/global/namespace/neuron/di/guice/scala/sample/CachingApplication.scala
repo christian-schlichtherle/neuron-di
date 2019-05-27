@@ -13,15 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package global.namespace.neuron.di.guice.scala.sample;
+package global.namespace.neuron.di.guice.scala.sample
 
+// TODO: Consider adding support for this feature with Scala 2.11!
 @ThreadSafeCachingNeuron
-public interface CachingApplication {
+trait CachingApplication {
 
-    Object threadSafeCachedObject();
+  def threadSafeCachedObject: AnyRef
 
-    @ThreadLocalCaching
-    default Object threadLocalCachedObject() {
-        return new Object();
-    }
+  @ThreadLocalCaching
+  def threadLocalCachedObject: AnyRef = new AnyRef
 }
