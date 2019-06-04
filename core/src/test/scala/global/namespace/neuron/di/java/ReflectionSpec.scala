@@ -38,7 +38,7 @@ class ReflectionSpec extends WordSpec {
       val a = new A { }
 
       "find `a`" in {
-        find("a").in(a).as[A] should be theSameInstanceAs a
+        find("a").apply(a).as[A] should be theSameInstanceAs a
       }
     }
 
@@ -46,19 +46,19 @@ class ReflectionSpec extends WordSpec {
       val hasPrivateMembers = new HasPrivateMembers { }
 
       "find `method`" in {
-        find("method").in(hasPrivateMembers).as[Int] shouldBe 1
+        find("method").apply(hasPrivateMembers).as[Int] shouldBe 1
       }
 
       "find `staticMethod`" in {
-        find("staticMethod").in(hasPrivateMembers).as[Long] shouldBe 2L
+        find("staticMethod").apply(hasPrivateMembers).as[Long] shouldBe 2L
       }
 
       "find `field`" in {
-        find("field").in(hasPrivateMembers).as[Boolean] shouldBe true
+        find("field").apply(hasPrivateMembers).as[Boolean] shouldBe true
       }
 
       "find `staticField`" in {
-        find("staticField").in(hasPrivateMembers).as[Char] shouldBe '?'
+        find("staticField").apply(hasPrivateMembers).as[Char] shouldBe '?'
       }
     }
   }

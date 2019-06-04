@@ -36,69 +36,59 @@ class Reflection {
     private Reflection() {
     }
 
-    static Find find(final String member) {
-        return new Find() {
+    static Function<Object, Optional<MethodHandle>> find(final String member) {
+        return target -> new Function<Class<?>, Optional<MethodHandle>>() {
 
             final Set<Class<?>> interfaces = new HashSet<>();
 
             @Override
-            public Optional<MethodHandle> in(final Object target) {
-                return new Function<Class<?>, Optional<MethodHandle>>() {
-                    @Override
-                    public Optional<MethodHandle> apply(final Class<?> c) {
-                        final MethodHandles.Lookup lookup = publicLookup();
-                        try {
-                            return methodHandle(c.getDeclaredMethod(member), lookup::unreflect);
-                        } catch (final NoSuchMethodException ignored) {
-                            try {
-                                return methodHandle(c.getDeclaredField(member), lookup::unreflectGetter);
-                            } catch (final NoSuchFieldException ignoredAgain) {
-                                Optional<MethodHandle> result;
-                                for (final Class<?> iface : c.getInterfaces()) {
-                                    if (!interfaces.contains(iface)) {
-                                        if ((result = apply(iface)).isPresent()) {
-                                            return result;
-                                        }
-                                        interfaces.add(iface);
-                                    }
+            public Optional<MethodHandle> apply(final Class<?> c) {
+                final MethodHandles.Lookup lookup = publicLookup();
+                try {
+                    return methodHandle(c.getDeclaredMethod(member), lookup::unreflect);
+                } catch (final NoSuchMethodException ignored) {
+                    try {
+                        return methodHandle(c.getDeclaredField(member), lookup::unreflectGetter);
+                    } catch (final NoSuchFieldException ignoredAgain) {
+                        Optional<MethodHandle> result;
+                        for (final Class<?> iface : c.getInterfaces()) {
+                            if (!interfaces.contains(iface)) {
+                                if ((result = apply(iface)).isPresent()) {
+                                    return result;
                                 }
-                                final Class<?> zuper = c.getSuperclass();
-                                if (null != zuper) {
-                                    if ((result = apply(zuper)).isPresent()) {
-                                        return result;
-                                    }
-                                }
-                                return Optional.empty();
+                                interfaces.add(iface);
                             }
                         }
-                    }
-
-                    <M extends AccessibleObject & Member>
-                    Optional<MethodHandle> methodHandle(M member, Unreflect<M> unreflect) {
-                        member.setAccessible(true);
-                        MethodHandle mh;
-                        try {
-                            mh = unreflect.apply(member);
-                        } catch (IllegalAccessException e) {
-                            throw new AssertionError(e);
+                        final Class<?> zuper = c.getSuperclass();
+                        if (null != zuper) {
+                            if ((result = apply(zuper)).isPresent()) {
+                                return result;
+                            }
                         }
-                        if (0 == (member.getModifiers() & Modifier.STATIC)) {
-                            mh = mh.bindTo(target);
-                        }
-                        return Optional.of(mh.asType(objectMethodType));
+                        return Optional.empty();
                     }
-                }.apply(target.getClass());
+                }
             }
-        };
+
+            <M extends AccessibleObject & Member>
+            Optional<MethodHandle> methodHandle(M member, Unreflect<M> unreflect) {
+                member.setAccessible(true);
+                MethodHandle mh;
+                try {
+                    mh = unreflect.apply(member);
+                } catch (IllegalAccessException e) {
+                    throw new AssertionError(e);
+                }
+                if (0 == (member.getModifiers() & Modifier.STATIC)) {
+                    mh = mh.bindTo(target);
+                }
+                return Optional.of(mh.asType(objectMethodType));
+            }
+        }.apply(target.getClass());
     }
 
     private interface Unreflect<M> {
 
         MethodHandle apply(M member) throws IllegalAccessException;
-    }
-
-    interface Find {
-
-        Optional<MethodHandle> in(Object target);
     }
 }
