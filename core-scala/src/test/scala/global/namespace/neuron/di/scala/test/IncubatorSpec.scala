@@ -341,7 +341,7 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
 
       Given("a neuron interface with a greeting method")
       When("breeding an instance with a binding for this method")
-      Then("the bound expression should override the method body")
+      Then("the bind expression should override the method body")
 
       val neuron = Incubator
         .wire[Greeting]
