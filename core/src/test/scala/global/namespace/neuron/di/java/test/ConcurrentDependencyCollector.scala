@@ -15,12 +15,14 @@
  */
 package global.namespace.neuron.di.java.test
 
-import java.util.concurrent.{CyclicBarrier, TimeUnit}
+import java.util.concurrent.{CyclicBarrier, ForkJoinPool, TimeUnit}
 
 import global.namespace.neuron.di.java.sample.HasDependency
-import global.namespace.neuron.di.java.test.ParallelSugar._
+
+import scala.collection.parallel.CollectionConverters._
 import org.scalatest.concurrent.PatienceConfiguration
 
+import scala.collection.parallel.ForkJoinTaskSupport
 import scala.util.control.NonFatal
 
 private class ConcurrentDependencyCollector extends PatienceConfiguration {
@@ -37,7 +39,9 @@ private class ConcurrentDependencyCollector extends PatienceConfiguration {
 
   def dependenciesOf[T](neuron: HasDependency[T]): Set[T] = {
     val barrier: CyclicBarrier = new CyclicBarrier(numThreads)
-    Range(0, numThreads).toSet.parallel(numThreads).flatMap { _ =>
+    val threads = Range(0, numThreads).toSet.par
+    threads.tasksupport = new ForkJoinTaskSupport(new ForkJoinPool(numThreads))
+    threads.flatMap { _ =>
       Range(0, numInjectionsPerThread).toSet.map { _: Int =>
         try {
           barrier.await(patienceConfig.timeout.toNanos, TimeUnit.NANOSECONDS)

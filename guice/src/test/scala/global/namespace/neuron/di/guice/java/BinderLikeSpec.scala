@@ -89,25 +89,25 @@ class BinderLikeSpec extends WordSpec {
     }
   }
 
-  private def testBindNeuronUsingClass[A](implicit classTag: ClassTag[A]) {
+  private def testBindNeuronUsingClass[A](implicit classTag: ClassTag[A]): Unit = {
     testBindNeuron[A] {
       binderLike bindNeuron runtimeClassOf[A]
     }
   }
 
-  private def testBindNeuronUsingTypeLiteral[A](implicit classTag: ClassTag[A]) {
+  private def testBindNeuronUsingTypeLiteral[A](implicit classTag: ClassTag[A]): Unit = {
     testBindNeuron[A] {
       binderLike bindNeuron (TypeLiteral get runtimeClassOf[A])
     }
   }
 
-  private def testBindNeuronUsingKey[A](implicit classTag: ClassTag[A]) {
+  private def testBindNeuronUsingKey[A](implicit classTag: ClassTag[A]): Unit = {
     testBindNeuron[A] {
       binderLike bindNeuron (Key get runtimeClassOf[A])
     }
   }
 
-  private def testBindNeuron[A: ClassTag](bindingCall: => ScopedBindingBuilder) {
+  private def testBindNeuron[A: ClassTag](bindingCall: => ScopedBindingBuilder): Unit = {
     val injectorProvider = mock[Provider[Injector]]
     val injector = mock[Injector]
 
@@ -143,25 +143,25 @@ class BinderLikeSpec extends WordSpec {
     neuronProvider.typeLiteral shouldBe typeLiteral
   }
 
-  private def testBindNeuronsUsingClasses(classes: Class[_]*) {
+  private def testBindNeuronsUsingClasses(classes: Class[_]*): Unit = {
     testBindNeurons(classes: _*) {
       binderLike.bindNeurons(classes.head, classes.tail: _*)
     }
   }
 
-  private def testBindNeuronsUsingTypeLiterals(classes: Class[_]*) {
+  private def testBindNeuronsUsingTypeLiterals(classes: Class[_]*): Unit = {
     testBindNeurons(classes: _*) {
       binderLike.bindNeurons(TypeLiteral get classes.head, classes.tail.map(TypeLiteral get _): _*)
     }
   }
 
-  private def testBindNeuronsUsingKeys(classes: Class[_]*) {
+  private def testBindNeuronsUsingKeys(classes: Class[_]*): Unit = {
     testBindNeurons(classes: _*) {
       binderLike.bindNeurons(Key get classes.head, classes.tail.map(Key get _): _*)
     }
   }
 
-  private def testBindNeurons(classes: Class[_]*)(bindingCall: => Unit) {
+  private def testBindNeurons(classes: Class[_]*)(bindingCall: => Unit): Unit = {
     val injectorProvider = mock[Provider[Injector]]
     val injector = mock[Injector]
 
@@ -182,7 +182,7 @@ class BinderLikeSpec extends WordSpec {
       (clazz, builder, membersInjector)
     }
 
-    def verification[A](clazz: Class[A], builder: AnnotatedBindingBuilder[A], membersInjector: MembersInjector[A]) {
+    def verification[A](clazz: Class[A], builder: AnnotatedBindingBuilder[A], membersInjector: MembersInjector[A]): Unit = {
       val typeLiteral = TypeLiteral get clazz
       val neuronProviderCaptor = ArgumentCaptor forClass classOf[NeuronProvider[A]]
       verify(builder) toProvider neuronProviderCaptor.capture

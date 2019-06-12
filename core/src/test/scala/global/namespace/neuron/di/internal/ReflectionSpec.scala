@@ -19,7 +19,7 @@ import global.namespace.neuron.di.java.sample.Baz
 import org.scalatest.Matchers._
 import org.scalatest.WordSpec
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 class ReflectionSpec extends WordSpec {
 

@@ -48,6 +48,12 @@ lazy val core = project
       JUnitInterface % Test,
       ScalaTest % Test
     ),
+    libraryDependencies ++= {
+      CrossVersion.partialVersion(scalaVersion.value) match {
+        case Some((2, major)) if major >= 13 => Seq(ScalaParallelCollections % Test)
+        case _ => Seq.empty
+      }
+    },
     name := "Neuron DI for Java",
     normalizedName := "neuron-di"
   )

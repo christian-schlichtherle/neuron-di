@@ -69,7 +69,7 @@ private object NeuronProviderSpec {
 
   object noOpMembersInjector extends MembersInjector[NeuronWithQualifiedSynapses] {
 
-    def injectMembers(instance: NeuronWithQualifiedSynapses) {}
+    def injectMembers(instance: NeuronWithQualifiedSynapses): Unit = {}
   }
 
 }

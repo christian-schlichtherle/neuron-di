@@ -79,7 +79,7 @@ object BuildSettings {
           }
         )
       },
-      scalaVersion := ScalaVersion_2_12, // set here or otherwise `+publishSigned` will fail
+      scalaVersion := ScalaVersion_2_13, // set here or otherwise `+publishSigned` will fail
       scmInfo := Some(ScmInfo(
         browseUrl = url("https://github.com/christian-schlichtherle/neuron-di"),
         connection = "scm:git:git@github.com/christian-schlichtherle/neuron-di.git",
@@ -113,8 +113,8 @@ object BuildSettings {
       javacOptions in doc := DefaultOptions.javac ++ Seq("-source", "1.8"),
       scalacOptions := DefaultOptions.scalac ++ Seq(Opts.compile.deprecation, "-feature", Opts.compile.unchecked, "-target:jvm-1.8"),
       scalacOptions ++= {
-        scalaVersion.value match {
-          case ScalaVersion_2_13 => Seq("-Ymacro-annotations")
+        CrossVersion.partialVersion(scalaVersion.value) match {
+          case Some((2, major)) if major >= 13 => Seq("-Ymacro-annotations")
           case _ => Seq.empty
         }
       }
@@ -131,8 +131,8 @@ object BuildSettings {
   def scalaLibrarySettings: Seq[Setting[_]] = {
     librarySettings ++ Seq(
       libraryDependencies ++= {
-        scalaVersion.value match {
-          case ScalaVersion_2_13 => Seq.empty
+        CrossVersion.partialVersion(scalaVersion.value) match {
+          case Some((2, major)) if major >= 13 => Seq.empty
           case _ => Seq(compilerPlugin(MacroParadise))
         }
       },

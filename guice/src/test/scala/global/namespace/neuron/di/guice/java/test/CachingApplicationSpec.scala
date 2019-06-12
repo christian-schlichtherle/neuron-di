@@ -58,12 +58,12 @@ class CachingApplicationSpec extends WordSpec {
     }
   }
 
-  private def run(f: => Any) {
+  private def run(f: => Any): Unit = {
     new Thread() {
 
       var t: Option[Throwable] = None
 
-      override def run() {
+      override def run(): Unit = {
         try {
           f
         } catch {
@@ -71,11 +71,11 @@ class CachingApplicationSpec extends WordSpec {
         }
       }
 
-      def check() {
+      def check(): Unit = {
         start()
         join()
         t foreach (throw _)
       }
-    } check ()
+    }.check()
   }
 }
