@@ -117,7 +117,7 @@ package object scala {
 
     def builder: ScopedBindingBuilder
 
-    def inScope[A <: Annotation](implicit ct: ClassTag[A]) {
+    def inScope[A <: Annotation](implicit ct: ClassTag[A]): Unit = {
       builder in runtimeClassOf(ct)
     }
   }

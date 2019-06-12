@@ -111,7 +111,13 @@ object BuildSettings {
       compileOrder := CompileOrder.JavaThenScala,
       javacOptions := DefaultOptions.javac ++ Seq(Opts.compile.deprecation, "-Xlint", "-source", "1.8", "-target", "1.8", "-g"),
       javacOptions in doc := DefaultOptions.javac ++ Seq("-source", "1.8"),
-      scalacOptions := DefaultOptions.scalac ++ Seq(Opts.compile.deprecation, "-feature", Opts.compile.unchecked, "-target:jvm-1.8")
+      scalacOptions := DefaultOptions.scalac ++ Seq(Opts.compile.deprecation, "-feature", Opts.compile.unchecked, "-target:jvm-1.8"),
+      scalacOptions ++= {
+        scalaVersion.value match {
+          case ScalaVersion_2_13 => Seq("-Ymacro-annotations")
+          case _ => Seq.empty
+        }
+      }
     )
   }
 
@@ -124,8 +130,13 @@ object BuildSettings {
 
   def scalaLibrarySettings: Seq[Setting[_]] = {
     librarySettings ++ Seq(
-      addCompilerPlugin(MacroParadise),
-      crossScalaVersions := Seq(ScalaVersion_2_11, ScalaVersion_2_12)
+      libraryDependencies ++= {
+        scalaVersion.value match {
+          case ScalaVersion_2_13 => Seq.empty
+          case _ => Seq(compilerPlugin(MacroParadise))
+        }
+      },
+      crossScalaVersions := Seq(ScalaVersion_2_11, ScalaVersion_2_12, ScalaVersion_2_13)
     )
   }
 }

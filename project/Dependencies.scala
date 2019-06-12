@@ -41,4 +41,5 @@ object Dependencies {
 
   val ScalaVersion_2_11: String = sys.env.getOrElse("SCALA_VERSION_2_11", "2.11.12")
   val ScalaVersion_2_12: String = sys.env.getOrElse("SCALA_VERSION_2_12", "2.12.8")
+  val ScalaVersion_2_13: String = sys.env.getOrElse("SCALA_VERSION_2_13", "2.13.0")
 }

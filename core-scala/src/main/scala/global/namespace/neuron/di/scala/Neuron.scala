@@ -146,7 +146,7 @@ private object Neuron {
 
     if (isNeuronType) {
       var tree = q"_root_.global.namespace.neuron.di.scala.Incubator.wire[$targetType]"
-      tree = (tree /: (methodInfos map (new SynapseBinding(_).bind))) {
+      tree = (methodInfos map (new SynapseBinding(_).bind)).foldLeft(tree) {
         case (prefix, q"bind($methodRef).to($dependency)") => q"$prefix.bind($methodRef).to($dependency)"
       }
       q"$tree.breed"

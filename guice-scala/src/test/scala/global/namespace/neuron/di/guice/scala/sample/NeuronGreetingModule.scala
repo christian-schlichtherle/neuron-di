@@ -41,7 +41,7 @@ trait NeuronFormatter extends Formatter {
 
 class NeuronGreetingModule extends NeuronModule {
 
-  override def configure() {
+  override def configure(): Unit = {
     bindClass[Greeting].toNeuronClass[NeuronGreeting].inScope[Singleton]
     bindClass[Formatter].toNeuronClass[NeuronFormatter]
     bindConstantNamed("format").to("Hello %s!")

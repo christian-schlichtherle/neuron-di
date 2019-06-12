@@ -425,7 +425,7 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
 
 private object IncubatorSpec {
 
-  case class methodsOf[T <: AnyRef](implicit tag: ClassTag[T]) {
+  case class methodsOf[T <: AnyRef]()(implicit tag: ClassTag[T]) {
 
     private var methods = List.empty[Method]
 
@@ -436,7 +436,7 @@ private object IncubatorSpec {
 
     lazy val names: List[String] = methods.reverse.map(_.getName)
 
-    def shouldHaveNames(names: String*) { names shouldBe names }
+    def shouldHaveNames(names: String*): Unit = { names shouldBe names }
   }
 
   @Neuron

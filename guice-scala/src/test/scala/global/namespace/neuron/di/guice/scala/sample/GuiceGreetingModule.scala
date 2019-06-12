@@ -31,7 +31,7 @@ class GuiceFormatter @Inject() (@Named("format") format: String) extends Formatt
 
 class GuiceGreetingModule extends AbstractModule {
 
-  override def configure() {
+  override def configure(): Unit = {
     bind(classOf[Greeting]).to(classOf[GuiceGreeting]).in(classOf[Singleton])
     bind(classOf[Formatter]).to(classOf[GuiceFormatter])
     bindConstant.annotatedWith(Names.named("format")).to("Hello %s!")

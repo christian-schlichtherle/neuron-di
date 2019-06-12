@@ -34,7 +34,7 @@ class BarImpl @Inject() (@Named("impl") val foo: Foo) extends Bar
 
 class FooBarModule extends NeuronModule {
 
-  override def configure() {
+  override def configure(): Unit = {
     bindConstantNamed("one").to(1)
     bindClass[Foo]
       .named("impl")
