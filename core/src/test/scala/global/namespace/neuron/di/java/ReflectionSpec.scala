@@ -27,18 +27,15 @@ class ReflectionSpec extends WordSpec {
 
   implicit class WithOptionalMethodHandle(omh: Optional[MethodHandle]) {
 
-    def as[A]: A = omh
-      .get
-      .invokeWithArguments() // workaround for Scala 2.11.[0,4], otherwise it should be `invokeExact()`
-      .asInstanceOf[A]
+    def as[A]: A = omh.get.invokeExact().asInstanceOf[A]
   }
 
-  "Reflection.find(...).in(...)" when {
+  "Reflection.find(...)(...)" when {
     "looking up members in a subclass of `A`" should {
       val a = new A { }
 
       "find `a`" in {
-        find("a").apply(a).as[A] should be theSameInstanceAs a
+        find("a")(a).as[A] should be theSameInstanceAs a
       }
     }
 
@@ -46,19 +43,19 @@ class ReflectionSpec extends WordSpec {
       val hasPrivateMembers = new HasPrivateMembers { }
 
       "find `method`" in {
-        find("method").apply(hasPrivateMembers).as[Int] shouldBe 1
+        find("method")(hasPrivateMembers).as[Int] shouldBe 1
       }
 
       "find `staticMethod`" in {
-        find("staticMethod").apply(hasPrivateMembers).as[Long] shouldBe 2L
+        find("staticMethod")(hasPrivateMembers).as[Long] shouldBe 2L
       }
 
       "find `field`" in {
-        find("field").apply(hasPrivateMembers).as[Boolean] shouldBe true
+        find("field")(hasPrivateMembers).as[Boolean] shouldBe true
       }
 
       "find `staticField`" in {
-        find("staticField").apply(hasPrivateMembers).as[Char] shouldBe '?'
+        find("staticField")(hasPrivateMembers).as[Char] shouldBe '?'
       }
     }
   }

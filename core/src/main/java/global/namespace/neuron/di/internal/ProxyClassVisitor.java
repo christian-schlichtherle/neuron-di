@@ -197,7 +197,7 @@ final class ProxyClassVisitor extends ClassVisitor {
                 }
 
                 void generateProxyCallMethod() {
-                    final MethodVisitor mv = beginMethod(name);
+                    final MethodVisitor mv = beginMethod();
                     mv.visitFieldInsn(GETFIELD, proxyName, name + PROVIDER, dependencyProviderDesc);
                     mv.visitMethodInsn(INVOKEINTERFACE, dependencyProviderName, "get", ACCEPTS_NOTHING_AND_RETURNS_OBJECT_DESC, true);
                     if (!boxedReturnType.isAssignableFrom(Object.class)) {
@@ -215,7 +215,7 @@ final class ProxyClassVisitor extends ClassVisitor {
                     endMethod(mv);
                 }
 
-                MethodVisitor beginMethod(final String name) {
+                MethodVisitor beginMethod() {
                     final MethodVisitor mv = cv.visitMethod(access, name, desc, null, null);
                     mv.visitCode();
                     mv.visitVarInsn(ALOAD, 0);
