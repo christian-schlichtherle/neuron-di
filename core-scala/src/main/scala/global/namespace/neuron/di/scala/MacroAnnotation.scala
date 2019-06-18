@@ -41,7 +41,7 @@ private trait MacroAnnotation {
   lazy val newNeuronAnnotationTerm =
     q"new _root_.global.namespace.neuron.di.java.Neuron"
 
-  // Matching Scala 2.11.12 and 2.12.8:
+  // Matching Scala 2.11.12, 2.12.8 and 2.13.0:
   private lazy val allFlags = Set(
     ABSOVERRIDE,
     ABSTRACT,
