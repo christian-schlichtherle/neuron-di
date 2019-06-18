@@ -72,8 +72,8 @@ private trait NeuronAnnotation extends MacroAnnotation {
           }
           ClassDef(mods.mapAnnotations(shim ::: neuron :: _), tname, tparams, applyCachingAnnotation(impl)) :: {
             if (needsShim) {
-              val shimMods = Modifiers(flags &~ (TRAIT | DEFAULTPARAM) | ABSTRACT | SYNTHETIC, privateWithin, neuron :: annotations)
-              val shimDef = q"$shimMods class $$shim extends $tname"
+              val shimMods = Modifiers(flags &~ (DEFAULTPARAM | TRAIT) | ABSTRACT | SYNTHETIC, privateWithin, neuron :: annotations)
+              val shimDef = q"$shimMods class $$shim[..$tparams] extends $tname[..${tparams.map(_.name)}]"
               rest match {
                 case ModuleDef(moduleMods, moduleName, Template(parents, self, body)) :: moduleRest =>
                   ModuleDef(moduleMods, moduleName, Template(parents, self, shimDef :: body)) :: moduleRest
