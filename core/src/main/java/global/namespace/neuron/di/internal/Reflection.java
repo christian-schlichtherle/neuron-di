@@ -33,9 +33,6 @@ import static org.objectweb.asm.Type.getMethodDescriptor;
 
 class Reflection {
 
-    // VOLATILE methods are bridge methods, e.g. for use in generic classes.
-    private static final int PRIVATE_STATIC_VOLATILE = PRIVATE | STATIC | VOLATILE;
-
     private static final MethodHandles.Lookup lookup = lookup();
 
     private Reflection() {
@@ -82,17 +79,30 @@ class Reflection {
     }
 
     static Collection<Method> overridableMethods(final Class<?> clazz) {
+        final Collection<Method> methods = overridableMethodsMap(clazz).values();
+        // VOLATILE methods are bridge methods inserted by the compiler, e.g. when inheriting from a generic superclass
+        // and specifying its type parameter in the subclass.
+        methods.removeIf(method -> 0 != (method.getModifiers() & (FINAL | VOLATILE)));
+        return methods;
+    }
+
+    private static Map<String, Method> overridableMethodsMap(final Class<?> clazz) {
         final Map<String, Method> methods = new LinkedHashMap<>();
         traverse(c -> {
             for (final Method method : c.getDeclaredMethods()) {
-                if (0 == (method.getModifiers() & PRIVATE_STATIC_VOLATILE)) {
-                    methods.putIfAbsent(signature(method), method);
+                if (0 == (method.getModifiers() & (PRIVATE | STATIC))) {
+                    methods.merge(signature(method), method, Reflection::select);
                 }
             }
         }).accept(clazz);
-        final Collection<Method> values = methods.values();
-        values.removeIf(method -> 0 != (method.getModifiers() & FINAL));
-        return values;
+        return methods;
+    }
+
+    private static Method select(Method old, Method noo) {
+        return old.getDeclaringClass().isAssignableFrom(noo.getDeclaringClass()) &&
+                old.getReturnType().isAssignableFrom(noo.getReturnType())
+                ? noo
+                : old;
     }
 
     /**
@@ -123,11 +133,7 @@ class Reflection {
     }
 
     private static String signature(Method method) {
-        return method.getName() + methodDescriptorWithoutReturnType(method);
-    }
-
-    private static String methodDescriptorWithoutReturnType(Method method) {
-        return getMethodDescriptor(method).replaceAll("\\).*", ")");
+        return method.getName() + getMethodDescriptor(method).replaceAll("\\).*", ")");
     }
 
     static <T extends Annotation> Function<AnnotatedElement, Optional<T>> findAnnotation(Class<T> what) {
