@@ -260,8 +260,9 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
         .bind(_.index).to(1)
         .breed
       neuron.nextIndex shouldBe 2
-      // The @Shim annotation is not inherited by the proxy class, but we can sniff its trace in the class name.
-      neuron.getClass.getName should include("$$shim")
+      val proxyClass = neuron.getClass
+      val shimClass: Class[_] = proxyClass.getSuperclass
+      shimClass.getSimpleName shouldBe "$shim"
     }
   }
 
