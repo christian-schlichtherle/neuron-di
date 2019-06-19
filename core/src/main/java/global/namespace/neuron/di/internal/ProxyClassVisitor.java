@@ -39,8 +39,6 @@ final class ProxyClassVisitor extends ClassVisitor {
     private static final String OBJECT_DESC = "Ljava/lang/Object;";
     private static final String ACCEPTS_NOTHING_AND_RETURNS_OBJECT_DESC = "()" + OBJECT_DESC;
 
-    static final String PROVIDER = "$provider";
-
     private static final Type acceptsNothingAndReturnsObjectType = getType(ACCEPTS_NOTHING_AND_RETURNS_OBJECT_DESC);
     private static final String dependencyProviderName = getInternalName(DependencyProvider.class);
     private static final String dependencyProviderDesc = getDescriptor(DependencyProvider.class);
@@ -150,7 +148,7 @@ final class ProxyClassVisitor extends ClassVisitor {
                 final Class<?> declaringClass = method.getDeclaringClass();
                 final boolean isInterface = declaringClass.isInterface();
                 final String owner = getInternalName(declaringClass);
-                final String name = method.getName();
+                final String methodName = method.getName();
                 final String desc = getMethodDescriptor(method);
                 mv.visitVarInsn(ALOAD, 0);
                 mv.visitVarInsn(ALOAD, 0);
@@ -158,9 +156,9 @@ final class ProxyClassVisitor extends ClassVisitor {
                         "(" + proxyDesc + ")" + dependencyProviderDesc,
                         metaFactoryHandle,
                         acceptsNothingAndReturnsObjectType,
-                        new Handle(H_INVOKESPECIAL, owner, name, desc, isInterface),
+                        new Handle(H_INVOKESPECIAL, owner, methodName, desc, isInterface),
                         acceptsNothingAndReturnsObjectType);
-                mv.visitFieldInsn(PUTFIELD, proxyName, name + PROVIDER, dependencyProviderDesc);
+                mv.visitFieldInsn(PUTFIELD, proxyName, proxyFieldName(method), dependencyProviderDesc);
             }
         }
         mv.visitInsn(RETURN);
@@ -173,7 +171,8 @@ final class ProxyClassVisitor extends ClassVisitor {
             new Object() {
 
                 final int access = method.getModifiers() & ~ACC_ABSTRACT_NATIVE | ACC_SYNTHETIC;
-                final String name = method.getName();
+                final String methodName = method.getName();
+                final String fieldName = proxyFieldName(method);
                 final String desc = getMethodDescriptor(method);
 
                 final Class<?> returnType = method.getReturnType();
@@ -192,13 +191,13 @@ final class ProxyClassVisitor extends ClassVisitor {
                 }
 
                 void generateProxyField() {
-                    cv.visitField(ACC_PRIVATE_SYNTHETIC, name + PROVIDER, dependencyProviderDesc, null, null)
+                    cv.visitField(ACC_PRIVATE_SYNTHETIC, fieldName, dependencyProviderDesc, null, null)
                             .visitEnd();
                 }
 
                 void generateProxyCallMethod() {
                     final MethodVisitor mv = beginMethod();
-                    mv.visitFieldInsn(GETFIELD, proxyName, name + PROVIDER, dependencyProviderDesc);
+                    mv.visitFieldInsn(GETFIELD, proxyName, fieldName, dependencyProviderDesc);
                     mv.visitMethodInsn(INVOKEINTERFACE, dependencyProviderName, "get", ACCEPTS_NOTHING_AND_RETURNS_OBJECT_DESC, true);
                     if (!boxedReturnType.isAssignableFrom(Object.class)) {
                         mv.visitTypeInsn(CHECKCAST,
@@ -216,7 +215,7 @@ final class ProxyClassVisitor extends ClassVisitor {
                 }
 
                 MethodVisitor beginMethod() {
-                    final MethodVisitor mv = cv.visitMethod(access, name, desc, null, null);
+                    final MethodVisitor mv = cv.visitMethod(access, methodName, desc, null, null);
                     mv.visitCode();
                     mv.visitVarInsn(ALOAD, 0);
                     return mv;
@@ -229,6 +228,10 @@ final class ProxyClassVisitor extends ClassVisitor {
                 }
             };
         }
+    }
+
+    private static String proxyFieldName(Method method) {
+        return ((MethodInfo) () -> method).proxyFieldName();
     }
 
     private static int returnOpCode(final Method method) {

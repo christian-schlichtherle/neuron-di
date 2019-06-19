@@ -58,6 +58,13 @@ public interface MethodInfo {
         return method().getName();
     }
 
+    default String proxyFieldName() {
+        // To be unique, both the method name and the return type in some encoded form is required.
+        // See https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.2.2
+        // and https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.5 .
+        return '$' + name() + '$' + returnType().getName().replace('.', '$');
+    }
+
     default Class<?> returnType() {
         return method().getReturnType();
     }

@@ -104,10 +104,10 @@ final class ProxyFactory<C> implements Function<MethodBinding, C> {
 
         MethodHandler(final MethodElement<C> element) {
             this.element = element;
-            final String dependencyProviderName = element.name() + ProxyClassVisitor.PROVIDER;
+            final String fieldName = element.proxyFieldName();
             final MethodHandles.Lookup lookup = publicLookup();
             try {
-                final Field field = proxyClass.getDeclaredField(dependencyProviderName);
+                final Field field = proxyClass.getDeclaredField(fieldName);
                 field.setAccessible(true);
                 this.getter = lookup.unreflectGetter(field).asType(dependencyProviderObjectMethodType);
                 this.setter = lookup.unreflectSetter(field).asType(voidObjectDependencyProviderMethodType);
