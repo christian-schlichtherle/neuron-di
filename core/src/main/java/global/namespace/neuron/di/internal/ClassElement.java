@@ -66,7 +66,7 @@ interface ClassElement<C> extends ClassInfo<C>, Element<C> {
         }
 
         final MethodInfo info = () -> method;
-        final Optional<CachingStrategy> methodCachingStrategy = info.methodCachingStrategy();
+        final Optional<CachingStrategy> declaredCachingStrategy = info.declaredCachingStrategy();
         if (info.isAbstract()) {
             if (info.hasParameters()) {
                 throw new BreedingException("A synapse method must not have parameters: " + method);
@@ -77,7 +77,7 @@ interface ClassElement<C> extends ClassInfo<C>, Element<C> {
             class RealSynapseElement extends Base implements SynapseElement<C> {
 
                 private final CachingStrategy cachingStrategy =
-                        methodCachingStrategy.orElseGet(ClassElement.this::cachingStrategy);
+                        declaredCachingStrategy.orElseGet(ClassElement.this::cachingStrategy);
 
                 @Override
                 public CachingStrategy cachingStrategy() {
@@ -87,7 +87,7 @@ interface ClassElement<C> extends ClassInfo<C>, Element<C> {
 
             return new RealSynapseElement();
         } else {
-            if (methodCachingStrategy.isPresent()) {
+            if (declaredCachingStrategy.isPresent()) {
                 if (info.hasParameters()) {
                     throw new BreedingException("A caching method must not have parameters: " + method);
                 } else if (info.isVoid()) {
@@ -97,7 +97,7 @@ interface ClassElement<C> extends ClassInfo<C>, Element<C> {
 
             class RealMethodElement extends Base implements MethodElement<C> {
 
-                private final CachingStrategy cachingStrategy = methodCachingStrategy.orElse(DISABLED);
+                private final CachingStrategy cachingStrategy = declaredCachingStrategy.orElse(DISABLED);
 
                 @Override
                 public CachingStrategy cachingStrategy() {

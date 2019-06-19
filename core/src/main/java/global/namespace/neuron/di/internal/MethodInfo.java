@@ -50,7 +50,7 @@ public interface MethodInfo {
 
     Method method();
 
-    default Optional<CachingStrategy> methodCachingStrategy() {
+    default Optional<CachingStrategy> declaredCachingStrategy() {
         return findCachingAnnotation().map(Caching::value);
     }
 
