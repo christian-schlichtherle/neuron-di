@@ -24,7 +24,7 @@ import java.lang.reflect.Method;
 import java.util.*;
 import java.util.function.Function;
 
-import static global.namespace.neuron.di.java.Reflection.find;
+import static global.namespace.neuron.di.java.Reflection.findMethodHandle;
 import static java.util.Optional.*;
 
 /**
@@ -150,11 +150,9 @@ public final class Incubator {
                                 throw new BreedingException(
                                         "Partial binding is disabled and no binding is defined for synapse method: " + info.method());
                             } else if (null != delegate) {
-                                final Class<?> delegateClass = delegate.getClass();
                                 final String member = info.name();
-                                final MethodHandle handle = find(delegateClass, member)
-                                        .map(f -> f.apply(delegate))
-                                        .orElseThrow(() -> new BreedingException("Illegal binding: A member named `" + member + "` neither exists in `" + delegateClass + "` nor in any of its superclasses and interfaces."));
+                                final MethodHandle handle = findMethodHandle(delegate, member)
+                                        .orElseThrow(() -> new BreedingException("Illegal binding: A member named `" + member + "` neither exists in `" + delegate.getClass() + "` nor in any of its superclasses and interfaces."));
                                 return of(handle::invokeExact);
                             } else {
                                 return of(() -> Incubator.breed(info.returnType()));

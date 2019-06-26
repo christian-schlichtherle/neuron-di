@@ -41,10 +41,12 @@ final class Reflection {
     private Reflection() {
     }
 
-    static Optional<Function<Object, MethodHandle>> find(Class<?> clazz, String member) {
+    static Optional<MethodHandle> findMethodHandle(final Object object, final String member) {
+        final Class<?> clazz = object.getClass();
         return classIndex
                 .computeIfAbsent(clazz, c -> new ConcurrentHashMap<>())
-                .computeIfAbsent(member, m -> find0(clazz, m));
+                .computeIfAbsent(member, m -> find0(clazz, m))
+                .map(f -> f.apply(object));
     }
 
     private static Optional<Function<Object, MethodHandle>> find0(final Class<?> clazz, final String member) {

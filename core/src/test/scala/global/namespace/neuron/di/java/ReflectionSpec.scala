@@ -17,14 +17,14 @@ package global.namespace.neuron.di.java
 
 import global.namespace.neuron.di.java.sample.{A, HasPrivateMembers}
 import org.scalatest.Matchers._
-import org.scalatest.{Ignore, WordSpec}
+import org.scalatest.WordSpec
 
 import scala.reflect.ClassTag
 
 class ReflectionSpec extends WordSpec {
 
-  "Reflection.find(...)(...)" when {
-    "looking up members in a subclass of `A`" should {
+  "Reflection.findMethodHandle" when {
+    "looking up members in an anonymous subclass of `A`" should {
       val a = new A { }
 
       "find `a`" in {
@@ -32,7 +32,7 @@ class ReflectionSpec extends WordSpec {
       }
     }
 
-    "looking up members in a subclass of `HasPrivateMembers`" should {
+    "looking up members in an anonymous subclass of `HasPrivateMembers`" should {
       val hasPrivateMembers = new HasPrivateMembers { }
 
       "find `method`" in {
@@ -54,6 +54,6 @@ class ReflectionSpec extends WordSpec {
   }
 
   private def find[A : ClassTag](what: String, where: AnyRef): A = {
-    Reflection.find(where.getClass, what).get()(where).invokeExact().asInstanceOf[A]
+    Reflection.findMethodHandle(where, what).get.invokeExact().asInstanceOf[A]
   }
 }
