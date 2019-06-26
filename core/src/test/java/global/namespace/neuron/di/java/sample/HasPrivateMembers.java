@@ -15,6 +15,7 @@
  */
 package global.namespace.neuron.di.java.sample;
 
+@SuppressWarnings("unused")
 public abstract class HasPrivateMembers {
 
     private int method() { return 1; }

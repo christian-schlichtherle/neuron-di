@@ -21,28 +21,39 @@ import java.lang.invoke.MethodType;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Member;
 import java.lang.reflect.Modifier;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
 import static java.lang.invoke.MethodHandles.publicLookup;
 import static java.lang.invoke.MethodType.methodType;
+import static java.util.Optional.empty;
+import static java.util.Optional.of;
 
-class Reflection {
+final class Reflection {
 
-    private static final MethodType objectMethodType = methodType(Object.class);
+    private static final Map<Class<?>, Map<String, Optional<Function<Object, MethodHandle>>>> classIndex =
+            Collections.synchronizedMap(new WeakHashMap<>());
+
+    private static final MethodType acceptsNothingAndReturnsObject = methodType(Object.class);
+    private static final MethodType acceptsObjectAndReturnsObject = methodType(Object.class, Object.class);
 
     private Reflection() {
     }
 
-    static Function<Object, Optional<MethodHandle>> find(final String member) {
-        return target -> new Function<Class<?>, Optional<MethodHandle>>() {
+    static Optional<Function<Object, MethodHandle>> find(Class<?> clazz, String member) {
+        return classIndex
+                .computeIfAbsent(clazz, c -> new ConcurrentHashMap<>())
+                .computeIfAbsent(member, m -> find0(clazz, m));
+    }
+
+    private static Optional<Function<Object, MethodHandle>> find0(final Class<?> clazz, final String member) {
+        return new Function<Class<?>, Optional<Function<Object, MethodHandle>>>() {
 
             final Set<Class<?>> interfaces = new HashSet<>();
 
             @Override
-            public Optional<MethodHandle> apply(final Class<?> c) {
+            public Optional<Function<Object, MethodHandle>> apply(final Class<?> c) {
                 final MethodHandles.Lookup lookup = publicLookup();
                 try {
                     return methodHandle(c.getDeclaredMethod(member), lookup::unreflect);
@@ -50,7 +61,7 @@ class Reflection {
                     try {
                         return methodHandle(c.getDeclaredField(member), lookup::unreflectGetter);
                     } catch (final NoSuchFieldException ignoredAgain) {
-                        Optional<MethodHandle> result;
+                        Optional<Function<Object, MethodHandle>> result;
                         for (final Class<?> iface : c.getInterfaces()) {
                             if (!interfaces.contains(iface)) {
                                 if ((result = apply(iface)).isPresent()) {
@@ -65,26 +76,28 @@ class Reflection {
                                 return result;
                             }
                         }
-                        return Optional.empty();
+                        return empty();
                     }
                 }
             }
 
             <M extends AccessibleObject & Member>
-            Optional<MethodHandle> methodHandle(M member, Unreflect<M> unreflect) {
+            Optional<Function<Object, MethodHandle>> methodHandle(final M member, final Unreflect<M> unreflect) {
                 member.setAccessible(true);
-                MethodHandle mh;
                 try {
-                    mh = unreflect.apply(member);
+                    final MethodHandle mh;
+                    if (0 == (member.getModifiers() & Modifier.STATIC)) {
+                        mh = unreflect.apply(member).asType(acceptsObjectAndReturnsObject);
+                        return of(mh::bindTo);
+                    } else {
+                        mh = unreflect.apply(member).asType(acceptsNothingAndReturnsObject);
+                        return of(ignored -> mh);
+                    }
                 } catch (IllegalAccessException e) {
                     throw new AssertionError(e);
                 }
-                if (0 == (member.getModifiers() & Modifier.STATIC)) {
-                    mh = mh.bindTo(target);
-                }
-                return Optional.of(mh.asType(objectMethodType));
             }
-        }.apply(target.getClass());
+        }.apply(clazz);
     }
 
     private interface Unreflect<M> {
