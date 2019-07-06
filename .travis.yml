@@ -7,13 +7,13 @@ cache:
     - $HOME/.ivy2/cache
     - $HOME/.sbt
 
-dist: xenial
+dist: trusty
 
 env:
   - JDK_VERSION=openjdk8 GUICE_VERSION=3.0
-  - JDK_VERSION=openjdk12 GUICE_VERSION=3.0
+  - JDK_VERSION=openjdk10 GUICE_VERSION=3.0
   - JDK_VERISON=openjdk8 GUICE_VERSION=4.2.2
-  - JDK_VERSION=openjdk12 GUICE_VERSION=4.2.2
+  - JDK_VERSION=openjdk10 GUICE_VERSION=4.2.2
 
 language: scala
 
