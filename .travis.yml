@@ -1,9 +1,11 @@
 before_cache:
+  - find $HOME/.sbt -name "*.lock" | xargs rm
   - find $HOME/.ivy2 -name "ivydata-*.properties" | xargs rm
 
 cache:
   directories:
     - $HOME/.ivy2/cache
+    - $HOME/.sbt
 
 dist: xenial
 
@@ -24,8 +26,9 @@ script:
     --interactive
     --rm
     --tty
-    --volume $PWD:/work
     --volume $HOME/.ivy2:/root/.ivy2
+    --volume $HOME/.sbt:/root/.sbt
+    --volume $PWD:/work
     --workdir /work
     eed3si9n/sbt:sbt1.2.8-jdk11-alpine
     sbt +test:compile
@@ -34,8 +37,9 @@ script:
     --interactive
     --rm
     --tty
-    --volume $PWD:/work
     --volume $HOME/.ivy2:/root/.ivy2
+    --volume $HOME/.sbt:/root/.sbt
+    --volume $PWD:/work
     --workdir /work
     eed3si9n/sbt:$SBT_IMAGE_TAG
     sbt +test
