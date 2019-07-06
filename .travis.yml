@@ -32,7 +32,8 @@ script:
     --workdir /work
     eed3si9n/sbt:sbt1.2.8-jdk11-alpine
     sbt +test:compile
-  - docker run
+    &&
+    docker run
     --env GUICE_VERSION
     --interactive
     --rm
