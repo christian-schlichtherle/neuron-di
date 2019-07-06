@@ -15,7 +15,7 @@ env:
   - SBT_IMAGE_TAG=sbt1.2.8-jdk11-alpine GUICE_VERSION=4.2.2
 
 before_script:
-  - docker run>
+  - docker run
     --env GUICE_VERSION
     --interactive
     --rm
@@ -27,7 +27,7 @@ before_script:
     sbt +test:compile
 
 script:
-  - docker run>
+  - docker run
     --env GUICE_VERSION
     --interactive
     --rm
