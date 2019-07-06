@@ -7,7 +7,7 @@ cache:
     - $HOME/.ivy2/cache
     - $HOME/.sbt
 
-dist: trusty
+dist: xenial
 
 env:
   - JDK_VERSION=openjdk8 GUICE_VERSION=3.0
@@ -17,8 +17,10 @@ env:
 
 language: scala
 
-script:
+before_script:
   - jdk_switcher use openjdk11
   - sbt -jvm-opts travis/jvmopts.compile +test:compile
   - jdk_switcher use $JDK_VERSION
+
+script:
   - sbt -jvm-opts travis/jvmopts.test +test
