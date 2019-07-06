@@ -10,15 +10,15 @@ cache:
 dist: trusty
 
 env:
-  - JDK_VERSION=openjdk8 GUICE_VERSION=3.0
-  - JDK_VERSION=openjdk10 GUICE_VERSION=3.0
-  - JDK_VERISON=openjdk8 GUICE_VERSION=4.2.2
-  - JDK_VERSION=openjdk10 GUICE_VERSION=4.2.2
+  - JDK_VERSION=oraclejdk8  GUICE_VERSION=3.0
+  - JDK_VERSION=oraclejdk11 GUICE_VERSION=3.0
+  - JDK_VERISON=oraclejdk8  GUICE_VERSION=4.2.2
+  - JDK_VERSION=oraclejdk11 GUICE_VERSION=4.2.2
 
 language: scala
 
 before_script:
-  - jdk_switcher use openjdk9
+  - jdk_switcher use oraclejdk9
   - sbt -jvm-opts travis/jvmopts.compile +test:compile
   - jdk_switcher use $JDK_VERSION
 
