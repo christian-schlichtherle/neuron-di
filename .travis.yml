@@ -13,6 +13,8 @@ env:
   - SBT_IMAGE_TAG=sbt1.2.8-jdk8-alpine  GUICE_VERSION=4.2.2
   - SBT_IMAGE_TAG=sbt1.2.8-jdk11-alpine GUICE_VERSION=4.2.2
 
+language: java
+
 services:
   - docker
 
