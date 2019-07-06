@@ -11,9 +11,9 @@ dist: trusty
 
 env:
   - JDK_VERSION=oraclejdk8  GUICE_VERSION=3.0
-  - JDK_VERSION=oraclejdk11 GUICE_VERSION=3.0
+  - JDK_VERSION=openjdk11 GUICE_VERSION=3.0
   - JDK_VERISON=oraclejdk8  GUICE_VERSION=4.2.2
-  - JDK_VERSION=oraclejdk11 GUICE_VERSION=4.2.2
+  - JDK_VERSION=openjdk11 GUICE_VERSION=4.2.2
 
 language: scala
 
