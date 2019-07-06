@@ -10,10 +10,10 @@ function sbt() {
         --volume $HOME/.sbt:/root/.sbt \
         --volume $PWD:/workspace \
         --workdir /workspace \
-        hseeberger/scala-sbt:$1 \
+        christianschlichtherle/scala-sbt:$1 \
         sbt $2
 }
 
 set -ex
-sbt ${1:-11.0.2_2.12.8_1.2.8} +test:compile
-sbt ${2:-8u212_2.12.8_1.2.8} +test
+sbt ${1:-1.2.8-jdk11} +test:compile
+sbt ${2:-1.2.8-jdk8} +test
