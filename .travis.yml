@@ -10,37 +10,15 @@ cache:
 dist: xenial
 
 env:
-  - SBT_IMAGE_TAG=sbt1.2.8-jdk8-alpine  GUICE_VERSION=3.0
-  - SBT_IMAGE_TAG=sbt1.2.8-jdk11-alpine GUICE_VERSION=3.0
-  - SBT_IMAGE_TAG=sbt1.2.8-jdk8-alpine  GUICE_VERSION=4.2.2
-  - SBT_IMAGE_TAG=sbt1.2.8-jdk11-alpine GUICE_VERSION=4.2.2
+  - COMPILE_IMAGE_TAG=11.0.2_2.12.8_1.2.8 TEST_IMAGE_TAG=8u212_2.12.8_1.2.8  GUICE_VERSION=3.0
+  - COMPILE_IMAGE_TAG=11.0.2_2.12.8_1.2.8 TEST_IMAGE_TAG=11.0.2_2.12.8_1.2.8 GUICE_VERSION=3.0
+  - COMPILE_IMAGE_TAG=11.0.2_2.12.8_1.2.8 TEST_IMAGE_TAG=8u212_2.12.8_1.2.8  GUICE_VERSION=4.2.2
+  - COMPILE_IMAGE_TAG=11.0.2_2.12.8_1.2.8 TEST_IMAGE_TAG=11.0.2_2.12.8_1.2.8 GUICE_VERSION=4.2.2
 
-language: java
+language: minimal
 
 services:
   - docker
 
 script:
-  - docker run
-    --env GUICE_VERSION
-    --interactive
-    --rm
-    --tty
-    --volume $HOME/.ivy2:/root/.ivy2
-    --volume $HOME/.sbt:/root/.sbt
-    --volume $PWD:/work
-    --workdir /work
-    eed3si9n/sbt:sbt1.2.8-jdk11-alpine
-    sbt +test:compile
-    &&
-    docker run
-    --env GUICE_VERSION
-    --interactive
-    --rm
-    --tty
-    --volume $HOME/.ivy2:/root/.ivy2
-    --volume $HOME/.sbt:/root/.sbt
-    --volume $PWD:/work
-    --workdir /work
-    eed3si9n/sbt:$SBT_IMAGE_TAG
-    sbt +test
+  - ./docker-build.sh $COMPILE_IMAGE_TAG $TEST_IMAGE_TAG
