@@ -5,8 +5,7 @@ cache:
   directories:
     - $HOME/.ivy2/cache
 
-services:
-  - docker
+dist: xenial
 
 env:
   - SBT_IMAGE_TAG=sbt1.2.8-jdk8-alpine  GUICE_VERSION=3.0
@@ -14,7 +13,10 @@ env:
   - SBT_IMAGE_TAG=sbt1.2.8-jdk8-alpine  GUICE_VERSION=4.2.2
   - SBT_IMAGE_TAG=sbt1.2.8-jdk11-alpine GUICE_VERSION=4.2.2
 
-before_script:
+services:
+  - docker
+
+script:
   - docker run
     --env GUICE_VERSION
     --interactive
@@ -25,8 +27,6 @@ before_script:
     --workdir /work
     eed3si9n/sbt:sbt1.2.8-jdk11-alpine
     sbt +test:compile
-
-script:
   - docker run
     --env GUICE_VERSION
     --interactive
