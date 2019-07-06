@@ -1,31 +1,39 @@
-addons:
-  apt:
-    packages:
-      - openjdk-12-jdk
-
 before_cache:
-  - find $HOME/.sbt -name "*.lock" | xargs rm
   - find $HOME/.ivy2 -name "ivydata-*.properties" | xargs rm
 
 cache:
   directories:
     - $HOME/.ivy2/cache
-    - $HOME/.sbt
 
-dist: trusty
+services:
+  - docker
 
 env:
-  - JDK_VERSION=oraclejdk8     GUICE_VERSION=3.0
-  - JDK_VERSION=openjdk-12-jdk GUICE_VERSION=3.0
-  - JDK_VERISON=oraclejdk8     GUICE_VERSION=4.2.2
-  - JDK_VERSION=openjdk-12-jdk GUICE_VERSION=4.2.2
-
-language: scala
+  - SBT_IMAGE_TAG=sbt1.2.8-jdk8-alpine  GUICE_VERSION=3.0
+  - SBT_IMAGE_TAG=sbt1.2.8-jdk11-alpine GUICE_VERSION=3.0
+  - SBT_IMAGE_TAG=sbt1.2.8-jdk8-alpine  GUICE_VERSION=4.2.2
+  - SBT_IMAGE_TAG=sbt1.2.8-jdk11-alpine GUICE_VERSION=4.2.2
 
 before_script:
-  - jdk_switcher use oraclejdk9
-  - sbt -jvm-opts travis/jvmopts.compile +test:compile
-  - jdk_switcher use $JDK_VERSION
+  - docker run>
+    --env GUICE_VERSION
+    --interactive
+    --rm
+    --tty
+    --volume $PWD:/work
+    --volume $HOME/.ivy2:/root/.ivy2
+    --workdir /work
+    eed3si9n/sbt:sbt1.2.8-jdk11-alpine
+    sbt +test:compile
 
 script:
-  - sbt -jvm-opts travis/jvmopts.test +test
+  - docker run>
+    --env GUICE_VERSION
+    --interactive
+    --rm
+    --tty
+    --volume $PWD:/work
+    --volume $HOME/.ivy2:/root/.ivy2
+    --workdir /work
+    eed3si9n/sbt:$SBT_IMAGE_TAG
+    sbt +test
