@@ -18,7 +18,7 @@ env:
 language: scala
 
 before_script:
-  - jdk_switcher use openjdk11
+  - jdk_switcher use openjdk9
   - sbt -jvm-opts travis/jvmopts.compile +test:compile
   - jdk_switcher use $JDK_VERSION
 
