@@ -1,3 +1,8 @@
+addons:
+  apt:
+    packages:
+      - openjdk-11-jdk
+
 before_cache:
   - find $HOME/.sbt -name "*.lock" | xargs rm
   - find $HOME/.ivy2 -name "ivydata-*.properties" | xargs rm
@@ -10,10 +15,10 @@ cache:
 dist: trusty
 
 env:
-  - JDK_VERSION=oraclejdk8  GUICE_VERSION=3.0
-  - JDK_VERSION=openjdk11 GUICE_VERSION=3.0
-  - JDK_VERISON=oraclejdk8  GUICE_VERSION=4.2.2
-  - JDK_VERSION=openjdk11 GUICE_VERSION=4.2.2
+  - JDK_VERSION=oraclejdk8 GUICE_VERSION=3.0
+  - JDK_VERSION=openjdk11  GUICE_VERSION=3.0
+  - JDK_VERISON=oraclejdk8 GUICE_VERSION=4.2.2
+  - JDK_VERSION=openjdk11  GUICE_VERSION=4.2.2
 
 language: scala
 
