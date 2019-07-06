@@ -7,7 +7,7 @@ cache:
   - $HOME/.ivy2/cache
   - $HOME/.sbt
 
-dist: xenial
+dist: trusty
 
 env:
 - GUICE_VERSION=3.0
