@@ -20,11 +20,17 @@ import global.namespace.neuron.di.internal.MethodInfo;
 import global.namespace.neuron.di.internal.RealIncubator;
 
 import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 
-import static global.namespace.neuron.di.java.Reflection.findMethodHandle;
+import static global.namespace.neuron.di.java.Reflection.methodHandle;
+import static java.lang.invoke.MethodHandles.Lookup;
+import static java.lang.invoke.MethodHandles.publicLookup;
+import static java.util.Objects.requireNonNull;
 import static java.util.Optional.*;
 
 /**
@@ -32,6 +38,8 @@ import static java.util.Optional.*;
  * A neuron type is a class or interface with the {@link Neuron} annotation.
  */
 public final class Incubator {
+
+    private static final Lookup publicLookup = publicLookup();
 
     private Incubator() {
     }
@@ -89,6 +97,8 @@ public final class Incubator {
 
             Object delegate;
 
+            Lookup lookup;
+
             @Override
             public Wire<T> partial(final boolean value) {
                 this.partial = value;
@@ -123,9 +133,16 @@ public final class Incubator {
             }
 
             @Override
-            public T using(final Object delegate) {
+            public T using(Object delegate) {
+                return using(delegate, publicLookup);
+            }
+
+            @Override
+            public T using(final Object delegate, final Lookup lookup) {
+                // HC SVNT DRACONES
+                this.lookup = requireNonNull(lookup);
+                this.delegate = requireNonNull(delegate);
                 partial = true;
-                this.delegate = delegate;
                 return breed();
             }
 
@@ -150,9 +167,9 @@ public final class Incubator {
                                 throw new BreedingException(
                                         "Partial binding is disabled and no binding is defined for synapse method: " + info.method());
                             } else if (null != delegate) {
+                                assert null != lookup;
                                 final String member = info.name();
-                                final MethodHandle handle = findMethodHandle(delegate, member)
-                                        .orElseThrow(() -> new BreedingException("Illegal binding: A member named `" + member + "` neither exists in `" + delegate.getClass() + "` nor in any of its superclasses and interfaces."));
+                                final MethodHandle handle = methodHandle(member, delegate, lookup);
                                 return of(handle::invokeExact);
                             } else {
                                 return of(() -> Incubator.breed(info.returnType()));
@@ -182,10 +199,25 @@ public final class Incubator {
          * Breeds the wired neuron.
          * If the runtime class is not a neuron class or interface, this method simply calls the default constructor.
          * Otherwise, the neuron will forward any calls to unbound synapse methods to the given delegate object.
-         * Note that this feature depends on reflective access to the methods in the delegate object.
-         * The methods will be set accessible.
+         * The delegate object may provide the dependencies as a method or field, even if this member is private or
+         * static.
+         * Matching members will be recursively searched starting with the runtime class of the given delegate object.
+         * The delegate method or field will be {@linkplain Method#setAccessible(boolean) made accessible} and converted
+         * into a method handle using the {@linkplain MethodHandles#publicLookup() public lookup} object.
          */
         T using(Object delegate);
+
+        /**
+         * Breeds the wired neuron.
+         * If the runtime class is not a neuron class or interface, this method simply calls the default constructor.
+         * Otherwise, the neuron will forward any calls to unbound synapse methods to the given delegate object.
+         * The delegate object may provide the dependencies as a method or field, even if this member is private or
+         * static.
+         * Matching members will be recursively searched starting with the runtime class of the given delegate object.
+         * The delegate method or field will be {@linkplain Method#setAccessible(boolean) made accessible} and converted
+         * into a method handle using the given {@link Lookup} object.
+         */
+        T using(Object delegate, Lookup lookup);
 
         /**
          * Breeds the wired neuron.

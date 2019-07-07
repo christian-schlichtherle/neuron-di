@@ -15,6 +15,9 @@
  */
 package global.namespace.neuron.di.java
 
+import java.lang.invoke.MethodHandles.publicLookup
+
+import global.namespace.neuron.di.java.Reflection.methodHandle
 import global.namespace.neuron.di.java.sample.{A, HasPrivateMembers}
 import org.scalatest.Matchers._
 import org.scalatest.WordSpec
@@ -23,37 +26,37 @@ import scala.reflect.ClassTag
 
 class ReflectionSpec extends WordSpec {
 
-  "Reflection.findMethodHandle" when {
+  "Reflection.methodHandle" when {
     "looking up members in an anonymous subclass of `A`" should {
-      val a = new A { }
+      val a = new A {}
 
       "find `a`" in {
-        find[A]("a", a) should be theSameInstanceAs a
+        findAndInvoke[A]("a", a) should be theSameInstanceAs a
       }
     }
 
     "looking up members in an anonymous subclass of `HasPrivateMembers`" should {
-      val hasPrivateMembers = new HasPrivateMembers { }
+      val hasPrivateMembers = new HasPrivateMembers {}
 
       "find `method`" in {
-        find[Int]("method", hasPrivateMembers) shouldBe 1
+        findAndInvoke[Int]("method", hasPrivateMembers) shouldBe 1
       }
 
       "find `staticMethod`" in {
-        find[Long]("staticMethod", hasPrivateMembers) shouldBe 2L
+        findAndInvoke[Long]("staticMethod", hasPrivateMembers) shouldBe 2L
       }
 
       "find `field`" in {
-        find[Boolean]("field", hasPrivateMembers) shouldBe true
+        findAndInvoke[Boolean]("field", hasPrivateMembers) shouldBe true
       }
 
       "find `staticField`" in {
-        find[Char]("staticField", hasPrivateMembers) shouldBe '?'
+        findAndInvoke[Char]("staticField", hasPrivateMembers) shouldBe '?'
       }
     }
   }
 
-  private def find[A : ClassTag](what: String, where: AnyRef): A = {
-    Reflection.findMethodHandle(where, what).get.invokeExact().asInstanceOf[A]
+  private def findAndInvoke[A: ClassTag](what: String, where: AnyRef): A = {
+    methodHandle(what, where, publicLookup()).invokeExact().asInstanceOf[A]
   }
 }
