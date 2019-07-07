@@ -2,3 +2,4 @@
 -J-Xms2G
 -J-Xss6M
 -J--illegal-access=warn
+-J-enableassertions

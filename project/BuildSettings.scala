@@ -96,10 +96,7 @@ object BuildSettings {
   }
 
   def artifactSettings: Seq[Setting[_]] = {
-    commonSettings ++ inConfig(Test)(Seq(
-      fork := true, // triggers `javaOptions`
-      javaOptions += "-ea"
-    )) ++ Seq(
+    commonSettings ++ Seq(
       dependencyOverrides += JUnit,
       testOptions += Tests.Argument(TestFrameworks.JUnit, "-a", "-v")
     )
