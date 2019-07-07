@@ -15,5 +15,5 @@ function sbt() {
 }
 
 set -ex
-sbt ${1:-1.2.8-jdk11} +test:compile
+sbt ${1:-1.2.8-jdk9} +test:compile
 sbt ${2:-1.2.8-jdk8} +test
