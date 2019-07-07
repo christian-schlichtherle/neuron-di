@@ -16,11 +16,10 @@
 package global.namespace.neuron.di.java;
 
 import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles.Lookup;
+import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Member;
-import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -28,9 +27,10 @@ import java.util.function.Function;
 
 import static java.lang.invoke.MethodHandles.publicLookup;
 import static java.lang.invoke.MethodType.methodType;
-import static java.util.Optional.*;
+import static java.util.Optional.empty;
+import static java.util.Optional.of;
 
-class Reflection {
+final class Reflection {
 
     private static final Map<Class<?>, Map<String, Optional<Function<Object, MethodHandle>>>> classIndex =
             Collections.synchronizedMap(new WeakHashMap<>());
@@ -45,76 +45,61 @@ class Reflection {
         final Class<?> clazz = object.getClass();
         return classIndex
                 .computeIfAbsent(clazz, c -> new ConcurrentHashMap<>())
-                .computeIfAbsent(member, m -> findMethodHandle0(clazz, m))
+                .computeIfAbsent(member, m -> find0(clazz, m))
                 .map(f -> f.apply(object));
     }
 
-    private static Optional<Function<Object, MethodHandle>> findMethodHandle0(final Class<?> clazz, final String member) {
+    private static Optional<Function<Object, MethodHandle>> find0(final Class<?> clazz, final String member) {
         return new Function<Class<?>, Optional<Function<Object, MethodHandle>>>() {
 
-            final Lookup lookup = publicLookup();
             final Set<Class<?>> interfaces = new HashSet<>();
 
             @Override
             public Optional<Function<Object, MethodHandle>> apply(final Class<?> c) {
-                Optional<Method> method;
+                final MethodHandles.Lookup lookup = publicLookup();
                 try {
-                    final Method m = c.getDeclaredMethod(member);
-                    if (isPublic(c) || isStatic(m)) {
-                        return of(methodHandle(m, lookup::unreflect));
-                    }
-                    method = of(m);
-                } catch (NoSuchMethodException e) {
+                    return methodHandle(c.getDeclaredMethod(member), lookup::unreflect);
+                } catch (final NoSuchMethodException ignored) {
                     try {
-                        return of(methodHandle(c.getDeclaredField(member), lookup::unreflectGetter));
-                    } catch (NoSuchFieldException ignored) {
-                    }
-                    method = empty();
-                }
-
-                Optional<Function<Object, MethodHandle>> superResult = ofNullable(c.getSuperclass()).flatMap(this);
-                if (superResult.isPresent()) {
-                    return superResult;
-                }
-                for (final Class<?> iface : c.getInterfaces()) {
-                    if (!interfaces.contains(iface)) {
-                        if ((superResult = apply(iface)).isPresent()) {
-                            return superResult;
+                        return methodHandle(c.getDeclaredField(member), lookup::unreflectGetter);
+                    } catch (final NoSuchFieldException ignoredAgain) {
+                        Optional<Function<Object, MethodHandle>> result;
+                        for (final Class<?> iface : c.getInterfaces()) {
+                            if (!interfaces.contains(iface)) {
+                                if ((result = apply(iface)).isPresent()) {
+                                    return result;
+                                }
+                                interfaces.add(iface);
+                            }
                         }
-                        interfaces.add(iface);
+                        final Class<?> zuper = c.getSuperclass();
+                        if (null != zuper) {
+                            if ((result = apply(zuper)).isPresent()) {
+                                return result;
+                            }
+                        }
+                        return empty();
                     }
                 }
+            }
 
-                return method.map(m -> methodHandle(m, lookup::unreflect));
+            <M extends AccessibleObject & Member>
+            Optional<Function<Object, MethodHandle>> methodHandle(final M member, final Unreflect<M> unreflect) {
+                member.setAccessible(true);
+                try {
+                    final MethodHandle mh;
+                    if (0 == (member.getModifiers() & Modifier.STATIC)) {
+                        mh = unreflect.apply(member).asType(acceptsObjectAndReturnsObject);
+                        return of(mh::bindTo);
+                    } else {
+                        mh = unreflect.apply(member).asType(acceptsNothingAndReturnsObject);
+                        return of(ignored -> mh);
+                    }
+                } catch (IllegalAccessException e) {
+                    throw new AssertionError(e);
+                }
             }
         }.apply(clazz);
-    }
-
-    private static <M extends AccessibleObject & Member> Function<Object, MethodHandle> methodHandle(
-            final M member,
-            final Unreflect<M> unreflect
-    ) {
-        member.setAccessible(true);
-        try {
-            final MethodHandle mh;
-            if (isStatic(member)) {
-                mh = unreflect.apply(member).asType(acceptsNothingAndReturnsObject);
-                return ignored -> mh;
-            } else {
-                mh = unreflect.apply(member).asType(acceptsObjectAndReturnsObject);
-                return mh::bindTo;
-            }
-        } catch (IllegalAccessException e) {
-            throw new AssertionError(e);
-        }
-    }
-
-    private static boolean isPublic(Class<?> clazz) {
-        return Modifier.isPublic(clazz.getModifiers());
-    }
-
-    private static boolean isStatic(Member member) {
-        return Modifier.isStatic(member.getModifiers());
     }
 
     private interface Unreflect<M> {
