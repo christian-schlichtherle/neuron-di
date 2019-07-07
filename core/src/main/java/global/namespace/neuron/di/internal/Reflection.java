@@ -18,22 +18,21 @@ package global.namespace.neuron.di.internal;
 import global.namespace.neuron.di.internal.proxy.Proxies;
 
 import java.lang.annotation.Annotation;
-import java.lang.invoke.MethodHandles;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import static java.lang.invoke.MethodHandles.lookup;
-import static java.lang.invoke.MethodHandles.privateLookupIn;
+import static java.lang.invoke.MethodHandles.*;
 import static java.lang.reflect.Modifier.*;
+import static java.util.Optional.empty;
 import static java.util.Optional.*;
 import static org.objectweb.asm.Type.getMethodDescriptor;
 
 class Reflection {
 
-    private static final MethodHandles.Lookup lookup = lookup();
+    private static final Lookup lookup = lookup();
 
     private Reflection() {
     }
@@ -41,9 +40,8 @@ class Reflection {
     @SuppressWarnings({"unchecked", "Since15"})
     static <C> Class<? extends C> defineSubclass(final Class<C> clazz, final String name, final byte[] b) {
         try {
-            final MethodHandles.Lookup lookup = privateLookupIn(null != clazz.getClassLoader() ? clazz : Proxies.class,
-                    Reflection.lookup);
-            return (Class<? extends C>) lookup.defineClass(b);
+            return (Class<? extends C>) privateLookupIn(null != clazz.getClassLoader() ? clazz : Proxies.class, lookup)
+                    .defineClass(b);
         } catch (NoSuchMethodError e) {
             return Reflection8.defineSubclass(clazz, name, b);
         } catch (IllegalAccessException e) {
