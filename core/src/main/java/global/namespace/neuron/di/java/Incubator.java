@@ -201,9 +201,9 @@ public final class Incubator {
          * The delegate object may provide the dependencies as a method or field, even if this member is private or
          * static.
          * Matching members will be recursively searched starting with the runtime class of the given delegate object.
-         * The delegate method or field will be {@linkplain Method#setAccessible(boolean) made accessible} and converted
-         * into a method handle using a {@linkplain MethodHandles#publicLookup() public lookup} object.
-         * Some effort is made to avoid illegal reflective access.
+         * The delegate method or field will be {@linkplain Method#setAccessible(boolean) made accessible} and
+         * transformed into a method handle using a {@linkplain MethodHandles#publicLookup() public lookup} object.
+         * Some effort is spent to avoid illegal reflective access.
          */
         T using(Object delegate);
 
