@@ -29,11 +29,14 @@ import static java.util.Optional.*;
 
 class Reflection {
 
-    private static final Map<Class<?>, Map<String, MethodHandleFactory>>
-            classIndex = synchronizedMap(new WeakHashMap<>());
-
     private static final MethodType acceptsNothingAndReturnsObject = methodType(Object.class);
     private static final MethodType acceptsObjectAndReturnsObject = methodType(Object.class, Object.class);
+
+    private static final Map<Class<?>, Map<String, MethodHandleMetaFactory>>
+            classIndex = synchronizedMap(new WeakHashMap<>());
+
+    private static final Map<Lookup, Map<MethodHandleMetaFactory, MethodHandleFactory>>
+            lookupIndex = synchronizedMap(new WeakHashMap<>());
 
     private Reflection() {
     }
@@ -47,36 +50,39 @@ class Reflection {
      */
     static MethodHandle methodHandle(final String member, final Object object, final Lookup lookup) {
         final Class<?> clazz = object.getClass();
-        return classIndex
+        final MethodHandleMetaFactory mhmf = classIndex
                 .computeIfAbsent(clazz, c -> new ConcurrentHashMap<>())
-                .computeIfAbsent(member, m -> methodHandleFactory(m, clazz))
-                .methodHandle(object, lookup);
+                .computeIfAbsent(member, m -> methodHandleMetaFactory(m, clazz));
+        return lookupIndex
+                .computeIfAbsent(lookup, l -> new ConcurrentHashMap<>())
+                .computeIfAbsent(mhmf, mf -> mf.methodHandleFactory(lookup))
+                .methodHandle(object);
     }
 
-    private static MethodHandleFactory methodHandleFactory(String member, Class<?> clazz) {
+    private static MethodHandleMetaFactory methodHandleMetaFactory(String member, Class<?> clazz) {
 
-        class MethodHandleFactoryFinder implements Function<Class<?>, Optional<MethodHandleFactory>> {
+        class MethodHandleMetaFactoryFinder implements Function<Class<?>, Optional<MethodHandleMetaFactory>> {
 
             private final Set<Class<?>> interfaces = new HashSet<>();
 
             @Override
-            public Optional<MethodHandleFactory> apply(final Class<?> c) {
+            public Optional<MethodHandleMetaFactory> apply(final Class<?> c) {
                 Optional<Method> method;
                 try {
                     final Method m = c.getDeclaredMethod(member);
                     if (isPublic(c) || isStatic(m)) {
-                        return of(methodHandleFactory(m, Reflection::unreflectMethod));
+                        return of(methodHandleMetaFactory(m, Reflection::unreflectMethod));
                     }
                     method = of(m);
                 } catch (NoSuchMethodException e) {
                     try {
-                        return of(methodHandleFactory(c.getDeclaredField(member), Reflection::unreflectField));
+                        return of(methodHandleMetaFactory(c.getDeclaredField(member), Reflection::unreflectField));
                     } catch (NoSuchFieldException ignored) {
                     }
                     method = empty();
                 }
 
-                Optional<MethodHandleFactory> superResult = ofNullable(c.getSuperclass()).flatMap(this);
+                Optional<MethodHandleMetaFactory> superResult = ofNullable(c.getSuperclass()).flatMap(this);
                 if (superResult.isPresent()) {
                     return superResult;
                 }
@@ -89,19 +95,35 @@ class Reflection {
                     }
                 }
 
-                return method.map(m -> methodHandleFactory(m, Reflection::unreflectMethod));
+                return method.map(m -> methodHandleMetaFactory(m, Reflection::unreflectMethod));
             }
         }
 
-        return new MethodHandleFactoryFinder()
+        return new MethodHandleMetaFactoryFinder()
                 .apply(clazz)
                 .orElseThrow(() ->
                         new BreedingException("A member named `" + member + "` neither exists in `" + clazz + "` nor in any of its superclasses and interfaces."));
     }
 
+    private static <M extends AccessibleObject & Member>
+    MethodHandleMetaFactory methodHandleMetaFactory(final M member, final Unreflect<M> unreflect) {
+        member.setAccessible(true);
+        if (isStatic(member)) {
+            return lookup -> {
+                final MethodHandle mh = unreflect.methodHandle(member, lookup).asType(acceptsNothingAndReturnsObject);
+                return ignored -> mh;
+            };
+        } else {
+            return lookup -> {
+                final MethodHandle mh = unreflect.methodHandle(member, lookup).asType(acceptsObjectAndReturnsObject);
+                return mh::bindTo;
+            };
+        }
+    }
+
     private static MethodHandle unreflectMethod(final Method method, final Lookup lookup) {
         try {
-            return modify(method, lookup.unreflect(method));
+            return lookup.unreflect(method);
         } catch (IllegalAccessException e) {
             throw new BreedingException(e);
         }
@@ -109,36 +131,9 @@ class Reflection {
 
     private static MethodHandle unreflectField(final Field field, final Lookup lookup) {
         try {
-            return modify(field, lookup.unreflectGetter(field));
+            return lookup.unreflectGetter(field);
         } catch (IllegalAccessException e) {
             throw new BreedingException(e);
-        }
-    }
-
-    private static <M extends AccessibleObject & Member>
-    MethodHandle modify(M member, MethodHandle mh) {
-        return isStatic(member) ? mh.asType(acceptsNothingAndReturnsObject) : mh.asType(acceptsObjectAndReturnsObject);
-    }
-
-    private static <M extends AccessibleObject & Member>
-    MethodHandleFactory methodHandleFactory(final M member, final Unreflect<M> unreflect) {
-        member.setAccessible(true);
-        if (isStatic(member)) {
-            return new MethodHandleFactory() {
-
-                @Override
-                MethodHandle methodHandle(Object ignored, Lookup lookup) {
-                    return methodHandle(member, unreflect, lookup);
-                }
-            };
-        } else {
-            return new MethodHandleFactory() {
-
-                @Override
-                MethodHandle methodHandle(Object object, Lookup lookup) {
-                    return methodHandle(member, unreflect, lookup).bindTo(object);
-                }
-            };
         }
     }
 
@@ -152,18 +147,16 @@ class Reflection {
 
     private interface Unreflect<M extends AccessibleObject & Member> {
 
-        MethodHandle apply(M member, Lookup lookup);
+        MethodHandle methodHandle(M member, Lookup lookup);
     }
 
-    private static abstract class MethodHandleFactory {
+    private interface MethodHandleMetaFactory {
 
-        private final Map<Lookup, MethodHandle> methodHandles = synchronizedMap(new WeakHashMap<>());
+        MethodHandleFactory methodHandleFactory(Lookup lookup);
+    }
 
-        abstract MethodHandle methodHandle(Object object, Lookup lookup);
+    private interface MethodHandleFactory {
 
-        <M extends AccessibleObject & Member>
-        MethodHandle methodHandle(M member, Unreflect<M> unreflect, Lookup lookup) {
-            return methodHandles.computeIfAbsent(lookup, l -> unreflect.apply(member, l));
-        }
+        MethodHandle methodHandle(Object object);
     }
 }
