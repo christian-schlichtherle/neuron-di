@@ -23,6 +23,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
+import static java.lang.invoke.MethodHandles.publicLookup;
 import static java.lang.invoke.MethodType.methodType;
 import static java.util.Collections.synchronizedMap;
 import static java.util.Optional.*;
@@ -32,18 +33,21 @@ class Reflection {
     private static final MethodType acceptsNothingAndReturnsObject = methodType(Object.class);
     private static final MethodType acceptsObjectAndReturnsObject = methodType(Object.class, Object.class);
 
+    private static final Lookup publicLookup = publicLookup();
+
     private static final Map<Class<?>, Map<String, MethodHandleMetaFactory>>
             classIndex = synchronizedMap(new WeakHashMap<>());
 
-    private static final Map<Lookup, Map<MethodHandleMetaFactory, MethodHandleFactory>>
-            lookupIndex = synchronizedMap(new WeakHashMap<>());
+    private static volatile Map<Lookup, Map<MethodHandleMetaFactory, MethodHandleFactory>> lookupIndex;
+
+    private static volatile Map<MethodHandleMetaFactory, MethodHandleFactory> publicLookupMethodHandleFactories;
 
     private Reflection() {
     }
 
     /**
-     * Searches for the named {@code member} in the given {@code object} using the the given {@code lookup} and returns
-     * a corresponding {@link MethodHandle} if found.
+     * Recursively searches for the named {@code member} in the given {@code object} and if found, returns a
+     * corresponding {@link MethodHandle} created using the the given {@code lookup}.
      *
      * @throws BreedingException if the named {@code member} is not found in the given {@code object} or if the given
      *                           {@code lookup} has no access to it.
@@ -53,10 +57,27 @@ class Reflection {
         final MethodHandleMetaFactory mhmf = classIndex
                 .computeIfAbsent(clazz, c -> new ConcurrentHashMap<>())
                 .computeIfAbsent(member, m -> methodHandleMetaFactory(m, clazz));
-        return lookupIndex
-                .computeIfAbsent(lookup, l -> new ConcurrentHashMap<>())
-                .computeIfAbsent(mhmf, mf -> mf.methodHandleFactory(lookup))
-                .methodHandle(object);
+        Map<MethodHandleMetaFactory, MethodHandleFactory> mhf;
+        if (lookup.equals(publicLookup)) {
+            if (null == (mhf = publicLookupMethodHandleFactories)) {
+                synchronized (classIndex) {
+                    if (null == (mhf = publicLookupMethodHandleFactories)) {
+                        publicLookupMethodHandleFactories = mhf = synchronizedMap(new WeakHashMap<>());
+                    }
+                }
+            }
+        } else {
+            Map<Lookup, Map<MethodHandleMetaFactory, MethodHandleFactory>> li;
+            if (null == (li = lookupIndex)) {
+                synchronized (classIndex) {
+                    if (null == (li = lookupIndex)) {
+                        lookupIndex = li = synchronizedMap(new WeakHashMap<>());
+                    }
+                }
+            }
+            mhf = li.computeIfAbsent(lookup, l -> new ConcurrentHashMap<>());
+        }
+        return mhf.computeIfAbsent(mhmf, mf -> mf.methodHandleFactory(lookup)).methodHandle(object);
     }
 
     private static MethodHandleMetaFactory methodHandleMetaFactory(String member, Class<?> clazz) {
