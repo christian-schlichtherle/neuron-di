@@ -15,9 +15,10 @@
  */
 package global.namespace.neuron.di.java
 
-import java.lang.invoke.MethodHandles.publicLookup
+import java.lang.invoke.MethodHandles._
 
 import global.namespace.neuron.di.java.Reflection.methodHandle
+import global.namespace.neuron.di.java.ReflectionSpec._
 import global.namespace.neuron.di.java.sample.{A, HasPrivateMembers}
 import org.scalatest.Matchers._
 import org.scalatest.WordSpec
@@ -31,7 +32,7 @@ class ReflectionSpec extends WordSpec {
       val a = new A {}
 
       "find `a`" in {
-        findAndInvoke[A]("a", a) should be theSameInstanceAs a
+        assertThat("a", a) is a
       }
     }
 
@@ -39,24 +40,32 @@ class ReflectionSpec extends WordSpec {
       val hasPrivateMembers = new HasPrivateMembers {}
 
       "find `method`" in {
-        findAndInvoke[Int]("method", hasPrivateMembers) shouldBe 1
+        assertThat("method", hasPrivateMembers) is 1
       }
 
       "find `staticMethod`" in {
-        findAndInvoke[Long]("staticMethod", hasPrivateMembers) shouldBe 2L
+        assertThat("staticMethod", hasPrivateMembers) is 2L
       }
 
       "find `field`" in {
-        findAndInvoke[Boolean]("field", hasPrivateMembers) shouldBe true
+        assertThat("field", hasPrivateMembers) is true
       }
 
       "find `staticField`" in {
-        findAndInvoke[Char]("staticField", hasPrivateMembers) shouldBe '?'
+        assertThat("staticField", hasPrivateMembers) is '?'
       }
     }
   }
+}
 
-  private def findAndInvoke[A: ClassTag](what: String, where: AnyRef): A = {
-    methodHandle(what, where, publicLookup()).invokeExact().asInstanceOf[A]
+private object ReflectionSpec {
+
+  case class assertThat[A: ClassTag](what: String, where: AnyRef) {
+
+    def is(result: A): Unit = {
+      methodHandle(what, where, publicLookup()).invokeExact().asInstanceOf[A] shouldBe result
+      methodHandle(what, where, lookup()).invokeExact().asInstanceOf[A] shouldBe result
+    }
   }
+
 }

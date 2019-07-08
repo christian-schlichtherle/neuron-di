@@ -57,12 +57,13 @@ class Reflection {
         final MethodHandleMetaFactory mhmf = classIndex
                 .computeIfAbsent(clazz, c -> new ConcurrentHashMap<>())
                 .computeIfAbsent(member, m -> methodHandleMetaFactory(m, clazz));
-        Map<MethodHandleMetaFactory, MethodHandleFactory> mhf;
+
+        Map<MethodHandleMetaFactory, MethodHandleFactory> mhfs;
         if (lookup.equals(publicLookup)) {
-            if (null == (mhf = publicLookupMethodHandleFactories)) {
+            if (null == (mhfs = publicLookupMethodHandleFactories)) {
                 synchronized (classIndex) {
-                    if (null == (mhf = publicLookupMethodHandleFactories)) {
-                        publicLookupMethodHandleFactories = mhf = synchronizedMap(new WeakHashMap<>());
+                    if (null == (mhfs = publicLookupMethodHandleFactories)) {
+                        publicLookupMethodHandleFactories = mhfs = synchronizedMap(new WeakHashMap<>());
                     }
                 }
             }
@@ -75,9 +76,10 @@ class Reflection {
                     }
                 }
             }
-            mhf = li.computeIfAbsent(lookup, l -> new ConcurrentHashMap<>());
+            mhfs = li.computeIfAbsent(lookup, l -> new ConcurrentHashMap<>());
         }
-        return mhf.computeIfAbsent(mhmf, mf -> mf.methodHandleFactory(lookup)).methodHandle(object);
+
+        return mhfs.computeIfAbsent(mhmf, mf -> mf.methodHandleFactory(lookup)).methodHandle(object);
     }
 
     private static MethodHandleMetaFactory methodHandleMetaFactory(String member, Class<?> clazz) {
