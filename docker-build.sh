@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-function sbt() {
+function docker-sbt() {
     docker run \
         --env GUICE_VERSION \
         --interactive \
@@ -15,5 +15,5 @@ function sbt() {
 }
 
 set -ex
-sbt ${1:-1.2.8-jdk9} +test:compile
-sbt ${2:-1.2.8-jdk8} +test
+docker-sbt ${1:-1.2.8-jdk9} +test:compile
+docker-sbt ${2:-1.2.8-jdk8} +test
