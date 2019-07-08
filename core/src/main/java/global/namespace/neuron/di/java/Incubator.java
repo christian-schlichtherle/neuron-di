@@ -137,11 +137,10 @@ public final class Incubator {
                 return using(delegate, publicLookup);
             }
 
-            @Override
-            public T using(final Object delegate, final Lookup lookup) {
+            private T using(final Object delegate, final Lookup lookup) {
                 // HC SVNT DRACONES
-                this.lookup = requireNonNull(lookup);
                 this.delegate = requireNonNull(delegate);
+                this.lookup = lookup;
                 partial = true;
                 return breed();
             }
@@ -206,18 +205,6 @@ public final class Incubator {
          * into a method handle using a {@linkplain MethodHandles#publicLookup() public lookup} object.
          */
         T using(Object delegate);
-
-        /**
-         * Breeds the wired neuron.
-         * If the runtime class is not a neuron class or interface, this method simply calls the default constructor.
-         * Otherwise, the neuron will forward any calls to unbound synapse methods to the given delegate object.
-         * The delegate object may provide the dependencies as a method or field, even if this member is private or
-         * static.
-         * Matching members will be recursively searched starting with the runtime class of the given delegate object.
-         * The delegate method or field will be {@linkplain Method#setAccessible(boolean) made accessible} and converted
-         * into a method handle using the given {@link Lookup} object.
-         */
-        T using(Object delegate, Lookup lookup);
 
         /**
          * Breeds the wired neuron.
