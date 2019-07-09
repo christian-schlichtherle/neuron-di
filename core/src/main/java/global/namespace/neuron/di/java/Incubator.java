@@ -95,10 +95,6 @@ public final class Incubator {
 
             boolean partial;
 
-            Object delegate;
-
-            Lookup lookup;
-
             @Override
             public Wire<T> partial(final boolean value) {
                 this.partial = value;
@@ -133,21 +129,23 @@ public final class Incubator {
             }
 
             @Override
-            public T using(Object delegate) {
-                return using(delegate, publicLookup);
+            public T using(Object delegate, Function<Method, String> namer) {
+                return using(requireNonNull(delegate), requireNonNull(namer), publicLookup);
             }
 
-            private T using(final Object delegate, final Lookup lookup) {
-                // HC SVNT DRACONES
-                this.delegate = requireNonNull(delegate);
-                this.lookup = lookup;
+            @SuppressWarnings("SameParameterValue")
+            private T using(final Object delegate, final Function<Method, String> namer, final Lookup lookup) {
                 partial = true;
-                return breed();
+                return breed(delegate, namer, lookup);
+            }
+
+            @Override
+            public T breed() {
+                return breed(null, null, null);
             }
 
             @SuppressWarnings("unchecked")
-            @Override
-            public T breed() {
+            private T breed(final Object delegate, final Function<Method, String> namer, final Lookup lookup) {
                 return new Object() {
 
                     final T neuron = RealIncubator.breed(clazz, new MethodBinding() {
@@ -166,9 +164,9 @@ public final class Incubator {
                                 throw new BreedingException(
                                         "Partial binding is disabled and no binding is defined for synapse method: " + info.method());
                             } else if (null != delegate) {
+                                assert null != namer;
                                 assert null != lookup;
-                                final String member = info.name();
-                                final MethodHandle handle = methodHandle(member, delegate, lookup);
+                                final MethodHandle handle = methodHandle(namer.apply(info.method()), delegate, lookup);
                                 return of(handle::invokeExact);
                             } else {
                                 return of(() -> Incubator.breed(info.returnType()));
@@ -180,6 +178,12 @@ public final class Incubator {
         };
     }
 
+    /**
+     * A wire statement.
+     * It's an error to implement this interface outside of the {@code Incubator} class!
+     *
+     * @param <T> the type of the neuron to wire.
+     */
     public interface Wire<T> {
 
         /**
@@ -197,15 +201,33 @@ public final class Incubator {
         /**
          * Breeds the wired neuron.
          * If the runtime class is not a neuron class or interface, this method simply calls the default constructor.
-         * Otherwise, the neuron will forward any calls to unbound synapse methods to the given delegate object.
+         * Otherwise, the neuron will forward any calls to unbound synapse methods to the given {@code delegate} object.
          * The delegate object may provide the dependencies as a method or field, even if this member is private or
          * static.
-         * Matching members will be recursively searched starting with the runtime class of the given delegate object.
+         * Members with the same names will be recursively searched for starting with the runtime class of the
+         * given delegate object.
          * The delegate method or field will be {@linkplain Method#setAccessible(boolean) made accessible} and
          * transformed into a method handle using a {@linkplain MethodHandles#publicLookup() public lookup} object.
          * Some effort is spent to avoid illegal reflective access.
          */
-        T using(Object delegate);
+        default T using(Object delegate) {
+            return using(delegate, Method::getName);
+        }
+
+        /**
+         * Breeds the wired neuron.
+         * If the runtime class is not a neuron class or interface, this method simply calls the default constructor.
+         * Otherwise, the neuron will forward any calls to unbound synapse methods to the given {@code delegate} object.
+         * The delegate object may provide the dependencies as a method or field, even if this member is private or
+         * static.
+         * The name of the member will be determined by calling the given {@code namer} function.
+         * Members with the resulting names will be recursively searched for starting with the runtime class of the
+         * given delegate object.
+         * The delegate method or field will be {@linkplain Method#setAccessible(boolean) made accessible} and
+         * transformed into a method handle using a {@linkplain MethodHandles#publicLookup() public lookup} object.
+         * Some effort is spent to avoid illegal reflective access.
+         */
+        T using(Object delegate, Function<Method, String> namer);
 
         /**
          * Breeds the wired neuron.
@@ -214,6 +236,13 @@ public final class Incubator {
         T breed();
     }
 
+    /**
+     * A bind statement.
+     * It's an error to implement this interface outside of the {@code Incubator} class!
+     *
+     * @param <T> the type of the neuron to wire.
+     * @param <U> the type of the synapse method to bind.
+     */
     public interface Bind<T, U> {
 
         /**
