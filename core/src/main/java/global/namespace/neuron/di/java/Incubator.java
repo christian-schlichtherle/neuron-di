@@ -106,11 +106,6 @@ public final class Incubator {
                 return new Bind<T, U>() {
 
                     @Override
-                    public Wire<T> to(U value) {
-                        return to(() -> value);
-                    }
-
-                    @Override
                     public Wire<T> to(DependencyProvider<? extends U> provider) {
                         bindings.put(methodReference, provider);
                         return wire();
@@ -248,7 +243,9 @@ public final class Incubator {
         /**
          * Binds the synapse method to the given value.
          */
-        Wire<T> to(U value);
+        default Wire<T> to(U value) {
+            return to(() -> value);
+        }
 
         /**
          * Binds the synapse method to the given provider.
