@@ -19,8 +19,9 @@ dependency resolution, caching and dependency injection into Java interfaces or 
 Users of Guice also enjoy extensions to the Guice binding DSL which make it simpler to use, especially when using Guice 
 with Scala.
 
-For documentation, please consult the Wiki:
+For documentation, please consult the following resources:
 
+- [Neuron DI Examples for Java](https://github.com/christian-schlichtherle/neuron-di-examples)
 - [Documentation Wiki][Wiki]
 
 Release Notes are available on GitHub:
