@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 
 function docker-sbt() {
+    local image_tag=$1
+    shift
     docker run \
         --env GUICE_VERSION \
         --interactive \
@@ -8,12 +10,12 @@ function docker-sbt() {
         --tty \
         --volume $HOME/.ivy2:/root/.ivy2 \
         --volume $HOME/.sbt:/root/.sbt \
-        --volume $PWD:/workspace \
-        --workdir /workspace \
-        christianschlichtherle/scala-sbt:$1 \
-        sbt $2
+        --volume $PWD:/workdir \
+        --workdir /workdir \
+        openjdk:$image_tag \
+        ./sbt $@
 }
 
 set -ex
-docker-sbt ${1:-1.2.8-jdk9} +test:compile
-docker-sbt ${2:-1.2.8-jdk8} +test
+docker-sbt ${1:-9-jdk-slim} +test:compile
+docker-sbt ${2:-8-jdk-slim} +test
