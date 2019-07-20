@@ -21,6 +21,7 @@ import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import java.util.List;
 import java.util.Set;
@@ -39,13 +40,7 @@ public final class NeuronProcessor extends CommonProcessor {
     public boolean process(final Set<? extends TypeElement> annotations, final RoundEnvironment roundEnv) {
         // Call the `validate` method only for those elements where any of the annotations are DIRECTLY present:
         annotations.forEach(annotation ->
-                roundEnv.getElementsAnnotatedWith(annotation)
-                        .stream()
-                        .filter(element -> element
-                                .getAnnotationMirrors()
-                                .stream()
-                                .anyMatch(mirror -> annotation.equals(mirror.getAnnotationType().asElement())))
-                        .forEach(element -> validate((TypeElement) element)));
+                roundEnv.getElementsAnnotatedWith(annotation).forEach(element -> validate((TypeElement) element)));
         return true;
     }
 
@@ -53,8 +48,12 @@ public final class NeuronProcessor extends CommonProcessor {
         if (!hasStaticContext(type)) {
             error("A neuron class must have a static context.", type);
         }
-        if (type.getModifiers().contains(FINAL)) {
+        final Set<Modifier> modifiers = type.getModifiers();
+        if (modifiers.contains(FINAL)) {
             error("A neuron class must not be final.", type);
+        }
+        if (!modifiers.contains(ABSTRACT)) {
+            warn("A neuron class should be abstract.", type);
         }
         if (!hasEitherNoConstructorOrANonPrivateConstructorWithoutParameters(type)) {
             error("A neuron type must have either no constructor or a non-private constructor without parameters.", type);

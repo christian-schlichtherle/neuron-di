@@ -33,6 +33,9 @@ private trait NeuronAnnotation extends MacroAnnotation {
         if (mods hasFlag FINAL) {
           error("A neuron class must not be final.")
         }
+        if (!(mods hasFlag ABSTRACT)) {
+          warn("A neuron class should be abstract.")
+        }
         if (!hasEitherNoConstructorOrANonPrivateConstructorWithoutParameters(impl)) {
           error("A neuron type must have either no constructor or a non-private constructor without parameters.")
         }
