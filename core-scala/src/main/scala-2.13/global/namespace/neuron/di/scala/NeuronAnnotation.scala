@@ -17,6 +17,8 @@ package global.namespace.neuron.di.scala
 
 import scala.annotation.tailrec
 
+// The error checks in this class must match the error chacks in
+// `global.namespace.neuron.di.internal.NeuronProcessor`!
 private trait NeuronAnnotation extends MacroAnnotation {
 
   import c.universe._
@@ -31,11 +33,11 @@ private trait NeuronAnnotation extends MacroAnnotation {
         if (mods hasFlag FINAL) {
           error("A neuron class must not be final.")
         }
-        if (!hasNonPrivateConstructorWithoutParameters(impl)) {
-          error("A neuron class must have a non-private constructor without parameters.")
+        if (!hasEitherNoConstructorOrANonPrivateConstructorWithoutParameters(impl)) {
+          error("A neuron type must have either no constructor or a non-private constructor without parameters.")
         }
         if (isSerializable(impl)) {
-          warn("A neuron class or interface should not be serializable.")
+          warn("A neuron type should not be serializable.")
         }
         if (c.hasErrors) {
           inputs
@@ -96,17 +98,10 @@ private trait NeuronAnnotation extends MacroAnnotation {
 
   private lazy val enclosingOwner = c.internal.enclosingOwner
 
-  private def hasNonPrivateConstructorWithoutParameters(template: Template) = {
+  private def hasEitherNoConstructorOrANonPrivateConstructorWithoutParameters(template: Template) = {
     val Template(_, _, body) = template
-    !(body exists isConstructor) ||
-      (body exists isNonPrivateConstructorWithoutParameters)
-  }
-
-  private def isConstructor(tree: Tree) = {
-    tree match {
-      case DefDef(_, termNames.CONSTRUCTOR, _, _, _, _) => true
-      case _ => false
-    }
+    val constructors = body collect { case c@DefDef(_, termNames.CONSTRUCTOR, _, _, _, _) => c }
+    constructors.isEmpty || (constructors exists isNonPrivateConstructorWithoutParameters)
   }
 
   private def isNonPrivateConstructorWithoutParameters(tree: Tree) = {

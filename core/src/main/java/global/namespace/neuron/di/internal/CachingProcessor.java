@@ -33,6 +33,8 @@ import java.util.Set;
 import static javax.lang.model.element.Modifier.*;
 import static javax.lang.model.type.TypeKind.VOID;
 
+// The error checks in this class must match the error checks in
+// `global.namespace.neuron.di.scala.CachingAnnotation`!
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
 @SupportedAnnotationTypes("global.namespace.neuron.di.java.Caching")
 public final class CachingProcessor extends CommonProcessor {

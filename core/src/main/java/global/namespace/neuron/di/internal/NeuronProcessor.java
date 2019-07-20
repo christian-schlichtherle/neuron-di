@@ -19,41 +19,45 @@ import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
+import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
-import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static javax.lang.model.element.ElementKind.CONSTRUCTOR;
 import static javax.lang.model.element.Modifier.*;
 
+// The error checks in this class must match the error checks in
+// `global.namespace.neuron.di.scala.NeuronAnnotation`!
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
 @SupportedAnnotationTypes("global.namespace.neuron.di.java.Neuron")
 public final class NeuronProcessor extends CommonProcessor {
 
     @Override
     public boolean process(final Set<? extends TypeElement> annotations, final RoundEnvironment roundEnv) {
+        // Call the `validate` method only for those elements where any of the annotations are DIRECTLY present:
         annotations.forEach(annotation ->
                 roundEnv.getElementsAnnotatedWith(annotation)
                         .stream()
                         .filter(element -> element
                                 .getAnnotationMirrors()
                                 .stream()
-                                .anyMatch(mirror -> mirror.getAnnotationType().asElement() == annotation))
+                                .anyMatch(mirror -> annotation.equals(mirror.getAnnotationType().asElement())))
                         .forEach(element -> validate((TypeElement) element)));
         return true;
     }
 
     private void validate(final TypeElement type) {
-        final Set<Modifier> modifiers = type.getModifiers();
         if (!hasStaticContext(type)) {
             error("A neuron class must have a static context.", type);
         }
-        if (modifiers.contains(FINAL)) {
+        if (type.getModifiers().contains(FINAL)) {
             error("A neuron class must not be final.", type);
         }
-        if (type.getKind().isClass() && !hasNonPrivateConstructorWithoutParameters(type)) {
-            error("A neuron class must have a non-private constructor without parameters.", type);
+        if (!hasEitherNoConstructorOrANonPrivateConstructorWithoutParameters(type)) {
+            error("A neuron type must have either no constructor or a non-private constructor without parameters.", type);
         }
         if (isSerializable(type)) {
             warn("A neuron type should not be serializable.", type);
@@ -64,9 +68,11 @@ public final class NeuronProcessor extends CommonProcessor {
         return !type.getNestingKind().isNested() || type.getModifiers().contains(STATIC);
     }
 
-    private static boolean hasNonPrivateConstructorWithoutParameters(TypeElement type) {
-        return type.getEnclosedElements().stream()
+    private static boolean hasEitherNoConstructorOrANonPrivateConstructorWithoutParameters(TypeElement type) {
+        final List<? extends Element> constructors = type.getEnclosedElements().stream()
                 .filter(elem -> elem.getKind() == CONSTRUCTOR)
+                .collect(Collectors.toList());
+        return constructors.isEmpty() || constructors.stream()
                 .anyMatch(elem -> isNonPrivateConstructorWithoutParameters((ExecutableElement) elem));
     }
 

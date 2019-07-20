@@ -15,6 +15,8 @@
  */
 package global.namespace.neuron.di.scala
 
+// The error checks in this class must match the error chacks in
+// `global.namespace.neuron.di.internal.CachingProcessor`!
 private trait CachingAnnotation extends MacroAnnotation {
 
   import c.universe._
