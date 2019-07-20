@@ -1,0 +1,16 @@
+#!/bin/sh
+IMAGE_TAG="$1"
+shift
+[[ -z "$IMAGE_TAG" ]] && { echo 'Usage: docker-sbt $IMAGE_TAG [...]'; exit 1; }
+set -x
+exec docker run \
+    --env GUICE_VERSION \
+    --interactive \
+    --rm \
+    --tty \
+    --volume $HOME/.ivy2:/root/.ivy2 \
+    --volume $HOME/.sbt:/root/.sbt \
+    --volume $PWD:/workdir \
+    --workdir /workdir \
+    "openjdk:$IMAGE_TAG" \
+    ./sbt $@

@@ -9,16 +9,19 @@ cache:
 
 dist: xenial
 
+# Don't use slim or alpine images here - the SBT Wrapper runs a shell script which wouldn't always work then:
 env:
-  - COMPILE_IMAGE_TAG=9-jdk-slim TEST_IMAGE_TAG=8-jdk-slim    GUICE_VERSION=3.0
-  - COMPILE_IMAGE_TAG=9-jdk-slim TEST_IMAGE_TAG=12-jdk-alpine GUICE_VERSION=3.0
-  - COMPILE_IMAGE_TAG=9-jdk-slim TEST_IMAGE_TAG=8-jdk-slim    GUICE_VERSION=4.2.2
-  - COMPILE_IMAGE_TAG=9-jdk-slim TEST_IMAGE_TAG=12-jdk-alpine GUICE_VERSION=4.2.2
+  - COMPILE_IMAGE_TAG=9-jdk TEST_IMAGE_TAG=8-jdk  GUICE_VERSION=3.0
+  - COMPILE_IMAGE_TAG=9-jdk TEST_IMAGE_TAG=12-jdk GUICE_VERSION=3.0
+  - COMPILE_IMAGE_TAG=9-jdk TEST_IMAGE_TAG=8-jdk  GUICE_VERSION=4.2.2
+  - COMPILE_IMAGE_TAG=9-jdk TEST_IMAGE_TAG=12-jdk GUICE_VERSION=4.2.2
 
 language: minimal
 
+# Run the build in Docker to shield it from changes in the Travis environment:
 services:
   - docker
 
 script:
-  - ./docker-build.sh $COMPILE_IMAGE_TAG $TEST_IMAGE_TAG
+  - ./docker-sbt $COMPILE_IMAGE_TAG +test:compile
+  - ./docker-sbt $TEST_IMAGE_TAG +test
