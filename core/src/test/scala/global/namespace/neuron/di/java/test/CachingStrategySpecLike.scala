@@ -18,9 +18,9 @@ package global.namespace.neuron.di.java.test
 import global.namespace.neuron.di.java.Incubator.breed
 import global.namespace.neuron.di.java.sample.HasDependency
 import org.scalatest.Matchers._
-import org.scalatest.{FeatureSpec, GivenWhenThen}
+import org.scalatest.{FeatureSpec, FeatureSpecLike, GivenWhenThen}
 
-abstract class CachingStrategySpec extends FeatureSpec with GivenWhenThen {
+trait CachingStrategySpecLike extends FeatureSpecLike with GivenWhenThen { self: FeatureSpec =>
 
   feature(s"Developers can configure different caching strategies for $subjects:") {
 
@@ -92,13 +92,13 @@ abstract class CachingStrategySpec extends FeatureSpec with GivenWhenThen {
 
   private val collect = new ConcurrentDependencyCollector
 
-  protected def subjects: String
+  protected val subjects: String
 
-  protected def classWithDisabledCachingStrategy: Class[_ <: HasDependency[_]]
+  protected val classWithDisabledCachingStrategy: Class[_ <: HasDependency[_]]
 
-  protected def classWithNotThreadSafeCachingStrategy: Class[_ <: HasDependency[_]]
+  protected val classWithNotThreadSafeCachingStrategy: Class[_ <: HasDependency[_]]
 
-  protected def classWithThreadSafeCachingStrategy: Class[_ <: HasDependency[_]]
+  protected val classWithThreadSafeCachingStrategy: Class[_ <: HasDependency[_]]
 
-  protected def classWithThreadLocalCachingStrategy: Class[_ <: HasDependency[_]]
+  protected val classWithThreadLocalCachingStrategy: Class[_ <: HasDependency[_]]
 }

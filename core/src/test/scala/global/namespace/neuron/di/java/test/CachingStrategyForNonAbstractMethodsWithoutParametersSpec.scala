@@ -19,21 +19,22 @@ import global.namespace.neuron.di.java.CachingStrategy._
 import global.namespace.neuron.di.java._
 import global.namespace.neuron.di.java.test.CachingStrategyForNonAbstractMethodsWithoutParametersSpec._
 import global.namespace.neuron.di.java.sample.HasDependency
+import org.scalatest.FeatureSpec
 
-class CachingStrategyForNonAbstractMethodsWithoutParametersSpec extends CachingStrategySpec {
+class CachingStrategyForNonAbstractMethodsWithoutParametersSpec extends FeatureSpec with CachingStrategySpecLike {
 
-  def subjects: String = "non-abstract methods without parameters"
+  lazy val subjects: String = "non-abstract methods without parameters"
 
-  def classWithDisabledCachingStrategy: Class[_ <: HasDependency[_]] =
+  lazy val classWithDisabledCachingStrategy: Class[_ <: HasDependency[_]] =
     classOf[NeuronWithDisabledCachingStrategy]
 
-  def classWithNotThreadSafeCachingStrategy: Class[_ <: HasDependency[_]] =
+  lazy val classWithNotThreadSafeCachingStrategy: Class[_ <: HasDependency[_]] =
     classOf[NeuronWithNotThreadSafeCachingStrategy]
 
-  def classWithThreadSafeCachingStrategy: Class[_ <: HasDependency[_]] =
+  lazy val classWithThreadSafeCachingStrategy: Class[_ <: HasDependency[_]] =
     classOf[NeuronWithThreadSafeCachingStrategy]
 
-  def classWithThreadLocalCachingStrategy: Class[_ <: HasDependency[_]] =
+  lazy val classWithThreadLocalCachingStrategy: Class[_ <: HasDependency[_]] =
     classOf[NeuronWithThreadLocalCachingStrategy]
 }
 
