@@ -109,7 +109,7 @@ package object scala {
     val visited = collection.mutable.Set.empty[Symbol]
 
     def _isAnnotation(annotation: Tree): Boolean = {
-      val tpe = c.typecheck(tree = annotation, mode = c.TYPEmode, silent = true).tpe
+      val tpe = c.typecheck(annotation, mode = c.TYPEmode, silent = true).tpe
       what == tpe.toString || _hasAnnotation(tpe.typeSymbol)
     }
 

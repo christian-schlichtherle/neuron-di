@@ -28,10 +28,10 @@ private trait MacroAnnotation {
 
   def scala2javaCachingStrategy(arg: Tree): Tree = {
     q"_root_.global.namespace.neuron.di.java.CachingStrategy.${
-      arg match {
-        case q"$_.$name" => name
-        case other => TermName(other.toString)
-      }
+      arg.collect {
+        case Select(_, strategy: TermName) => strategy
+        case Ident(strategy: TermName) => strategy
+      }.head
     }"
   }
 

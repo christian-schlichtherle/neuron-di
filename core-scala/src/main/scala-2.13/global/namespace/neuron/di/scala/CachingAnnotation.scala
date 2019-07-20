@@ -44,7 +44,7 @@ private trait CachingAnnotation extends MacroAnnotation {
           case _ =>
             error("A caching method must not have parameters.")
         }
-        c.typecheck(tree = rhs, mode = c.TYPEmode, silent = true).tpe match {
+        c.typecheck(rhs, mode = c.TYPEmode, silent = true).tpe match {
           case TypeRef(_, sym, _)
             if sym == c.symbolOf[Unit] || sym == c.symbolOf[Nothing] =>
             error("A caching method must have a return value.")(tpt.pos)
@@ -56,13 +56,8 @@ private trait CachingAnnotation extends MacroAnnotation {
           val Apply(_, args) = c.prefix.tree
           val Apply(fun, _) = newCachingAnnotationTerm
           Apply(fun, args map {
-            case q"value = ${rhs: Tree}" =>
-              q"value = ${scala2javaCachingStrategy(rhs)}" match {
-                case Assign(x, y) => NamedArg(x, y)
-                case other => other
-              }
-            case tree =>
-              scala2javaCachingStrategy(tree)
+            case NamedArg(lhs@q"value", rhs: Tree) => NamedArg(lhs, scala2javaCachingStrategy(rhs))
+            case tree => scala2javaCachingStrategy(tree)
           })
         }
         DefDef(mods.mapAnnotations(caching :: _), name, tparams, vparamss, tpt, rhs) :: rest

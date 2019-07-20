@@ -15,6 +15,8 @@
  */
 package global.namespace.neuron.di.internal;
 
+import global.namespace.neuron.di.java.Neuron;
+
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedSourceVersion;
@@ -27,7 +29,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static global.namespace.neuron.di.java.CachingStrategy.DISABLED;
 import static javax.lang.model.element.ElementKind.CONSTRUCTOR;
+import static javax.lang.model.element.ElementKind.INTERFACE;
 import static javax.lang.model.element.Modifier.*;
 
 // The error checks in this class must match the error checks in
@@ -38,7 +42,6 @@ public final class NeuronProcessor extends CommonProcessor {
 
     @Override
     public boolean process(final Set<? extends TypeElement> annotations, final RoundEnvironment roundEnv) {
-        // Call the `validate` method only for those elements where any of the annotations are DIRECTLY present:
         annotations.forEach(annotation ->
                 roundEnv.getElementsAnnotatedWith(annotation).forEach(element -> validate((TypeElement) element)));
         return true;
@@ -57,6 +60,9 @@ public final class NeuronProcessor extends CommonProcessor {
         }
         if (!hasEitherNoConstructorOrANonPrivateConstructorWithoutParameters(type)) {
             error("A neuron type must have either no constructor or a non-private constructor without parameters.", type);
+        }
+        if (type.getKind() == INTERFACE && type.getAnnotation(Neuron.class).cachingStrategy() != DISABLED) {
+            warn("A neuron interface should not have a caching strategy.", type);
         }
         if (isSerializable(type)) {
             warn("A neuron type should not be serializable.", type);

@@ -15,8 +15,6 @@
  */
 package global.namespace.neuron.di.scala
 
-import global.namespace.neuron.di.java.{Neuron => jNeuron}
-
 import scala.annotation.{StaticAnnotation, compileTimeOnly}
 import scala.language.experimental.macros
 import scala.reflect.macros.blackbox
@@ -56,7 +54,7 @@ private object Neuron {
 
       lazy val returnType: Type = symbol.returnType.asSeenFrom(targetType, symbol.owner)
 
-      lazy val functionType: Type = c.typecheck(tree = tq"$targetType => $returnType", mode = c.TYPEmode).tpe
+      lazy val functionType: Type = c.typecheck(tq"$targetType => $returnType", mode = c.TYPEmode).tpe
 
       override def toString: String = {
         val typePrefix = if (isNeuronType) "neuron" else "non-neuron"
@@ -85,7 +83,7 @@ private object Neuron {
       }
 
       private def typeCheckDependencyAs(dependencyType: Type): Option[c.Tree] = {
-        c.typecheck(tree = dependency, pt = dependencyType, silent = true) match {
+        c.typecheck(dependency, pt = dependencyType, silent = true) match {
           case `EmptyTree` => None
           case typeCheckedDependency => Some(typeCheckedDependency)
         }

@@ -17,6 +17,8 @@ package global.namespace.neuron.di.scala
 
 import scala.annotation.tailrec
 
+// The error checks in this class must match the error chacks in
+// `global.namespace.neuron.di.internal.NeuronProcessor`!
 private trait NeuronAnnotation extends MacroAnnotation {
 
   import c.universe._
@@ -31,11 +33,17 @@ private trait NeuronAnnotation extends MacroAnnotation {
         if (mods hasFlag FINAL) {
           error("A neuron class must not be final.")
         }
-        if (!hasNonPrivateConstructorWithoutParameters(impl)) {
-          error("A neuron class must have a non-private constructor without parameters.")
+        if (!(mods hasFlag ABSTRACT)) {
+          warn("A neuron class should be abstract.")
+        }
+        if (!hasEitherNoConstructorOrANonPrivateConstructorWithoutParameters(impl)) {
+          error("A neuron type must have either no constructor or a non-private constructor without parameters.")
+        }
+        if ((mods hasFlag INTERFACE) && !isCachingDisabled) {
+          warn("A neuron interface should not have a caching strategy.")
         }
         if (isSerializable(impl)) {
-          warn("A neuron class or interface should not be serializable.")
+          warn("A neuron type should not be serializable.")
         }
         if (c.hasErrors) {
           inputs
@@ -61,13 +69,8 @@ private trait NeuronAnnotation extends MacroAnnotation {
             val Apply(_, args) = c.prefix.tree
             val Apply(fun, _) = newNeuronAnnotationTerm
             Apply(fun, args map {
-              case q"cachingStrategy = ${rhs: Tree}" =>
-                q"cachingStrategy = ${scala2javaCachingStrategy(rhs)}" match {
-                  case Assign(x, y) => AssignOrNamedArg(x, y)
-                  case other => other
-                }
-              case tree =>
-                tree
+              case AssignOrNamedArg(lhs@q"cachingStrategy", rhs: Tree) => AssignOrNamedArg(lhs, scala2javaCachingStrategy(rhs))
+              case tree => tree
             })
           }
           ClassDef(mods.mapAnnotations(shim ::: neuron :: _), tname, tparams, applyCachingAnnotation(impl)) :: {
@@ -96,17 +99,10 @@ private trait NeuronAnnotation extends MacroAnnotation {
 
   private lazy val enclosingOwner = c.internal.enclosingOwner
 
-  private def hasNonPrivateConstructorWithoutParameters(template: Template) = {
+  private def hasEitherNoConstructorOrANonPrivateConstructorWithoutParameters(template: Template) = {
     val Template(_, _, body) = template
-    !(body exists isConstructor) ||
-      (body exists isNonPrivateConstructorWithoutParameters)
-  }
-
-  private def isConstructor(tree: Tree) = {
-    tree match {
-      case DefDef(_, termNames.CONSTRUCTOR, _, _, _, _) => true
-      case _ => false
-    }
+    val constructors = body collect { case c@DefDef(_, termNames.CONSTRUCTOR, _, _, _, _) => c }
+    constructors.isEmpty || (constructors exists isNonPrivateConstructorWithoutParameters)
   }
 
   private def isNonPrivateConstructorWithoutParameters(tree: Tree) = {
@@ -115,6 +111,13 @@ private trait NeuronAnnotation extends MacroAnnotation {
         if !mods.hasFlag(PRIVATE) => true
       case _ => false
     }
+  }
+
+  private def isCachingDisabled = {
+    !c.prefix.tree.collect {
+      case q"cachingStrategy = ${Select(_, TermName(name: String))}" => name
+      case q"cachingStrategy = ${Ident(TermName(name: String))}" => name
+    }.exists(_ != "DISABLED")
   }
 
   private def isSerializable(template: Template) = {
