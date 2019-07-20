@@ -19,8 +19,6 @@ import global.namespace.neuron.di.java.Neuron;
 
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
-import javax.annotation.processing.SupportedSourceVersion;
-import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.*;
 import javax.lang.model.type.DeclaredType;
@@ -35,7 +33,6 @@ import static javax.lang.model.type.TypeKind.VOID;
 
 // The error checks in this class must match the error checks in
 // `global.namespace.neuron.di.scala.CachingAnnotation`!
-@SupportedSourceVersion(SourceVersion.RELEASE_8)
 @SupportedAnnotationTypes("global.namespace.neuron.di.java.Caching")
 public final class CachingProcessor extends CommonProcessor {
 

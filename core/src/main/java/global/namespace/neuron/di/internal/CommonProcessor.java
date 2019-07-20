@@ -17,12 +17,20 @@ package global.namespace.neuron.di.internal;
 
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Messager;
+import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 
 import static javax.tools.Diagnostic.Kind.ERROR;
 import static javax.tools.Diagnostic.Kind.WARNING;
 
 abstract class CommonProcessor extends AbstractProcessor {
+
+    @Override
+    public SourceVersion getSupportedSourceVersion() {
+        // Suppress the following warning from the Java compiler, where X < Y:
+        // Supported source version 'RELEASE_<X>' from annotation processor 'global.namespace.neuron.di.internal.<*>' less than -source '<Y>'
+        return SourceVersion.latest();
+    }
 
     private Messager messager() {
         return processingEnv.getMessager();

@@ -19,8 +19,6 @@ import global.namespace.neuron.di.java.Neuron;
 
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
-import javax.annotation.processing.SupportedSourceVersion;
-import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
@@ -36,7 +34,6 @@ import static javax.lang.model.element.Modifier.*;
 
 // The error checks in this class must match the error checks in
 // `global.namespace.neuron.di.scala.NeuronAnnotation`!
-@SupportedSourceVersion(SourceVersion.RELEASE_8)
 @SupportedAnnotationTypes("global.namespace.neuron.di.java.Neuron")
 public final class NeuronProcessor extends CommonProcessor {
 
