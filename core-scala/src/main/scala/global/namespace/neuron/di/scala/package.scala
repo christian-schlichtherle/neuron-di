@@ -32,10 +32,10 @@ package object scala {
 
   object CachingStrategy {
 
-    val DISABLED = jCachingStrategy.DISABLED
-    val NOT_THREAD_SAFE = jCachingStrategy.DISABLED
-    val THREAD_SAFE = jCachingStrategy.DISABLED
-    val THREAD_LOCAL = jCachingStrategy.DISABLED
+    val DISABLED: CachingStrategy = jCachingStrategy.DISABLED
+    val NOT_THREAD_SAFE: CachingStrategy = jCachingStrategy.NOT_THREAD_SAFE
+    val THREAD_SAFE: CachingStrategy = jCachingStrategy.THREAD_SAFE
+    val THREAD_LOCAL: CachingStrategy = jCachingStrategy.THREAD_LOCAL
   }
 
   /** Breeds a neuron of the given type, wiring each synapse to a value with the same name and an assignment-compatible
