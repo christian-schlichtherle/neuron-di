@@ -273,7 +273,7 @@ acquire_sbt_jar () {
     sbt_jar="$(jar_file "$sbt_version")"
     [[ -r "$sbt_jar" ]]
   } || {
-    sbt_jar="$HOME/.ivy2/local/org.scala-sbt/sbt-launch/$sbt_version/jars/sbt-launch.jar"
+    sbt_jar="$HOME/.ivy2/local/org.scala-sbtw/sbtw-launch/$sbt_version/jars/sbtw-launch.jar"
     [[ -r "$sbt_jar" ]]
   } || {
     sbt_jar="$(jar_file "$sbt_version")"
@@ -509,7 +509,7 @@ else
   case "$sbt_version" in
     "0.7."* | "0.10."* | "0.11."* | "0.12."* )
       [[ -n "$sbt_dir" ]] || {
-        sbt_dir="$HOME/.sbt/$sbt_version"
+        sbt_dir="$HOME/.sbtw/$sbt_version"
         vlog "Using $sbt_dir as sbt dir, -sbt-dir to override."
       }
     ;;

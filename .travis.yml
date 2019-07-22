@@ -23,5 +23,5 @@ services:
   - docker
 
 script:
-  - ./docker-sbt $COMPILE_IMAGE_TAG +test:compile
-  - ./docker-sbt $TEST_IMAGE_TAG +test
+  - ./docker-sbtw $COMPILE_IMAGE_TAG +test:compile
+  - ./docker-sbtw $TEST_IMAGE_TAG +test
