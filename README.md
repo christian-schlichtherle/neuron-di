@@ -247,7 +247,7 @@ interface HttpHandler<C extends HttpController> {
 }
 ```
 
-The `apply([...])` method calls the method `wire([...])` again, but this time the term is a bit more complex:
+The method `apply([...])` calls the method `wire([...])` again, but this time the term is a bit more complex:
 
 + The controller class to instantiate is not provided as a class literal, but returned by the method `controller()`.
 + The synapse method `HttpController.exchange()` is bound to the method parameter `exchange`.
