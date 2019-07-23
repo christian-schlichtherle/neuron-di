@@ -25,7 +25,7 @@ Neuron DI provides the following **features**:
 - caching of dependencies by applying a not-thread-safe, thread-safe or thread-local strategy
 - looking up dependencies in any object by delegation
 - dependency checking at compile-time (Scala only)
-- peaceful coexistence with any other DI framework/library
+- peaceful coexistence with any other DI framework or library
 
 Neuron DI frees your code from the following **code smells**:
 
@@ -35,7 +35,7 @@ Neuron DI frees your code from the following **code smells**:
 - qualifier annotations like @Named
 - scope annotations like @Singleton
 - specific application contexts or containers
-- tight coupling with a DI framework/library
+- tight coupling with a DI framework or library
 
 ## Walk-Through
 
