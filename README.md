@@ -162,7 +162,7 @@ Such fields or methods are called _dependency provider fields_ or _dependency pr
 
 A dependency provider method may be abstract, in which case it's also a synapse method and hence the module is a neuron 
 class or interface.
-You can either use regular inheritance and implement the synapse method in a subclass or subinterface or you can use 
+You can either use regular inheritance and implement the synapse method in a subclass or sub-interface or you can use 
 another `wire([...]).using([...])` term to wire the module by looking up its dependencies in some delegate object, 
 ideally another module.
 This kind of module stacking enables the modules to have different scopes:
@@ -181,7 +181,7 @@ Modules classes or interfaces are implementations of the module pattern, not of 
 
 ### About Booting Applications
 
-The `Module` class is abstract to prevent you from accidentally using `new Module()` - this would ignore the `@Caching` 
+The `Module` class is abstract to prevent you from accidentally calling `new Module()` - this would ignore the `@Caching` 
 annotation.
 Also, we haven't seen how a `GreetingController` is created.
 So how do these objects get created?
@@ -206,16 +206,17 @@ public abstract class Main extends Module implements HttpServer {
 }
 ```  
 
-The main class extends our module class, so it inherits the `@Neuron` and `@Caching` annotations and thus, it should be 
-abstract to prevent you from accidentally using `new Main()`.
+The main class extends our module class, so it inherits the `@Neuron` and `@Caching` annotations and hence it should be 
+abstract again to prevent you from accidentally calling `new Main()`.
 To create our application instance, the `main([...])` method calls the method `breed(...)` in the class `Incubator`.
-This method is suitable for creating a neuron without any synapse methods.
-A main class should not have any synapse methods, that is, unsatisfied dependencies, so it's a perfect match. 
+This method is designed for creating a neuron without any synapse methods.
+A main class should not have any synapse methods, that is, it should not have any unsatisfied dependencies, so it's a 
+perfect match. 
 
 The remaining method calls use the [domain-specific language] (DSL) inherited from the `HttpServer` interface to 
 configure the routing of HTTP calls and start a web server.
 The DSL instructs the web server to create an instance of the `GreetingController` interface and call its `get()` method
-for each `GET` request to the URI path `/greeting`.
+whenever it receives a `GET` request for the URI path `/greeting`.
 
 The actual creation of the controller instance is hidden by the DSL and looks similar to this:
 
@@ -248,11 +249,15 @@ interface HttpHandler<C extends HttpController> {
 
 The `apply([...])` method uses the method `wire([...])` again, but this time the term is a bit more complex:
 
-+ The controller class to instantiate is not a class literal, but provided by the method `controller()`.
++ The controller class to instantiate is not provided as a class literal, but returned by the method `controller()`.
 + The synapse method `HttpController.exchange()` is bound to the method parameter `exchange`.
 + The synapse method `HttpController.responseBody` is bound to the local variable `responseBody`.
-+ Any other synapse methods will be bound to dependency provider methods or fields in the server object, which is our 
-  `Main` instance.
++ Any other synapse methods will be bound to dependency provider methods or fields in the server object, which is an 
+  instance of the application class `Main`, thereby effectively delegating any dependencies of controller classes to 
+  the application class.
+
+Note that any controller instances are request scoped, so they may even be mutable, while the main class (with its 
+module superclass) is application scoped, so it should be immutable. 
 
 ### About Application Performance
 
@@ -261,15 +266,15 @@ It saves its findings in class-loader sensitive caches to speed up subsequent ca
 For proxy class generation, it uses ASM.
 The actual dispatching of synapse methods to dependency provider methods or fields is done using method handles.
 Tests have shown that the per-call overhead of synapse methods in comparison to hand-written implementations is below 
-the level of noise induced by the garbage collection - YMMV. 
+the level of noise typically induced by the standard garbage collection. 
 
 ### About Illegal Reflective Access
 
 Illegal reflective access is avoided wherever possible:
 
-+ No illegal reflective access whatsoever is required for dynamic loading of proxy classes.
-+ If a dependency provider method in a non-public subclass or interface overrides or implements a method in a public 
-  superclass or interface, then the public superclass or interface is used.
++ No illegal reflective access whatsoever is required for dynamic loading of generated proxy classes.
++ If a dependency provider method in a non-public subclass or sub-interface overrides or implements a method in a public 
+  superclass or super-interface, then the public superclass or super-interface is used.
 
 ## Documentation
 
