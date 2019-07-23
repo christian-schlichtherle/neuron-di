@@ -236,14 +236,13 @@ interface HttpHandler<C extends HttpController> {
     HttpServer server();
 
     default void apply(HttpExchange exchange) throws Exception {
-        [...]
         try (OutputStream responseBody = [...]) {
             C controller = wire(controller())
                     .bind(HttpController::exchange).to(exchange)
                     .bind(HttpController::responseBody).to(responseBody)
                     .using(server())
+            [...]
         }
-        [...]
     }
 }
 ```
