@@ -16,7 +16,7 @@ It takes a radically different approach to the problem of DI than any [JSR 330] 
 
 ## Features
 
-Neuron DI provides the following features:
+Neuron DI provides the following **features**:
 
 - dependency injection into abstract methods without parameters, called _synapse methods_
 - lazy resolution of dependencies
@@ -38,9 +38,13 @@ Neuron DI **frees** your code from the following **code smells**:
 
 ## Example
 
+The sample code discussed in this chapter has been derived from another GitHub repository, named 
+[Neuron DI Examples for Java].
+Please check out this repository for more glory options and details.
+ 
 ### About Neurons And Synapses
 
-Consider the following sample code, taken from [Neuron DI Examples for Java]:
+Consider the following sample code:
 
 ```java
 import java.util.*;
