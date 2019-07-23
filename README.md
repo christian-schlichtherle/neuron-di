@@ -37,7 +37,7 @@ Neuron DI frees your code from the following **code smells**:
 - specific application contexts or containers
 - tight coupling with a DI framework/library
 
-## Example
+## Walk-Through
 
 The sample code discussed in this chapter is derived from another GitHub repository, named
 [Neuron DI Examples For Java].
