@@ -109,7 +109,7 @@ public interface GreetingController extends HttpController {
 
 In this case, the body of the `get()` method depends on the synapse method `greetingService()`. 
 
-### About Modules and the Incubator
+### About Modules And The Incubator
 
 In a large code base, you will have many neuron classes and interfaces and you will need to wire them into a dependency 
 graph somewhere.
