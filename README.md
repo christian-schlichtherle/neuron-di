@@ -39,7 +39,7 @@ Neuron DI frees your code from the following **code smells**:
 ## Example
 
 The sample code discussed in this chapter is derived from another GitHub repository, named
-[Neuron DI Examples for Java].
+[Neuron DI Examples For Java].
 Please check out this repository for more options and all the glory details.
 
 The Scala API of Neuron DI provides some exclusive features which are not discussed here for the sake of brevity, like 
@@ -303,5 +303,5 @@ Neuron DI is covered by the Apache License, Version 2.0.
 [Domain-Specific Language]: https://en.wikipedia.org/wiki/Domain-specific_language
 [Features and Benefits]: ../../wiki/Features
 [JSR 330]: https://www.jcp.org/en/jsr/detail?id=330
-[Neuron DI Examples for Java]: https://github.com/christian-schlichtherle/neuron-di-examples
+[Neuron DI Examples For Java]: https://github.com/christian-schlichtherle/neuron-di-examples
 [Wiki]: ../../wiki
