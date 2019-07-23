@@ -208,10 +208,10 @@ public abstract class Main extends Module implements HttpServer {
 
 The main class extends our module class, so it inherits the `@Neuron` and `@Caching` annotations and hence it should be 
 abstract again to prevent you from accidentally calling `new Main()`.
-To create our application instance, the `main([...])` method calls the method `breed(...)` in the class `Incubator`.
-This method is designed for creating a neuron without any synapse methods.
-A main class should not have any synapse methods, that is, it should not have any unsatisfied dependencies, so it's a 
-perfect match. 
+To create our application instance, the main method calls the method `breed([...])` in the class `Incubator`.
+This method is designed for creating a neuron object which does not have any synapse methods.
+Obviously, a main class should never have any synapse methods, that is, it should never have any unsatisfied 
+dependencies, so it's a perfect match. 
 
 The remaining method calls use the [domain-specific language] (DSL) inherited from the `HttpServer` interface to 
 configure the routing of HTTP calls and start a web server.
