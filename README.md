@@ -38,9 +38,9 @@ Neuron DI frees your code from the following **code smells**:
 
 ## Example
 
-The sample code discussed in this chapter has been derived from another GitHub repository, named 
+The sample code discussed in this chapter is derived from another GitHub repository, named
 [Neuron DI Examples for Java].
-Please check out this repository for more glory options and details.
+Please check out this repository for more options and all the glory details.
 
 The Scala API of Neuron DI provides some exclusive features which are not discussed here for the sake of brevity, like 
 compile-time dependency checking using the `wire` macro.
@@ -67,23 +67,27 @@ public interface GreetingService extends BiFunction<List<Locale>, Optional<Strin
 ```
 
 `GreetingService` has two abstract methods without parameters: `defaultLocale()` and `greetingMessages()`.
-These methods return dependencies of the code in the `apply([...])` method (not shown here).
-In production code, you should apply the interface segregation principle and move the implementation to another class or 
-interface (again, not shown here).
-
+These methods return dependencies of the code in the `apply([...])` method (not shown).
 In Neuron DI, abstract methods without parameters are called _synapse methods_ and their enclosing types are called
 _neuron classes_ or _neuron interfaces_.
 This concept is entirely abstract:
-As you can see there is no dependency of the `GreetingService` interface on the API of Neuron DI.
+There is no dependency of the `GreetingService` interface on the API of Neuron DI.
 
-One of the benefits of this approach is that synapse methods not only give the returned dependency a location and a 
-(return) type, but also a (method) _name_.
+> ###### Tip
+>
+> The body of the `apply([...])` method and its dependencies `defaultLocale()` and `greetingMessages()` are actually
+> implementation details!
+> So, according to the interface segregation and dependency inversion principles these methods should be moved to 
+> another class or interface (not shown). 
+
+One of the benefits of this approach is that synapse methods not only give a dependency a location and a (return) type,
+but also a (method) _name_.
 This is why Neuron DI doesn't need any qualifier annotations such as `@Named`.    
 
-Another benefit is that dependency resolution is inherently _lazy by design_, but may be _eager by choice_:
+Another benefit is that dependency resolution is inherently _lazy by design_, but can also be _eager by choice_:
 When a neuron is constructed, you get to choose if you want to delegate each call to a synapse method to another method 
 in another object (lazy dependency resolution) or if you simply want to return a pre-computed value (eager dependency 
-resolution) - see below for an example.
+resolution).
 
 Following is an HTTP controller which depends on a `GreetingService`:
 
@@ -103,20 +107,19 @@ public interface GreetingController extends HttpController {
 }
 ```
 
-As you can see, the implementation of the `get()` method depends on the return value of the synapse method 
-`greetingService()`. 
+In this case, the body of the `get()` method depends on the synapse method `greetingService()`. 
 
 ### About Modules and the Incubator
 
 In a large code base, you will have many neuron classes and interfaces and you will need to wire them into a dependency 
 graph somewhere.
-This is where the module pattern comes into place:
+This is where the module pattern comes into play:
 A module bundles a group of factory methods for application components which may depend on each other into a single 
 object.
 
 In design pattern parlance, the module pattern is a blend of the factory pattern and the mediator pattern because a 
-module not only creates (and optionally caches) application components, but may also delegate back to itself whenever 
-some of their dependencies need to get resolved.
+module not only creates (and optionally caches) application components, but typically delegates back to itself whenever 
+any of their dependencies need to get resolved.
 
 Consider the following sample code:
 
@@ -146,30 +149,30 @@ abstract class Module {
 ```
 
 The factory method in this case is `greetingService()`:
-Its implementation calls the static method `wire([...])` in the class `Incubator` from the Java API of Neuron DI.
+Its body calls the static method `wire([...])` in the class `Incubator` from the Java API of Neuron DI.
 The term `wire(GreetingService.class).using(this)` specifically tells the incubator to make a `GreetingService` and look 
 up any of its dependencies in `this` module object.
 This technique is called _dependency delegation_.
-There are other options to wire a neuron, but dependency delegation is easy to use, yet extremely versatile.
+There are other options to wire a neuron, but dependency delegation is easy to use, yet very versatile.
 
 When looking up dependencies, the `using([...])` method accepts any method without parameters or any field with the same
-name than the synapse method and an assignment compatible return value - regardless of any modifiers.
+name as the synapse method and an assignment compatible return value - regardless of any modifiers.
 In this case, it finds the private, static fields `defaultLocale` and `greetingMessages`.
 Such fields or methods are called _dependency provider fields_ or _dependency provider methods_.
 
-A dependency provider method may be abstract, in which case it's also a synapse method and hence the model is a neuron 
+A dependency provider method may be abstract, in which case it's also a synapse method and hence the module is a neuron 
 class or interface.
-You can either use classic inheritance and implement the synapse method in a subclass or subinterface or you can use 
+You can either use regular inheritance and implement the synapse method in a subclass or subinterface or you can use 
 another `wire([...]).using([...])` term to wire the module by looking up its dependencies in some delegate object, 
 ideally another module.
-This kind of module stacking is extremely powerful because the modules may have different scopes:
+This kind of module stacking enables the modules to have different scopes:
 For example, the delegate module may be application scoped while the delegating module may be request scoped.
 This is why Neuron DI doesn't need any scope annotations such as `@Singleton`.
 
 In this case, the module is application scoped and the `GreetingService` is immutable, so it's a good idea to cache it
-for future use.
+for subsequent use.
 The `@Caching` annotation makes sure that the body of the method `greetingService()` is called at most once.
-For Scala developers, the effect is the same as the `lazy val` definition.
+For Scala developers, the effect is the same as a `lazy val` definition.
 The `@Caching` annotation requires the `@Neuron` annotation on the class or interface.
 So although this module class does not have any synapse methods, it's a neuron class by declaration.
 
