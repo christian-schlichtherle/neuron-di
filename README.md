@@ -218,7 +218,7 @@ configure the routing of HTTP calls and start a web server.
 The DSL instructs the web server to create an instance of the `GreetingController` interface and call its `get()` method
 whenever it receives a `GET` request for the URI path `/greeting`.
 
-The actual creation of the controller instance is hidden by the DSL and looks similar to this:
+The actual creation of the controller instance is happening in the web framework and looks similar to this:
 
 ```java
 package example.web.framework;
