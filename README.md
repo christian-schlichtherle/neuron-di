@@ -4,14 +4,15 @@
 # Neuron DI
 
 As a Java developer, does Spring or Guice give you a headache?
-Maybe you are tired of annotation frenzy or slow startup times for application and test code?  
+Maybe you are tired of annotation frenzy or slow startup times of your application and test code?  
 
 As a Scala developer, do you frown upon the Cake pattern?
-Maybe you are looking for something simple, yet scalable while retaining compile-time dependency checking?
+Maybe you are looking for something simpler, yet scalable while retaining compile-time dependency checking?
 
-Neuron DI is a tiny library for dependency injection in Java and Scala which helps you structure your application or 
-library code with ease, whether it's small or large.
-It takes a radically different approach to the problem than any JSR 330 based framework (Spring, Guice, ...).
+Neuron DI is a tiny library for dependency injection (DI) in Java and Scala which helps you structure your application
+or library code with ease, whether it's small or large.
+It takes a radically different approach to the problem of DI than any [JSR 330] based framework like 
+[Spring, Guice etc](http://javax-inject.github.io/javax-inject/).
 
 ## Features
 
@@ -25,14 +26,14 @@ Neuron DI provides the following features:
 - dependency injection into third-party code, e.g. `java.util.function.Supplier`
 - peaceful coexistence with any other DI framework/library
 
-Neuron DI **frees** your code from the following **pains**:
+Neuron DI **frees** your code from the following **code smells**:
 
-- constructor injection
-- method injection
-- field injection
-- qualifier annotations, e.g. @Named
-- scope annotations, e.g. @Singleton
-- application contexts
+- copy constructors for constructor injection
+- mutable classes for method injection
+- bad testability because of (private) field injection
+- qualifier annotations like @Named
+- scope annotations like @Singleton
+- specific application contexts or containers
 - tight coupling with a DI framework/library
 
 ## Example
@@ -243,6 +244,23 @@ The `apply([...])` method uses the method `wire([...])` again, but this time the
 + Any other synapse methods will be bound to dependency provider methods or fields in the server object, which is our 
   `Main` instance.
 
+### About Application Performance
+
+Neuron DI uses reflection to analyze neuron and dependency provider classes or interfaces at runtime.
+It saves its findings in class-loader sensitive caches to speed up subsequent calls.
+For proxy class generation, it uses ASM.
+The actual dispatching of synapse methods to dependency provider methods or fields is done using method handles.
+Tests have shown that the per-call overhead of synapse methods in comparison to hand-written implementations is below 
+the level of noise induced by the garbage collection - YMMV. 
+
+### About Illegal Reflective Access
+
+Illegal reflective access is avoided wherever possible:
+
++ No illegal reflective access whatsoever is required for dynamic loading of proxy classes.
++ If a dependency provider method in a non-public subclass or interface overrides or implements a method in a public 
+  superclass or interface, then the public superclass or interface is used.
+
 ## Documentation
 
 For documentation, please consult the following resources:
@@ -267,7 +285,8 @@ Release artifacts are deployed to [Maven Central](https://search.maven.org/#sear
 
 Neuron DI is covered by the Apache License, Version 2.0.
 
-[Wiki]: ../../wiki
-[Features and Benefits]: ../../wiki/Features
-[Neuron DI Examples for Java]: https://github.com/christian-schlichtherle/neuron-di-examples
 [Domain-Specific Language]: https://en.wikipedia.org/wiki/Domain-specific_language
+[Features and Benefits]: ../../wiki/Features
+[JSR 330]: https://www.jcp.org/en/jsr/detail?id=330
+[Neuron DI Examples for Java]: https://github.com/christian-schlichtherle/neuron-di-examples
+[Wiki]: ../../wiki
