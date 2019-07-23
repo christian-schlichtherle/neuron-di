@@ -252,9 +252,9 @@ The method `apply([...])` calls the method `wire([...])` again, but this time th
 + The controller class to instantiate is not provided as a class literal, but returned by the method `controller()`.
 + The synapse method `HttpController.exchange()` is bound to the method parameter `exchange`.
 + The synapse method `HttpController.responseBody` is bound to the local variable `responseBody`.
-+ Any other synapse methods will be bound to dependency provider methods or fields in the server object, which is an 
-  instance of the application class `Main`, thereby effectively delegating any dependencies of controller classes to 
-  the application class.
++ Any other synapse methods of the controller class or interface will be bound to dependency provider methods or fields 
+  in the server object, which is an instance of the application class `Main`, thereby effectively delegating any 
+  dependencies of controller classes or interfaces to the application class.
 
 Note that any controller instances are request scoped, so they may even be mutable, while the main class (with its 
 module superclass) is application scoped, so it should be immutable. 
