@@ -18,12 +18,13 @@ It takes a radically different approach to the problem of DI than any [JSR 330] 
 
 Neuron DI provides the following **features**:
 
-- dependency injection into abstract methods without parameters, called _synapse methods_
+- dependency injection into _any_ abstract methods without parameters, called _synapse methods_
+- synapse methods can be members of _any_ class or interface, called a _neuron class_ or _neuron interface_
+- dependency injection into third-party code like `java.util.function.Supplier.get()`
 - lazy resolution of dependencies
-- caching of dependencies: not-thread-safe, thread-safe or thread-local
+- caching of dependencies by applying a not-thread-safe, thread-safe or thread-local strategy
 - looking up dependencies in any object by delegation
 - dependency checking at compile-time (Scala only)
-- dependency injection into third-party code like `java.util.function.Supplier.get()`
 - peaceful coexistence with any other DI framework/library
 
 Neuron DI frees your code from the following **code smells**:
