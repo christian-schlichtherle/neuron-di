@@ -23,10 +23,10 @@ Neuron DI provides the following **features**:
 - caching of dependencies: not-thread-safe, thread-safe or thread-local
 - looking up dependencies in any object by delegation
 - dependency checking at compile-time (Scala only)
-- dependency injection into third-party code, e.g. `java.util.function.Supplier`
+- dependency injection into third-party code like `java.util.function.Supplier.get()`
 - peaceful coexistence with any other DI framework/library
 
-Neuron DI **frees** your code from the following **code smells**:
+Neuron DI frees your code from the following **code smells**:
 
 - copy constructors for constructor injection
 - mutable classes for method injection
@@ -41,7 +41,10 @@ Neuron DI **frees** your code from the following **code smells**:
 The sample code discussed in this chapter has been derived from another GitHub repository, named 
 [Neuron DI Examples for Java].
 Please check out this repository for more glory options and details.
- 
+
+The Scala API of Neuron DI provides some exclusive features which are not discussed here for the sake of brevity, like 
+compile-time dependency checking using the `wire` macro.
+
 ### About Neurons And Synapses
 
 Consider the following sample code:
@@ -143,7 +146,7 @@ abstract class Module {
 ```
 
 The factory method in this case is `greetingService()`:
-Its implementation calls the static method `wire([...])` in the class `Incubator` from the API of Neuron DI.
+Its implementation calls the static method `wire([...])` in the class `Incubator` from the Java API of Neuron DI.
 The term `wire(GreetingService.class).using(this)` specifically tells the incubator to make a `GreetingService` and look 
 up any of its dependencies in `this` module object.
 This technique is called _dependency delegation_.
