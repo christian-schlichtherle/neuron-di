@@ -314,8 +314,8 @@ class GreetingServiceSpec extends WordSpec {
 
 In this unit test, `greetingService` is initialized using the `wire` macro in the package 
 `global.namespace.neuron.di.scala`, which provides the Scala API of Neuron DI.
-The macro figures that the `GreetingService` interface has two synapse methods, `defaultLocale` and `greetingMessages`,
-and looks them up in the current scope.
+The macro figures that the `GreetingService` interface has two synapse methods, `defaultLocale()` and 
+`greetingMessages()`, and looks up corresponding methods or fields in the current scope.
 If no such methods or fields are available or if their (return) types are not assignment-compatible, then the macro
 emits an error message. 
 
