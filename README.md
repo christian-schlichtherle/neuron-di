@@ -7,7 +7,7 @@ As a Java developer, does Spring or Guice give you a headache?
 Maybe you are tired of annotation frenzy or slow startup times of your application and test code?  
 
 As a Scala developer, do you frown upon the Cake pattern?
-Maybe you are looking for something simpler, yet scalable while retaining compile-time dependency checking?
+Maybe you are looking for something simpler, yet scalable while retaining compile-time dependency injection?
 
 Neuron DI is a tiny library for dependency injection (DI) in Java and Scala which helps you structure your application
 or library code with ease, whether it's small or large.
@@ -24,7 +24,7 @@ Neuron DI provides the following **features**:
 - lazy resolution of dependencies
 - caching of dependencies by applying a not-thread-safe, thread-safe or thread-local strategy
 - looking up dependencies in any object by delegation
-- dependency checking at compile-time (Scala only)
+- dependency injection at compile-time (Scala only)
 - peaceful coexistence with any other DI framework or library
 
 Neuron DI frees your code from the following **code smells**:
@@ -37,6 +37,26 @@ Neuron DI frees your code from the following **code smells**:
 - specific application contexts or containers
 - tight coupling with a DI framework or library
 
+## Benefits
+
+Neuron DI is a hybrid - it supports both runtime and compile-time DI:
+
+With Java, your code is constrained to use runtime DI, but Neuron DI frees it from the shortcomings and the ballast of 
+JSR 330 - see [next section](#walk-through).
+It also adds caching like you can do with a `lazy val` definition in Scala, but with more options like not-thread-safe 
+caching or even thread-local caching, so you can say goodbye to the `ThreadLocal` class.
+With cached synapse methods you can effectively inject dependencies into interfaces, which means you can compose your 
+application mostly of mix-in interfaces like you can do in Scala. 
+
+With Scala, you can use all the features for Java plus compile-time DI:
+With compile-time DI, you can avoid the (albeit minimal) runtime overhead plus you get a compiler error if any 
+dependency is missing.
+
+All in all, Neuron DI is designed to close some gaps between Java and Scala, allowing you to more easily mix these 
+languages in your project.
+For example, you can want to write your main code in Java and your test code in Scala.
+Neuron DI then lets you take the same approach to DI with both languages.
+
 ## Walk-Through
 
 The sample code discussed in this chapter is derived from another GitHub repository, named
@@ -44,7 +64,7 @@ The sample code discussed in this chapter is derived from another GitHub reposit
 Please check out this repository for more options and all the glory details.
 
 The Scala API of Neuron DI provides some exclusive features which are not discussed here for the sake of brevity, like 
-compile-time dependency checking using the `wire` macro.
+compile-time dependency injection using the `wire` macro.
 
 ### About Neurons And Synapses
 
