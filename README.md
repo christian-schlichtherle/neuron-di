@@ -278,7 +278,7 @@ The `apply([...])` method calls the `wire([...])` method again, but this time th
 Note that any controller instances are request scoped, so they may even be mutable, while the main class (with its 
 module superclass) is application scoped, so it should be immutable. 
 
-## About Unit Testing
+### About Unit Testing
 
 The Scala API of Neuron DI provides an exclusive feature: 
 Compile-time dependency injection using the `wire` macro.
