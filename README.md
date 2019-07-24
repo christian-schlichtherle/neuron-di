@@ -45,8 +45,8 @@ With Java, your code is constrained to runtime DI, but Neuron DI frees it from t
 JSR 330 - see [next section](#walk-through).
 It also adds caching like you can do with a `lazy val` definition in Scala, but with more options like not-thread-safe 
 caching or even thread-local caching, so you can say goodbye to the `ThreadLocal` class.
-With cached synapse methods you can effectively inject dependencies into interfaces, which means you can compose your 
-application mostly of mix-in interfaces like you can do in Scala. 
+With synapse methods and caching you can effectively inject dependencies into interfaces, which means you can compose
+your application mostly of mix-in interfaces like you can do in Scala. 
 
 With Scala, you can use all the features for Java plus compile-time DI:
 With compile-time DI, you can avoid the (albeit minimal) runtime overhead plus you get a compiler error if any 
