@@ -41,7 +41,7 @@ Neuron DI frees your code from the following **code smells**:
 
 Neuron DI is a hybrid - it supports both runtime and compile-time DI:
 
-With Java, your code is constrained to use runtime DI, but Neuron DI frees it from the shortcomings and the ballast of 
+With Java, your code is constrained to runtime DI, but Neuron DI frees it from the shortcomings and the ballast of 
 JSR 330 - see [next section](#walk-through).
 It also adds caching like you can do with a `lazy val` definition in Scala, but with more options like not-thread-safe 
 caching or even thread-local caching, so you can say goodbye to the `ThreadLocal` class.
@@ -50,11 +50,11 @@ application mostly of mix-in interfaces like you can do in Scala.
 
 With Scala, you can use all the features for Java plus compile-time DI:
 With compile-time DI, you can avoid the (albeit minimal) runtime overhead plus you get a compiler error if any 
-dependency is missing.
+dependency is missing or has the wrong type.
 
 All in all, Neuron DI is designed to close some gaps between Java and Scala, allowing you to more easily mix these 
-languages in your project.
-For example, you can want to write your main code in Java and your test code in Scala.
+languages in your projects.
+For example, you can write your main code in Java and your test code in Scala.
 Neuron DI then lets you take the same approach to DI with both languages.
 
 ## Walk-Through
