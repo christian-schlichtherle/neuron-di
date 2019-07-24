@@ -63,9 +63,6 @@ The sample code discussed in this chapter is derived from another GitHub reposit
 [Neuron DI Examples For Java].
 Please check out this repository for more options and all the glory details.
 
-The Scala API of Neuron DI provides some exclusive features which are not discussed here for the sake of brevity, like 
-compile-time dependency injection using the `wire` macro.
-
 ### About Neurons And Synapses
 
 Consider the following sample code:
@@ -81,7 +78,7 @@ public interface GreetingService extends BiFunction<List<Locale>, Optional<Strin
     Map<Locale, List<String>> greetingMessages();
 
     default String apply(List<Locale> languageRanges, Optional<String> who) {
-        // Some code calling `defaultLocale()` and `greetingMesssages()`
+        // Some code calling `defaultLocale()` and `greetingMesssages()`:
         [...]
     }
 }
@@ -170,7 +167,8 @@ abstract class Module {
 ```
 
 The factory method in this case is `greetingService()`:
-Its body calls the static method `wire([...])` in the class `Incubator` from the Java API of Neuron DI.
+Its body calls the static method `Incubator.wire([...])` in the package `global.namespace.neuron.di.java`, which 
+provides the Java API of Neuron DI.
 The term `wire(GreetingService.class).using(this)` specifically tells the incubator to make a `GreetingService` and look 
 up any of its dependencies in `this` module object.
 This technique is called _dependency delegation_.
@@ -202,8 +200,8 @@ Modules classes or interfaces are implementations of the module pattern, not of 
 
 ### About Booting Applications
 
-The `Module` class is abstract to prevent you from accidentally calling `new Module()` - this would ignore the `@Caching` 
-annotation.
+The `Module` class is abstract to prevent you from accidentally calling `new Module()` - this would ignore the
+`@Caching` annotation.
 Also, we haven't seen how a `GreetingController` is created.
 So how do these objects get created?
 The solution is in the `Main` class:
@@ -229,7 +227,7 @@ public abstract class Main extends Module implements HttpServer {
 
 The main class extends our module class, so it inherits the `@Neuron` and `@Caching` annotations and hence it should be 
 abstract again to prevent you from accidentally calling `new Main()`.
-To create our application instance, the main method calls the method `breed([...])` in the class `Incubator`.
+To create our application instance, the main method calls the `breed([...])` method in the `Incubator` class.
 This method is designed for creating a neuron object which does not have any synapse methods.
 Obviously, a main class should never have any synapse methods, that is, it should never have any unsatisfied 
 dependencies, so it's a perfect match. 
@@ -268,9 +266,9 @@ interface HttpHandler<C extends HttpController> {
 }
 ```
 
-The method `apply([...])` calls the method `wire([...])` again, but this time the term is a bit more complex:
+The `apply([...])` method calls the `wire([...])` method again, but this time the term is a bit more complex:
 
-+ The controller class to instantiate is not provided as a class literal, but returned by the method `controller()`.
++ The controller class to instantiate is not provided as a class literal, but returned by the `controller()` method.
 + The synapse method `HttpController.exchange()` is bound to the method parameter `exchange`.
 + The synapse method `HttpController.responseBody` is bound to the local variable `responseBody`.
 + Any other synapse methods of the controller class or interface will be bound to dependency provider methods or fields 
@@ -279,6 +277,55 @@ The method `apply([...])` calls the method `wire([...])` again, but this time th
 
 Note that any controller instances are request scoped, so they may even be mutable, while the main class (with its 
 module superclass) is application scoped, so it should be immutable. 
+
+## About Unit Testing
+
+The Scala API of Neuron DI provides an exclusive feature: 
+Compile-time dependency injection using the `wire` macro.
+Consider the following [ScalaTest] stub for the `GreetingService` interface:
+
+```scala
+import java.util.Locale._
+
+import global.namespace.neuron.di.scala._
+import org.scalatest.WordSpec
+
+import scala.jdk.CollectionConverters._
+
+class GreetingServiceSpec extends WordSpec {
+
+  "A GreetingService" should {
+    "compute the expected message" in {
+      // Some test code calling `greetingService.apply([...])`:
+      [...]
+    }
+  }
+
+  private lazy val greetingService = wire[GreetingService]
+
+  private lazy val greetingMessages = Map(
+    ENGLISH -> List("Hello, %s!", "world"),
+    GERMAN -> List("Hallo, %s!", "Welt"),
+  ).view.mapValues(_.asJava).toMap.asJava
+
+  private lazy val defaultLocale = ENGLISH
+}
+```
+
+In this unit test, `greetingService` is initialized using the `wire` macro in the package 
+`global.namespace.neuron.di.scala`, which provides the Scala API of Neuron DI.
+The macro figures that the `GreetingService` interface has two synapse methods, `defaultLocale` and `greetingMessages`,
+and looks them up in the current scope.
+If no such methods or fields are available or if their (return) types are not assignment-compatible, then the macro
+emits an error message. 
+
+The Scala API also has its own variant of the `Incubator` class with some syntax sugar added, so you could write this 
+instead:
+
+    private lazy val greetingService = Incubator.wire[GreetingService] using this 
+
+However, the `Incubator` class strictly uses runtime DI, no matter if you use its variant in the Scala API or the Java 
+API, so the `wire` macro is generally preferable. 
 
 ### About Application Performance
 
@@ -297,9 +344,9 @@ Illegal reflective access is avoided wherever possible:
 + If a dependency provider method in a non-public subclass or sub-interface overrides or implements a method in a public 
   superclass or super-interface, then the public superclass or super-interface is used.
 
-## Documentation
+## More Documentation
 
-For documentation, please consult the following resources:
+For more documentation, please consult the following resources:
 
 - [Neuron DI Examples for Java]
 - [Documentation Wiki][Wiki]
@@ -325,4 +372,5 @@ Neuron DI is covered by the Apache License, Version 2.0.
 [Features and Benefits]: ../../wiki/Features
 [JSR 330]: https://www.jcp.org/en/jsr/detail?id=330
 [Neuron DI Examples For Java]: https://github.com/christian-schlichtherle/neuron-di-examples
+[ScalaTest]: http://www.scalatest.org
 [Wiki]: ../../wiki
