@@ -41,7 +41,7 @@ Neuron DI frees your code from the following **code smells**:
 
 Neuron DI is a hybrid - it supports both runtime and compile-time DI:
 
-With Java, your code is constrained to runtime DI, but Neuron DI frees it from the shortcomings and the ballast of 
+With Java, your code is constrained to runtime DI, but Neuron&nbsp;DI frees it from the shortcomings and the ballast of 
 JSR 330 - see [next section](#walk-through).
 It also adds caching like you can do with a `lazy val` definition in Scala, but with more options like not-thread-safe 
 caching or even thread-local caching, so you can say goodbye to the `ThreadLocal` class.
@@ -52,7 +52,7 @@ With Scala, you can use all the features for Java plus compile-time DI:
 With compile-time DI, you can avoid the (albeit minimal) runtime overhead plus you get a compiler error if any 
 dependency is missing or has the wrong type.
 
-All in all, Neuron DI is designed to close some gaps between Java and Scala, allowing you to more easily mix these 
+All in all, Neuron&nbsp;DI is designed to close some gaps between Java and Scala, allowing you to more easily mix these 
 languages in your projects.
 For example, you can write your main code in Java and your test code in Scala.
 Neuron DI then lets you take the same approach to DI with both languages.
@@ -86,21 +86,20 @@ public interface GreetingService extends BiFunction<List<Locale>, Optional<Strin
 
 `GreetingService` has two abstract methods without parameters: `defaultLocale()` and `greetingMessages()`.
 These methods return dependencies of the code in the `apply([...])` method (not shown).
-In Neuron DI, abstract methods without parameters are called _synapse methods_ and their enclosing types are called
+In Neuron&nbsp;DI, abstract methods without parameters are called _synapse methods_ and their enclosing types are called
 _neuron classes_ or _neuron interfaces_.
 This concept is entirely abstract:
-There is no dependency of the `GreetingService` interface on the API of Neuron DI.
+There is no dependency of the `GreetingService` interface on Neuron&nbsp;DI.
 
 > ###### Tip
->
 > The body of the `apply([...])` method and its dependencies `defaultLocale()` and `greetingMessages()` are actually
-> implementation details!
-> So, according to the interface segregation and dependency inversion principles these methods should be moved to 
-> another class or interface (not shown). 
+implementation details!
+So, according to the interface segregation and dependency inversion principles these methods should be moved to 
+another class or interface (not shown). 
 
 One of the benefits of this approach is that synapse methods not only give a dependency a location and a (return) type,
 but also a (method) _name_.
-This is why Neuron DI doesn't need any qualifier annotations such as `@Named`.    
+This is why Neuron&nbsp;DI doesn't need any qualifier annotations such as `@Named`.    
 
 Another benefit is that dependency resolution is inherently _lazy by design_, but can also be _eager by choice_:
 When a neuron is constructed, you get to choose if you want to delegate each call to a synapse method to another method 
@@ -166,9 +165,10 @@ abstract class Module {
 }
 ```
 
-The factory method in this case is `greetingService()`:
-Its body calls the static method `Incubator.wire([...])` in the package `global.namespace.neuron.di.java`, which 
-provides the Java API of Neuron DI.
+In this case, the factory method is `greetingService()`:
+Its body calls the static method `Incubator.wire([...])`.
+The `Incubator` class is located in the package `global.namespace.neuron.di.java`, which provides the Java API of 
+Neuron&nbsp;DI.
 The term `wire(GreetingService.class).using(this)` specifically tells the incubator to make a `GreetingService` and look 
 up any of its dependencies in `this` module object.
 This technique is called _dependency delegation_.
@@ -186,7 +186,7 @@ another `wire([...]).using([...])` term to wire the module by looking up its dep
 ideally another module.
 This kind of module stacking enables the modules to have different scopes:
 For example, the delegate module may be application scoped while the delegating module may be request scoped.
-This is why Neuron DI doesn't need any scope annotations such as `@Singleton`.
+This is why Neuron&nbsp;DI doesn't need any scope annotations such as `@Singleton`.
 
 In this case, the module is application scoped and the `GreetingService` is immutable, so it's a good idea to cache it
 for subsequent use.
@@ -280,9 +280,12 @@ module superclass) is application scoped, so it should be immutable.
 
 ### About Unit Testing
 
-The Scala API of Neuron DI provides an exclusive feature: 
+Writing test code using Neuron&nbsp;DI is no different than writing main code:
+Just use the `Incubator` class to `wire` or `breed` a test neuron.
+
+The following unit test for the `GreetingService` interface is written in Scala using [ScalaTest] and shows an exclusive
+feature of the Scala API of Neuron&nbsp;DI:
 Compile-time dependency injection using the `wire` macro.
-Consider the following [ScalaTest] stub for the `GreetingService` interface:
 
 ```scala
 import java.util.Locale._
@@ -312,8 +315,10 @@ class GreetingServiceSpec extends WordSpec {
 }
 ```
 
-In this unit test, `greetingService` is initialized using the `wire` macro in the package 
-`global.namespace.neuron.di.scala`, which provides the Scala API of Neuron DI.
+The `wire` macro is located in the package `global.namespace.neuron.di.scala`, which provides the Scala API of 
+Neuron&nbsp;DI.
+
+In this unit test, it's used to create the test neuron `greetingService`.
 The macro figures that the `GreetingService` interface has two synapse methods, `defaultLocale()` and 
 `greetingMessages()`, and looks up corresponding methods or fields in the current scope.
 If no such methods or fields are available or if their (return) types are not assignment-compatible, then the macro
@@ -329,7 +334,7 @@ API, so the `wire` macro is generally preferable.
 
 ### About Application Performance
 
-Neuron DI uses reflection to analyze neuron and dependency provider classes or interfaces at runtime.
+Neuron DI uses reflection to analyze neuron and dependency delegate classes or interfaces at runtime.
 It saves its findings in class-loader sensitive caches to speed up subsequent calls.
 For proxy class generation, it uses ASM.
 The actual dispatching of synapse methods to dependency provider methods or fields is done using method handles.
