@@ -347,7 +347,7 @@ Illegal reflective access is avoided wherever possible:
 
 + No illegal reflective access whatsoever is required for dynamic loading of generated proxy classes.
 + If a dependency provider method in a non-public subclass or sub-interface overrides or implements a method in a public 
-  superclass or super-interface, then the public superclass or super-interface is used.
+  superclass or interface, then the public superclass or interface is used.
 
 ## More Documentation
 
