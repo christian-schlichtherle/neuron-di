@@ -16,12 +16,12 @@ env:
   - COMPILE_IMAGE_TAG=9-jdk TEST_IMAGE_TAG=8-jdk  GUICE_VERSION=4.2.2
   - COMPILE_IMAGE_TAG=9-jdk TEST_IMAGE_TAG=12-jdk GUICE_VERSION=4.2.2
 
+install: ./docker-sbtw $COMPILE_IMAGE_TAG +test:compile
+
 language: minimal
 
 # Run the build in Docker to shield it from changes in the Travis environment:
 services:
   - docker
 
-script:
-  - ./docker-sbtw $COMPILE_IMAGE_TAG +test:compile
-  - ./docker-sbtw $TEST_IMAGE_TAG +test
+script: ./docker-sbtw $TEST_IMAGE_TAG +test
