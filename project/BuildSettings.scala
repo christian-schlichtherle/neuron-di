@@ -22,7 +22,7 @@ import sbtrelease.ReleaseStateTransformations._
 
 object BuildSettings {
 
-  def releaseSettings: Seq[Setting[_]] = {
+  lazy val releaseSettings: Seq[Setting[_]] = {
     Seq(
       releaseCrossBuild := false,
       releaseProcess := Seq[ReleaseStep](
@@ -41,7 +41,7 @@ object BuildSettings {
     )
   }
 
-  private def commonSettings: Seq[Setting[_]] = {
+  private lazy val commonSettings: Seq[Setting[_]] = {
     Seq(
       homepage := Some(url("https://github.com/christian-schlichtherle/neuron-di")),
       licenses := Seq("Apache License, Version 2.0" -> url("https://www.apache.org/licenses/LICENSE-2.0")),
@@ -88,21 +88,21 @@ object BuildSettings {
     )
   }
 
-  def aggregateSettings: Seq[Setting[_]] = {
+  lazy val aggregateSettings: Seq[Setting[_]] = {
     commonSettings ++ Seq(
       crossPaths := false,
       publishArtifact := false
     )
   }
 
-  def artifactSettings: Seq[Setting[_]] = {
+  lazy val artifactSettings: Seq[Setting[_]] = {
     commonSettings ++ Seq(
       dependencyOverrides += JUnit,
       testOptions += Tests.Argument(TestFrameworks.JUnit, "-a", "-v")
     )
   }
 
-  def librarySettings: Seq[Setting[_]] = {
+  lazy val librarySettings: Seq[Setting[_]] = {
     artifactSettings ++ Seq(
       // Support testing Java projects with ScalaTest et al:
       compileOrder := CompileOrder.JavaThenScala,
@@ -118,14 +118,14 @@ object BuildSettings {
     )
   }
 
-  def javaLibrarySettings: Seq[Setting[_]] = {
+  lazy val javaLibrarySettings: Seq[Setting[_]] = {
     librarySettings ++ Seq(
       autoScalaLibrary := false,
       crossPaths := false
     )
   }
 
-  def scalaLibrarySettings: Seq[Setting[_]] = {
+  lazy val scalaLibrarySettings: Seq[Setting[_]] = {
     librarySettings ++ Seq(
       libraryDependencies ++= {
         CrossVersion.partialVersion(scalaVersion.value) match {
