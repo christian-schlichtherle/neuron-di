@@ -35,6 +35,7 @@ Neuron DI frees your code from the following **code smells**:
 - qualifier annotations like @Named
 - scope annotations like @Singleton
 - specific application contexts or containers
+- builder classes for injecting dependencies
 - tight coupling with a DI framework or library
 
 ## Benefits
