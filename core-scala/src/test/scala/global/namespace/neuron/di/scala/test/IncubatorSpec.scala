@@ -1,5 +1,5 @@
 /*
- * Copyright © 2016 Schlichtherle IT Services
+ * Copyright © 2016 - 2019 Schlichtherle IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,7 +44,7 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
       Then("the incubator should visit all synapse methods of all super classes and implemented interfaces.")
       And("not yet compute their return values.")
 
-      methodsOf[ANeuronClass] shouldHaveNames ("a", "b", "c")
+      synapsesOf[ANeuronClass] shouldHaveNames ("a", "b", "c")
     }
 
     scenario("Breeding an instance of another neuron class") {
@@ -54,7 +54,7 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
       Then("the incubator should visit all synapse methods of all super classes and implemented interfaces.")
       And("not yet compute their return values.")
 
-      methodsOf[AnotherNeuronClass] shouldHaveNames ("now", "a", "b", "c")
+      synapsesOf[AnotherNeuronClass] shouldHaveNames ("now", "a", "b", "c")
     }
 
     scenario("Breeding an instance of a neuron interface") {
@@ -64,7 +64,7 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
       Then("the incubator should visit all synapse methods of all extended interfaces.")
       And("not yet compute their return values.")
 
-      methodsOf[ANeuronInterface] shouldHaveNames ("a", "b", "c")
+      synapsesOf[ANeuronInterface] shouldHaveNames ("a", "b", "c")
     }
 
     scenario("Breeding an instance of a non-neuron class") {
@@ -74,7 +74,7 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
       Then("the incubator should visit all methods of all extended interfaces.")
       And("not yet compute their return values.")
 
-      methodsOf[ANonNeuronClass] shouldHaveNames ("a", "b", "c")
+      synapsesOf[ANonNeuronClass] shouldHaveNames ("a", "b", "c")
     }
   }
 
@@ -425,16 +425,16 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
 
 private object IncubatorSpec {
 
-  case class methodsOf[T <: AnyRef]()(implicit tag: ClassTag[T]) {
+  case class synapsesOf[T <: AnyRef]()(implicit tag: ClassTag[T]) {
 
-    private var methods = List.empty[Method]
+    private var synapses = List.empty[Method]
 
     Incubator.breed[T] { method: Method =>
-      methods ::= method
+      synapses ::= method
       () => throw new AssertionError
     }
 
-    lazy val names: List[String] = methods.reverse.map(_.getName)
+    lazy val names: List[String] = synapses.reverse.map(_.getName)
 
     def shouldHaveNames(names: String*): Unit = { names shouldBe names }
   }
