@@ -28,13 +28,13 @@ import static org.objectweb.asm.Type.getMethodDescriptor;
 
 final class Reflection {
 
-    private static DefineSubclass strategy = new DefineSubclass9();
+    private static DefineSubclass strategy = new DefineSubclassForJava9();
 
     static <C> Class<? extends C> defineSubclass(final Class<C> clazz, final String name, final byte[] b) {
         try {
             return strategy.apply(clazz, name, b);
         } catch (NoSuchMethodError e) {
-            return (strategy = new DefineSubclass8()).apply(clazz, name, b);
+            return (strategy = new DefineSubclassForJava8()).apply(clazz, name, b);
         }
     }
 

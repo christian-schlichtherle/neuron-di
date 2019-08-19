@@ -8,7 +8,7 @@ import java.lang.invoke.MethodHandles;
 import static java.lang.invoke.MethodHandles.lookup;
 import static java.lang.invoke.MethodHandles.privateLookupIn;
 
-final class DefineSubclass9 implements DefineSubclass {
+final class DefineSubclassForJava9 implements DefineSubclass {
 
     private static final MethodHandles.Lookup lookup = lookup();
 

@@ -21,7 +21,7 @@ import global.namespace.neuron.di.java.BreedingException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-final class DefineSubclass8 implements DefineSubclass {
+final class DefineSubclassForJava8 implements DefineSubclass {
 
     private static final Method getClassLoadingLock, defineClass;
 
