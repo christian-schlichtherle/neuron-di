@@ -21,10 +21,7 @@ import global.namespace.neuron.di.java.BreedingException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-class Reflection8 {
-
-    private Reflection8() {
-    }
+final class DefineSubclass8 implements DefineSubclass {
 
     private static final Method getClassLoadingLock, defineClass;
 
@@ -42,8 +39,9 @@ class Reflection8 {
         }
     }
 
+    @Override
     @SuppressWarnings("unchecked")
-    static <C> Class<? extends C> defineSubclass(final Class<C> clazz, final String name, final byte[] b) {
+    public <C> Class<? extends C> apply(final Class<C> clazz, final String name, final byte[] b) {
         final ClassLoader cl = classLoader(clazz);
         try {
             synchronized (getClassLoadingLock.invoke(cl, name)) {
