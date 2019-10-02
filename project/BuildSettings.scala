@@ -98,7 +98,9 @@ object BuildSettings {
   lazy val artifactSettings: Seq[Setting[_]] = {
     commonSettings ++ Seq(
       dependencyOverrides += JUnit,
-      testOptions += Tests.Argument(TestFrameworks.JUnit, "-a", "-v")
+      logBuffered := false, // http://www.scalatest.org/user_guide/using_scalatest_with_sbt
+      testOptions += Tests.Argument(TestFrameworks.JUnit, "-a", "-v"),
+      testOptions += Tests.Argument(TestFrameworks.ScalaTest, "-oF")
     )
   }
 

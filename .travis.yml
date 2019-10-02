@@ -1,3 +1,4 @@
+---
 before_cache:
   - find $HOME/.ivy2 -name "ivydata-*.properties" | xargs rm
   - find $HOME/.sbt -name "*.lock" | xargs rm
@@ -12,11 +13,11 @@ dist: xenial
 # Don't use slim or alpine images here - the SBT Wrapper runs a shell script which wouldn't always work then:
 env:
   - COMPILE_IMAGE_TAG=9-jdk TEST_IMAGE_TAG=8-jdk  GUICE_VERSION=3.0
-  - COMPILE_IMAGE_TAG=9-jdk TEST_IMAGE_TAG=12-jdk GUICE_VERSION=3.0
+  - COMPILE_IMAGE_TAG=9-jdk TEST_IMAGE_TAG=13-jdk GUICE_VERSION=3.0
   - COMPILE_IMAGE_TAG=9-jdk TEST_IMAGE_TAG=8-jdk  GUICE_VERSION=4.2.2
-  - COMPILE_IMAGE_TAG=9-jdk TEST_IMAGE_TAG=12-jdk GUICE_VERSION=4.2.2
+  - COMPILE_IMAGE_TAG=9-jdk TEST_IMAGE_TAG=13-jdk GUICE_VERSION=4.2.2
 
-install: ./docker-sbtw $COMPILE_IMAGE_TAG +test:compile
+install: ./docker-sbtx $COMPILE_IMAGE_TAG -no-colors +test:compile
 
 language: minimal
 
@@ -24,4 +25,4 @@ language: minimal
 services:
   - docker
 
-script: ./docker-sbtw $TEST_IMAGE_TAG +test
+script: ./docker-sbtx $TEST_IMAGE_TAG -no-colors +test
