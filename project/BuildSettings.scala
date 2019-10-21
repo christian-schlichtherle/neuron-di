@@ -110,8 +110,7 @@ object BuildSettings {
       compileOrder := CompileOrder.JavaThenScala,
       javacOptions := DefaultOptions.javac ++ Seq(Opts.compile.deprecation, "-Xlint", "-source", "9", "-target", "9", "-g"),
       javacOptions in doc := DefaultOptions.javac ++ Seq("-source", "9"),
-      javacOptions ++= Seq("--module-path", (dependencyClasspath in Compile).value.map(_.data).mkString(":")),
-      scalacOptions := DefaultOptions.scalac ++ Seq(Opts.compile.deprecation, "-feature", Opts.compile.unchecked, "-target:jvm-9"),
+      scalacOptions := DefaultOptions.scalac ++ Seq(Opts.compile.deprecation, "-feature", Opts.compile.unchecked, "-target:jvm-1.8"),
       scalacOptions ++= {
         CrossVersion.partialVersion(scalaVersion.value) match {
           case Some((2, major)) if major >= 13 => Seq("-Ymacro-annotations")
@@ -124,7 +123,8 @@ object BuildSettings {
   lazy val javaLibrarySettings: Seq[Setting[_]] = {
     librarySettings ++ Seq(
       autoScalaLibrary := false,
-      crossPaths := false
+      crossPaths := false,
+      javacOptions ++= Seq("--module-path", (dependencyClasspath in Compile).value.map(_.data).mkString(":"))
     )
   }
 
