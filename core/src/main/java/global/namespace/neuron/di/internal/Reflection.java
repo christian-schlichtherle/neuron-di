@@ -102,7 +102,7 @@ final class Reflection {
      * the returned consumer will visit any interface at most once, however.
      */
     private static Consumer<Class<?>> traverse(Consumer<Class<?>> consumer) {
-        return new Consumer<>() {
+        return new Consumer<Class<?>>() {
 
             final Set<Class<?>> visited = new HashSet<>();
 
@@ -124,7 +124,7 @@ final class Reflection {
     }
 
     static <T extends Annotation> Function<AnnotatedElement, Optional<T>> findAnnotation(Class<T> what) {
-        return new Function<>() {
+        return new Function<AnnotatedElement, Optional<T>>() {
 
             final Set<AnnotatedElement> visited = new HashSet<>();
 
