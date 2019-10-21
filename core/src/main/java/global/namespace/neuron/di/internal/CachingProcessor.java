@@ -57,18 +57,25 @@ public final class CachingProcessor extends CommonProcessor {
             error("A caching method must be a member of a neuron type...", element);
             error("... but there is no @Neuron annotation here.", type);
         }
-        final Set<Modifier> modifiers = element.getModifiers();
-        if (modifiers.contains(STATIC)) {
-            error("A caching method must not be static.", element);
+        final Set<Modifier> mods = element.getModifiers();
+        if (mods.contains(STATIC)) {
+            error("A caching method cannot be static.", element);
         }
-        if (modifiers.contains(FINAL)) {
-            error("A caching method must not be final.", element);
+        if (mods.contains(FINAL)) {
+            error("A caching method cannot be final.", element);
         }
-        if (modifiers.contains(PRIVATE)) {
-            error("A caching method must not be private.", element);
+        if (mods.contains(PRIVATE)) {
+            error("A caching method cannot be private.", element);
+        }
+        if (!mods.contains(PROTECTED) && !mods.contains(PUBLIC)) {
+            if (type.getModifiers().contains(PUBLIC)) {
+                error("A public type cannot have a package-private caching method.", element);
+            } else {
+                warn("A caching method should not be package-private.", element);
+            }
         }
         if (!element.getParameters().isEmpty()) {
-            error("A caching method must not have parameters.", element);
+            error("A caching method cannot have parameters.", element);
         }
         if (isVoid(element.getReturnType())) {
             error("A caching method must have a return value.", element);
