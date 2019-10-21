@@ -34,22 +34,22 @@ private trait CachingAnnotation extends MacroAnnotation {
           error("A caching annotation cannot be applied to a macro.")
         }
         if (mods hasFlag FINAL) {
-          error("A caching method must not be final.")
+          error("A caching method cannot be final.")
         }
         if (mods hasFlag PRIVATE) {
-          error("A caching method must not be private.")
+          error("A caching method cannot be private.")
         }
         vparamss match {
           case Nil | List(Nil) =>
           case _ =>
-            error("A caching method must not have parameters.")
+            error("A caching method cannot have parameters.")
         }
         c.typecheck(rhs, mode = c.TYPEmode, silent = true).tpe match {
           case TypeRef(_, sym, _)
             if sym == c.symbolOf[Unit] || sym == c.symbolOf[Nothing] =>
             error("A caching method must have a return value.")(tpt.pos)
           case ConstantType(_) =>
-            error("A caching method must not have a constant return type.")(tpt.pos)
+            error("A caching method cannot have a constant return type.")(tpt.pos)
           case _ =>
         }
         val caching = {
