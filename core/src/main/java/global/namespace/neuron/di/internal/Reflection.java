@@ -15,26 +15,34 @@
  */
 package global.namespace.neuron.di.internal;
 
+import global.namespace.neuron.di.internal.proxy.Proxies;
+import global.namespace.neuron.di.java.BreedingException;
+
 import java.lang.annotation.Annotation;
+import java.lang.invoke.MethodHandles;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import static java.lang.invoke.MethodHandles.lookup;
+import static java.lang.invoke.MethodHandles.privateLookupIn;
 import static java.lang.reflect.Modifier.*;
 import static java.util.Optional.*;
 import static org.objectweb.asm.Type.getMethodDescriptor;
 
 final class Reflection {
 
-    private static volatile DefineSubclass strategy = new DefineSubclassForJava9();
+    private static final MethodHandles.Lookup lookup = lookup();
 
-    static <C> Class<? extends C> defineSubclass(final Class<C> clazz, final String name, final byte[] b) {
+    @SuppressWarnings("unchecked")
+    static <C> Class<? extends C> defineSubclass(final Class<C> clazz, final byte[] b) {
         try {
-            return strategy.apply(clazz, name, b);
-        } catch (NoSuchMethodError e) {
-            return (strategy = new DefineSubclassForJava8()).apply(clazz, name, b);
+            return (Class<? extends C>) privateLookupIn(null != clazz.getClassLoader() ? clazz : Proxies.class, lookup)
+                    .defineClass(b);
+        } catch (IllegalAccessException e) {
+            throw new BreedingException(e);
         }
     }
 

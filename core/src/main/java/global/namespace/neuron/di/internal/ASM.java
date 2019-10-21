@@ -57,7 +57,7 @@ final class ASM implements Opcodes {
         final ClassReader cr = classReader(clazz);
         final ClassWriter cw = new ClassWriter(cr, COMPUTE_MAXS);
         cr.accept(new ProxyClassVisitor(cw, internalName(proxyName), superclass, arrayOfInterfaces, bindableMethods), SKIP_DEBUG);
-        return defineSubclass(clazz, proxyName, cw.toByteArray());
+        return defineSubclass(clazz, cw.toByteArray());
     }
 
     private static Stream<Class<?>> streamOfInterfaces(List<Method> bindableMethods) {

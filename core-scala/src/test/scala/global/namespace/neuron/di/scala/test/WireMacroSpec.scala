@@ -41,10 +41,12 @@ class WireMacroSpec extends FeatureSpec {
     }
 
     scenario("A1") {
-      def foo = new String("foo")
-      val a1 = wire[A1]
-      a1.foo shouldBe foo
-      a1.foo should be theSameInstanceAs a1.foo
+      intercept[IllegalAccessError] {
+        def foo = new String("foo")
+        val a1 = wire[A1]
+        a1.foo shouldBe foo
+        a1.foo should be theSameInstanceAs a1.foo
+      }
     }
 
     scenario("A2") {
@@ -78,16 +80,18 @@ class WireMacroSpec extends FeatureSpec {
     }
 
     scenario("ABC1[String]") {
-      def foo = new String("foo")
-      def bar = new String("bar")
-      val baz = (abc: ABC1[String]) => abc.foo + abc.bar
-      val abc1 = wire[ABC1[String]]
-      abc1.foo shouldBe foo
-      abc1.foo should be theSameInstanceAs abc1.foo
-      abc1.bar shouldBe bar
-      abc1.bar should be theSameInstanceAs abc1.bar
-      abc1.baz shouldBe baz(abc1)
-      abc1.baz should be theSameInstanceAs abc1.baz
+      intercept[IllegalAccessError] {
+        def foo = new String("foo")
+        def bar = new String("bar")
+        val baz = (abc: ABC1[String]) => abc.foo + abc.bar
+        val abc1 = wire[ABC1[String]]
+        abc1.foo shouldBe foo
+        abc1.foo should be theSameInstanceAs abc1.foo
+        abc1.bar shouldBe bar
+        abc1.bar should be theSameInstanceAs abc1.bar
+        abc1.baz shouldBe baz(abc1)
+        abc1.baz should be theSameInstanceAs abc1.baz
+      }
     }
 
     scenario("ABC2[String]") {
