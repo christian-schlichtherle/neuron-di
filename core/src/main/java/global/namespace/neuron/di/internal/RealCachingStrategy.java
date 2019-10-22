@@ -43,12 +43,16 @@ enum RealCachingStrategy {
         <D> DependencyProvider<D> decorate(final DependencyProvider<D> provider) {
             return new DependencyProvider<D>() {
 
-                D returnValue;
+                boolean init;
+                D value;
 
                 @Override
                 public D get() throws Throwable {
-                    final D value = returnValue;
-                    return null != value ? value : (returnValue = provider.get());
+                    if (!init) {
+                        value = provider.get();
+                        init = true;
+                    }
+                    return value;
                 }
             };
         }
@@ -63,15 +67,16 @@ enum RealCachingStrategy {
         <D> DependencyProvider<D> decorate(final DependencyProvider<D> provider) {
             return new DependencyProvider<D>() {
 
-                volatile D returnValue;
+                volatile boolean init;
+                volatile D value;
 
                 @Override
                 public D get() throws Throwable {
-                    D value;
-                    if (null == (value = returnValue)) {
+                    if (!init) {
                         synchronized (this) {
-                            if (null == (value = returnValue)) {
-                                returnValue = value = provider.get();
+                            if (!init) {
+                                value = provider.get();
+                                init = true;
                             }
                         }
                     }
@@ -90,15 +95,16 @@ enum RealCachingStrategy {
         <D> DependencyProvider<D> decorate(final DependencyProvider<D> provider) {
             return new DependencyProvider<D>() {
 
-                final ThreadLocal<D> results = new ThreadLocal<>();
+                final ThreadLocal<DependencyProvider<D>> results = new ThreadLocal<>();
 
                 @Override
                 public D get() throws Throwable {
-                    D result = results.get();
+                    DependencyProvider<D> result = results.get();
                     if (null == result) {
-                        results.set(result = provider.get());
+                        final D value = provider.get(); // must resolve now or else there is no caching at all!
+                        results.set(result = () -> value);
                     }
-                    return result;
+                    return result.get();
                 }
             };
         }
