@@ -18,13 +18,13 @@ import Dependencies._
 
 lazy val root = project
   .in(file("."))
-  .aggregate(core, coreScala, guice, guiceScala, junit)
+  .aggregate(coreJava, coreScala, guiceJava, guiceScala, junit)
   .settings(releaseSettings)
   .settings(aggregateSettings)
   .settings(name := "Neuron DI")
 
-lazy val core = project
-  .in(file("core"))
+lazy val coreJava = project
+  .in(file("core-java"))
   .settings(javaLibrarySettings)
   .settings(
     javacOptions += "-proc:none",
@@ -46,7 +46,7 @@ lazy val core = project
 
 lazy val coreScala = project
   .in(file("core-scala"))
-  .dependsOn(core)
+  .dependsOn(coreJava)
   .settings(scalaLibrarySettings)
   .settings(
     libraryDependencies ++= Seq(
@@ -57,9 +57,9 @@ lazy val coreScala = project
     normalizedName := "neuron-di-scala"
   )
 
-lazy val guice = project
-  .in(file("guice"))
-  .dependsOn(core, junit % Test)
+lazy val guiceJava = project
+  .in(file("guice-java"))
+  .dependsOn(coreJava, junit % Test)
   .settings(javaLibrarySettings)
   .settings(
     libraryDependencies ++= Seq(
@@ -75,7 +75,7 @@ lazy val guice = project
 
 lazy val guiceScala = project
   .in(file("guice-scala"))
-  .dependsOn(guice, coreScala)
+  .dependsOn(guiceJava, coreScala)
   .settings(scalaLibrarySettings)
   .settings(
     libraryDependencies += ScalaTest % Test,
@@ -85,7 +85,7 @@ lazy val guiceScala = project
 
 lazy val junit = project
   .in(file("junit"))
-  .dependsOn(core)
+  .dependsOn(coreJava)
   .settings(javaLibrarySettings)
   .settings(
     libraryDependencies += JUnit,
