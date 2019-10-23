@@ -17,6 +17,7 @@ module global.namespace.neuron.di.guice.java {
 
     requires com.google.guice;
     requires transitive global.namespace.neuron.di.java;
+    requires javax.inject;
 
     exports global.namespace.neuron.di.guice.java;
 }

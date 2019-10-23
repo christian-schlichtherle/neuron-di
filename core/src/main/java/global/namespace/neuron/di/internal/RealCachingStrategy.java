@@ -41,7 +41,7 @@ enum RealCachingStrategy {
     NOT_THREAD_SAFE {
         @Override
         <D> DependencyProvider<D> decorate(final DependencyProvider<D> provider) {
-            return new DependencyProvider<D>() {
+            return new DependencyProvider<>() {
 
                 boolean init;
                 D value;
@@ -65,7 +65,7 @@ enum RealCachingStrategy {
     THREAD_SAFE {
         @Override
         <D> DependencyProvider<D> decorate(final DependencyProvider<D> provider) {
-            return new DependencyProvider<D>() {
+            return new DependencyProvider<>() {
 
                 volatile boolean init;
                 volatile D value;
@@ -93,7 +93,7 @@ enum RealCachingStrategy {
     THREAD_LOCAL {
         @Override
         <D> DependencyProvider<D> decorate(final DependencyProvider<D> provider) {
-            return new DependencyProvider<D>() {
+            return new DependencyProvider<>() {
 
                 final ThreadLocal<DependencyProvider<D>> results = new ThreadLocal<>();
 

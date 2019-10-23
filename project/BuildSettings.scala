@@ -136,7 +136,10 @@ object BuildSettings {
           case _ => Seq(compilerPlugin(MacroParadise))
         }
       },
-      crossScalaVersions := Seq(ScalaVersion_2_11, ScalaVersion_2_12, ScalaVersion_2_13)
+      crossScalaVersions := Seq(ScalaVersion_2_11, ScalaVersion_2_12, ScalaVersion_2_13),
+      packageOptions in(Compile, packageBin) += Package.ManifestAttributes("Automatic-Module-Name" ->
+        ("global.namespace." + normalizedName.value.replace('-', '.'))
+      )
     )
   }
 }
