@@ -34,7 +34,8 @@ lazy val core = project
 
       // Relocate the classes and update references to them everywhere.
       assemblyShadeRules := Seq(
-        ShadeRule.rename("org.objectweb.**" -> "global.namespace.neuron.di.internal.@1").inAll
+        ShadeRule.rename("org.objectweb.**" -> "global.namespace.neuron.di.internal.@1").inAll,
+        ShadeRule.zap("module-info").inAll
       ),
 
       test := { }
