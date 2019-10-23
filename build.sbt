@@ -27,21 +27,6 @@ lazy val core = project
   .in(file("core"))
   .settings(javaLibrarySettings)
   .settings(
-    inTask(assembly)(Seq(
-      artifact ~= (_ withClassifier Some("shaded") withConfigurations Vector(Compile)),
-
-      assemblyJarName := s"${normalizedName.value}-${version.value}-shaded.jar",
-
-      // Relocate the classes and update references to them everywhere.
-      assemblyShadeRules := Seq(
-        ShadeRule.rename("org.objectweb.**" -> "global.namespace.neuron.di.internal.@1").inAll,
-        ShadeRule.zap("module-info").inAll
-      ),
-
-      test := { }
-    )),
-    addArtifact(artifact in assembly, assembly),
-
     javacOptions += "-proc:none",
     libraryDependencies ++= Seq(
       ASM,
@@ -56,7 +41,7 @@ lazy val core = project
       }
     },
     name := "Neuron DI for Java",
-    normalizedName := "neuron-di"
+    normalizedName := "neuron-di-java"
   )
 
 lazy val coreScala = project
@@ -85,7 +70,7 @@ lazy val guice = project
       ScalaTest % Test
     ),
     name := "Neuron DI @ Guice for Java",
-    normalizedName := "neuron-di-guice"
+    normalizedName := "neuron-di-guice-java"
   )
 
 lazy val guiceScala = project
