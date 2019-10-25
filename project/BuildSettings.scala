@@ -109,7 +109,7 @@ object BuildSettings {
       // Support testing Java projects with ScalaTest et al:
       compileOrder := CompileOrder.JavaThenScala,
       javacOptions := DefaultOptions.javac ++ Seq(Opts.compile.deprecation, "-Xlint", "-source", "11", "-target", "11", "-g"),
-      javacOptions in doc := DefaultOptions.javac ++ Seq("-source", "1.8"),
+      javacOptions in doc := DefaultOptions.javac ++ Seq("-source", "11"),
       packageOptions in(Compile, packageBin) += Package.ManifestAttributes("Automatic-Module-Name" -> (
         "global.namespace." + (normalizedName.value match {
           case "neuron-di" => "neuron-di-java"
