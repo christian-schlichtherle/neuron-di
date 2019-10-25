@@ -110,12 +110,8 @@ object BuildSettings {
       compileOrder := CompileOrder.JavaThenScala,
       javacOptions := DefaultOptions.javac ++ Seq(Opts.compile.deprecation, "-Xlint", "-source", "11", "-target", "11", "-g"),
       javacOptions in doc := DefaultOptions.javac ++ Seq("-source", "11"),
-      packageOptions in(Compile, packageBin) += Package.ManifestAttributes("Automatic-Module-Name" -> (
-        "global.namespace." + (normalizedName.value match {
-          case "neuron-di" => "neuron-di-java"
-          case "neuron-di-guice" => "neuron-di-guice-java"
-          case other => other
-        }).replace('-', '.'))
+      packageOptions in(Compile, packageBin) += Package.ManifestAttributes("Automatic-Module-Name" ->
+        ("global.namespace." + normalizedName.value.replace('-', '.'))
       ),
       scalacOptions := DefaultOptions.scalac ++ Seq(Opts.compile.deprecation, "-feature", Opts.compile.unchecked, "-target:jvm-1.8"),
       scalacOptions ++= {
