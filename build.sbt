@@ -27,6 +27,21 @@ lazy val coreJava = project
   .in(file("core-java"))
   .settings(javaLibrarySettings)
   .settings(
+    inTask(assembly)(Seq(
+      artifact ~= (_ withClassifier Some("shaded") withConfigurations Vector(Compile)),
+
+      assemblyJarName := s"${normalizedName.value}-${version.value}-shaded.jar",
+
+      // Relocate the classes and update references to them everywhere.
+      assemblyShadeRules := Seq(
+        ShadeRule.rename("org.objectweb.**" -> "global.namespace.neuron.di.internal.@1").inAll,
+        ShadeRule.zap("module-info").inAll
+      ),
+
+      test := { }
+    )),
+    addArtifact(artifact in assembly, assembly),
+
     javacOptions += "-proc:none",
     libraryDependencies ++= Seq(
       ASM,
