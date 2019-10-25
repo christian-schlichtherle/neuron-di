@@ -108,8 +108,15 @@ object BuildSettings {
     artifactSettings ++ Seq(
       // Support testing Java projects with ScalaTest et al:
       compileOrder := CompileOrder.JavaThenScala,
-      javacOptions := DefaultOptions.javac ++ Seq(Opts.compile.deprecation, "-Xlint", "-source", "9", "-target", "9", "-g"),
-      javacOptions in doc := DefaultOptions.javac ++ Seq("-source", "9"),
+      javacOptions := DefaultOptions.javac ++ Seq(Opts.compile.deprecation, "-Xlint", "-source", "11", "-target", "11", "-g"),
+      javacOptions in doc := DefaultOptions.javac ++ Seq("-source", "1.8"),
+      packageOptions in(Compile, packageBin) += Package.ManifestAttributes("Automatic-Module-Name" -> (
+        "global.namespace." + (normalizedName.value match {
+          case "neuron-di" => "neuron-di-java"
+          case "neuron-di-guice" => "neuron-di-guice-java"
+          case other => other
+        }).replace('-', '.'))
+      ),
       scalacOptions := DefaultOptions.scalac ++ Seq(Opts.compile.deprecation, "-feature", Opts.compile.unchecked, "-target:jvm-1.8"),
       scalacOptions ++= {
         CrossVersion.partialVersion(scalaVersion.value) match {
@@ -123,8 +130,7 @@ object BuildSettings {
   lazy val javaLibrarySettings: Seq[Setting[_]] = {
     librarySettings ++ Seq(
       autoScalaLibrary := false,
-      crossPaths := false,
-      javacOptions ++= Seq("--module-path", (dependencyClasspath in Compile).value.map(_.data).mkString(":"))
+      crossPaths := false
     )
   }
 
@@ -136,10 +142,7 @@ object BuildSettings {
           case _ => Seq(compilerPlugin(MacroParadise))
         }
       },
-      crossScalaVersions := Seq(ScalaVersion_2_11, ScalaVersion_2_12, ScalaVersion_2_13),
-      packageOptions in(Compile, packageBin) += Package.ManifestAttributes("Automatic-Module-Name" ->
-        ("global.namespace." + normalizedName.value.replace('-', '.'))
-      )
+      crossScalaVersions := Seq(ScalaVersion_2_11, ScalaVersion_2_12, ScalaVersion_2_13)
     )
   }
 }
