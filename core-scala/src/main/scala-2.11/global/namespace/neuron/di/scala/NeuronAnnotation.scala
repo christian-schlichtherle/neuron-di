@@ -31,7 +31,7 @@ private trait NeuronAnnotation extends MacroAnnotation {
           error("A neuron type must have a static context.")
         }
         if (mods hasFlag FINAL) {
-          error("A neuron class must not be final.")
+          error("A neuron class cannot be final.")
         }
         if (!(mods hasFlag ABSTRACT)) {
           warn("A neuron class should be abstract.")

@@ -48,11 +48,11 @@ public final class NeuronProcessor extends CommonProcessor {
         if (!hasStaticContext(type)) {
             error("A neuron class must have a static context.", type);
         }
-        final Set<Modifier> modifiers = type.getModifiers();
-        if (modifiers.contains(FINAL)) {
-            error("A neuron class must not be final.", type);
+        final Set<Modifier> mods = type.getModifiers();
+        if (mods.contains(FINAL)) {
+            error("A neuron class cannot be final.", type);
         }
-        if (!modifiers.contains(ABSTRACT)) {
+        if (!mods.contains(ABSTRACT)) {
             warn("A neuron class should be abstract.", type);
         }
         if (!hasEitherNoConstructorOrANonPrivateConstructorWithoutParameters(type)) {
