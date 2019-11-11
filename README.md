@@ -27,7 +27,7 @@ Neuron DI provides the following **features**:
 - dependency injection at compile-time (Scala only)
 - peaceful coexistence with any other DI framework or library
 
-Neuron DI frees your code from the following **code smells**:
+Neuron DI **frees** your code from the following code smells:
 
 - copy constructors for constructor injection
 - mutable classes for method injection
@@ -42,14 +42,14 @@ Neuron DI frees your code from the following **code smells**:
 
 Neuron DI is a hybrid - it supports both runtime and compile-time DI:
 
-With Java, your code is constrained to runtime DI, but Neuron&nbsp;DI frees it from the shortcomings and the ballast of 
+In Java, your code is limited to runtime DI, but Neuron&nbsp;DI frees it from the shortcomings and the ballast of 
 JSR 330 - see [next section](#walk-through).
 It also adds caching like you can do with a `lazy val` definition in Scala, but with more options like not-thread-safe 
 caching or even thread-local caching, so you can say goodbye to the `ThreadLocal` class.
 With synapse methods and caching you can effectively inject dependencies into interfaces, which means you can compose
 your application mostly of mix-in interfaces like you can do in Scala. 
 
-With Scala, you can use all the features for Java plus compile-time DI:
+In Scala, you can use all the features for Java plus compile-time DI:
 With compile-time DI, you can avoid the (albeit minimal) runtime overhead plus you get a compiler error if any 
 dependency is missing or has the wrong type.
 
