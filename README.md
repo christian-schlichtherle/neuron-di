@@ -11,8 +11,9 @@ Maybe you are looking for something simpler, yet scalable while retaining compil
 
 Neuron DI is a tiny library for dependency injection (DI) in Java and Scala which helps you structure your application
 or library code with ease, whether it's small or large.
-It takes a complementary approach to DI compared to any [JSR 330] based framework like 
-[Spring, Guice etc](http://javax-inject.github.io/javax-inject/).
+In comparison to any [JSR 330] based framework like 
+[Spring, Guice etc](http://javax-inject.github.io/javax-inject/), it takes a complementary approach.
+In doing so, it has become a productivity booster with a shallow learning curve.
 
 ## Features
 
@@ -79,7 +80,7 @@ public interface GreetingService extends BiFunction<List<Locale>, Optional<Strin
     Map<Locale, List<String>> greetingMessages();
 
     default String apply(List<Locale> languageRanges, Optional<String> who) {
-        // Some code calling `defaultLocale()` and `greetingMesssages()`:
+        // Some code calling `defaultLocale()` and `greetingMessages()`:
         [...]
     }
 }
