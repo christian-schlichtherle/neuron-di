@@ -11,7 +11,7 @@ Maybe you are looking for something simpler, yet scalable while retaining compil
 
 Neuron DI is a tiny library for dependency injection (DI) in Java and Scala which helps you structure your application
 or library code with ease, whether it's small or large.
-It takes a radically different approach to the problem of DI than any [JSR 330] based framework like 
+It takes a complementary approach to DI compared to any [JSR 330] based framework like 
 [Spring, Guice etc](http://javax-inject.github.io/javax-inject/).
 
 ## Features
@@ -53,7 +53,7 @@ In Scala, you can use all the features for Java plus compile-time DI:
 With compile-time DI, you can avoid the (albeit minimal) runtime overhead plus you get a compiler error if any 
 dependency is missing or has the wrong type.
 
-All in all, Neuron&nbsp;DI is designed to close some gaps between Java and Scala, allowing you to more easily mix these 
+All in all, Neuron&nbsp;DI closes some gaps between Java and Scala, allowing you to more easily mix these 
 languages in your projects.
 For example, you can write your main code in Java and your test code in Scala.
 Neuron DI then lets you take the same approach to DI with both languages.
@@ -125,12 +125,13 @@ public interface GreetingController extends HttpController {
 }
 ```
 
-In this case, the body of the `get()` method depends on the synapse method `greetingService()`. 
+In this case, the body of the `get()` method depends on the synapse method `greetingService()`.
+Next, let's look into the wiring of these classes.
 
 ### About Modules And The Incubator
 
 In a large code base, you will have many neuron classes and interfaces and you will need to wire them into a dependency 
-graph somewhere.
+graph somehow.
 This is where the module pattern comes into play:
 A module bundles a group of factory methods for application components which may depend on each other into a single 
 object.
