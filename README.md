@@ -98,7 +98,7 @@ There is no dependency of the `GreetingService` interface on Neuron&nbsp;DI.
 implementation details!
 So, according to the interface segregation and dependency inversion principles these methods should be moved to 
 another class or interface.
-For the sake of brevity, this is not shown here.
+However, for the sake of brevity, this is not shown here.
 
 One of the benefits of this approach is that synapse methods not only give a dependency a location and a (return) type,
 but also a (method) _name_.
