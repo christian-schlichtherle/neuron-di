@@ -1,7 +1,7 @@
 [![Apache License 2.0](https://img.shields.io/github/license/christian-schlichtherle/neuron-di.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 [![Build Status](https://api.travis-ci.org/christian-schlichtherle/neuron-di.svg)](https://travis-ci.org/christian-schlichtherle/neuron-di)
 
-# Neuron DI
+# Why Neuron DI?
 
 As a Java developer, does Spring or Guice give you a headache?
 Maybe you are tired of annotation frenzy or slow startup times of your application and test code?  
@@ -15,7 +15,7 @@ In comparison to any [JSR 330] based framework like
 [Spring, Guice etc](http://javax-inject.github.io/javax-inject/), it takes a complementary approach.
 In doing so, it has become a productivity booster with a shallow learning curve.
 
-## Features
+# Features
 
 Neuron DI provides the following **features**:
 
@@ -39,7 +39,7 @@ Neuron DI **frees** your code from the following code smells:
 - builder classes for injecting dependencies
 - tight coupling with a DI framework or library
 
-## Benefits
+# Benefits
 
 Neuron DI is a hybrid - it supports both runtime and compile-time DI:
 
@@ -59,13 +59,13 @@ languages in your projects.
 For example, you can write your main code in Java and your test code in Scala.
 Neuron DI then lets you take the same approach to DI with both languages.
 
-## Walk-Through
+# Walk-Through
 
 The sample code discussed in this chapter is derived from another GitHub repository, named
 [Neuron DI Examples For Java].
 Please check out this repository for more options and all the glory details.
 
-### About Neurons And Synapses
+## About Neurons And Synapses
 
 Consider the following sample code:
 
@@ -93,7 +93,7 @@ _neuron classes_ or _neuron interfaces_.
 This concept is entirely abstract:
 There is no dependency of the `GreetingService` interface on Neuron&nbsp;DI.
 
-> ###### Tip
+> ##### Tip
 > The body of the `apply([...])` method and its dependencies `defaultLocale()` and `greetingMessages()` are actually
 implementation details!
 So, according to the interface segregation and dependency inversion principles these methods should be moved to 
@@ -129,7 +129,7 @@ public interface GreetingController extends HttpController {
 In this case, the body of the `get()` method depends on the synapse method `greetingService()`.
 Next, let's look into the wiring of these classes.
 
-### About Modules And The Incubator
+## About Modules And The Incubator
 
 In a large code base, you will have many neuron classes and interfaces and you will need to wire them into a dependency 
 graph somehow.
@@ -201,7 +201,7 @@ So although this module class does not have any synapse methods, it's a neuron c
 Last, but not least, a module does not need to extend or implement a specific class or interface.
 Modules classes or interfaces are implementations of the module pattern, not of a particular type.
 
-### About Booting Applications
+## About Booting Applications
 
 The `Module` class is abstract to prevent you from accidentally calling `new Module()` - this would ignore the
 `@Caching` annotation.
@@ -281,7 +281,7 @@ The `apply([...])` method calls the `wire([...])` method again, but this time th
 Note that any controller instances are request scoped, so they may even be mutable, while the main class (with its 
 module superclass) is application scoped, so it should be immutable. 
 
-### About Unit Testing
+## About Unit Testing
 
 Writing test code using Neuron&nbsp;DI is no different than writing main code:
 Just use the `Incubator` class to `wire` or `breed` a test neuron.
@@ -335,7 +335,7 @@ instead:
 However, the `Incubator` class strictly uses runtime DI, no matter if you use its variant in the Scala API or the Java 
 API, so the `wire` macro is generally preferable. 
 
-### About Application Performance
+## About Application Performance
 
 Neuron DI uses reflection to analyze neuron and dependency delegate classes or interfaces at runtime.
 It saves its findings in class-loader sensitive caches to speed up subsequent calls.
@@ -344,7 +344,7 @@ The actual dispatching of synapse methods to dependency provider methods or fiel
 Tests have shown that the per-call overhead of synapse methods in comparison to hand-written implementations is below 
 the level of noise typically induced by the standard garbage collection. 
 
-### About Illegal Reflective Access
+## About Illegal Reflective Access
 
 Illegal reflective access is avoided wherever possible:
 
@@ -352,7 +352,7 @@ Illegal reflective access is avoided wherever possible:
 + If a dependency provider method in a non-public subclass or sub-interface overrides or implements a method in a public 
   superclass or interface, then the public superclass or interface is used.
 
-## More Documentation
+# More Documentation
 
 For more documentation, please consult the following resources:
 
