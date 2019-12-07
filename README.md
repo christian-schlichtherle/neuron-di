@@ -93,11 +93,12 @@ _neuron classes_ or _neuron interfaces_.
 This concept is entirely abstract:
 There is no dependency of the `GreetingService` interface on Neuron&nbsp;DI.
 
-> ##### Tip
+> ### Tip
 > The body of the `apply([...])` method and its dependencies `defaultLocale()` and `greetingMessages()` are actually
 implementation details!
 So, according to the interface segregation and dependency inversion principles these methods should be moved to 
-another class or interface (not shown). 
+another class or interface.
+For the sake of brevity, this is not shown here.
 
 One of the benefits of this approach is that synapse methods not only give a dependency a location and a (return) type,
 but also a (method) _name_.
