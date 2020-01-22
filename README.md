@@ -13,7 +13,7 @@ Neuron DI is a tiny library for dependency injection (DI) in Java and Scala whic
 or library code with ease, whether it's small or large.
 In comparison to any [JSR 330] based framework like 
 [Spring, Guice etc](http://javax-inject.github.io/javax-inject/), it takes a complementary approach.
-In doing so, it has become a productivity booster with a shallow learning curve.
+In doing so, it has become a significant productivity booster with a shallow learning curve.
 
 # Features
 
