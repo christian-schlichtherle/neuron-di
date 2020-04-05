@@ -57,7 +57,7 @@ final class ProxyClassVisitor extends ClassVisitor {
                       final Class<?> superclass,
                       final Class<?>[] interfaces,
                       final List<Method> bindableMethods) {
-        super(ASM7, cv);
+        super(ASM8, cv);
         this.proxyName = proxyName;
         this.proxyDesc = "L" + proxyName + ";";
         this.superName = getInternalName(superclass);
