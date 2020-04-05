@@ -20,7 +20,7 @@ object Dependencies {
 
   val ASM: ModuleID = "org.ow2.asm" % "asm" % "7.2"
   val Guice: ModuleID = {
-    val version = sys.env.getOrElse("GUICE_VERSION", "4.2.2")
+    val version = sys.env.getOrElse("GUICE_VERSION", "4.2.3")
     val moduleID = "com.google.inject" % "guice" % version
     version match {
       // Exclude ASM 3.1 as a transitive dependency because it has a different group id and conflicts with ASM 7.
