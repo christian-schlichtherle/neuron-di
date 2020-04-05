@@ -17,12 +17,12 @@ package global.namespace.neuron.di.guice.java.test
 
 import global.namespace.neuron.di.guice.java.sample.CachingApplication
 import global.namespace.neuron.di.java.Incubator
-import org.scalatest.Matchers._
-import org.scalatest.WordSpec
+import org.scalatest.matchers.should.Matchers._
+import org.scalatest.wordspec.AnyWordSpec
 
 import scala.util.control.NonFatal
 
-class CachingApplicationSpec extends WordSpec {
+class CachingApplicationSpec extends AnyWordSpec {
 
   "A `CachingApplication` object" when {
     lazy val app = Incubator.breed(classOf[CachingApplication])

@@ -20,41 +20,41 @@ import java.util.function.Supplier
 import global.namespace.neuron.di.scala.CachingStrategy._
 import global.namespace.neuron.di.scala.test.WireMacroSpec._
 import global.namespace.neuron.di.scala.{Caching, Neuron, wire}
-import org.scalatest.FeatureSpec
-import org.scalatest.Matchers._
+import org.scalatest.featurespec.AnyFeatureSpec
+import org.scalatest.matchers.should.Matchers._
 
-class WireMacroSpec extends FeatureSpec {
+class WireMacroSpec extends AnyFeatureSpec {
 
-  feature("Synapse methods in neuron and non-neuron types can be auto-wired using the `wire` macro") {
+  Feature("Synapse methods in neuron and non-neuron types can be auto-wired using the `wire` macro") {
 
-    scenario("A[Int]") {
+    Scenario("A[Int]") {
       val foo = 1
       val a = wire[A[Int]]
       a.foo shouldBe foo
     }
 
-    scenario("A[String]") {
+    Scenario("A[String]") {
       def foo = new String("foo")
       val a = wire[A[String]]
       a.foo shouldBe foo
       a.foo shouldNot be theSameInstanceAs a.foo
     }
 
-    scenario("A1") {
+    Scenario("A1") {
       def foo = new String("foo")
       val a1 = wire[A1]
       a1.foo shouldBe foo
       a1.foo should be theSameInstanceAs a1.foo
     }
 
-    scenario("A2") {
+    Scenario("A2") {
       def foo = new String("foo")
       val a2 = wire[A2]
       a2.foo shouldBe foo
       a2.foo should be theSameInstanceAs a2.foo
     }
 
-    scenario("ABC[Int]") {
+    Scenario("ABC[Int]") {
       val foo = 1
       val bar = 2
       def baz(abc: ABC[Int]) = abc.foo + abc.bar
@@ -64,7 +64,7 @@ class WireMacroSpec extends FeatureSpec {
       abc.baz shouldBe baz(abc)
     }
 
-    scenario("ABC[String]") {
+    Scenario("ABC[String]") {
       def foo = new String("foo")
       def bar = new String("bar")
       def baz(abc: ABC[String]) = abc.foo + abc.bar
@@ -77,7 +77,7 @@ class WireMacroSpec extends FeatureSpec {
       abc.baz shouldNot be theSameInstanceAs abc.baz
     }
 
-    scenario("ABC1[String]") {
+    Scenario("ABC1[String]") {
       def foo = new String("foo")
       def bar = new String("bar")
       val baz = (abc: ABC1[String]) => abc.foo + abc.bar
@@ -90,7 +90,7 @@ class WireMacroSpec extends FeatureSpec {
       abc1.baz should be theSameInstanceAs abc1.baz
     }
 
-    scenario("ABC2[String]") {
+    Scenario("ABC2[String]") {
       def foo = new String("foo")
       def bar = new String("bar")
       val baz = (abc: ABC2[String]) => abc.foo + abc.bar
@@ -103,7 +103,7 @@ class WireMacroSpec extends FeatureSpec {
       abc2.baz should be theSameInstanceAs abc2.baz
     }
 
-    scenario("Supplier[String]") {
+    Scenario("Supplier[String]") {
       def get = "Hello world!"
       val supplier = wire[Supplier[String]]
       supplier.get shouldBe "Hello world!"

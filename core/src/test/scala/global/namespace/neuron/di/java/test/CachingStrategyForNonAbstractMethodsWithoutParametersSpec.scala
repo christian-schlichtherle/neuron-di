@@ -17,11 +17,11 @@ package global.namespace.neuron.di.java.test
 
 import global.namespace.neuron.di.java.CachingStrategy._
 import global.namespace.neuron.di.java._
-import global.namespace.neuron.di.java.test.CachingStrategyForNonAbstractMethodsWithoutParametersSpec._
 import global.namespace.neuron.di.java.sample.HasDependency
-import org.scalatest.FeatureSpec
+import global.namespace.neuron.di.java.test.CachingStrategyForNonAbstractMethodsWithoutParametersSpec._
+import org.scalatest.featurespec.AnyFeatureSpec
 
-class CachingStrategyForNonAbstractMethodsWithoutParametersSpec extends FeatureSpec with CachingStrategySpecLike {
+class CachingStrategyForNonAbstractMethodsWithoutParametersSpec extends AnyFeatureSpec with CachingStrategySpecLike {
 
   lazy val subjects: String = "non-abstract methods without parameters"
 

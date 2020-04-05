@@ -16,10 +16,10 @@
 package global.namespace.neuron.di.guice.scala.test
 
 import global.namespace.neuron.di.guice.scala.sample.{Formatter, Greeting}
-import org.scalatest.Matchers._
-import org.scalatest.WordSpec
+import org.scalatest.matchers.should.Matchers._
+import org.scalatest.wordspec.AnyWordSpec
 
-abstract class GreetingModuleSpec extends WordSpec with ModuleSpec {
+abstract class GreetingModuleSpec extends AnyWordSpec with ModuleSpec {
 
   "Make a greeting" in {
     val greeting = getInstanceOf[Greeting]

@@ -17,10 +17,10 @@ package global.namespace.neuron.di.scala.test
 
 import global.namespace.neuron.di.scala.Incubator
 import global.namespace.neuron.di.scala.sample.MetricModule
-import org.scalatest.WordSpec
-import org.scalatest.Matchers._
+import org.scalatest.matchers.should.Matchers._
+import org.scalatest.wordspec.AnyWordSpec
 
-class MetricModuleSpec extends WordSpec {
+class MetricModuleSpec extends AnyWordSpec {
 
   "Make a metric" in {
     val module = Incubator.breed[MetricModule]

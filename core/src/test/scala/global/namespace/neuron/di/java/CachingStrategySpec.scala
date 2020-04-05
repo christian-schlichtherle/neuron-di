@@ -15,10 +15,10 @@
  */
 package global.namespace.neuron.di.java
 
-import org.scalatest.WordSpec
-import org.scalatest.Matchers._
+import org.scalatest.matchers.should.Matchers._
+import org.scalatest.wordspec.AnyWordSpec
 
-class CachingStrategySpec extends WordSpec {
+class CachingStrategySpec extends AnyWordSpec {
 
   "A caching strategy" should {
     "be enabled if and only if it's not the DISABLED caching strategy" in {

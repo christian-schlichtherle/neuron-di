@@ -16,10 +16,10 @@
 package global.namespace.neuron.di.scala.test
 
 import global.namespace.neuron.di.scala.sample.{GreetingModule, RealFormatter, RealGreeting}
-import org.scalatest.Matchers._
-import org.scalatest.WordSpec
+import org.scalatest.matchers.should.Matchers._
+import org.scalatest.wordspec.AnyWordSpec
 
-class GreetingModuleSpec extends WordSpec {
+class GreetingModuleSpec extends AnyWordSpec {
 
   "Make a greeting" in {
     val greeting = GreetingModule.greeting

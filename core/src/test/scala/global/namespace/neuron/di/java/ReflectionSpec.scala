@@ -20,12 +20,12 @@ import java.lang.invoke.MethodHandles._
 import global.namespace.neuron.di.java.Reflection.methodHandle
 import global.namespace.neuron.di.java.ReflectionSpec._
 import global.namespace.neuron.di.java.sample.{A, HasPrivateMembers}
-import org.scalatest.Matchers._
-import org.scalatest.WordSpec
+import org.scalatest.matchers.should.Matchers._
+import org.scalatest.wordspec.AnyWordSpec
 
 import scala.reflect.ClassTag
 
-class ReflectionSpec extends WordSpec {
+class ReflectionSpec extends AnyWordSpec {
 
   "Reflection.methodHandle" when {
     "looking up members in an anonymous subclass of `A`" should {

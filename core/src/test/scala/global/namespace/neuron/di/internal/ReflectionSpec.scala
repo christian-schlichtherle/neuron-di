@@ -17,13 +17,13 @@ package global.namespace.neuron.di.internal
 
 import global.namespace.neuron.di.internal.Reflection.overridableMethods
 import global.namespace.neuron.di.java.sample.{Baz, StringFunction}
-import org.scalatest.Matchers._
-import org.scalatest.WordSpec
+import org.scalatest.matchers.should.Matchers._
+import org.scalatest.wordspec.AnyWordSpec
 
 import scala.jdk.CollectionConverters._
 import scala.reflect.ClassTag
 
-class ReflectionSpec extends WordSpec {
+class ReflectionSpec extends AnyWordSpec {
 
   "An overridable methods collector" should {
     "collect overridable methods" in {

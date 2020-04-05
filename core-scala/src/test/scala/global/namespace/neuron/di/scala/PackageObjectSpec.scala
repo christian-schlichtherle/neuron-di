@@ -17,10 +17,11 @@ package global.namespace.neuron.di.scala
 
 import java.util.function.Supplier
 
-import org.scalatest.Matchers._
+import org.scalatest.matchers.should.Matchers._
 import org.scalatest.WordSpec
+import org.scalatest.wordspec.AnyWordSpec
 
-class PackageObjectSpec extends WordSpec {
+class PackageObjectSpec extends AnyWordSpec {
 
   "The runtimeClassOf function" should {
     "return the runtime class of a string supplier" in {

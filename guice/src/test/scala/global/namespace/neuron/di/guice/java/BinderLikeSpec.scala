@@ -23,13 +23,13 @@ import global.namespace.neuron.di.java.Neuron
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers._
 import org.mockito.Mockito._
-import org.scalatest.Matchers._
-import org.scalatest.WordSpec
+import org.scalatest.matchers.should.Matchers._
+import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.mockito.MockitoSugar.mock
 
 import scala.reflect._
 
-class BinderLikeSpec extends WordSpec {
+class BinderLikeSpec extends AnyWordSpec {
 
   val binderLike: BinderLike = new BinderLike {
 

@@ -17,12 +17,12 @@ package global.namespace.neuron.di.guice.scala.test
 
 import global.namespace.neuron.di.guice.scala.sample.CachingApplication
 import global.namespace.neuron.di.scala.wire
-import org.scalatest.Matchers._
-import org.scalatest.WordSpec
+import org.scalatest.matchers.should.Matchers._
+import org.scalatest.wordspec.AnyWordSpec
 
 import scala.util.control.NonFatal
 
-class CachingApplicationSpec extends WordSpec {
+class CachingApplicationSpec extends AnyWordSpec {
 
   "A `CachingApplication` object" when {
     //noinspection ScalaUnusedSymbol

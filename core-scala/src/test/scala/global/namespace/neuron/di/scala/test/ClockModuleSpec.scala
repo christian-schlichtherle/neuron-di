@@ -19,10 +19,10 @@ import java.util.Date
 
 import global.namespace.neuron.di.scala.Incubator
 import global.namespace.neuron.di.scala.sample.ClockModule
-import org.scalatest.Matchers._
-import org.scalatest.WordSpec
+import org.scalatest.matchers.should.Matchers._
+import org.scalatest.wordspec.AnyWordSpec
 
-class ClockModuleSpec extends WordSpec {
+class ClockModuleSpec extends AnyWordSpec {
 
   "Make a clock" in {
     val module = Incubator.breed[ClockModule]

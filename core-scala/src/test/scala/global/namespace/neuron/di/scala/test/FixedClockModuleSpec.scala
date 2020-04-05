@@ -18,10 +18,10 @@ package global.namespace.neuron.di.scala.test
 import java.util.Date
 
 import global.namespace.neuron.di.scala.sample.FixedClockModule
-import org.scalatest.Matchers._
-import org.scalatest.WordSpec
+import org.scalatest.matchers.should.Matchers._
+import org.scalatest.wordspec.AnyWordSpec
 
-class FixedClockModuleSpec extends WordSpec {
+class FixedClockModuleSpec extends AnyWordSpec {
 
   "Make a fixed clock" in {
     val clock = FixedClockModule.clock

@@ -17,10 +17,10 @@ package global.namespace.neuron.di.scala.test
 
 import global.namespace.neuron.di.scala.Incubator
 import global.namespace.neuron.di.scala.sample.CounterFactoryModule
-import org.scalatest.Matchers._
-import org.scalatest.WordSpec
+import org.scalatest.matchers.should.Matchers._
+import org.scalatest.wordspec.AnyWordSpec
 
-class CounterFactoryModuleSpec extends WordSpec {
+class CounterFactoryModuleSpec extends AnyWordSpec {
 
   "Make a counter factory" in {
     val module = Incubator.breed[CounterFactoryModule]

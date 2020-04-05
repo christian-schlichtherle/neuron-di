@@ -17,11 +17,11 @@ package global.namespace.neuron.di.java.test
 
 import global.namespace.neuron.di.java.CachingStrategy._
 import global.namespace.neuron.di.java._
-import global.namespace.neuron.di.java.test.CachingStrategyForDefaultMethodsWithoutParametersSpec._
 import global.namespace.neuron.di.java.sample.HasDependency
-import org.scalatest.FeatureSpec
+import global.namespace.neuron.di.java.test.CachingStrategyForDefaultMethodsWithoutParametersSpec._
+import org.scalatest.featurespec.AnyFeatureSpec
 
-class CachingStrategyForDefaultMethodsWithoutParametersSpec extends FeatureSpec with CachingStrategySpecLike {
+class CachingStrategyForDefaultMethodsWithoutParametersSpec extends AnyFeatureSpec with CachingStrategySpecLike {
 
   lazy val subjects: String = "default methods without parameters"
 

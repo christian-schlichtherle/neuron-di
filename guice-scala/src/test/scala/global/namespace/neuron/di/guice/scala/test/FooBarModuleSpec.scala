@@ -17,10 +17,10 @@ package global.namespace.neuron.di.guice.scala.test
 
 import com.google.inject.Module
 import global.namespace.neuron.di.guice.scala.sample.{Bar, BarImpl, FooBarModule, FooImpl}
-import org.scalatest.Matchers._
-import org.scalatest.WordSpec
+import org.scalatest.matchers.should.Matchers._
+import org.scalatest.wordspec.AnyWordSpec
 
-class FooBarModuleSpec extends WordSpec with ModuleSpec {
+class FooBarModuleSpec extends AnyWordSpec with ModuleSpec {
 
   def module: Module = new FooBarModule
 

@@ -24,20 +24,21 @@ import global.namespace.neuron.di.java.BreedingException
 import global.namespace.neuron.di.scala._
 import global.namespace.neuron.di.scala.sample.{MyClass, MyInterface}
 import global.namespace.neuron.di.scala.test.IncubatorSpec._
-import org.scalatest.Matchers._
-import org.scalatest.{FeatureSpec, GivenWhenThen}
+import org.scalatest.GivenWhenThen
+import org.scalatest.featurespec.AnyFeatureSpec
+import org.scalatest.matchers.should.Matchers._
 
 import scala.reflect.ClassTag
 
-class IncubatorSpec extends FeatureSpec with GivenWhenThen {
+class IncubatorSpec extends AnyFeatureSpec with GivenWhenThen {
 
-  feature("In neuron types, synapse methods get bound eagerly, but dependencies get resolved lazily") {
+  Feature("In neuron types, synapse methods get bound eagerly, but dependencies get resolved lazily") {
 
     info("As a developer")
     info("I want to be able to visit synapse methods when breeding the neuron")
     info("and compute their return value just in time.")
 
-    scenario("Breeding an instance of a neuron class") {
+    Scenario("Breeding an instance of a neuron class") {
 
       Given("a neuron class")
       When("breeding an instance")
@@ -47,7 +48,7 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
       synapsesOf[ANeuronClass] shouldHaveNames ("a", "b", "c")
     }
 
-    scenario("Breeding an instance of another neuron class") {
+    Scenario("Breeding an instance of another neuron class") {
 
       Given("a neuron class extending a class")
       When("breeding an instance")
@@ -57,7 +58,7 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
       synapsesOf[AnotherNeuronClass] shouldHaveNames ("now", "a", "b", "c")
     }
 
-    scenario("Breeding an instance of a neuron interface") {
+    Scenario("Breeding an instance of a neuron interface") {
 
       Given("a neuron interface")
       When("breeding an instance")
@@ -67,7 +68,7 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
       synapsesOf[ANeuronInterface] shouldHaveNames ("a", "b", "c")
     }
 
-    scenario("Breeding an instance of a non-neuron class") {
+    Scenario("Breeding an instance of a non-neuron class") {
 
       Given("a non-neuron class")
       When("breeding an instance")
@@ -78,13 +79,13 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
     }
   }
 
-  feature("Neurons can get partially bound if and only if explicitly requested") {
+  Feature("Neurons can get partially bound if and only if explicitly requested") {
 
     info("As a developer")
     info("either I want to explicitly enable partial wiring")
     info("or rest assured that I would get an exception otherwise.")
 
-    scenario("Partial binding is disabled") {
+    Scenario("Partial binding is disabled") {
 
       Given("a generic neuron interface")
       When("breeding an instance")
@@ -97,7 +98,7 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
       }.getMessage should fullyMatch regex """Partial binding is disabled and no binding is defined for synapse method: .*"""
     }
 
-    scenario("Partial binding is enabled") {
+    Scenario("Partial binding is enabled") {
 
       Given("a generic neuron interface")
       When("breeding an instance")
@@ -114,14 +115,14 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
     }
   }
 
-  feature("There is at most one proxy class for any neuron type and class loader") {
+  Feature("There is at most one proxy class for any neuron type and class loader") {
 
     info("As a solution architect")
     info("I want to rest assured that Neuron DI scales nicely")
     info("because it will create at most one proxy class per neuron type (and class loader)")
     info("no matter how many instances of them are created.")
 
-    scenario("Breeding an instance of a generic neuron interface") {
+    Scenario("Breeding an instance of a generic neuron interface") {
 
       Given("a generic neuron interface")
       When("breeding two instances wired with different properties of different types")
@@ -143,14 +144,14 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
     }
   }
 
-  feature("`.bind(methodReference).to(...)` can be called multiple times for the same method reference") {
+  Feature("`.bind(methodReference).to(...)` can be called multiple times for the same method reference") {
 
     info("As a developer")
     info("I want to be able to call `.bind(methodReference).to(...)` multiple times")
     info("for the same synapse reference")
     info("so that the effect of only the last call persists.")
 
-    scenario("Breeding an instance of a generic neuron interface") {
+    Scenario("Breeding an instance of a generic neuron interface") {
 
       Given("a generic neuron interface")
       When("calling `.bind(methodReference).to(...)` multiple times for the same synapse reference")
@@ -165,13 +166,13 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
     }
   }
 
-  feature("`.breed` can be called multiple times") {
+  Feature("`.breed` can be called multiple times") {
 
     info("As a developer")
     info("I want to be able to call `.breed` multiple times")
     info("so that different neurons with different bindings can be created in one go.")
 
-    scenario("Breeding an instance of a generic neuron interface") {
+    Scenario("Breeding an instance of a generic neuron interface") {
 
       Given("a generic neuron interface")
       When("calling `.breed` multiple times with different bindings")
@@ -187,14 +188,14 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
     }
   }
 
-  feature("Any Scala trait with a static context can be a neuron trait") {
+  Feature("Any Scala trait with a static context can be a neuron trait") {
 
     info("As a developer")
     info("I want to be able to annotate any Scala trait with the @Neuron annotation")
     info("so that I can take advantage of the binding DSL")
     info("and eventually apply caching, too.")
 
-    scenario("Breeding an instance of a neuron trait with only abstract members") {
+    Scenario("Breeding an instance of a neuron trait with only abstract members") {
 
       Given("a neuron trait with only abstract members")
       And("no `val` definition or @Caching annotation")
@@ -210,7 +211,7 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
       method1 shouldNot be theSameInstanceAs method1
     }
 
-    scenario("Breeding an instance of a neuron trait with non-abstract members") {
+    Scenario("Breeding an instance of a neuron trait with non-abstract members") {
 
       Given("a neuron trait with non-abstract members")
       And("a `val` definition but no @Caching annotation")
@@ -228,7 +229,7 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
       method2 should be theSameInstanceAs method2
     }
 
-    scenario("Breeding an instance of a neuron trait extending another trait with non-abstract members") {
+    Scenario("Breeding an instance of a neuron trait extending another trait with non-abstract members") {
 
       Given("a neuron trait extending another trait with non-abstract members")
       And("a @Caching annotation but no `val` definitions")
@@ -248,7 +249,7 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
       method3 should be theSameInstanceAs method3
     }
 
-    scenario("Breeding an instance of a neuron trait which requires a shim class and is defined in some static context which is not a package") {
+    Scenario("Breeding an instance of a neuron trait which requires a shim class and is defined in some static context which is not a package") {
 
       Given("a neuron trait which requires a shim class")
       And("is defined in some static context which is not a package")
@@ -265,9 +266,9 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
     }
   }
 
-  feature("Neurons can have different bindings") {
+  Feature("Neurons can have different bindings") {
 
-    scenario("Breeding two instances of a neuron trait with different bindings") {
+    Scenario("Breeding two instances of a neuron trait with different bindings") {
 
       Given("a neuron trait with a synapse method")
       When("breeding two instance")
@@ -287,9 +288,9 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
     }
   }
 
-  feature("Neuron types cannot have synapse methods without a return type") {
+  Feature("Neuron types cannot have synapse methods without a return type") {
 
-    scenario("Breeding an instance of a neuron trait with a synapse method without a return type") {
+    Scenario("Breeding an instance of a neuron trait with a synapse method without a return type") {
 
       Given("a neuron trait with a synapse method with the return type `Unit`")
       When("breeding an instance")
@@ -305,9 +306,9 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
     }
   }
 
-  feature("Neuron types cannot have abstract methods with parameters") {
+  Feature("Neuron types cannot have abstract methods with parameters") {
 
-    scenario("Breeding an instance of a neuron trait with an abstract method with a parameter") {
+    Scenario("Breeding an instance of a neuron trait with an abstract method with a parameter") {
 
       Given("a neuron trait with an abstract method with a parameter")
       When("breeding an instance")
@@ -318,9 +319,9 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
     }
   }
 
-  feature("Neuron types cannot have constructors which depend on synapses") {
+  Feature("Neuron types cannot have constructors which depend on synapses") {
 
-    scenario("Breeding an instance of a neuron trait with an eagerly initialized field whose value depends on a synapse") {
+    Scenario("Breeding an instance of a neuron trait with an eagerly initialized field whose value depends on a synapse") {
 
       Given("a neuron trait with an eagerly initialized field whose value depends on a synapse")
       When("breeding an instance")
@@ -335,9 +336,9 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
     }
   }
 
-  feature("Any method without parameters and a non-void return type can be bound") {
+  Feature("Any method without parameters and a non-void return type can be bound") {
 
-    scenario("Breeding an instance of a neuron interface with a greeting method") {
+    Scenario("Breeding an instance of a neuron interface with a greeting method") {
 
       Given("a neuron interface with a greeting method")
       When("breeding an instance with a binding for this method")
@@ -366,9 +367,9 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
     }
   }
 
-  feature("You can breed any accessible, static, non-final class with an accessible constructor without parameters or an interface") {
+  Feature("You can breed any accessible, static, non-final class with an accessible constructor without parameters or an interface") {
 
-    scenario("Breeding an instance of a non-neuron interface") {
+    Scenario("Breeding an instance of a non-neuron interface") {
 
       val nonNeuron = Incubator
         .wire[ANonNeuronInterface]
@@ -380,7 +381,7 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
       nonNeuron.c shouldBe theSameInstanceAs(nonNeuron.c)
     }
 
-    scenario("Breeding an instance of an interface from the JRE") {
+    Scenario("Breeding an instance of an interface from the JRE") {
 
       Incubator
         .wire[Supplier[String]]
@@ -390,9 +391,9 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
     }
   }
 
-  feature("A synapse method may be implemented in a super class") {
+  Feature("A synapse method may be implemented in a super class") {
 
-    scenario("Breeding an instance of an abstract class with a super class which implements a method defined in an interface") {
+    Scenario("Breeding an instance of an abstract class with a super class which implements a method defined in an interface") {
 
       Incubator
         .breed[ThisGuyDependsOnThem]
@@ -400,9 +401,9 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
     }
   }
 
-  feature("Support for methods in indirect superinterfaces") {
+  Feature("Support for methods in indirect superinterfaces") {
 
-    scenario("An interface with a superinterface") {
+    Scenario("An interface with a superinterface") {
 
       val v = Incubator.breed[MyInterface]
       v.foo shouldBe "foo"
@@ -411,7 +412,7 @@ class IncubatorSpec extends FeatureSpec with GivenWhenThen {
       v.fooBar shouldBe "foo, bar"
     }
 
-    scenario("A class with an interface and its superinterface") {
+    Scenario("A class with an interface and its superinterface") {
 
       val v = Incubator.breed[MyClass]
       v.foo shouldBe "foo"

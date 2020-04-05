@@ -2,10 +2,10 @@ package global.namespace.neuron.di.java.test
 
 import global.namespace.neuron.di.java._
 import global.namespace.neuron.di.java.sample.{NonInheritedRuntimeAnnotation, NonInheritedRuntimeAnnotationNeuron}
-import org.scalatest.Matchers._
-import org.scalatest.WordSpec
+import org.scalatest.matchers.should.Matchers._
+import org.scalatest.wordspec.AnyWordSpec
 
-class NonInheritedRuntimeAnnotationSpec extends WordSpec {
+class NonInheritedRuntimeAnnotationSpec extends AnyWordSpec {
 
   "A non-inherited runtime annotation on a @Neuron class" should {
     "be copied to the proxy class" in {

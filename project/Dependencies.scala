@@ -32,14 +32,13 @@ object Dependencies {
   val HamcrestLibrary: ModuleID = "org.hamcrest" % "hamcrest-library" % "1.3"
   val JUnit: ModuleID = "junit" % "junit" % "4.12"
   val JUnitInterface: ModuleID = "com.novocode" % "junit-interface" % "0.11"
-  val MockitoCore: ModuleID = "org.mockito" % "mockito-core" % "3.3.0"
   val MacroParadise: ModuleID = "org.scalamacros" % "paradise" % "2.1.1" cross CrossVersion.full
 
   val ScalaParallelCollections: ModuleID = "org.scala-lang.modules" %% "scala-parallel-collections" % "0.2.0"
 
   def scalaReflect(scalaVersion: String): ModuleID = "org.scala-lang" % "scala-reflect" % scalaVersion
 
-  val ScalaTest: ModuleID = "org.scalatest" %% "scalatest" % "3.0.8"
+  val ScalaTestPlusMockito = "org.scalatestplus" %% "mockito-3-2" % "3.1.1.0"
 
   val ScalaVersion_2_11: String = sys.env.getOrElse("SCALA_VERSION_2_11", "2.11.12")
   val ScalaVersion_2_12: String = sys.env.getOrElse("SCALA_VERSION_2_12", "2.12.11")

@@ -17,19 +17,32 @@ package global.namespace.neuron.di.java.test
 
 import global.namespace.neuron.di.java.Incubator.breed
 import global.namespace.neuron.di.java.sample.HasDependency
-import org.scalatest.Matchers._
-import org.scalatest.{FeatureSpec, FeatureSpecLike, GivenWhenThen}
+import org.scalatest.GivenWhenThen
+import org.scalatest.featurespec.{AnyFeatureSpec, AnyFeatureSpecLike}
+import org.scalatest.matchers.should.Matchers._
 
-trait CachingStrategySpecLike extends FeatureSpecLike with GivenWhenThen { self: FeatureSpec =>
+trait CachingStrategySpecLike extends AnyFeatureSpecLike with GivenWhenThen { self: AnyFeatureSpec =>
 
-  feature(s"Developers can configure different caching strategies for $subjects:") {
+  private val collect = new ConcurrentDependencyCollector
+
+  protected val subjects: String
+
+  protected val classWithDisabledCachingStrategy: Class[_ <: HasDependency[_]]
+
+  protected val classWithNotThreadSafeCachingStrategy: Class[_ <: HasDependency[_]]
+
+  protected val classWithThreadSafeCachingStrategy: Class[_ <: HasDependency[_]]
+
+  protected val classWithThreadLocalCachingStrategy: Class[_ <: HasDependency[_]]
+
+  Feature(s"Developers can configure different caching strategies for $subjects:") {
 
     info("As a developer")
     info(s"I want to configure the caching strategy for $subjects")
     info(s"by annotating the $subjects with @Caching")
     info("or annotating the neuron class with @Neuron.")
 
-    scenario("Applying the DISABLED caching strategy:") {
+    Scenario("Applying the DISABLED caching strategy:") {
 
       Given("A neuron where the caching strategy for its dependency is DISABLED")
 
@@ -44,7 +57,7 @@ trait CachingStrategySpecLike extends FeatureSpecLike with GivenWhenThen { self:
       dependencies should have size collect.numInjections
     }
 
-    scenario("Applying the NOT_THREAD_SAFE caching strategy:") {
+    Scenario("Applying the NOT_THREAD_SAFE caching strategy:") {
 
       Given("A neuron where the caching strategy for its dependency is NOT_THREAD_SAFE")
 
@@ -59,7 +72,7 @@ trait CachingStrategySpecLike extends FeatureSpecLike with GivenWhenThen { self:
       dependencies.size should be <= collect.numThreads
     }
 
-    scenario("Applying the THREAD_SAFE caching strategy:") {
+    Scenario("Applying the THREAD_SAFE caching strategy:") {
 
       Given("A neuron where the caching strategy for its dependency is THREAD_SAFE")
 
@@ -74,7 +87,7 @@ trait CachingStrategySpecLike extends FeatureSpecLike with GivenWhenThen { self:
       dependencies shouldBe Set(neuron.get)
     }
 
-    scenario("Applying the THREAD_LOCAL caching strategy:") {
+    Scenario("Applying the THREAD_LOCAL caching strategy:") {
 
       Given("A neuron where the caching strategy for its dependency is THREAD_LOCAL")
 
@@ -89,16 +102,4 @@ trait CachingStrategySpecLike extends FeatureSpecLike with GivenWhenThen { self:
       dependencies should have size collect.numThreads
     }
   }
-
-  private val collect = new ConcurrentDependencyCollector
-
-  protected val subjects: String
-
-  protected val classWithDisabledCachingStrategy: Class[_ <: HasDependency[_]]
-
-  protected val classWithNotThreadSafeCachingStrategy: Class[_ <: HasDependency[_]]
-
-  protected val classWithThreadSafeCachingStrategy: Class[_ <: HasDependency[_]]
-
-  protected val classWithThreadLocalCachingStrategy: Class[_ <: HasDependency[_]]
 }

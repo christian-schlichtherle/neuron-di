@@ -23,11 +23,11 @@ import global.namespace.neuron.di.guice.java.NeuronProviderSpec._
 import global.namespace.neuron.di.guice.java.sample.{NeuronWithQualifiedSynapses, TestBindingAnnotation, TestQualifier}
 import global.namespace.neuron.di.java.{DependencyProvider, Incubator}
 import org.mockito.Mockito._
-import org.scalatest.Matchers._
-import org.scalatest.WordSpec
+import org.scalatest.matchers.should.Matchers._
+import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.mockito.MockitoSugar.mock
 
-class NeuronProviderSpec extends WordSpec {
+class NeuronProviderSpec extends AnyWordSpec {
 
   "A neuron provider" should {
     "use a given injector to create providers for keys with qualifying and binding annotations" in {
