@@ -1,5 +1,5 @@
 /*
- * Copyright © 2016 - 2019 Schlichtherle IT Services
+ * Copyright © 2016 - 2020 Schlichtherle IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  */
 package global.namespace.neuron.di.scala
 
-// The error checks in this class must match the error chacks in
+// The error checks in this class must match the error checks in
 // `global.namespace.neuron.di.internal.CachingProcessor`!
 private trait CachingAnnotation extends MacroAnnotation {
 
@@ -56,7 +56,7 @@ private trait CachingAnnotation extends MacroAnnotation {
           val Apply(_, args) = c.prefix.tree
           val Apply(fun, _) = newCachingAnnotationTerm
           Apply(fun, args map {
-            case AssignOrNamedArg(lhs@q"value", rhs: Tree) => AssignOrNamedArg(lhs, scala2javaCachingStrategy(rhs))
+            case NamedArg(lhs@q"value", rhs: Tree) => NamedArg(lhs, scala2javaCachingStrategy(rhs))
             case tree => scala2javaCachingStrategy(tree)
           })
         }

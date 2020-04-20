@@ -1,5 +1,5 @@
 /*
- * Copyright © 2016 - 2019 Schlichtherle IT Services
+ * Copyright © 2016 - 2020 Schlichtherle IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@ package global.namespace.neuron.di.scala
 
 import scala.annotation.tailrec
 
-// The error checks in this class must match the error chacks in
+// The error checks in this class must match the error checks in
 // `global.namespace.neuron.di.internal.NeuronProcessor`!
 private trait NeuronAnnotation extends MacroAnnotation {
 
@@ -69,7 +69,7 @@ private trait NeuronAnnotation extends MacroAnnotation {
             val Apply(_, args) = c.prefix.tree
             val Apply(fun, _) = newNeuronAnnotationTerm
             Apply(fun, args map {
-              case AssignOrNamedArg(lhs@q"cachingStrategy", rhs: Tree) => AssignOrNamedArg(lhs, scala2javaCachingStrategy(rhs))
+              case NamedArg(lhs@q"cachingStrategy", rhs: Tree) => NamedArg(lhs, scala2javaCachingStrategy(rhs))
               case tree => tree
             })
           }
