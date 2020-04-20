@@ -149,7 +149,14 @@ private object Neuron {
       }
       q"$tree.breed"
     } else {
-      q"new $targetType { ..${methodInfos.map(new MethodBinding(_).bind)} }"
+      val body = methodInfos.map(new MethodBinding(_).bind)
+      // Splicing an empty body would remove the entire body, which would result in an error message because you can't
+      // "new" an abstract type:
+      if (body.nonEmpty) {
+        q"new $targetType { ..$body }"
+      } else {
+        q"new $targetType { }"
+      }
     }
   }
 }
