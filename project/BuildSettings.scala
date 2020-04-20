@@ -139,7 +139,7 @@ object BuildSettings {
       libraryDependencies ++= {
         CrossVersion.partialVersion(scalaVersion.value) match {
           case Some((2, major)) if major >= 13 => Seq.empty
-          case _ => Seq(compilerPlugin(MacroParadise))
+          case _ => Seq(compilerPlugin(Paradise))
         }
       },
       crossScalaVersions := Seq(ScalaVersion_2_11, ScalaVersion_2_12, ScalaVersion_2_13)

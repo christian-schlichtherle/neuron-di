@@ -32,7 +32,7 @@ object Dependencies {
   val HamcrestLibrary: ModuleID = "org.hamcrest" % "hamcrest-library" % "1.3"
   val JUnit: ModuleID = "junit" % "junit" % "4.13"
   val JUnitInterface: ModuleID = "com.novocode" % "junit-interface" % "0.11"
-  val MacroParadise: ModuleID = "org.scalamacros" % "paradise" % "2.1.1" cross CrossVersion.full
+  val Paradise: ModuleID = "org.scalamacros" % "paradise" % "2.1.1" cross CrossVersion.full
 
   val ScalaParallelCollections: ModuleID = "org.scala-lang.modules" %% "scala-parallel-collections" % "0.2.0"
 

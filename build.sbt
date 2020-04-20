@@ -19,8 +19,7 @@ import Dependencies._
 lazy val root = project
   .in(file("."))
   .aggregate(core, coreScala, guice, guiceScala, junit)
-  .settings(releaseSettings)
-  .settings(aggregateSettings)
+  .settings(releaseSettings, aggregateSettings)
   .settings(name := "Neuron DI")
 
 lazy val core = project
