@@ -46,7 +46,7 @@ private object Neuron {
       }
     }
 
-    class MethodInfo(symbol: MethodSymbol) {
+    final class MethodInfo(symbol: MethodSymbol) {
 
       lazy val isStable: Boolean = symbol.isStable
 
@@ -56,9 +56,9 @@ private object Neuron {
 
       lazy val functionType: Type = c.typecheck(tq"$targetType => $returnType", mode = c.TYPEmode).tpe
 
-      override def toString: String = {
+      override lazy val toString: String = {
         val typePrefix = if (isNeuronType) "neuron" else "non-neuron"
-        s"synapse method `$name: $returnType` as seen from $typePrefix `$targetTypeSymbol`"
+        s"synapse method `$name: $returnType` as seen from $typePrefix $targetTypeSymbol"
       }
     }
 
@@ -98,7 +98,7 @@ private object Neuron {
       private lazy val dependency: Tree = q"$name"
     }
 
-    class SynapseBinding(info: MethodInfo) extends BaseBinding(info) {
+    final class SynapseBinding(info: MethodInfo) extends BaseBinding(info) {
 
       import info._
 
@@ -109,7 +109,7 @@ private object Neuron {
       def functionBinding(dependency: Tree): Tree = returnValueBinding(dependency)
     }
 
-    class MethodBinding(info: MethodInfo) extends BaseBinding(info) {
+    final class MethodBinding(info: MethodInfo) extends BaseBinding(info) {
 
       import info._
 

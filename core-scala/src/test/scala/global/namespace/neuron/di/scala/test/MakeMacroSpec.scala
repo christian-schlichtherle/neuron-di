@@ -18,12 +18,13 @@ package global.namespace.neuron.di.scala.test
 import java.util.function.Supplier
 
 import global.namespace.neuron.di.scala.CachingStrategy._
-import global.namespace.neuron.di.scala.test.MakeMacroSpec._
 import global.namespace.neuron.di.scala._
 import org.scalatest.featurespec.AnyFeatureSpec
 import org.scalatest.matchers.should.Matchers._
 
 class MakeMacroSpec extends AnyFeatureSpec {
+
+  import MakeMacroSpec._
 
   Feature("Synapse methods in neuron and non-neuron types can be auto-wired using the `make` macro") {
 
