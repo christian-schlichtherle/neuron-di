@@ -28,9 +28,9 @@ class Neuron(cachingStrategy: CachingStrategy = CachingStrategy.DISABLED) extend
 private object Neuron {
 
   def transform(x: blackbox.Context)(annottees: x.Tree*): x.Tree = {
-    new {
+    new NeuronAnnotation {
       override val c: x.type = x
-    } with NeuronAnnotation apply annottees.toList
+    } apply annottees.toList
   }
 
   def wire[A <: AnyRef : c.WeakTypeTag](c: blackbox.Context): c.Tree = {

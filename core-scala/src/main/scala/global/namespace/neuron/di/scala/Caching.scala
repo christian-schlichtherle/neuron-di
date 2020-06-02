@@ -28,8 +28,8 @@ class Caching(value: CachingStrategy = CachingStrategy.THREAD_SAFE) extends Stat
 private object Caching {
 
   def transform(x: blackbox.Context)(annottees: x.Tree*): x.Tree = {
-    new {
+    new CachingAnnotation {
       override val c: x.type = x
-    } with CachingAnnotation apply annottees.toList
+    } apply annottees.toList
   }
 }
