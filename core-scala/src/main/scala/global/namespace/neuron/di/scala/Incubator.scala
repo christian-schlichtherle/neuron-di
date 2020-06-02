@@ -40,7 +40,7 @@ object Incubator {
       private val jbind = jwire bind methodReference
 
       def to(value: => B): self.type = {
-        jwire = jbind to value _
+        jwire = jbind to (() => value)
         self
       }
 
