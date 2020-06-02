@@ -33,7 +33,7 @@ private object Neuron {
     } apply annottees.toList
   }
 
-  def wire[A <: AnyRef : c.WeakTypeTag](c: blackbox.Context): c.Tree = {
+  def make[A <: AnyRef : c.WeakTypeTag](c: blackbox.Context): c.Tree = {
     import c.universe._
 
     val targetType = weakTypeOf[A]
@@ -155,7 +155,7 @@ private object Neuron {
       if (body.nonEmpty) {
         q"new $targetType { ..$body }"
       } else {
-        q"new $targetType { }"
+        q"new $targetType {}"
       }
     }
   }

@@ -16,7 +16,7 @@
 package global.namespace.neuron.di.guice.scala.test
 
 import global.namespace.neuron.di.guice.scala.sample.CachingApplication
-import global.namespace.neuron.di.scala.wire
+import global.namespace.neuron.di.scala._
 import org.scalatest.matchers.should.Matchers._
 import org.scalatest.wordspec.AnyWordSpec
 
@@ -27,7 +27,7 @@ class CachingApplicationSpec extends AnyWordSpec {
   "A `CachingApplication` object" when {
     //noinspection ScalaUnusedSymbol
     def threadSafeCachedObject = new AnyRef
-    lazy val app = wire[CachingApplication]
+    lazy val app = make[CachingApplication]
 
     "calling its `threadSafeCachedObject` method" should {
       lazy val o = app.threadSafeCachedObject

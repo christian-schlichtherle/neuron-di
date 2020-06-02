@@ -38,7 +38,7 @@ trait AprilWeatherStation extends WeatherStation {
 
   import AprilWeatherStation._
 
-  def temperature: Temperature = wire[Temperature]
+  def temperature: Temperature = make[Temperature]
 }
 
 private object AprilWeatherStation {

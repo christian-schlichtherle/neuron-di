@@ -37,9 +37,9 @@ trait SimpleFormatter {
 
 object SimpleGreetingModule {
 
-  lazy val greeting: SimpleGreeting = wire[SimpleGreeting]
+  lazy val greeting: SimpleGreeting = make[SimpleGreeting]
 
-  lazy val formatter: SimpleFormatter = wire[SimpleFormatter]
+  lazy val formatter: SimpleFormatter = make[SimpleFormatter]
 
   val theFormat = "Hello %s!"
 }

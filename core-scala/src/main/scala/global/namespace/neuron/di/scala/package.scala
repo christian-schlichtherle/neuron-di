@@ -54,13 +54,13 @@ package object scala {
     *   val a = "World"
     *   def b(neuron: Foo[String]) = "Hello, " + neuron.a
     *   val c = (neuron: Foo[String]) => neuron.b + "!"
-    *   val foo = wire[Foo[String]]
+    *   val foo = make[Foo[String]]
     *   println(foo.c)
     * }
     * }}}
     *
     * When run, `Main` will print `Hello, World!` to standard output.
-    * When calling `wire[Foo[String]]`, the type parameter of `Foo` is set to `String`, so the synapses `a`,
+    * When calling `make[Foo[String]]`, the type parameter of `Foo` is set to `String`, so the synapses `a`,
     * `b` and `c` each return a `String`.
     * The synapses are bound to their dependencies as follows:
     * + The synapse `a` is bound to the value `a` of type `String`.
@@ -72,7 +72,10 @@ package object scala {
     *
     * @since Neuron DI 5.0 (renamed from `neuron`, which was introduced in Neuron DI 4.2)
     */
-  def wire[A <: AnyRef]: A = macro Neuron.wire[A]
+  def make[A <: AnyRef]: A = macro Neuron.make[A]
+
+  @deprecated("Use `make` instead in order to differentiate this macro from `Incubator.wire`.", "Neuron DI 6.6.0")
+  def wire[A <: AnyRef]: A = macro Neuron.make[A]
 
   def runtimeClassOf[A](implicit tag: ClassTag[A]): Class[A] = {
     require(tag != classTag[Nothing], "Missing type parameter.")

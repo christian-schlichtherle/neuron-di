@@ -47,9 +47,9 @@ trait RealFormatter extends Formatter {
 
 object GreetingModule {
 
-  lazy val greeting: Greeting = wire[RealGreeting]
+  lazy val greeting: Greeting = make[RealGreeting]
 
-  lazy val formatter: Formatter = wire[RealFormatter]
+  lazy val formatter: Formatter = make[RealFormatter]
 
   val theFormat = "Hello %s!"
 }
