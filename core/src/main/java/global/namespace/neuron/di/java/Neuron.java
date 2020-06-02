@@ -32,18 +32,18 @@ import java.lang.annotation.*;
  * This annotation can also be applied to custom annotation types, in which case any class or interface annotated with
  * these is treated as if it's directly annotated with this annotation.
  * For example, the following annotation caches all synapse values using a thread-safe strategy:
- * <pre>{@code
+ * <pre><code>
  *     import global.namespace.neuron.di.java.*;
  *     import java.lang.annotation.*;
  *
- *     @Neuron(cachingStrategy = CachingStrategy.THREAD_SAFE)
- *     @Inherited
- *     @Documented
- *     @Retention(RetentionPolicy.RUNTIME)
- *     @Target(ElementType.TYPE)
- *     public @interface ThreadSafeCachingNeuron {
+ *     &#64;Neuron(cachingStrategy = CachingStrategy.THREAD_SAFE)
+ *     &#64;Inherited
+ *     &#64;Documented
+ *     &#64;Retention(RetentionPolicy.RUNTIME)
+ *     &#64;Target(ElementType.TYPE)
+ *     public &#64;interface ThreadSafeCachingNeuron {
  *     }
- * }</pre>
+ * </code></pre>
  *
  * @see <a href="https://en.wikipedia.org/wiki/Neuron">Neuron on the English Wikipedia</a>
  */

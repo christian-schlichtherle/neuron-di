@@ -34,17 +34,17 @@ import static java.lang.annotation.ElementType.METHOD;
  * This annotation can also be applied to custom annotation types, in which case any method annotated with these is
  * treated as if it's directly annotated with this annotation.
  * For example:
- * <pre>{@code
+ * <pre><code>
  *     import global.namespace.neuron.di.java.*;
  *     import java.lang.annotation.*;
  *
- *     @Caching(CachingStrategy.THREAD_LOCAL)
- *     @Documented
- *     @Retention(RetentionPolicy.RUNTIME)
- *     @Target(ElementType.METHOD)
- *     public @interface ThreadLocalCaching {
+ *     &#64;Caching(CachingStrategy.THREAD_LOCAL)
+ *     &#64;Documented
+ *     &#64;Retention(RetentionPolicy.RUNTIME)
+ *     &#64;Target(ElementType.METHOD)
+ *     public &#64;interface ThreadLocalCaching {
  *     }
- * }</pre>
+ * </code></pre>
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
