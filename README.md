@@ -3,15 +3,15 @@
 
 # Why Neuron DI?
 
-As a Java developer, does Spring or Guice give you a headache?
+As a Java developer, do Spring or Guice give you a headache?
 Maybe you are tired of annotation frenzy or slow startup times of your application and test code?  
 
-As a Scala developer, do you frown upon the Cake pattern?
+As a Scala developer, do you frown upon long parameter lists or the Cake pattern?
 Maybe you are looking for something simpler, yet scalable while retaining compile-time dependency injection?
 
 Neuron DI is a tiny library for dependency injection (DI) in Java and Scala which helps you structure your application
 or library code with ease, whether it's small or large.
-In comparison to any [JSR 330] based framework like 
+In contrast to any [JSR 330] based framework like 
 [Spring, Guice etc](http://javax-inject.github.io/javax-inject/), it takes a complementary approach.
 In doing so, it has become a significant productivity booster with a shallow learning curve.
 
