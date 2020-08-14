@@ -1,5 +1,5 @@
 /*
- * Copyright © 2016 - 2019 Schlichtherle IT Services
+ * Copyright © 2016 - 2020 Schlichtherle IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,7 +55,7 @@ lazy val core = project
       }
     },
     name := "Neuron DI for Java",
-    normalizedName := "neuron-di"
+    normalizedName := "neuron-di",
   )
 
 lazy val coreScala = project
@@ -68,7 +68,7 @@ lazy val coreScala = project
       ScalaTestPlusMockito % Test
     ),
     name := "Neuron DI for Scala " + scalaBinaryVersion.value,
-    normalizedName := "neuron-di-scala"
+    normalizedName := "neuron-di-scala",
   )
 
 lazy val guice = project
@@ -83,7 +83,7 @@ lazy val guice = project
       ScalaTestPlusMockito % Test
     ),
     name := "Neuron DI @ Guice for Java",
-    normalizedName := "neuron-di-guice"
+    normalizedName := "neuron-di-guice",
   )
 
 lazy val guiceScala = project
@@ -93,7 +93,7 @@ lazy val guiceScala = project
   .settings(
     libraryDependencies += ScalaTestPlusMockito % Test,
     name := "Neuron DI @ Guice for Scala " + scalaBinaryVersion.value,
-    normalizedName := "neuron-di-guice-scala"
+    normalizedName := "neuron-di-guice-scala",
   )
 
 lazy val junit = project
@@ -103,5 +103,5 @@ lazy val junit = project
   .settings(
     libraryDependencies += JUnit,
     name := "Neuron DI @ JUnit",
-    normalizedName := "neuron-di-junit"
+    normalizedName := "neuron-di-junit",
   )

@@ -1,5 +1,5 @@
 /*
- * Copyright © 2016 - 2019 Schlichtherle IT Services
+ * Copyright © 2016 - 2020 Schlichtherle IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 import Dependencies._
 import sbt.Keys._
 import sbt._
@@ -36,8 +35,8 @@ object BuildSettings {
         releaseStepCommandAndRemaining("+publishSigned"),
         setNextVersion,
         commitNextVersion,
-        pushChanges
-      )
+        pushChanges,
+      ),
     )
   }
 
@@ -63,10 +62,10 @@ object BuildSettings {
             </properties>
           </developer>
         </developers>
-          <issueManagement>
-            <system>Github</system>
-            <url>https://github.com/christian-schlichtherle/neuron-di/issues</url>
-          </issueManagement>
+        <issueManagement>
+          <system>Github</system>
+          <url>https://github.com/christian-schlichtherle/neuron-di/issues</url>
+        </issueManagement>
       },
       pomIncludeRepository := (_ => false),
       publishTo := {
@@ -84,14 +83,14 @@ object BuildSettings {
         browseUrl = url("https://github.com/christian-schlichtherle/neuron-di"),
         connection = "scm:git:git@github.com/christian-schlichtherle/neuron-di.git",
         devConnection = Some("scm:git:git@github.com/christian-schlichtherle/neuron-di.git")
-      ))
+      )),
     )
   }
 
   lazy val aggregateSettings: Seq[Setting[_]] = {
     commonSettings ++ Seq(
       crossPaths := false,
-      publishArtifact := false
+      publish / skip := true,
     )
   }
 
@@ -100,7 +99,7 @@ object BuildSettings {
       dependencyOverrides += JUnit,
       logBuffered := false, // http://www.scalatest.org/user_guide/using_scalatest_with_sbt
       testOptions += Tests.Argument(TestFrameworks.JUnit, "-a", "-v"),
-      testOptions += Tests.Argument(TestFrameworks.ScalaTest, "-oF")
+      testOptions += Tests.Argument(TestFrameworks.ScalaTest, "-oF"),
     )
   }
 
@@ -123,14 +122,14 @@ object BuildSettings {
           case Some((2, major)) if major >= 13 => Seq("-Ymacro-annotations")
           case _ => Seq.empty
         }
-      }
+      },
     )
   }
 
   lazy val javaLibrarySettings: Seq[Setting[_]] = {
     librarySettings ++ Seq(
       autoScalaLibrary := false,
-      crossPaths := false
+      crossPaths := false,
     )
   }
 
@@ -142,7 +141,7 @@ object BuildSettings {
           case _ => Seq(compilerPlugin(Paradise))
         }
       },
-      crossScalaVersions := Seq(ScalaVersion_2_11, ScalaVersion_2_12, ScalaVersion_2_13)
+      crossScalaVersions := Seq(ScalaVersion_2_11, ScalaVersion_2_12, ScalaVersion_2_13),
     )
   }
 }

@@ -1,3 +1,7 @@
-/.idea/
 *.iml
+/.idea
+/project/.boot
+/project/.coursier
+/project/.ivy
+/project/.sbtboot
 target/
