@@ -3,7 +3,7 @@
 
 # Why Neuron DI?
 
-As a Java developer, do Spring or Guice give you a headache?
+As a Java developer, does Spring or Guice give you a headache?
 Maybe you are tired of annotation frenzy or slow startup times of your application and test code?  
 
 As a Scala developer, do you frown upon long parameter lists or the Cake pattern?
