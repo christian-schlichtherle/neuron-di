@@ -30,7 +30,7 @@ env:
   - COMPILE_IMAGE_TAG=9-jdk TEST_IMAGE_TAG=8-jdk  GUICE_VERSION=4.2.3
   - COMPILE_IMAGE_TAG=9-jdk TEST_IMAGE_TAG=14-jdk GUICE_VERSION=4.2.3
 
-install: ./docker-sbtx $COMPILE_IMAGE_TAG -no-colors +test:compile
+install: ./docker-sbtx $COMPILE_IMAGE_TAG -batch +test:compile
 
 language: minimal
 
@@ -38,4 +38,4 @@ language: minimal
 services:
   - docker
 
-script: ./docker-sbtx $TEST_IMAGE_TAG -no-colors +test
+script: ./docker-sbtx $TEST_IMAGE_TAG -batch +test

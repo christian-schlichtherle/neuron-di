@@ -23,8 +23,6 @@ exec docker run \
     --interactive \
     --rm \
     --tty \
-    --volume "$HOME/.ivy2:/root/.ivy2" \
-    --volume "$HOME/.sbt:/root/.sbt" \
     --volume "$PWD:/workdir" \
     --workdir /workdir \
     "openjdk:$image_tag" \

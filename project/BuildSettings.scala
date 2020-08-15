@@ -90,6 +90,7 @@ object BuildSettings {
   lazy val aggregateSettings: Seq[Setting[_]] = {
     commonSettings ++ Seq(
       crossPaths := false,
+      crossScalaVersions := Seq.empty,
       publish / skip := true,
     )
   }
@@ -130,6 +131,7 @@ object BuildSettings {
     librarySettings ++ Seq(
       autoScalaLibrary := false,
       crossPaths := false,
+      crossScalaVersions := Seq(scalaVersion.value),
     )
   }
 
