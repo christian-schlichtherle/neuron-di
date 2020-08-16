@@ -18,7 +18,6 @@ package global.namespace.neuron.di.scala
 import java.util.function.Supplier
 
 import org.scalatest.matchers.should.Matchers._
-import org.scalatest.WordSpec
 import org.scalatest.wordspec.AnyWordSpec
 
 class PackageObjectSpec extends AnyWordSpec {

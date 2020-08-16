@@ -46,7 +46,7 @@ lazy val core = project
       ASM,
       HamcrestLibrary % Test,
       JUnitInterface % Test,
-      ScalaTestPlusMockito % Test
+      Scalatest % Test,
     ),
     libraryDependencies ++= {
       CrossVersion.partialVersion(scalaVersion.value) match {
@@ -65,7 +65,7 @@ lazy val coreScala = project
   .settings(
     libraryDependencies ++= Seq(
       scalaReflect(scalaVersion.value),
-      ScalaTestPlusMockito % Test
+      Scalatest % Test,
     ),
     name := "Neuron DI for Scala " + scalaBinaryVersion.value,
     normalizedName := "neuron-di-scala",
@@ -80,7 +80,8 @@ lazy val guice = project
       Guice,
       HamcrestLibrary % Test,
       JUnitInterface % Test,
-      ScalaTestPlusMockito % Test
+      Scalatest % Test,
+      ScalatestplusMockito % Test,
     ),
     name := "Neuron DI @ Guice for Java",
     normalizedName := "neuron-di-guice",
@@ -91,7 +92,7 @@ lazy val guiceScala = project
   .dependsOn(guice, coreScala)
   .settings(scalaLibrarySettings)
   .settings(
-    libraryDependencies += ScalaTestPlusMockito % Test,
+    libraryDependencies += Scalatest % Test,
     name := "Neuron DI @ Guice for Scala " + scalaBinaryVersion.value,
     normalizedName := "neuron-di-guice-scala",
   )

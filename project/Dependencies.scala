@@ -37,7 +37,8 @@ object Dependencies {
 
   def scalaReflect(scalaVersion: String): ModuleID = "org.scala-lang" % "scala-reflect" % scalaVersion
 
-  val ScalaTestPlusMockito = "org.scalatestplus" %% "mockito-3-3" % "3.1.2.0"
+  val Scalatest = "org.scalatest" %% "scalatest" % "3.2.1"
+  val ScalatestplusMockito = "org.scalatestplus" %% "mockito-3-4" % "3.2.1.0"
 
   val ScalaVersion_2_11: String = sys.env.getOrElse("SCALA_VERSION_2_11", "2.11.12")
   val ScalaVersion_2_12: String = sys.env.getOrElse("SCALA_VERSION_2_12", "2.12.12")
