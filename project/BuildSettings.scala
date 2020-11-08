@@ -21,7 +21,7 @@ import sbtrelease.ReleaseStateTransformations._
 
 object BuildSettings {
 
-  lazy val releaseSettings: Seq[Setting[_]] = {
+  lazy val ReleaseSettings: Seq[Setting[_]] = {
     Seq(
       releaseCrossBuild := false,
       releaseProcess := Seq[ReleaseStep](
@@ -40,7 +40,7 @@ object BuildSettings {
     )
   }
 
-  private lazy val commonSettings: Seq[Setting[_]] = {
+  private lazy val CommonSettings: Seq[Setting[_]] = {
     Seq(
       homepage := Some(url("https://github.com/christian-schlichtherle/neuron-di")),
       licenses := Seq("Apache License, Version 2.0" -> url("https://www.apache.org/licenses/LICENSE-2.0")),
@@ -87,16 +87,16 @@ object BuildSettings {
     )
   }
 
-  lazy val aggregateSettings: Seq[Setting[_]] = {
-    commonSettings ++ Seq(
+  lazy val AggregateSettings: Seq[Setting[_]] = {
+    CommonSettings ++ Seq(
       crossPaths := false,
       crossScalaVersions := Seq.empty,
       publish / skip := true,
     )
   }
 
-  lazy val artifactSettings: Seq[Setting[_]] = {
-    commonSettings ++ Seq(
+  lazy val ArtifactSettings: Seq[Setting[_]] = {
+    CommonSettings ++ Seq(
       dependencyOverrides += JUnit,
       logBuffered := false, // http://www.scalatest.org/user_guide/using_scalatest_with_sbt
       testOptions += Tests.Argument(TestFrameworks.JUnit, "-a", "-v"),
@@ -104,8 +104,8 @@ object BuildSettings {
     )
   }
 
-  lazy val librarySettings: Seq[Setting[_]] = {
-    artifactSettings ++ Seq(
+  lazy val LibrarySettings: Seq[Setting[_]] = {
+    ArtifactSettings ++ Seq(
       // Support testing Java projects with ScalaTest et al:
       compileOrder := CompileOrder.JavaThenScala,
       javacOptions := DefaultOptions.javac ++ Seq(Opts.compile.deprecation, "-Xlint", "-source", "1.8", "-target", "1.8", "-g"),
@@ -127,16 +127,16 @@ object BuildSettings {
     )
   }
 
-  lazy val javaLibrarySettings: Seq[Setting[_]] = {
-    librarySettings ++ Seq(
+  lazy val JavaLibrarySettings: Seq[Setting[_]] = {
+    LibrarySettings ++ Seq(
       autoScalaLibrary := false,
       crossPaths := false,
       crossScalaVersions := Seq(scalaVersion.value),
     )
   }
 
-  lazy val scalaLibrarySettings: Seq[Setting[_]] = {
-    librarySettings ++ Seq(
+  lazy val ScalaLibrarySettings: Seq[Setting[_]] = {
+    LibrarySettings ++ Seq(
       libraryDependencies ++= {
         CrossVersion.partialVersion(scalaVersion.value) match {
           case Some((2, major)) if major >= 13 => Seq.empty

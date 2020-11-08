@@ -19,12 +19,12 @@ import Dependencies._
 lazy val root = project
   .in(file("."))
   .aggregate(core, coreScala, guice, guiceScala, junit)
-  .settings(releaseSettings, aggregateSettings)
+  .settings(ReleaseSettings, AggregateSettings)
   .settings(name := "Neuron DI")
 
 lazy val core = project
   .in(file("core"))
-  .settings(javaLibrarySettings)
+  .settings(JavaLibrarySettings)
   .settings(
     inTask(assembly)(Seq(
       artifact ~= (_ withClassifier Some("shaded") withConfigurations Vector(Compile)),
@@ -61,7 +61,7 @@ lazy val core = project
 lazy val coreScala = project
   .in(file("core-scala"))
   .dependsOn(core)
-  .settings(scalaLibrarySettings)
+  .settings(ScalaLibrarySettings)
   .settings(
     libraryDependencies ++= Seq(
       scalaReflect(scalaVersion.value),
@@ -74,7 +74,7 @@ lazy val coreScala = project
 lazy val guice = project
   .in(file("guice"))
   .dependsOn(core, junit % Test)
-  .settings(javaLibrarySettings)
+  .settings(JavaLibrarySettings)
   .settings(
     libraryDependencies ++= Seq(
       Guice,
@@ -90,7 +90,7 @@ lazy val guice = project
 lazy val guiceScala = project
   .in(file("guice-scala"))
   .dependsOn(guice, coreScala)
-  .settings(scalaLibrarySettings)
+  .settings(ScalaLibrarySettings)
   .settings(
     libraryDependencies += Scalatest % Test,
     name := "Neuron DI @ Guice for Scala " + scalaBinaryVersion.value,
@@ -100,7 +100,7 @@ lazy val guiceScala = project
 lazy val junit = project
   .in(file("junit"))
   .dependsOn(core)
-  .settings(javaLibrarySettings)
+  .settings(JavaLibrarySettings)
   .settings(
     libraryDependencies += JUnit,
     name := "Neuron DI @ JUnit",
