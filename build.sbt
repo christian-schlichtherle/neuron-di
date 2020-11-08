@@ -23,7 +23,6 @@ lazy val root = project
   .settings(name := "Neuron DI")
 
 lazy val core = project
-  .in(file("core"))
   .settings(JavaLibrarySettings)
   .settings(
     inTask(assembly)(Seq(
@@ -72,7 +71,6 @@ lazy val coreScala = project
   )
 
 lazy val guice = project
-  .in(file("guice"))
   .dependsOn(core, junit % Test)
   .settings(JavaLibrarySettings)
   .settings(
@@ -98,7 +96,6 @@ lazy val guiceScala = project
   )
 
 lazy val junit = project
-  .in(file("junit"))
   .dependsOn(core)
   .settings(JavaLibrarySettings)
   .settings(
