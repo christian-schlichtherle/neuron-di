@@ -30,7 +30,7 @@ import java.util.Arrays;
 abstract class NeuronProvider<T> implements Provider<T> {
 
     @Caching
-    abstract Injector injector();
+    protected abstract Injector injector();
 
     abstract TypeLiteral<T> typeLiteral();
 
