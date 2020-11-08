@@ -153,14 +153,17 @@ final class ProxyClassVisitor extends ClassVisitor {
             final Type methodType = getType(methodDesc);
             mv.visitVarInsn(ALOAD, 0);
             mv.visitVarInsn(ALOAD, 0);
-            mv.visitInvokeDynamicInsn(
-                    "get",
+            mv.visitInvokeDynamicInsn("get",
                     "(" + proxyDesc + ")" + dependencyProviderDesc,
                     metaFactoryHandle,
                     acceptsNothingAndReturnsObjectType,
+                    // TODO: Inline the shim method by replacing the following LOC with:
+                    // new Handle(H_INVOKESPECIAL, getInternalName(method.getDeclaringClass()), methodName, methodDesc, method.getDeclaringClass().isInterface()),
+                    // This is how it was in Neuron DI 6.6.0 and it used to work up to Java 14.
+                    // However, it stopped working in Java 15(.0.1) and 16(-ea), so now we need to generate and call a
+                    // shim method instead:
                     new Handle(H_INVOKESPECIAL, proxyName, shimName, methodDesc, false),
-                    methodType
-            );
+                    methodType);
             mv.visitFieldInsn(PUTFIELD, proxyName, proxyFieldName(method), dependencyProviderDesc);
         }
         mv.visitInsn(RETURN);
