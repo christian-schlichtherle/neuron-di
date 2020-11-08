@@ -70,10 +70,10 @@ final class ProxyClassVisitor extends ClassVisitor {
     }
 
     @Override
-    public void visit(final int version,
-                      final int access,
-                      final String name,
-                      final String signature,
+    public void visit(int version,
+                      int access,
+                      String name,
+                      String signature,
                       String superName,
                       String[] interfaces) {
         cv.visit(max(version, V1_8),
@@ -144,22 +144,24 @@ final class ProxyClassVisitor extends ClassVisitor {
                 ACCEPTS_NOTHING_AND_RETURNS_VOID_DESC,
                 false);
         for (final Method method : bindableMethods) {
-            if (0 == (method.getModifiers() & ACC_ABSTRACT)) {
-                final Class<?> declaringClass = method.getDeclaringClass();
-                final boolean isInterface = declaringClass.isInterface();
-                final String owner = getInternalName(declaringClass);
-                final String methodName = method.getName();
-                final String desc = getMethodDescriptor(method);
-                mv.visitVarInsn(ALOAD, 0);
-                mv.visitVarInsn(ALOAD, 0);
-                mv.visitInvokeDynamicInsn("get",
-                        "(" + proxyDesc + ")" + dependencyProviderDesc,
-                        metaFactoryHandle,
-                        acceptsNothingAndReturnsObjectType,
-                        new Handle(H_INVOKESPECIAL, owner, methodName, desc, isInterface),
-                        acceptsNothingAndReturnsObjectType);
-                mv.visitFieldInsn(PUTFIELD, proxyName, proxyFieldName(method), dependencyProviderDesc);
+            if (0 != (method.getModifiers() & ACC_ABSTRACT)) {
+                continue;
             }
+            final String methodName = method.getName();
+            final String shimName = methodName + "$shim";
+            final String methodDesc = getMethodDescriptor(method);
+            final Type methodType = getType(methodDesc);
+            mv.visitVarInsn(ALOAD, 0);
+            mv.visitVarInsn(ALOAD, 0);
+            mv.visitInvokeDynamicInsn(
+                    "get",
+                    "(" + proxyDesc + ")" + dependencyProviderDesc,
+                    metaFactoryHandle,
+                    acceptsNothingAndReturnsObjectType,
+                    new Handle(H_INVOKESPECIAL, proxyName, shimName, methodDesc, false),
+                    methodType
+            );
+            mv.visitFieldInsn(PUTFIELD, proxyName, proxyFieldName(method), dependencyProviderDesc);
         }
         mv.visitInsn(RETURN);
         mv.visitMaxs(-1, -1);
@@ -172,8 +174,13 @@ final class ProxyClassVisitor extends ClassVisitor {
 
                 final int access = method.getModifiers() & ~ACC_ABSTRACT_NATIVE | ACC_SYNTHETIC;
                 final String methodName = method.getName();
+                final String shimName = methodName + "$shim";
                 final String fieldName = proxyFieldName(method);
-                final String desc = getMethodDescriptor(method);
+                final String methodDesc = getMethodDescriptor(method);
+
+                final Class<?> ownerClass = method.getDeclaringClass();
+                final String ownerName = getInternalName(ownerClass);
+                final boolean ownerIsIface = ownerClass.isInterface();
 
                 final Class<?> returnType = method.getReturnType();
                 final String returnTypeName = getInternalName(returnType);
@@ -187,7 +194,8 @@ final class ProxyClassVisitor extends ClassVisitor {
 
                 {
                     generateProxyField();
-                    generateProxyCallMethod();
+                    generateProxyMethod();
+                    generateShimMethod();
                 }
 
                 void generateProxyField() {
@@ -195,8 +203,8 @@ final class ProxyClassVisitor extends ClassVisitor {
                             .visitEnd();
                 }
 
-                void generateProxyCallMethod() {
-                    final MethodVisitor mv = beginMethod();
+                void generateProxyMethod() {
+                    final MethodVisitor mv = beginMethod(methodName);
                     mv.visitFieldInsn(GETFIELD, proxyName, fieldName, dependencyProviderDesc);
                     mv.visitMethodInsn(INVOKEINTERFACE, dependencyProviderName, "get", ACCEPTS_NOTHING_AND_RETURNS_OBJECT_DESC, true);
                     if (!boxedReturnType.isAssignableFrom(Object.class)) {
@@ -207,15 +215,21 @@ final class ProxyClassVisitor extends ClassVisitor {
                         assert !returnType.isArray();
                         mv.visitMethodInsn(INVOKEVIRTUAL,
                                 boxedReturnTypeName,
-                                returnTypeName.concat("Value"),
-                                "()".concat(returnTypeDesc),
+                                returnTypeName + "Value",
+                                "()" + returnTypeDesc,
                                 false);
                     }
                     endMethod(mv);
                 }
 
-                MethodVisitor beginMethod() {
-                    final MethodVisitor mv = cv.visitMethod(access, methodName, desc, null, null);
+                void generateShimMethod() {
+                    final MethodVisitor mv = beginMethod(shimName);
+                    mv.visitMethodInsn(INVOKESPECIAL, ownerName, methodName, methodDesc, ownerIsIface);
+                    endMethod(mv);
+                }
+
+                MethodVisitor beginMethod(final String methodName) {
+                    final MethodVisitor mv = cv.visitMethod(access, methodName, methodDesc, null, null);
                     mv.visitCode();
                     mv.visitVarInsn(ALOAD, 0);
                     return mv;
