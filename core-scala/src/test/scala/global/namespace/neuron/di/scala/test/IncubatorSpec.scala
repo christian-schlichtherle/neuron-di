@@ -45,7 +45,7 @@ class IncubatorSpec extends AnyFeatureSpec with GivenWhenThen {
       Then("the incubator should visit all synapse methods of all super classes and implemented interfaces.")
       And("not yet compute their return values.")
 
-      synapsesOf[ANeuronClass] shouldHaveNames ("a", "b", "c")
+      synapsesOf[ANeuronClass].shouldHaveNames("a", "b", "c")
     }
 
     Scenario("Breeding an instance of another neuron class") {
@@ -55,7 +55,7 @@ class IncubatorSpec extends AnyFeatureSpec with GivenWhenThen {
       Then("the incubator should visit all synapse methods of all super classes and implemented interfaces.")
       And("not yet compute their return values.")
 
-      synapsesOf[AnotherNeuronClass] shouldHaveNames ("now", "a", "b", "c")
+      synapsesOf[AnotherNeuronClass].shouldHaveNames("now", "a", "b", "c")
     }
 
     Scenario("Breeding an instance of a neuron interface") {
@@ -65,7 +65,7 @@ class IncubatorSpec extends AnyFeatureSpec with GivenWhenThen {
       Then("the incubator should visit all synapse methods of all extended interfaces.")
       And("not yet compute their return values.")
 
-      synapsesOf[ANeuronInterface] shouldHaveNames ("a", "b", "c")
+      synapsesOf[ANeuronInterface].shouldHaveNames("a", "b", "c")
     }
 
     Scenario("Breeding an instance of a non-neuron class") {
@@ -75,7 +75,7 @@ class IncubatorSpec extends AnyFeatureSpec with GivenWhenThen {
       Then("the incubator should visit all methods of all extended interfaces.")
       And("not yet compute their return values.")
 
-      synapsesOf[ANonNeuronClass] shouldHaveNames ("a", "b", "c")
+      synapsesOf[ANonNeuronClass].shouldHaveNames("a", "b", "c")
     }
   }
 
@@ -435,9 +435,9 @@ private object IncubatorSpec {
       () => throw new AssertionError
     }
 
-    lazy val names: List[String] = synapses.reverse.map(_.getName)
+    private lazy val synapseNames: List[String] = synapses.reverse.map(_.getName)
 
-    def shouldHaveNames(names: String*): Unit = { names shouldBe names }
+    def shouldHaveNames(names: String*): Unit = { synapseNames shouldBe names }
   }
 
   @Neuron
