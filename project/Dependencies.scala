@@ -17,7 +17,7 @@ import sbt._
 
 object Dependencies {
 
-  val ASM: ModuleID = "org.ow2.asm" % "asm" % "8.0.1"
+  val ASM: ModuleID = "org.ow2.asm" % "asm" % "9.0"
   val Guice: ModuleID = {
     val version = sys.env.getOrElse("GUICE_VERSION", "4.2.3")
     val moduleID = "com.google.inject" % "guice" % version
@@ -33,12 +33,12 @@ object Dependencies {
   val JUnitInterface: ModuleID = "com.novocode" % "junit-interface" % "0.11"
   val Paradise: ModuleID = "org.scalamacros" % "paradise" % "2.1.1" cross CrossVersion.full
 
-  val ScalaParallelCollections: ModuleID = "org.scala-lang.modules" %% "scala-parallel-collections" % "0.2.0"
+  val ScalaParallelCollections: ModuleID = "org.scala-lang.modules" %% "scala-parallel-collections" % "1.0.0-RC1"
 
   def scalaReflect(scalaVersion: String): ModuleID = "org.scala-lang" % "scala-reflect" % scalaVersion
 
-  val Scalatest = "org.scalatest" %% "scalatest" % "3.2.1"
-  val ScalatestplusMockito = "org.scalatestplus" %% "mockito-3-4" % "3.2.1.0"
+  val Scalatest = "org.scalatest" %% "scalatest" % "3.2.2"
+  val ScalatestplusMockito = "org.scalatestplus" %% "mockito-3-4" % "3.2.2.0"
 
   val ScalaVersion_2_11: String = sys.env.getOrElse("SCALA_VERSION_2_11", "2.11.12")
   val ScalaVersion_2_12: String = sys.env.getOrElse("SCALA_VERSION_2_12", "2.12.12")
