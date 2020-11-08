@@ -1,5 +1,5 @@
 /*
- * Copyright © 2016 - 2019 Schlichtherle IT Services
+ * Copyright © 2016 - 2020 Schlichtherle IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -57,7 +57,7 @@ final class ProxyClassVisitor extends ClassVisitor {
                       final Class<?> superclass,
                       final Class<?>[] interfaces,
                       final List<Method> bindableMethods) {
-        super(ASM8, cv);
+        super(ASM9, cv);
         this.proxyName = proxyName;
         this.proxyDesc = "L" + proxyName + ";";
         this.superName = getInternalName(superclass);
