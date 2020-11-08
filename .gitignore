@@ -1,4 +1,5 @@
 *.iml
+/.bsp
 /.idea
 /project/.boot
 /project/.coursier
