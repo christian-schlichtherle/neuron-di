@@ -21,10 +21,8 @@ import java.lang.annotation.*;
  * Indicates that the annotated class or interface is a <i>neuron type</i>.
  * A neuron type is supposed to have <i>synapse methods</i> to make contact with its dependencies.
  * All abstract, parameterless methods in a neuron type are synapse methods - there is no need to declare them.
- * The {@link Incubator} implements these methods when <i>breeding</i> a neuron so that its dependencies are resolved
- * <i>lazily</i>, that is, no sooner as the neuron calls a synapse method.
- * In a nutshell, a neuron resolves all its dependencies lazily by calling its synapse methods, so they all have a name
- * and a type.
+ * These methods get automatically implemented so that they return their respective dependencies.
+ * Thus, all dependencies of a neuron are resolved lazily plus they have a name and a type.
  * <p>
  * If this annotation is present on a class, it gets inherited by any subclass.
  * In compliance with the Java Language Specification, this does not apply to interfaces.
