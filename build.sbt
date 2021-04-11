@@ -38,7 +38,7 @@ lazy val core = project
 
       test := { }
     )),
-    addArtifact(artifact in assembly, assembly),
+    addArtifact(assembly / artifact, assembly),
 
     javacOptions += "-proc:none",
     libraryDependencies ++= Seq(

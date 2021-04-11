@@ -109,8 +109,8 @@ object BuildSettings {
       // Support testing Java projects with ScalaTest et al:
       compileOrder := CompileOrder.JavaThenScala,
       javacOptions := DefaultOptions.javac ++ Seq(Opts.compile.deprecation, "-Xlint", "-source", "1.8", "-target", "1.8", "-g"),
-      javacOptions in doc := DefaultOptions.javac ++ Seq("-source", "1.8"),
-      packageOptions in(Compile, packageBin) += Package.ManifestAttributes("Automatic-Module-Name" -> (
+      doc / javacOptions := DefaultOptions.javac ++ Seq("-source", "1.8"),
+      Compile / packageBin / packageOptions += Package.ManifestAttributes("Automatic-Module-Name" -> (
         "global.namespace." + (normalizedName.value match {
           case "neuron-di" => "neuron-di-java"
           case "neuron-di-guice" => "neuron-di-guice-java"
