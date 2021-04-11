@@ -17,17 +17,17 @@ package global.namespace.neuron.di.scala
 
 import scala.annotation.{StaticAnnotation, compileTimeOnly}
 import scala.language.experimental.macros
-import scala.reflect.macros.blackbox
+import scala.reflect.macros.whitebox
 
 @compileTimeOnly("Please add the Macro Paradise plugin to the Scala compiler to enable this macro annotation. See https://docs.scala-lang.org/overviews/macros/paradise.html .")
 class Caching(value: CachingStrategy = CachingStrategy.THREAD_SAFE) extends StaticAnnotation {
 
-  def macroTransform(annottees: Any*): Any = macro Caching.transform
+  def macroTransform(annottees: Any*): Any = macro CachingMacro.transform
 }
 
-private object Caching {
+private object CachingMacro {
 
-  def transform(x: blackbox.Context)(annottees: x.Tree*): x.Tree = {
+  def transform(x: whitebox.Context)(annottees: x.Tree*): x.Tree = {
     new CachingAnnotation {
       override val c: x.type = x
     } apply annottees.toList

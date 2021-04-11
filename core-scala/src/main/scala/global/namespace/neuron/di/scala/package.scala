@@ -72,10 +72,10 @@ package object scala {
     *
     * @since Neuron DI 5.0 (renamed from `neuron`, which was introduced in Neuron DI 4.2)
     */
-  def make[A <: AnyRef]: A = macro Neuron.make[A]
+  def make[A <: AnyRef]: A = macro NeuronMacro.make[A]
 
   @deprecated("Use `make` instead in order to differentiate this macro from `Incubator.wire`.", "Neuron DI 6.6.0")
-  def wire[A <: AnyRef]: A = macro Neuron.make[A]
+  def wire[A <: AnyRef]: A = macro NeuronMacro.make[A]
 
   def runtimeClassOf[A](implicit tag: ClassTag[A]): Class[A] = {
     require(tag != classTag[Nothing], "Missing type parameter.")

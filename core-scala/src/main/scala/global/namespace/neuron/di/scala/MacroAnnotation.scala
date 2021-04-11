@@ -15,11 +15,11 @@
  */
 package global.namespace.neuron.di.scala
 
-import scala.reflect.macros.blackbox
+import scala.reflect.macros.whitebox
 
 private trait MacroAnnotation extends LowPriorityMacroAnnotation {
 
-  val c: blackbox.Context
+  val c: whitebox.Context
 
   import c.universe._
   import Flag._
