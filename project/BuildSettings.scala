@@ -1,5 +1,5 @@
 /*
- * Copyright © 2016 - 2020 Schlichtherle IT Services
+ * Copyright © 2016 - 2021 Schlichtherle IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,11 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 import Dependencies._
 import sbt.Keys._
 import sbt._
+import sbtrelease.ReleasePlugin.autoImport.ReleaseTransformations._
 import sbtrelease.ReleasePlugin.autoImport._
-import sbtrelease.ReleaseStateTransformations._
+import xerial.sbt.Sonatype.autoImport._
 
 object BuildSettings {
 
@@ -28,15 +30,18 @@ object BuildSettings {
         checkSnapshotDependencies,
         inquireVersions,
         runClean,
-        releaseStepCommandAndRemaining("+test"),
+        runTest,
         setReleaseVersion,
         commitReleaseVersion,
         tagRelease,
         releaseStepCommandAndRemaining("+publishSigned"),
+//        releaseStepCommand("publishSigned"),
+        releaseStepCommand("sonatypeBundleRelease"),
         setNextVersion,
         commitNextVersion,
-        pushChanges,
+        pushChanges
       ),
+      sonatypeProfileName := "global.namespace"
     )
   }
 
@@ -62,10 +67,10 @@ object BuildSettings {
             </properties>
           </developer>
         </developers>
-        <issueManagement>
-          <system>Github</system>
-          <url>https://github.com/christian-schlichtherle/neuron-di/issues</url>
-        </issueManagement>
+          <issueManagement>
+            <system>Github</system>
+            <url>https://github.com/christian-schlichtherle/neuron-di/issues</url>
+          </issueManagement>
       },
       pomIncludeRepository := (_ => false),
       publishTo := {
@@ -81,9 +86,8 @@ object BuildSettings {
       scalaVersion := ScalaVersion_2_13, // set here or otherwise `+publishSigned` will fail
       scmInfo := Some(ScmInfo(
         browseUrl = url("https://github.com/christian-schlichtherle/neuron-di"),
-        connection = "scm:git:git@github.com/christian-schlichtherle/neuron-di.git",
-        devConnection = Some("scm:git:git@github.com/christian-schlichtherle/neuron-di.git")
-      )),
+        connection = "scm:git:git@github.com/christian-schlichtherle/neuron-di.git"
+      ))
     )
   }
 
