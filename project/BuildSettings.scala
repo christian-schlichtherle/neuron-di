@@ -53,7 +53,7 @@ object BuildSettings {
             <name>Christian Schlichtherle</name>
             <email>christian AT schlichtherle DOT de</email>
             <organization>Schlichtherle IT Services</organization>
-            <timezone>4</timezone>
+            <timezone>2</timezone>
             <roles>
               <role>owner</role>
             </roles>
