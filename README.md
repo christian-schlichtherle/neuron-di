@@ -1,5 +1,5 @@
 [![Apache License 2.0](https://img.shields.io/github/license/christian-schlichtherle/neuron-di.svg)](https://www.apache.org/licenses/LICENSE-2.0)
-[![Build Status](https://api.travis-ci.org/christian-schlichtherle/neuron-di.svg)](https://travis-ci.org/christian-schlichtherle/neuron-di)
+[![Test Workflow](https://github.com/christian-schlichtherle/neuron-di/workflows/test/badge.svg)](https://github.com/christian-schlichtherle/neuron-di/actions?query=workflow%3Atest)
 
 # Why Neuron DI?
 
