@@ -59,7 +59,7 @@ private object NeuronMacro {
 
       override lazy val toString: String = {
         val typePrefix = if (isNeuronType) "neuron" else "non-neuron"
-        s"synapse method `$name: $returnType` as seen from $typePrefix $targetTypeSymbol"
+        s"synapse $symbol in ${symbol.owner} of type $returnType as seen from $typePrefix $targetTypeSymbol"
       }
     }
 
@@ -76,9 +76,10 @@ private object NeuronMacro {
           typeCheckDependencyAs(functionType) map (functionBinding(_))
         } getOrElse {
           typeCheckDependencyAs(WildcardType) map { dependency =>
-            abort(s"Dependency `$dependency` must be assignable to type `$returnType` or `$functionType`, but has type `${dependency.tpe}`:")
+            val dependencySymbol = dependency.symbol
+            abort(s"Dependency $dependencySymbol in ${dependencySymbol.owner} must be assignable to type $returnType or ($functionType), but has type ${dependency.tpe}:")
           } getOrElse {
-            abort(s"No dependency available to bind $info:")
+            abort(s"No dependency found to bind $info:")
           }
         }
       }
@@ -135,7 +136,7 @@ private object NeuronMacro {
     val methodInfos: Iterable[MethodInfo] = {
 
       def ifAbstractMethod: PartialFunction[Any, MethodSymbol] = {
-        case member: Symbol if member.isAbstract && member.isMethod => member.asMethod
+        case member: MethodSymbol if member.isAbstract => member
       }
 
       def isParameterless(method: MethodSymbol) = method.paramLists.flatten.isEmpty
@@ -151,12 +152,12 @@ private object NeuronMacro {
       q"$tree.breed"
     } else {
       val body = methodInfos.map(new MethodBinding(_).bind)
-      // Splicing an empty body would remove the entire body, which would result in an error message because you can't
-      // "new" an abstract type:
       if (body.nonEmpty) {
         q"new $targetType { ..$body }"
-      } else {
+      } else if (targetTypeSymbol.isAbstract) {
         q"new $targetType {}"
+      } else {
+        q"new $targetType"
       }
     }
   }
