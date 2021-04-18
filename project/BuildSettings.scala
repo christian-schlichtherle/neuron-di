@@ -25,7 +25,7 @@ object BuildSettings {
 
   lazy val ReleaseSettings: Seq[Setting[_]] = {
     Seq(
-      releaseCrossBuild := false,
+      releaseCrossBuild := true,
       releaseProcess := Seq[ReleaseStep](
         checkSnapshotDependencies,
         inquireVersions,
@@ -35,7 +35,6 @@ object BuildSettings {
         commitReleaseVersion,
         tagRelease,
         releaseStepCommandAndRemaining("+publishSigned"),
-//        releaseStepCommand("publishSigned"),
         releaseStepCommand("sonatypeBundleRelease"),
         setNextVersion,
         commitNextVersion,
