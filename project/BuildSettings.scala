@@ -72,16 +72,7 @@ object BuildSettings {
           </issueManagement>
       },
       pomIncludeRepository := (_ => false),
-      publishTo := {
-        val nexus = "https://oss.sonatype.org/"
-        Some(
-          if (version(_ endsWith "-SNAPSHOT").value) {
-            "snapshots" at nexus + "content/repositories/snapshots"
-          } else {
-            "releases" at nexus + "service/local/staging/deploy/maven2"
-          }
-        )
-      },
+      publishTo := sonatypePublishToBundle.value,
       scalaVersion := ScalaVersion_2_13, // set here or otherwise `+publishSigned` will fail
       scmInfo := Some(ScmInfo(
         browseUrl = url("https://github.com/christian-schlichtherle/neuron-di"),

@@ -16,8 +16,6 @@
 import BuildSettings._
 import Dependencies._
 
-ThisBuild / publishTo := sonatypePublishToBundle.value
-
 lazy val root = project
   .in(file("."))
   .aggregate(core, coreScala, guice, guiceScala, junit)
